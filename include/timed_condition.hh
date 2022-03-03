@@ -10,14 +10,32 @@ namespace learnta {
     /*!
       @brief A zone to represent the timing constraint
     */
-    protected Zone zone;
+  protected:
+    Zone zone;
+  public:
+    /*!
+     * @brief Construct the empty timed condition, i.e. \f$\tau_0 = 0\f$.
+     */
+    static TimedCondition empty() {
+      TimedCondition timedCondition;
+      // The size of the DBM is 2 for \f$\tau_0\f$ and the special dimension for the constant zero.
+      timedCondition.zone = Zone::zero(2);
+      return timedCondition;
+    }
+
+    /*!
+     * @brief Return the number of the variables in this timed condition
+     */
+    [[nodiscard]] size_t size() const {
+      return this->zone.getNumOfVar();
+    }
 
     /*!
       @brief Returns if this timed condition is simple
       
       @pre zone is canonical
     */
-    bool isSimple() const {
+    [[nodiscard]] bool isSimple() const {
       for (int i = 0; i < zone.value.cols(); i++) {
         for (int j = i + 1; j < zone.value.cols(); j++) {
           // Note: zone.value(i, j) is not larger than zone.value(i, j)
@@ -29,6 +47,34 @@ namespace learnta {
         }
       }
       return true;
+    }
+
+    /*!
+     * @brief Concatenate two timed conditions
+     *
+     * Let \f$N\f$ and \f$M\f$ be the dimensions of the concatenated timed conditions \f$\Lambda\f$ and \f$\Lambda'\f$. The resulting timed condition \f$\Lambda''\f$ satisfies the following.
+     *
+     * - The constraint on \f$\mathbb{T}_{i,j}\f$ in \f$\Lambda\f$ is the same as the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ if \f$ 0 \leq i \leq j < N\f$.
+     * - The constraint on \f$\mathbb{T}'_{i,j}\f$ in \f$\Lambda'\f$ is the same as the constraint on \f$\mathbb{T}''_{i + N,j + N}\f$ in \f$\Lambda''\f$ if \f$ 0 < i \leq j \leq M\f$.
+     * - The constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i,N} + \mathbb{T}'_{0, j - N}\f$ if \f$ 0 \leq i < N \leq j\f$.
+     * @todo I am not 100% sure about this. Maybe we should add another test case.
+     * @post The dimension of the resulting timed conditions is the sum of the dimensions of the inputs - 1.
+     */
+    void concatenate(const TimedCondition& another, TimedCondition& result) const {
+      const size_t N = this->size();
+      const size_t M = another.size();
+      result = TimedCondition();
+      result.zone = Zone::top(N + M);
+      // Copy \f$\mathbb{T}'\f$
+      result.zone.value.block(N, N , M, M) = another.zone.value.block(1, 1, M, M);
+      result.zone.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 1, 1, M - 1);
+      result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(1, 0,  M - 1, 1);
+      // Copy \f$\mathbb{T}\f$
+      result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value.block(0, 0, N + 1, N + 1);
+      // Construct \f$\mathbb{T}''_{i, N + M}\f$ for each i <= N
+      result.zone.value.block(0, 0, 1, N + 1).array() += another.zone.value(0, 1);
+      result.zone.value.block(0, 0, N + 1, 1).array() += another.zone.value(1, 0);
+      result.zone.canonize();
     }
 
     /*!

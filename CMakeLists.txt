@@ -32,6 +32,18 @@ include_directories(
 ## Config for LearnTA
 # add_library(learnta)
 
+## Config for Test
+enable_testing()
+
+add_executable(unit_test EXCLUDE_FROM_ALL
+  tests/unit_test.cc
+  tests/zone_test.cc
+  tests/timed_condition_test.cc)
+
+target_link_libraries(unit_test
+  ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  )
+
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
 option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
