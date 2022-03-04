@@ -13,7 +13,9 @@
 
 namespace learnta {
   /*!
-   * @todo Write something
+   * @brief An elementary language
+   *
+   * An elementary language is a timed language \f$\{ \tau_0 a_1 \tau_1 a_2 \tau_2 \dots \tau_{n-1} a_n \tau_{n} \mid \tau_0, \tau_1, \dots, \tau_n \models \Lambda \}\f$, where \f$a_1 a_2 \dots a_n \f$ is word and \f$\Lambda\f$ is timedCondition.
    * @invariant word.size() + 1 == timedCondition.size()
    */
   class ElementaryLanguage {

@@ -11,7 +11,10 @@
 
 namespace learnta {
   /*!
-   * @brief Timed word represented by a sequence of events and the time elapse between each of them (not timestamps).
+   * @brief A timed word
+   *
+   * We represent the timed word by a sequence of events and the time elapse between each of them (not timestamps), i.e.,
+   * \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$.
    */
   class TimedWord {
   private:
@@ -20,10 +23,14 @@ namespace learnta {
   public:
     TimedWord() : durations({0}) {}
 
-    TimedWord(std::string word, std::vector<double> durations) : word(std::move(word)), durations(std::move(durations)) {}
+    TimedWord(std::string word, std::vector<double> durations) : word(std::move(word)), durations(std::move(durations)) {
+      assert(this->word.size() + 1 == this->durations.size());
+    }
 
     /*!
      * @brief Return the concatenation of two timed words
+     *
+     * Let this be \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$ and another be \f$\tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m} \f$. The result is \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} + \tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m}\f$.
      */
     TimedWord operator+(const TimedWord& another) {
       TimedWord result = *this;
@@ -39,7 +46,9 @@ namespace learnta {
     }
 
     /*!
-     * @brief Return the concatenation of two timed words
+     * @brief Return the concatenation of this timed word and an action
+     *
+     * Let this be \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$ and action be \f$a\f$. The result is \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} a 0 \f$.
      */
     TimedWord operator+(const char action) {
       TimedWord result = *this;
@@ -50,7 +59,9 @@ namespace learnta {
     }
 
     /*!
-     * @brief Return the concatenation of two timed words
+     * @brief Return the concatenation of this timed word and a time elapse
+     *
+     * Let this be \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$ and duration be \f$t\f$. The result is \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} + t\f$.
      */
     TimedWord operator+(const double duration) {
       TimedWord result = *this;
@@ -59,10 +70,15 @@ namespace learnta {
       return result;
     }
 
+    /*!
+     * @brief Print the timed word to the stream
+     * @param stream The stream to write this timed word
+     * @return stream
+     */
     std::ostream& print(std::ostream& stream) {
       stream << durations[0];
       for (int i = 0; i < word.size(); i++) {
-        stream << word[i] << durations[i + 1];
+        stream << " " << word[i] << " " << durations[i + 1];
       }
       return stream;
     }
@@ -74,7 +90,9 @@ namespace learnta {
     [[nodiscard]] const std::vector<double> &getDurations() const {
       return durations;
     }
-
+    /*!
+     * @brief Return the number of the actions in this timed word
+     */
     [[nodiscard]] std::size_t wordSize() const {
       return this->word.size();
     }
