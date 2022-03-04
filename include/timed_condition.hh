@@ -83,7 +83,7 @@ namespace learnta {
     /*!
      * @brief Returns the lower bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
      */
-    Bounds getLowerBound(int i, int j) {
+    [[nodiscard]] Bounds getLowerBound(int i, int j) const {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
@@ -96,7 +96,7 @@ namespace learnta {
     /*!
      * @brief Returns the upper bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
      */
-    Bounds getUpperBound(int i, int j) {
+    [[nodiscard]] Bounds getUpperBound(int i, int j) const {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {

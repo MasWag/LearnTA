@@ -74,5 +74,9 @@ namespace learnta {
     [[nodiscard]] const std::vector<double> &getDurations() const {
       return durations;
     }
+
+    [[nodiscard]] std::size_t wordSize() const {
+      return this->word.size();
+    }
   };
 }

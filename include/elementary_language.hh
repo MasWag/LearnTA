@@ -65,7 +65,7 @@ namespace learnta {
     /*!
      * @brief Return a timed word in this elementary language
      */
-    TimedWord sample() {
+    [[nodiscard]] TimedWord sample() const {
       std::vector<double> durations;
       std::size_t N = this->wordSize() + 1;
       durations.resize(N);
