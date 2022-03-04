@@ -57,7 +57,7 @@ namespace learnta {
      * - The constraint on \f$\mathbb{T}_{i,j}\f$ in \f$\Lambda\f$ is the same as the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ if \f$ 0 \leq i \leq j < N\f$.
      * - The constraint on \f$\mathbb{T}'_{i,j}\f$ in \f$\Lambda'\f$ is the same as the constraint on \f$\mathbb{T}''_{i + N,j + N}\f$ in \f$\Lambda''\f$ if \f$ 0 < i \leq j \leq M\f$.
      * - The constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i,N} + \mathbb{T}'_{0, j - N}\f$ if \f$ 0 \leq i < N \leq j\f$.
-     * @todo I am not 100% sure about this. Maybe we should add another test case.
+     *
      * @post The dimension of the resulting timed conditions is the sum of the dimensions of the inputs - 1.
      */
     [[nodiscard]] TimedCondition operator+(const TimedCondition &another) const {
@@ -103,13 +103,96 @@ namespace learnta {
         return this->zone.value(i + 1, 0);
       } else {
         return this->zone.value(i + 1, j + 2);
-
       }
     }
 
     /*!
-      @brief Make a vector of simple timed conditions in this timed condition
+     * @brief Restrict the lower bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
+     *
+     * @post zone is canonical
      */
-    void enumerate(std::vector<TimedCondition>) const;
+    void restrictLowerBound(int i, int j, Bounds lowerBound) {
+      assert(0 <= i && i < this->size());
+      assert(0 <= j && j < this->size());
+      if (j == this->size() - 1) {
+        this->zone.value(0, i + 1) = lowerBound;
+      } else {
+        this->zone.value(j + 2, i + 1) = lowerBound;
+      }
+      this->zone.canonize();
+    }
+
+    /*!
+     * @brief Restrict the upper bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
+     *
+     * @post zone is canonical
+     */
+    void restrictUpperBound(int i, int j, Bounds upperBound) {
+      assert(0 <= i && i < this->size());
+      assert(0 <= j && j < this->size());
+      if (j == this->size() - 1) {
+        this->zone.value(i + 1, 0) = upperBound;
+      } else {
+        this->zone.value(i + 1, j + 2) = upperBound;
+      }
+      this->zone.canonize();
+    }
+
+    /*!
+     * @brief Make a vector of simple timed conditions in this timed condition
+     *
+     * The construction is as follows.
+     * - For each \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$, we restrict the constraints to be a point or a unit open interval.
+     *   - This can be unnecessary. In that case, we remain the timed condition as it is.
+     * - If the restricted timed condition is simple, we add it the resulting vector.
+     * - Otherwise, we keep refining it.
+     *
+     * @pre zone is canonical
+     */
+    void enumerate(std::vector<TimedCondition> &simpleConditions) const {
+      if (this->isSimple()) {
+        simpleConditions = {*this};
+        return;
+      }
+      std::vector<TimedCondition> currentConditions = {*this};
+      for (int i = 0; i < this->size(); i++) {
+        for (int j = i; j < this->size(); j++) {
+          std::vector<TimedCondition> nextConditions;
+          for (const TimedCondition &timedCondition: currentConditions) {
+            if (timedCondition.isSimple()) {
+              simpleConditions.push_back(timedCondition);
+              continue;
+            }
+            auto lowerBound = timedCondition.getLowerBound(i, j);
+            const auto upperBound = timedCondition.getUpperBound(i, j);
+            if (isPoint(upperBound, lowerBound) or isUnitOpen(upperBound, lowerBound)) {
+              nextConditions.push_back(timedCondition);
+            } else {
+              while (-lowerBound <= upperBound) {
+                auto currentTimedCondition = timedCondition;
+                if (lowerBound.second) {
+                  currentTimedCondition.restrictLowerBound(i, j, lowerBound);
+                  currentTimedCondition.restrictUpperBound(i, j, -lowerBound);
+                  lowerBound.second = false;
+                } else {
+                  currentTimedCondition.restrictLowerBound(i, j, lowerBound);
+                  currentTimedCondition.restrictUpperBound(i, j, {-lowerBound.first + 1, false});
+                  lowerBound = {lowerBound.first - 1, true};
+                }
+                if (currentTimedCondition.isSimple()) {
+                  simpleConditions.push_back(currentTimedCondition);
+                } else {
+                  nextConditions.push_back(currentTimedCondition);
+                }
+              }
+            }
+          }
+          currentConditions = std::move(nextConditions);
+          if (currentConditions.empty()) {
+            return;
+          }
+        }
+      }
+    }
   };
 }

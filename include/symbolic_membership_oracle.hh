@@ -37,15 +37,24 @@ namespace learnta {
     explicit SymbolicMembershipOracle(std::unique_ptr<SUL> sul) : sul(std::move(sul)) {}
 
     std::optional<TimedCondition> query(const ElementaryLanguage& elementary) {
-      std::vector<ElementaryLanguage> included;
+      std::vector<ElementaryLanguage> includedLanguages;
       bool allIncluded = true;
+      std::vector<ElementaryLanguage> simpleVec;
+      elementary.enumerate(simpleVec);
+      for (const auto &simple: simpleVec) {
+        if (this->included(simple)) {
+          includedLanguages.push_back(simple);
+        } else {
+          allIncluded = false;
+        }
 
-      if (included.empty()) {
-        return std::nullopt;
-      } else if (allIncluded) {
-        return std::make_optional(elementary.getTimedCondition());
-      } else {
-        abort();
+        if (includedLanguages.empty()) {
+          return std::nullopt;
+        } else if (allIncluded) {
+          return std::make_optional(elementary.getTimedCondition());
+        } else {
+          abort();
+        }
       }
     }
   };

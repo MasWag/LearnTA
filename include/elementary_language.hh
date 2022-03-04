@@ -60,7 +60,17 @@ namespace learnta {
     /*!
      * @brief Make a vector of simple elementary languages in this elementary language
      */
-    void enumerate(std::vector<ElementaryLanguage>) const;
+    void enumerate(std::vector<ElementaryLanguage>& result) const {
+      if (this->isSimple()) {
+        result = {*this};
+        return;
+      }
+      std::vector<TimedCondition> simpleTimedConditions;
+      this->timedCondition.enumerate(simpleTimedConditions);
+      std::transform(simpleTimedConditions.begin(), simpleTimedConditions.end(), result.begin(), [&](TimedCondition& cond) {
+        return ElementaryLanguage{this->word, std::move(cond)};
+      });
+    }
 
     /*!
      * @brief Return a timed word in this elementary language

@@ -20,6 +20,10 @@ static inline learnta::Bounds operator-(const learnta::Bounds &a, const learnta:
   return {a.first - b.first, a.second && b.second};
 }
 
+static inline learnta::Bounds operator-(const learnta::Bounds &a) {
+  return {-a.first, a.second};
+}
+
 static inline void operator+=(learnta::Bounds &a, const learnta::Bounds b) {
   a.first += b.first;
   a.second = a.second && b.second;
@@ -67,7 +71,7 @@ namespace learnta {
 
     Zone() = default;
 
-    explicit Zone(const Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>& value) :
+    explicit Zone(const Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &value) :
             Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>(value)) {}
 
     explicit Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &&value) : value(std::move(value)) {}
@@ -149,9 +153,9 @@ namespace learnta {
       const size_t O = another.getNumOfVar();
       result = Zone::top(N + O);
       // Copy \f$\mathbb{T}'\f$
-      result.value.block(N, N , O, O) = another.value.block(1, 1, O, O);
+      result.value.block(N, N, O, O) = another.value.block(1, 1, O, O);
       result.value.block(0, N + 1, 1, O - 1) = another.value.block(0, 1, 1, O - 1);
-      result.value.block(N + 1, 0, O - 1, 1) = another.value.block(1, 0,  O - 1, 1);
+      result.value.block(N + 1, 0, O - 1, 1) = another.value.block(1, 0, O - 1, 1);
       // Copy \f$\mathbb{T}\f$
       result.value.block(0, 0, N + 1, N + 1) = this->value;
       result.canonize();
