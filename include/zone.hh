@@ -38,6 +38,7 @@ namespace boost {
 }
 
 #include <Eigen/Core>
+#include <utility>
 
 namespace learnta {
   static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
@@ -63,6 +64,16 @@ namespace learnta {
     using Tuple = std::tuple<std::vector<Bounds>, Bounds>;
     Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value;
     Bounds M;
+
+    Zone() = default;
+
+    explicit Zone(const Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>& value) :
+            Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>(value)) {}
+
+    explicit Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &&value) : value(std::move(value)) {}
+
+    Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value, Bounds m) :
+            value(std::move(value)), M(std::move(m)) {}
 
     /*!
       Returns the number of the variables represented by this zone
@@ -120,6 +131,34 @@ namespace learnta {
       close1(y);
     }
 
+    /*!
+     * @brief Returns the intersection of two zones
+     */
+    Zone operator&&(const Zone &another) {
+      assert(this->value.cols() == another.value.cols());
+      assert(this->value.rows() == another.value.rows());
+      return Zone{this->value.array().min(another.value.array())};
+    }
+
+    /*!
+     * @brief Returns the juxtaposition of two zones
+     */
+    Zone operator^(const Zone &another) const {
+      Zone result;
+      const size_t N = this->getNumOfVar();
+      const size_t O = another.getNumOfVar();
+      result = Zone::top(N + O);
+      // Copy \f$\mathbb{T}'\f$
+      result.value.block(N, N , O, O) = another.value.block(1, 1, O, O);
+      result.value.block(0, N + 1, 1, O - 1) = another.value.block(0, 1, 1, O - 1);
+      result.value.block(N + 1, 0, O - 1, 1) = another.value.block(1, 0,  O - 1, 1);
+      // Copy \f$\mathbb{T}\f$
+      result.value.block(0, 0, N + 1, N + 1) = this->value;
+      result.canonize();
+
+      return result;
+    }
+
     void close1(ClockVariables x) {
       for (int i = 0; i < value.rows(); i++) {
         value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));
@@ -162,6 +201,10 @@ namespace learnta {
     bool isSatisfiable() {
       canonize();
       return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
+    }
+
+    explicit operator bool() {
+      return isSatisfiable();
     }
 
     /*

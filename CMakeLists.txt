@@ -38,6 +38,7 @@ enable_testing()
 add_executable(unit_test EXCLUDE_FROM_ALL
   tests/unit_test.cc
   tests/zone_test.cc
+  tests/elementary_language_test.cc
   tests/timed_condition_test.cc)
 
 target_link_libraries(unit_test

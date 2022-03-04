@@ -41,8 +41,7 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     right.zone.tighten(0, -1, {1, false}); // x1 - x0 < 1
     right.zone.tighten(-1, 0, {0, false}); // x0 - x1 < 0
 
-    TimedCondition result;
-    left.concatenate(right, result);
+    TimedCondition result = left + right;
     // result should be \tau_0 \in (0,1) && \tau_0 + \tau_1 = (1,2) && \tau_1 \in (0,2)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
     // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 < 2 && x0 - x2 < 0

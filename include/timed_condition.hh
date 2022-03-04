@@ -60,21 +60,51 @@ namespace learnta {
      * @todo I am not 100% sure about this. Maybe we should add another test case.
      * @post The dimension of the resulting timed conditions is the sum of the dimensions of the inputs - 1.
      */
-    void concatenate(const TimedCondition& another, TimedCondition& result) const {
+    [[nodiscard]] TimedCondition operator+(const TimedCondition &another) const {
+      TimedCondition result;
       const size_t N = this->size();
       const size_t M = another.size();
       result = TimedCondition();
       result.zone = Zone::top(N + M);
       // Copy \f$\mathbb{T}'\f$
-      result.zone.value.block(N, N , M, M) = another.zone.value.block(1, 1, M, M);
+      result.zone.value.block(N, N, M, M) = another.zone.value.block(1, 1, M, M);
       result.zone.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 1, 1, M - 1);
-      result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(1, 0,  M - 1, 1);
+      result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(1, 0, M - 1, 1);
       // Copy \f$\mathbb{T}\f$
       result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value.block(0, 0, N + 1, N + 1);
       // Construct \f$\mathbb{T}''_{i, N + M}\f$ for each i <= N
       result.zone.value.block(0, 0, 1, N + 1).array() += another.zone.value(0, 1);
       result.zone.value.block(0, 0, N + 1, 1).array() += another.zone.value(1, 0);
       result.zone.canonize();
+
+      return result;
+    }
+
+    /*!
+     * @brief Returns the lower bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
+     */
+    Bounds getLowerBound(int i, int j) {
+      assert(0 <= i && i < this->size());
+      assert(0 <= j && j < this->size());
+      if (j == this->size() - 1) {
+        return this->zone.value(0, i + 1);
+      } else {
+        return this->zone.value(j + 2, i + 1);
+      }
+    }
+
+    /*!
+     * @brief Returns the upper bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
+     */
+    Bounds getUpperBound(int i, int j) {
+      assert(0 <= i && i < this->size());
+      assert(0 <= j && j < this->size());
+      if (j == this->size() - 1) {
+        return this->zone.value(i + 1, 0);
+      } else {
+        return this->zone.value(i + 1, j + 2);
+
+      }
     }
 
     /*!
