@@ -13,10 +13,12 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
 set(VERSION_PATCH 1)
 
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
-  add_definitions("-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
+if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
+  add_definitions(
+    "-DMONAA_VERSION=\"${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}\"")
 else()
-  add_compile_definitions(MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+  add_compile_definitions(
+    MONAA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
 find_package(Boost REQUIRED COMPONENTS
@@ -39,7 +41,9 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/unit_test.cc
   tests/zone_test.cc
   tests/elementary_language_test.cc
-  tests/timed_condition_test.cc tests/timed_word_test.cc tests/fractional_order_test.cc)
+  tests/timed_condition_test.cc
+  tests/timed_word_test.cc
+  tests/fractional_order_test.cc)
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -47,7 +51,9 @@ target_link_libraries(unit_test
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(BUILD_DOCUMENTATION
+  "Create and install the HTML based API documentation (requires Doxygen)"
+  ${DOXYGEN_FOUND})
 
 if(BUILD_DOCUMENTATION)
     if(NOT DOXYGEN_FOUND)
