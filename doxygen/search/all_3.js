@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['initialstates_7',['initialStates',['../structAutomaton.html#af406316ef2cae93494a9e729b94b2caa',1,'Automaton']]],
-  ['issimple_8',['isSimple',['../classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3',1,'learnta::ElementaryLanguage::isSimple()'],['../classlearnta_1_1TimedCondition.html#a2ce25c8e996bee578ab50d4cb87961e7',1,'learnta::TimedCondition::isSimple()']]]
+  ['getlowerbound_7',['getLowerBound',['../classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a',1,'learnta::TimedCondition']]],
+  ['getnumofvar_8',['getNumOfVar',['../structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13',1,'learnta::Zone']]],
+  ['getsize_9',['getSize',['../classlearnta_1_1FractionalOrder.html#a7abeb42ab966729744c098265626bdcd',1,'learnta::FractionalOrder']]],
+  ['getupperbound_10',['getUpperBound',['../classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824',1,'learnta::TimedCondition']]]
 ];

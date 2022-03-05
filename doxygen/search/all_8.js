@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['restrictlowerbound_17',['restrictLowerBound',['../classlearnta_1_1TimedCondition.html#a362bf3162f7ec8d067cc53bca119f879',1,'learnta::TimedCondition']]],
-  ['restrictupperbound_18',['restrictUpperBound',['../classlearnta_1_1TimedCondition.html#a94a36f5e1439896148cd3957678cf4c3',1,'learnta::TimedCondition']]]
+  ['post_18',['post',['../classlearnta_1_1SUL.html#abb5a50158841fb86e3b50d966c96796f',1,'learnta::SUL']]],
+  ['pre_19',['pre',['../classlearnta_1_1SUL.html#a7d326067b62fc316dadd2a13d177a117',1,'learnta::SUL']]],
+  ['predecessor_20',['predecessor',['../classlearnta_1_1FractionalOrder.html#ae8d75854949c890b003f2170bba3d868',1,'learnta::FractionalOrder']]],
+  ['print_21',['print',['../classlearnta_1_1TimedWord.html#a41eca53ee19d4a876388e3d92ee62465',1,'learnta::TimedWord']]]
 ];

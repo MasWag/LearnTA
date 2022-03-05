@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['getlowerbound_4',['getLowerBound',['../classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a',1,'learnta::TimedCondition']]],
-  ['getnumofvar_5',['getNumOfVar',['../structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13',1,'learnta::Zone']]],
-  ['getupperbound_6',['getUpperBound',['../classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824',1,'learnta::TimedCondition']]]
+  ['fractionalorder_6',['FractionalOrder',['../classlearnta_1_1FractionalOrder.html',1,'learnta']]]
 ];
