@@ -1,0 +1,4 @@
+<map id="learnta::TimedCondition" name="learnta::TimedCondition">
+<area shape="rect" id="node1" title="A timed condition, a finite conjunction of inequalities of the form , where &#160;and ." alt="" coords="5,95,184,121"/>
+<area shape="rect" id="node2" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="40,5,149,32"/>
+</map>

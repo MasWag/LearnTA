@@ -1,0 +1,5 @@
+<map id="learnta::ElementaryLanguage" name="learnta::ElementaryLanguage">
+<area shape="rect" id="node1" title="An elementary language." alt="" coords="5,184,220,211"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1TimedCondition.html" title="A timed condition, a finite conjunction of inequalities of the form , where &#160;and ." alt="" coords="23,95,202,121"/>
+<area shape="rect" id="node3" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="58,5,167,32"/>
+</map>
