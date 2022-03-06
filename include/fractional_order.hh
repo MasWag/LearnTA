@@ -30,50 +30,63 @@ namespace learnta {
     /*!
      * @brief Make it to be the successor
      */
-    void successor() {
+    [[nodiscard]] FractionalOrder successor() const {
+      FractionalOrder result = *this;
       if (order.front().empty()) {
         // If there is no variables equal to 0.
-        std::swap(this->order.front(), this->order.back());
-        auto lastIt = this->order.end();
-        this->order.erase(--lastIt);
+        std::swap(result.order.front(), result.order.back());
+        auto lastIt = result.order.end();
+        result.order.erase(--lastIt);
       } else {
         // If there are some variables equal to 0.
-        this->order.emplace_front();
+        result.order.emplace_front();
       }
+
+      return result;
     }
 
     /*!
      * @brief Make it to be the predecessor
      */
-    void predecessor() {
+    [[nodiscard]] FractionalOrder predecessor() const {
+      FractionalOrder result = *this;
       if (order.front().empty()) {
         // If there is no variables equal to 0.
-        order.pop_front();
+        result.order.pop_front();
       } else {
         // If there are some variables equal to 0.
-        this->order.emplace_back();
-        std::swap(this->order.front(), this->order.back());
+        result.order.emplace_back();
+        std::swap(result.order.front(), result.order.back());
       }
+
+      return result;
     }
 
     /*!
      * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
      */
-    void extendEq() {
-      for (auto &variables: order) {
+    [[nodiscard]] FractionalOrder extendEq() const {
+      FractionalOrder result = *this;
+
+      for (auto &variables: result.order) {
         // Since each list is ordered, size must be the last element if it belongs to variables.
-        if (variables.back() == size - 1) {
-          variables.push_back(size++);
-          return;
+        if (variables.back() == result.size - 1) {
+          variables.push_back(result.size++);
+          return result;
         }
       }
+
+      // This part should be unreachable.
+      abort();
     }
 
     /*!
      * @brief Rename each variable \f$x_i\f$ to \f$x_{i+1}\f$ and add \f$x_0\f$ such that \f$x_0 = x_1\f$.
      */
-    void extendZero() {
-      for (auto &variables: order) {
+    [[nodiscard]] FractionalOrder extendZero() const {
+      FractionalOrder result = *this;
+
+      for (auto &variables: result.order) {
         std::transform(variables.begin(), variables.end(), variables.begin(), [](auto variable) {
           return variable + 1;
         });
@@ -82,6 +95,8 @@ namespace learnta {
           variables.push_front(0);
         }
       }
+
+      return result;
     }
     //! @brief Returns the number of the variables
     [[nodiscard]] size_t getSize() const {

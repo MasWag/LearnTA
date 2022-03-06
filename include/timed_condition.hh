@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "zone.hh"
 
 namespace learnta {
@@ -5,6 +7,8 @@ namespace learnta {
     @brief A timed condition, a finite conjunction of inequalities of the form \f$\tau_{i} + \tau_{i + 1} \dots \tau_{j} \bowtie c\f$, where \f${\bowtie} \in \{>,\ge,\le,<\}\f$ and \f$c \in \mathbb{N} \f$.
 
     Let \f$x_0, x_1, \dots x_N\f$ be the variables in the zone. We use \f$x_i\f$ to represent \f$\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\f$. We note that the first row and column with index 0 of DBM are for the constant 0, and we have to shift the index appropriately.
+
+    @note Policy: We wrap all the low-level DBM operations in this class.
    */
   class TimedCondition {
     /*!
@@ -12,7 +16,10 @@ namespace learnta {
     */
   protected:
     Zone zone;
+    explicit TimedCondition(Zone zone) : zone(std::move(zone)) {}
   public:
+    TimedCondition() : zone(Zone::zero(2)) {}
+
     /*!
      * @brief Construct the empty timed condition, i.e. \f$\tau_0 = 0\f$.
      */
@@ -193,6 +200,88 @@ namespace learnta {
           }
         }
       }
+    }
+
+    /*!
+     * @brief Make a continuous successor by elapsing variables
+     */
+    [[nodiscard]] TimedCondition successor(const std::list<ClockVariables> &variables) const {
+      Zone result = this->zone;
+
+      for (const auto i: variables) {
+        // Bound of \f$\mathbb{T}_{i,N}
+        Bounds& upperBound = result.value(i + 1, 0);
+        Bounds& lowerBound = result.value(0, i + 1);
+        if (isPoint(upperBound, lowerBound)) {
+          upperBound.first++;
+          upperBound.second = false;
+          lowerBound.second = false;
+        } else {
+          lowerBound.first--;
+          lowerBound.second = true;
+          upperBound.second = true;
+        }
+      }
+
+      return TimedCondition(result);
+    }
+
+    /*!
+     * @brief Make a continuous predecessor by backward-elapsing variables
+     */
+    [[nodiscard]] TimedCondition predecessor(const std::list<ClockVariables> &variables) const {
+      Zone result = this->zone;
+
+      for (const auto i: variables) {
+        // Bound of \f$\mathbb{T}_{i,N}
+        Bounds& upperBound = result.value(i + 1, 0);
+        Bounds& lowerBound = result.value(0, i + 1);
+        if (isPoint(upperBound, lowerBound)) {
+          lowerBound.first++;
+          upperBound.second = false;
+          lowerBound.second = false;
+        } else {
+          upperBound.first--;
+          lowerBound.second = true;
+          upperBound.second = true;
+        }
+      }
+
+      return TimedCondition(result);
+    }
+
+    /*!
+     * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
+     */
+    [[nodiscard]] TimedCondition extendEq() const {
+      TimedCondition result = *this;
+      const auto N = result.zone.value.cols();
+      result.zone.value.conservativeResize(N + 1, N + 1);
+      result.zone.value.col(N) = result.zone.value.col(0);
+      result.zone.value.row(N) = result.zone.value.row(0);
+      // Add \f$x_n = x_{n+1}\f$
+      result.zone.value(N, 0) = {0, true};
+      result.zone.value(0, N) = {0, true};
+
+      return result;
+    }
+
+    /*!
+     * @brief Rename each variable \f$x_i\f$ to \f$x_{i+1}\f$ and add \f$x_0\f$ such that \f$x_0 = x_1\f$.
+     */
+    [[nodiscard]] TimedCondition extendZero() const {
+      const auto N = this->zone.value.cols();
+      auto result = Zone::top(N + 1);
+      // Fill the constraints with shift
+      result.value.block(2, 2, N, N) = this->zone.value;
+      // Copy the constraints of \f$x_1\f$ to \f$x_{0}\f$.
+      result.value.col(0) = result.value.col(1);
+      result.value.row(0) = result.value.row(1);
+      // Add \f$x_0 = x_1\f$
+      result.value(1, 2) = {0, true};
+      result.value(2, 1) = {0, true};
+
+      return TimedCondition(result);
     }
   };
 }

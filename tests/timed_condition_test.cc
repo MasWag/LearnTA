@@ -9,8 +9,6 @@
 #include <boost/test/unit_test.hpp>
 
 
-
-
 BOOST_AUTO_TEST_SUITE(TimedConditionTest)
 
   using namespace learnta;
@@ -103,6 +101,183 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     BOOST_CHECK_EQUAL((Bounds{-1, false}), simpleConditions[2].zone.value(0, 1));
     BOOST_CHECK_EQUAL((Bounds{2, false}), simpleConditions[2].zone.value(2, 0));
     BOOST_CHECK_EQUAL((Bounds{-1, false}), simpleConditions[2].zone.value(0, 2));
+  }
+
+  BOOST_AUTO_TEST_CASE(succesor) {
+    TimedCondition condition;
+    // condition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    condition.zone = Zone::top(3);
+    condition.zone.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    condition.zone.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    condition.zone.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    condition.zone.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    condition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    condition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+
+    std::vector<TimedCondition> successors = {condition.successor({0}), condition.successor({1}),
+                                              condition.successor({0, 1})};
+    for (const auto &successor: successors) {
+      BOOST_REQUIRE_EQUAL(2, successor.size());
+    }
+
+    // successors[0] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (1, 2) && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0  && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 < 1 && x0 - x2 < 0
+    BOOST_CHECK_EQUAL((Bounds{1, false}), successors[0].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), successors[0].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), successors[0].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), successors[0].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), successors[0].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), successors[0].zone.value(0, 2));
+
+    // successors[1] is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 = 1
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 <= 1 && x0 - x2 <= -1
+    BOOST_CHECK_EQUAL((Bounds{1, false}), successors[1].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), successors[1].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), successors[1].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), successors[1].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), successors[1].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), successors[1].zone.value(0, 2));
+
+    // successors[2] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (1, 2) && \tau_1 = 1
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 <= 1 && x0 - x2 <= -1
+    BOOST_CHECK_EQUAL((Bounds{1, false}), successors[2].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), successors[2].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), successors[2].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), successors[2].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), successors[2].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), successors[2].zone.value(0, 2));
+  }
+
+  BOOST_AUTO_TEST_CASE(predecessor) {
+    TimedCondition condition;
+    // condition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    condition.zone = Zone::top(3);
+    condition.zone.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    condition.zone.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    condition.zone.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    condition.zone.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    condition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    condition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+
+    std::vector<TimedCondition> predecessors = {condition.predecessor({0}), condition.predecessor({1}),
+                                                condition.predecessor({0, 1})};
+    for (const auto &predecessor: predecessors) {
+      BOOST_REQUIRE_EQUAL(2, predecessor.size());
+    }
+
+    // predecessors[0] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0  && x1 - x0 < 1 && x0 - x1 < 0 && x2 - x0 < 1 && x0 - x2 < 0
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(0, 2));
+
+    // predecessors[1] is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 = 0
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 <= 1 && x0 - x2 <= -1
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[1].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[1].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), predecessors[1].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), predecessors[1].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[1].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[1].zone.value(0, 2));
+
+    // predecessors[2] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 = 0
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 1 && x0 - x1 < 0 && x2 - x0 <= 0 && x0 - x2 <= 0
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[2].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[2].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[2].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[2].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[2].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[2].zone.value(0, 2));
+  }
+
+  BOOST_AUTO_TEST_CASE(extendEq) {
+    TimedCondition condition;
+    // condition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    condition.zone = Zone::top(3);
+    condition.zone.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    condition.zone.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    condition.zone.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    condition.zone.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    condition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    condition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+
+    auto extendEq = condition.extendEq();
+    BOOST_REQUIRE_EQUAL(3, extendEq.size());
+    // extendEq is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1) && \tau_0 + \tau_1 + \tau_2 = 1 && \tau_1 + \tau_2 \in (0,1) && \tau_2 = 0
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1 + \tau_2, x2 == \tau_1 + \tau_2, and x3 == \tau_2.
+    // Therefore, we have
+    //   - x1 - x2 < 1 && x2 - x1 < 0 &&
+    //   - x1 - x3 <= 1 && x3 - x1 <= -1 &&
+    //   - x2 - x3 < 1 && x3 - x2 < 0 &&
+    //   - x1 - x0 <= 1 && x0 - x1 <= -1 &&
+    //   - x2 - x0 < 1 && x0 - x2 < 0 &&
+    //   - x3 - x0 <= 0 && x0 - x3 <= 0
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendEq.zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendEq.zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), extendEq.zone.value(1, 3));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), extendEq.zone.value(3, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendEq.zone.value(2, 3));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendEq.zone.value(3, 2));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), extendEq.zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), extendEq.zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendEq.zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendEq.zone.value(0, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), extendEq.zone.value(3, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), extendEq.zone.value(0, 3));
+  }
+
+  BOOST_AUTO_TEST_CASE(extendZero) {
+    TimedCondition condition;
+    // condition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    condition.zone = Zone::top(3);
+    condition.zone.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    condition.zone.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    condition.zone.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    condition.zone.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    condition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    condition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+
+    auto extendZero = condition.extendZero();
+    BOOST_REQUIRE_EQUAL(3, extendZero.size());
+
+    // extendZero is \tau_1 \in (0,1) && \tau_1 + \tau_2 = 1 && \tau_2 \in (0,1) && \tau_0 = 0 && \tau_0 + \tau_1 \in (0,1) && \tau_0 + \tau_1 + \tau_2 = 1
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1 + \tau_2, x2 == \tau_1 + \tau_2, and x3 == \tau_2.
+    // Therefore, we have
+    //   - x2 - x3 < 1 && x3 - x2 < 0 &&
+    //   - x2 - x0 <= 1 && x0 - x2 <= -1 &&
+    //   - x3 - x0 < 1 && x0 - x3 < 0 &&
+    //   - x1 - x2 <= 0 && x2 - x1 <= 0
+    //   - x1 - x3 < 1 && x3 - x1 < 0 &&
+    //   - x1 - x0 <= 1 && x0 - x1 <= -1 &&
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendZero.zone.value(2, 3));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendZero.zone.value(3, 2));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), extendZero.zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), extendZero.zone.value(0, 2));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendZero.zone.value(3, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendZero.zone.value(0, 3));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), extendZero.zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), extendZero.zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), extendZero.zone.value(1, 3));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), extendZero.zone.value(3, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), extendZero.zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), extendZero.zone.value(0, 1));
   }
 
 BOOST_AUTO_TEST_SUITE_END()

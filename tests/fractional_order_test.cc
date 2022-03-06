@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.successor();
+    order = order.successor();
     BOOST_REQUIRE_EQUAL(4, order.order.size());
     auto it = order.order.begin();
     BOOST_TEST(it->empty());
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.successor();
+    order = order.successor();
     BOOST_REQUIRE_EQUAL(3, order.order.size());
     auto it = order.order.begin();
     BOOST_REQUIRE_EQUAL(1, it->size());
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.predecessor();
+    order = order.predecessor();
     BOOST_REQUIRE_EQUAL(4, order.order.size());
     auto it = order.order.begin();
     BOOST_TEST(it->empty());
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.predecessor();
+    order = order.predecessor();
     BOOST_REQUIRE_EQUAL(3, order.order.size());
     auto it = order.order.begin();
     BOOST_REQUIRE_EQUAL(2, it->size());
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.extendEq();
+    order = order.extendEq();
     BOOST_REQUIRE_EQUAL(3, order.order.size());
     auto it = order.order.begin();
     BOOST_REQUIRE_EQUAL(2, it->size());
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.extendEq();
+    order = order.extendEq();
     BOOST_REQUIRE_EQUAL(4, order.order.size());
     auto it = order.order.begin();
     BOOST_TEST(it->empty());
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.extendZero();
+    order = order.extendZero();
     BOOST_REQUIRE_EQUAL(3, order.order.size());
     auto it = order.order.begin();
     BOOST_REQUIRE_EQUAL(2, it->size());
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
                    {3},
                    {0}};
     order.size = 4;
-    order.extendZero();
+    order = order.extendZero();
     BOOST_REQUIRE_EQUAL(4, order.order.size());
     auto it = order.order.begin();
     BOOST_TEST(it->empty());

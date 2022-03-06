@@ -78,7 +78,7 @@ namespace learnta {
     /*!
      * @brief Make the zone of size `size` with no constraints
      */
-    static Zone top(int size) {
+    static Zone top(std::size_t size) {
       static Zone topZone;
       if (topZone.value.cols() == size) {
         return topZone;
