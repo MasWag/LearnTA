@@ -5,7 +5,6 @@
 #define protected public
 
 #include "../include/timed_condition.hh"
-using namespace learnta;
 
 #include <boost/test/unit_test.hpp>
 

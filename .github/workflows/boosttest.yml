@@ -16,7 +16,7 @@ jobs:
       with:
         submodules: true
     - name: Install required packages
-      run: sudo apt-get install cmake libeigen3-dev libboost-all-dev -y
+      run: sudo apt-get update && sudo apt-get install cmake libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build
@@ -31,7 +31,7 @@ jobs:
       with:
         submodules: true
     - name: Install required packages
-      run: sudo apt-get install cmake libeigen3-dev libboost-all-dev -y
+      run: sudo apt-get update && sudo apt-get install cmake libeigen3-dev libboost-all-dev -y
     - name: build and test
       run: |
         mkdir -p build

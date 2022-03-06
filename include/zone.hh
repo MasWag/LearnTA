@@ -6,43 +6,10 @@
 #include <boost/unordered_map.hpp>
 
 #include "common_types.hh"
+#include "bounds.hh"
 // #include "constraint.hh"
 
-namespace learnta {
-  using Bounds = std::pair<double, bool>;
-}
-
-static inline learnta::Bounds operator+(const learnta::Bounds &a, const learnta::Bounds &b) {
-  return {a.first + b.first, a.second && b.second};
-}
-
-static inline learnta::Bounds operator-(const learnta::Bounds &a, const learnta::Bounds &b) {
-  return {a.first - b.first, a.second && b.second};
-}
-
-static inline learnta::Bounds operator-(const learnta::Bounds &a) {
-  return {-a.first, a.second};
-}
-
-static inline void operator+=(learnta::Bounds &a, const learnta::Bounds b) {
-  a.first += b.first;
-  a.second = a.second && b.second;
-}
-
-static inline std::ostream &operator<<(std::ostream &os, const learnta::Bounds &b) {
-  os << "(" << b.first << ", " << b.second << ")";
-  return os;
-}
-
-namespace boost {
-  static inline std::ostream &operator<<(std::ostream &os, const learnta::Bounds &b) {
-    os << "(" << b.first << ", " << b.second << ")";
-    return os;
-  }
-}
-
 #include <Eigen/Core>
-#include <utility>
 
 namespace learnta {
   static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
