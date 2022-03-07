@@ -15,7 +15,7 @@ namespace learnta {
   /*!
    * @brief A forward regional elementary language
    *
-   * A forward regional elementary language is an elementary langauge \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,N},\mathbb{T}_{1,N},\dots,\mathbb{T}_{N,N}f$, where \f$\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\f$.
+   * A forward regional elementary language is an elementary langauge \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,N},\mathbb{T}_{1,N},\dots,\mathbb{T}_{N,N}\f$, where \f$\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\f$.
    *
    * @invariant elementary.wordSize() + 1 == fractionalOrder.size()
    */

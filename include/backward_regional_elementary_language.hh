@@ -15,7 +15,7 @@ namespace learnta {
   /*!
    * @brief A back regional elementary language
    *
-   * A back regional elementary language is an elementary language \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,0},\mathbb{T}_{0,1},\dots,\mathbb{T}_{0,N}f$, where \f$\mathbb{T}_{0,i} = \tau_{0} + \tau_{1} \dots \tau_{i}\f$.
+   * A back regional elementary language is an elementary language \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,0},\mathbb{T}_{0,1},\dots,\mathbb{T}_{0,N}\f$, where \f$\mathbb{T}_{0,i} = \tau_{0} + \tau_{1} \dots \tau_{i}\f$.
    *
    * @invariant elementary.wordSize() + 1 == fractionalOrder.size()
    */
