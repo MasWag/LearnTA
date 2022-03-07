@@ -88,22 +88,30 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ae792d3770ecb1a98f0d1ecb6d152ff3b"><td class="memItemLeft" align="right" valign="top"><a id="ae792d3770ecb1a98f0d1ecb6d152ff3b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#ae792d3770ecb1a98f0d1ecb6d152ff3b">successor</a> ()</td></tr>
-<tr class="memdesc:ae792d3770ecb1a98f0d1ecb6d152ff3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make it to be the successor. <br /></td></tr>
-<tr class="separator:ae792d3770ecb1a98f0d1ecb6d152ff3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8d75854949c890b003f2170bba3d868"><td class="memItemLeft" align="right" valign="top"><a id="ae8d75854949c890b003f2170bba3d868"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#ae8d75854949c890b003f2170bba3d868">predecessor</a> ()</td></tr>
-<tr class="memdesc:ae8d75854949c890b003f2170bba3d868"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make it to be the predecessor. <br /></td></tr>
-<tr class="separator:ae8d75854949c890b003f2170bba3d868"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56a21f7f40e6d43e2530c54cf35f2e42"><td class="memItemLeft" align="right" valign="top"><a id="a56a21f7f40e6d43e2530c54cf35f2e42"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a56a21f7f40e6d43e2530c54cf35f2e42">extendEq</a> ()</td></tr>
-<tr class="memdesc:a56a21f7f40e6d43e2530c54cf35f2e42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add another variable \(x_{n+1}\) such that \(x_n = x_{n+1}\). <br /></td></tr>
-<tr class="separator:a56a21f7f40e6d43e2530c54cf35f2e42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeccbdbd7a658fccd808ab32afaeceff3"><td class="memItemLeft" align="right" valign="top"><a id="aeccbdbd7a658fccd808ab32afaeceff3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#aeccbdbd7a658fccd808ab32afaeceff3">extendZero</a> ()</td></tr>
-<tr class="memdesc:aeccbdbd7a658fccd808ab32afaeceff3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rename each variable \(x_i\) to \(x_{i+1}\) and add \(x_0\) such that \(x_0 = x_1\). <br /></td></tr>
-<tr class="separator:aeccbdbd7a658fccd808ab32afaeceff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85a67f4a994b1af64df9a95d3d783d42"><td class="memItemLeft" align="right" valign="top"><a id="a85a67f4a994b1af64df9a95d3d783d42"></a>
+std::list&lt; ClockVariables &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a85a67f4a994b1af64df9a95d3d783d42">successorVariables</a> () const</td></tr>
+<tr class="memdesc:a85a67f4a994b1af64df9a95d3d783d42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the variable to elapse. <br /></td></tr>
+<tr class="separator:a85a67f4a994b1af64df9a95d3d783d42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3973b9da46805205827a8f784667f79"><td class="memItemLeft" align="right" valign="top"><a id="af3973b9da46805205827a8f784667f79"></a>
+<a class="el" href="classlearnta_1_1FractionalOrder.html">FractionalOrder</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#af3973b9da46805205827a8f784667f79">successor</a> () const</td></tr>
+<tr class="memdesc:af3973b9da46805205827a8f784667f79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make it to be the successor. <br /></td></tr>
+<tr class="separator:af3973b9da46805205827a8f784667f79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a686be9b2cbdf72725a88c63b8e588bb6"><td class="memItemLeft" align="right" valign="top"><a id="a686be9b2cbdf72725a88c63b8e588bb6"></a>
+std::list&lt; ClockVariables &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a686be9b2cbdf72725a88c63b8e588bb6">predecessorVariables</a> () const</td></tr>
+<tr class="memdesc:a686be9b2cbdf72725a88c63b8e588bb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the variable to backward-elapse. <br /></td></tr>
+<tr class="separator:a686be9b2cbdf72725a88c63b8e588bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ad9b54b45bbae0733c58633961b9c17"><td class="memItemLeft" align="right" valign="top"><a id="a6ad9b54b45bbae0733c58633961b9c17"></a>
+<a class="el" href="classlearnta_1_1FractionalOrder.html">FractionalOrder</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a6ad9b54b45bbae0733c58633961b9c17">predecessor</a> () const</td></tr>
+<tr class="memdesc:a6ad9b54b45bbae0733c58633961b9c17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make it to be the predecessor. <br /></td></tr>
+<tr class="separator:a6ad9b54b45bbae0733c58633961b9c17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22b6ce3d0265976cc96e832fb19d6cfd"><td class="memItemLeft" align="right" valign="top"><a id="a22b6ce3d0265976cc96e832fb19d6cfd"></a>
+<a class="el" href="classlearnta_1_1FractionalOrder.html">FractionalOrder</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a22b6ce3d0265976cc96e832fb19d6cfd">extendN</a> () const</td></tr>
+<tr class="memdesc:a22b6ce3d0265976cc96e832fb19d6cfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add another variable \(x_{n+1}\) such that \(fractional(x_{n+1}) = 0\). <br /></td></tr>
+<tr class="separator:a22b6ce3d0265976cc96e832fb19d6cfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cfcd9e02e7e3424078fca44e7578c69"><td class="memItemLeft" align="right" valign="top"><a id="a2cfcd9e02e7e3424078fca44e7578c69"></a>
+<a class="el" href="classlearnta_1_1FractionalOrder.html">FractionalOrder</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a2cfcd9e02e7e3424078fca44e7578c69">extendZero</a> () const</td></tr>
+<tr class="memdesc:a2cfcd9e02e7e3424078fca44e7578c69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rename each variable \(x_i\) to \(x_{i+1}\) and add \(x_0\) such that \(fractional(x_0) = 0\). <br /></td></tr>
+<tr class="separator:a2cfcd9e02e7e3424078fca44e7578c69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7abeb42ab966729744c098265626bdcd"><td class="memItemLeft" align="right" valign="top"><a id="a7abeb42ab966729744c098265626bdcd"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1FractionalOrder.html#a7abeb42ab966729744c098265626bdcd">getSize</a> () const</td></tr>
 <tr class="memdesc:a7abeb42ab966729744c098265626bdcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of the variables. <br /></td></tr>

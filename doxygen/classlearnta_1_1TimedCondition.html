@@ -76,6 +76,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classlearnta_1_1TimedCondition-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -126,6 +127,22 @@ Bounds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cl
 <tr class="memitem:abe8cf60a4a9f8789727be572e607ea14"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">enumerate</a> (std::vector&lt; <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &gt; &amp;simpleConditions) const</td></tr>
 <tr class="memdesc:abe8cf60a4a9f8789727be572e607ea14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a vector of simple timed conditions in this timed condition.  <a href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">More...</a><br /></td></tr>
 <tr class="separator:abe8cf60a4a9f8789727be572e607ea14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24e755a0be93f28be23c36ee1064ef6c"><td class="memItemLeft" align="right" valign="top"><a id="a24e755a0be93f28be23c36ee1064ef6c"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a24e755a0be93f28be23c36ee1064ef6c">successor</a> (const std::list&lt; ClockVariables &gt; &amp;variables) const</td></tr>
+<tr class="memdesc:a24e755a0be93f28be23c36ee1064ef6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a continuous successor by elapsing variables. <br /></td></tr>
+<tr class="separator:a24e755a0be93f28be23c36ee1064ef6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="memItemLeft" align="right" valign="top"><a id="aacb51d1f3f5252e5e0b5df6ddd614123"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#aacb51d1f3f5252e5e0b5df6ddd614123">predecessor</a> (const std::list&lt; ClockVariables &gt; &amp;variables) const</td></tr>
+<tr class="memdesc:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a continuous predecessor by backward-elapsing variables. <br /></td></tr>
+<tr class="separator:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab637f901480b841af2f1d2c342ea3100"><td class="memItemLeft" align="right" valign="top"><a id="ab637f901480b841af2f1d2c342ea3100"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#ab637f901480b841af2f1d2c342ea3100">extendN</a> () const</td></tr>
+<tr class="memdesc:ab637f901480b841af2f1d2c342ea3100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add another variable \(x_{n+1}\) such that \(x_n = x_{n+1}\). <br /></td></tr>
+<tr class="separator:ab637f901480b841af2f1d2c342ea3100"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a6dd9d9973b7c684655862103492a01"><td class="memItemLeft" align="right" valign="top"><a id="a1a6dd9d9973b7c684655862103492a01"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a1a6dd9d9973b7c684655862103492a01">extendZero</a> () const</td></tr>
+<tr class="memdesc:a1a6dd9d9973b7c684655862103492a01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rename each variable \(x_i\) to \(x_{i+1}\) and add \(x_0\) such that \(x_0 = x_1\). <br /></td></tr>
+<tr class="separator:a1a6dd9d9973b7c684655862103492a01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -133,6 +150,12 @@ Static Public Member Functions</h2></td></tr>
 static <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#ae550d64c8a43fb121806b54302e2eca2">empty</a> ()</td></tr>
 <tr class="memdesc:ae550d64c8a43fb121806b54302e2eca2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the empty timed condition, i.e. \(\tau_0 = 0\). <br /></td></tr>
 <tr class="separator:ae550d64c8a43fb121806b54302e2eca2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a89aa40a7f3b98705c6c260da93d57bcf"><td class="memItemLeft" align="right" valign="top"><a id="a89aa40a7f3b98705c6c260da93d57bcf"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>TimedCondition</b> (<a class="el" href="structlearnta_1_1Zone.html">Zone</a> <a class="el" href="classlearnta_1_1TimedCondition.html#ad29ae8e46657f36789d00af4ec815adf">zone</a>)</td></tr>
+<tr class="separator:a89aa40a7f3b98705c6c260da93d57bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
@@ -143,7 +166,8 @@ Protected Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A timed condition, a finite conjunction of inequalities of the form \(\tau_{i} + \tau_{i + 1} \dots \tau_{j} \bowtie c\), where \({\bowtie} \in \{&gt;,\ge,\le,&lt;\}\) and \(c \in \mathbb{N} \). </p>
-<p>Let \(x_0, x_1, \dots x_N\) be the variables in the zone. We use \(x_i\) to represent \(\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\). We note that the first row and column with index 0 of DBM are for the constant 0, and we have to shift the index appropriately. </p>
+<p>Let \(x_0, x_1, \dots x_N\) be the variables in the zone. We use \(x_i\) to represent \(\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\). We note that the first row and column with index 0 of DBM are for the constant 0, and we have to shift the index appropriately.</p>
+<dl class="section note"><dt>Note</dt><dd>Policy: We wrap all the low-level DBM operations in this class. </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="abe8cf60a4a9f8789727be572e607ea14"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abe8cf60a4a9f8789727be572e607ea14">&#9670;&nbsp;</a></span>enumerate()</h2>
