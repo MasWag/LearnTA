@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fractionalorder_42',['FractionalOrder',['../classlearnta_1_1FractionalOrder.html',1,'learnta']]]
+  ['elementarylanguage_44',['ElementaryLanguage',['../classlearnta_1_1ElementaryLanguage.html',1,'learnta']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['elementarylanguage_41',['ElementaryLanguage',['../classlearnta_1_1ElementaryLanguage.html',1,'learnta']]]
+  ['backwardregionalelementarylanguage_43',['BackwardRegionalElementaryLanguage',['../classlearnta_1_1BackwardRegionalElementaryLanguage.html',1,'learnta']]]
 ];

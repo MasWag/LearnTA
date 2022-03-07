@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['sul_43',['SUL',['../classlearnta_1_1SUL.html',1,'learnta']]],
-  ['symbolicmembershiporacle_44',['SymbolicMembershipOracle',['../classlearnta_1_1SymbolicMembershipOracle.html',1,'learnta']]]
+  ['forwardregionalelementarylanguage_45',['ForwardRegionalElementaryLanguage',['../classlearnta_1_1ForwardRegionalElementaryLanguage.html',1,'learnta']]],
+  ['fractionalorder_46',['FractionalOrder',['../classlearnta_1_1FractionalOrder.html',1,'learnta']]]
 ];

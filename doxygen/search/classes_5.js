@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['zone_47',['Zone',['../structlearnta_1_1Zone.html',1,'learnta']]]
+  ['timedcondition_49',['TimedCondition',['../classlearnta_1_1TimedCondition.html',1,'learnta']]],
+  ['timedword_50',['TimedWord',['../classlearnta_1_1TimedWord.html',1,'learnta']]]
 ];
