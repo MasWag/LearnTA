@@ -253,7 +253,7 @@ namespace learnta {
     /*!
      * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
      */
-    [[nodiscard]] TimedCondition extendEq() const {
+    [[nodiscard]] TimedCondition extendN() const {
       TimedCondition result = *this;
       const auto N = result.zone.value.cols();
       result.zone.value.conservativeResize(N + 1, N + 1);
@@ -273,10 +273,12 @@ namespace learnta {
       const auto N = this->zone.value.cols();
       auto result = Zone::top(N + 1);
       // Fill the constraints with shift
-      result.value.block(2, 2, N, N) = this->zone.value;
+      result.value.block(2, 2, N - 1, N - 1) = this->zone.value.block(1, 1, N - 1, N - 1);
+      result.value.block(0, 2, 1, N - 1) = this->zone.value.block(0, 1, 1, N - 1);
+      result.value.block(2, 0, N - 1, 1) = this->zone.value.block(1, 0, N - 1, 1);
       // Copy the constraints of \f$x_1\f$ to \f$x_{0}\f$.
-      result.value.col(0) = result.value.col(1);
-      result.value.row(0) = result.value.row(1);
+      result.value.col(1) = result.value.col(2);
+      result.value.row(1) = result.value.row(2);
       // Add \f$x_0 = x_1\f$
       result.value(1, 2) = {0, true};
       result.value(2, 1) = {0, true};

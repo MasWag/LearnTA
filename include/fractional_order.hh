@@ -28,6 +28,17 @@ namespace learnta {
     }
 
     /*!
+     * @brief Return the variable to elapse
+     */
+     [[nodiscard]] std::list<ClockVariables> successorVariables() const {
+       if (order.front().empty()) {
+         return order.back();
+       } else {
+         return order.front();
+       }
+     }
+
+    /*!
      * @brief Make it to be the successor
      */
     [[nodiscard]] FractionalOrder successor() const {
@@ -43,6 +54,19 @@ namespace learnta {
       }
 
       return result;
+    }
+
+    /*!
+     * @brief Return the variable to backward-elapse
+     */
+    [[nodiscard]] std::list<ClockVariables> predecessorVariables() const {
+      if (order.front().empty()) {
+        auto it = order.begin();
+        it++;
+        return *(it);
+      } else {
+        return order.front();
+      }
     }
 
     /*!
@@ -63,25 +87,16 @@ namespace learnta {
     }
 
     /*!
-     * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
+     * @brief Add another variable \f$x_{n+1}\f$ such that \f$fractional(x_{n+1}) = 0\f$.
      */
-    [[nodiscard]] FractionalOrder extendEq() const {
+    [[nodiscard]] FractionalOrder extendN() const {
       FractionalOrder result = *this;
-
-      for (auto &variables: result.order) {
-        // Since each list is ordered, size must be the last element if it belongs to variables.
-        if (variables.back() == result.size - 1) {
-          variables.push_back(result.size++);
-          return result;
-        }
-      }
-
-      // This part should be unreachable.
-      abort();
+      result.order.front().push_back(result.size++);
+      return result;
     }
 
     /*!
-     * @brief Rename each variable \f$x_i\f$ to \f$x_{i+1}\f$ and add \f$x_0\f$ such that \f$x_0 = x_1\f$.
+     * @brief Rename each variable \f$x_i\f$ to \f$x_{i+1}\f$ and add \f$x_0\f$ such that \f$fractional(x_0) = 0\f$.
      */
     [[nodiscard]] FractionalOrder extendZero() const {
       FractionalOrder result = *this;
@@ -90,12 +105,8 @@ namespace learnta {
         std::transform(variables.begin(), variables.end(), variables.begin(), [](auto variable) {
           return variable + 1;
         });
-        // Since each list is ordered, 1 must be the first element if it belongs to variables.
-        if (variables.front() == 1) {
-          variables.push_front(0);
-        }
       }
-
+      result.order.front().push_front(0);
       return result;
     }
     //! @brief Returns the number of the variables
