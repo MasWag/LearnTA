@@ -2,14 +2,13 @@
  * @author Masaki Waga
  * @date 2022/03/03.
  */
+#include "../include/bounds.hh"
+#include <boost/test/unit_test.hpp>
+
 #define protected public
 #define private public
 
 #include "../include/forward_regional_elementary_language.hh"
-
-using namespace learnta;
-
-#include <boost/test/unit_test.hpp>
 
 
 BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)

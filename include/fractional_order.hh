@@ -107,6 +107,7 @@ namespace learnta {
         });
       }
       result.order.front().push_front(0);
+      result.size++;
       return result;
     }
     //! @brief Returns the number of the variables
