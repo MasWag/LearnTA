@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['getlowerbound_9',['getLowerBound',['../classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a',1,'learnta::TimedCondition']]],
-  ['getnumofvar_10',['getNumOfVar',['../structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13',1,'learnta::Zone']]],
-  ['getsize_11',['getSize',['../classlearnta_1_1FractionalOrder.html#a7abeb42ab966729744c098265626bdcd',1,'learnta::FractionalOrder']]],
-  ['getupperbound_12',['getUpperBound',['../classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824',1,'learnta::TimedCondition']]]
+  ['elementarylanguage_7',['ElementaryLanguage',['../classlearnta_1_1ElementaryLanguage.html',1,'learnta']]],
+  ['empty_8',['empty',['../classlearnta_1_1ElementaryLanguage.html#a41934ee9c109567f5f7833a1a52d4662',1,'learnta::ElementaryLanguage::empty()'],['../classlearnta_1_1TimedCondition.html#ae550d64c8a43fb121806b54302e2eca2',1,'learnta::TimedCondition::empty()']]],
+  ['enumerate_9',['enumerate',['../classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b',1,'learnta::ElementaryLanguage::enumerate()'],['../classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14',1,'learnta::TimedCondition::enumerate()']]],
+  ['extendn_10',['extendN',['../classlearnta_1_1FractionalOrder.html#a22b6ce3d0265976cc96e832fb19d6cfd',1,'learnta::FractionalOrder::extendN()'],['../classlearnta_1_1TimedCondition.html#ab637f901480b841af2f1d2c342ea3100',1,'learnta::TimedCondition::extendN()']]],
+  ['extendzero_11',['extendZero',['../classlearnta_1_1FractionalOrder.html#a2cfcd9e02e7e3424078fca44e7578c69',1,'learnta::FractionalOrder::extendZero()'],['../classlearnta_1_1TimedCondition.html#a1a6dd9d9973b7c684655862103492a01',1,'learnta::TimedCondition::extendZero()']]]
 ];

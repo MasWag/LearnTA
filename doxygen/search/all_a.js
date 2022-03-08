@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['restrictlowerbound_25',['restrictLowerBound',['../classlearnta_1_1TimedCondition.html#a362bf3162f7ec8d067cc53bca119f879',1,'learnta::TimedCondition']]],
-  ['restrictupperbound_26',['restrictUpperBound',['../classlearnta_1_1TimedCondition.html#a94a36f5e1439896148cd3957678cf4c3',1,'learnta::TimedCondition']]]
+  ['next_25',['next',['../structlearnta_1_1TAState.html#a512c5bc75b5b2870b714cef441df39b5',1,'learnta::TAState']]]
 ];

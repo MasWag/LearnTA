@@ -1,0 +1,4 @@
+<map id="learnta::SUL" name="learnta::SUL">
+<area shape="rect" id="node1" title="Interface of the system under learning." alt="" coords="72,5,173,32"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1TimedAutomatonRunner.html" title="Class to execute a timed automaton." alt="" coords="5,80,240,107"/>
+</map>

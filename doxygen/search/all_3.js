@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['forwardregionalelementarylanguage_7',['ForwardRegionalElementaryLanguage',['../classlearnta_1_1ForwardRegionalElementaryLanguage.html',1,'learnta']]],
-  ['fractionalorder_8',['FractionalOrder',['../classlearnta_1_1FractionalOrder.html',1,'learnta']]]
+  ['deepcopy_6',['deepCopy',['../structlearnta_1_1TimedAutomaton.html#ad5dbc50e466af49f087ae29561e4de89',1,'learnta::TimedAutomaton']]]
 ];

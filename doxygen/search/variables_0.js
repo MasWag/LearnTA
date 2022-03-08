@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['initialstates_82',['initialStates',['../structAutomaton.html#af406316ef2cae93494a9e729b94b2caa',1,'Automaton']]]
+  ['guard_111',['guard',['../structlearnta_1_1TATransition.html#ab2b68fe28dd55e5aef86fab6134854b2',1,'learnta::TATransition']]]
 ];
