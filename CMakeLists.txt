@@ -45,7 +45,8 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/backward_regional_elementary_language_test.cc
   tests/timed_condition_test.cc
   tests/timed_word_test.cc
-  tests/fractional_order_test.cc)
+  tests/fractional_order_test.cc
+  tests/timed_automaton_runner_test.cc)
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
