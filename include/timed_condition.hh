@@ -16,7 +16,9 @@ namespace learnta {
     */
   protected:
     Zone zone;
+
     explicit TimedCondition(Zone zone) : zone(std::move(zone)) {}
+
   public:
     TimedCondition() : zone(Zone::zero(2)) {}
 
@@ -146,6 +148,22 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make it to be the convex hull of this timed condition and the given timed condition
+     */
+    void convexHullAssign(TimedCondition condition) {
+      this->zone.value.array().max(condition.zone.value.array());
+    }
+
+    /*!
+     * @brief Return the convex hull of this timed condition and the given timed condition
+     */
+    [[nodiscard]] TimedCondition convexHull(const TimedCondition &condition) const {
+      Zone result = this->zone;
+      result.value.array().max(condition.zone.value.array());
+      return TimedCondition{result};
+    }
+
+    /*!
      * @brief Make a vector of simple timed conditions in this timed condition
      *
      * The construction is as follows.
@@ -210,8 +228,8 @@ namespace learnta {
 
       for (const auto i: variables) {
         // Bound of \f$\mathbb{T}_{i,N}
-        Bounds& upperBound = result.value(i + 1, 0);
-        Bounds& lowerBound = result.value(0, i + 1);
+        Bounds &upperBound = result.value(i + 1, 0);
+        Bounds &lowerBound = result.value(0, i + 1);
         if (isPoint(upperBound, lowerBound)) {
           upperBound.first++;
           upperBound.second = false;
@@ -234,8 +252,8 @@ namespace learnta {
 
       for (const auto i: variables) {
         // Bound of \f$\mathbb{T}_{i,N}
-        Bounds& upperBound = result.value(i + 1, 0);
-        Bounds& lowerBound = result.value(0, i + 1);
+        Bounds &upperBound = result.value(i + 1, 0);
+        Bounds &lowerBound = result.value(0, i + 1);
         if (isPoint(upperBound, lowerBound)) {
           lowerBound.first++;
           upperBound.second = false;
@@ -285,5 +303,32 @@ namespace learnta {
 
       return TimedCondition(result);
     }
+
+    bool operator==(const TimedCondition &condition) const {
+      return this->zone == condition.zone;
+    }
   };
+}
+
+
+namespace learnta {
+  static inline std::ostream &print(std::ostream &os, const learnta::TimedCondition &cond) {
+    for (int i = 0; i < cond.size(); ++i) {
+      for (int j = i; j < cond.size(); ++j) {
+        const auto upperBound = cond.getUpperBound(i, j);
+        const auto lowerBound = cond.getLowerBound(i, j);
+        os << -lowerBound.first << (lowerBound.second ? " <= " : " < ")
+           << "T_{" << i << ", " << j << "} "
+           << (upperBound.second ? " <= " : " < ") << upperBound.first;
+        if (i != cond.size() - 1 || j != cond.size() - 1) {
+          os << " && ";
+        }
+      }
+    }
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::TimedCondition &b) {
+    return learnta::print(os, b);
+  }
 }

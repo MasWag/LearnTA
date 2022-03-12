@@ -11,6 +11,7 @@ namespace learnta {
    */
   class SUL {
   public:
+    virtual ~SUL() = default;
     /*!
      * @brief The function should be called before feeding each timed word
      */

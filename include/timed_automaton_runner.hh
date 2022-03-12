@@ -18,7 +18,7 @@ namespace learnta {
    * @note We assume that the given timed automaton is \em deterministic and with <em>no unobservable transitions</em>.
    * @invariant this->clockValuation.size() == this->automaton.maxConstraints.size();
    */
-  class TimedAutomatonRunner : SUL {
+  class TimedAutomatonRunner : public SUL {
   private:
     TimedAutomaton automaton;
     TAState* state;
