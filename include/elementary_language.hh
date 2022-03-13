@@ -128,60 +128,6 @@ namespace learnta {
       return word;
     }
 
-    /*!
-     * @brief Reduce a set of simple elementary languages by concatenating adjacent timed conditions.
-     *
-     * @pre elementaryLanguages is a list of simple elementary languages
-     */
-    static std::list<ElementaryLanguage>&& reduce(std::list<ElementaryLanguage>&& elementaryLanguages) {
-      if (elementaryLanguages.empty()) {
-        return std::move(elementaryLanguages);
-      }
-      std::list<std::pair<ElementaryLanguage, int>> elementaryLanguagesWithSize;
-      elementaryLanguagesWithSize.resize(elementaryLanguages.size());
-      std::transform(std::make_move_iterator(elementaryLanguages.begin()),
-                     std::make_move_iterator(elementaryLanguages.end()),
-                     elementaryLanguagesWithSize.begin(),
-                     [](auto&& elementary) {
-                       return std::make_pair(elementary, 1);
-      });
-      auto it = elementaryLanguagesWithSize.begin();
-      while (it != elementaryLanguagesWithSize.end()) {
-        auto word = it->first.word;
-        auto timedCondition = it->first.timedCondition;
-        bool merged = false;
-        for (auto it2 = std::next(it); it2 != elementaryLanguagesWithSize.end(); it2++) {
-          if (it2->first.word != word) {
-            continue;
-          }
-          // Check if the convex hull is the exact union
-          auto convexHull = timedCondition.convexHull(it2->first.timedCondition);
-          std::vector<TimedCondition> enumerated;
-          convexHull.enumerate(enumerated);
-          if (enumerated.size() == it->second + it2->second) {
-            it->first.timedCondition = std::move(convexHull);
-            it->second += it2->second;
-            elementaryLanguagesWithSize.erase(it2);
-            it = elementaryLanguagesWithSize.begin();
-            merged = true;
-            break;
-          }
-        }
-        if (!merged) {
-          it++;
-        }
-      }
-      elementaryLanguages.resize(elementaryLanguagesWithSize.size());
-      std::transform(std::make_move_iterator(elementaryLanguagesWithSize.begin()),
-                     std::make_move_iterator(elementaryLanguagesWithSize.end()),
-                     elementaryLanguages.begin(),
-                     [](auto&& elementaryWithSize) {
-                       return elementaryWithSize.first;
-                     });
-
-      return std::move(elementaryLanguages);
-    }
-
     [[nodiscard]] const TimedCondition &getTimedCondition() const {
       return timedCondition;
     }

@@ -7,6 +7,7 @@
 
 #include "elementary_language.hh"
 #include "sul.hh"
+#include "timed_condition_set.hh"
 
 namespace learnta {
   /*!
@@ -40,10 +41,9 @@ namespace learnta {
     /*!
      * @brief Make a symbolic membership query
      *
-     * @returns std::nullopt if the answer is bottom
-     * @returns The timed condition otherwise
+     * @returns A list representing the resulting timed conditions
      */
-    std::optional<std::list<TimedCondition>> query(const ElementaryLanguage &elementary) {
+    TimedConditionSet query(const ElementaryLanguage &elementary) {
       std::list<ElementaryLanguage> includedLanguages;
       bool allIncluded = true;
       std::vector<ElementaryLanguage> simpleVec;
@@ -58,9 +58,9 @@ namespace learnta {
       }
 
       if (includedLanguages.empty()) {
-        return std::nullopt;
+        return TimedConditionSet::bottom();
       } else if (allIncluded) {
-        return std::make_optional<std::list<TimedCondition>>({elementary.getTimedCondition()});
+        return TimedConditionSet{elementary.getTimedCondition()};
       } else {
         auto convexHull = ElementaryLanguage::convexHull(includedLanguages);
         // Check if the convex hull is the exact union.
@@ -68,19 +68,10 @@ namespace learnta {
         convexHull.enumerate(result);
         if (result.size() == includedLanguages.size()) {
           // When the convex hull is the exact union
-          return std::make_optional<std::list<TimedCondition>>({convexHull.getTimedCondition()});
+          return TimedConditionSet{convexHull.getTimedCondition()};
         } else {
           // When the convex hull is an overapproximation
-          includedLanguages = ElementaryLanguage::reduce(std::move(includedLanguages));
-          std::list<TimedCondition> resultList;
-          resultList.resize(includedLanguages.size());
-          std::transform(std::make_move_iterator(includedLanguages.begin()),
-                         std::make_move_iterator(includedLanguages.end()), resultList.begin(),
-                         [](auto && e) {
-            return e.getTimedCondition();
-          });
-
-          return std::make_optional(resultList);
+          return TimedConditionSet::reduce(std::move(includedLanguages));
         }
       }
     }

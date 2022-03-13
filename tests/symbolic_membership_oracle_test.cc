@@ -75,24 +75,22 @@ BOOST_AUTO_TEST_SUITE(SymbolicMembershipOracleTest)
     s3.timedCondition.restrictUpperBound(1, 1, {0, true});
     s3.timedCondition.restrictLowerBound(1, 1, {0, true});
     // Bottom
-    BOOST_CHECK(!this->oracle->query(p4 + s1));
+    BOOST_CHECK(this->oracle->query(p4 + s1).empty());
     // Bottom
-    BOOST_CHECK(!this->oracle->query(p5 + s1));
+    BOOST_CHECK(this->oracle->query(p5 + s1).empty());
     // Top
     auto p4s3 = p4 + s3;
     auto resultP4S3 = this->oracle->query(p4s3);
-    BOOST_CHECK(resultP4S3);
-    BOOST_CHECK_EQUAL(1, resultP4S3.value().size());
-    BOOST_CHECK_EQUAL(p4s3.timedCondition, resultP4S3.value().front());
+    BOOST_CHECK_EQUAL(1, resultP4S3.size());
+    BOOST_CHECK_EQUAL(p4s3.timedCondition, resultP4S3.front());
     // Top && 0 < tau1 <= 1
     auto p5s3 = p5 + s3;
     auto resultP5S3 = this->oracle->query(p5s3);
     auto expected = p5s3.timedCondition;
     expected.restrictUpperBound(1, 1, {1, true});
     expected.restrictLowerBound(1, 1, {0, false});
-    BOOST_CHECK(resultP5S3);
-    BOOST_CHECK_EQUAL(1, resultP5S3.value().size());
-    BOOST_CHECK_EQUAL(expected, resultP5S3.value().front());
+    BOOST_CHECK_EQUAL(1, resultP5S3.size());
+    BOOST_CHECK_EQUAL(expected, resultP5S3.front());
   }
 
 BOOST_AUTO_TEST_SUITE_END()
