@@ -39,11 +39,11 @@ namespace learnta {
         return TimedConditionSet::bottom();
       }
       // Assert the equivalence of all the words
-      assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&] (const auto& elem) {
+      assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&](const auto &elem) {
         return elem.word == elementaryLanguages.front().word;
       }));
       // Assert the simplicity
-      assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&] (const auto& elem) {
+      assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&](const auto &elem) {
         return elem.timedCondition.isSimple();
       }));
       std::list<std::pair<TimedCondition, int>> timedConditionsWithSize;
@@ -98,6 +98,27 @@ namespace learnta {
 
     [[nodiscard]] TimedCondition front() const {
       return this->conditions.front();
+    }
+
+    [[nodiscard]] const std::vector<TimedCondition> &getConditions() const {
+      return conditions;
+    }
+
+    /*!
+     * @brief Returns the set of variables strictly constrained compared with the original condition.
+     *
+     * @pre this conditions and original condition should have the same variable space.
+     */
+    [[nodiscard]] std::vector<std::size_t> getStrictlyConstrainedVariables(const TimedCondition &originalCondition,
+                                                                           const size_t examinedVariableSize) const {
+      std::vector<std::size_t> result;
+      for (const auto &condition: this->conditions) {
+        std::vector<std::size_t> tmp =
+                condition.getStrictlyConstrainedVariables(originalCondition, examinedVariableSize);
+        result.reserve(result.size() + tmp.size());
+        std::move(tmp.begin(), tmp.end(), std::back_inserter(result));
+      }
+      return result;
     }
   };
 }

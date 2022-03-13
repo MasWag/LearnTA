@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "zone.hh"
+#include "juxtaposed_zone.hh"
 
 namespace learnta {
   /*!
@@ -89,6 +90,33 @@ namespace learnta {
       result.zone.canonize();
 
       return result;
+    }
+
+    /*!
+     * @brief Juxtapose two timed conditions
+     *
+     * @sa JuxtaposedZone::JuxtaposedZone
+     */
+    [[nodiscard]] JuxtaposedZone operator^(const TimedCondition &another) const {
+      return JuxtaposedZone{this->zone, another.zone};
+    }
+
+    /*!
+     * @brief Juxtapose two timed conditions renaming variable
+     *
+     * @sa JuxtaposedZone::JuxtaposedZone
+     */
+    [[nodiscard]] JuxtaposedZone juxtaposeRight(const TimedCondition &right, std::size_t commonVariableSize) const {
+      return JuxtaposedZone{this->zone, right.zone, commonVariableSize};
+    }
+
+    /*!
+     * @brief Juxtapose two timed conditions renaming variable
+     *
+     * @sa JuxtaposedZone::JuxtaposedZone
+     */
+    [[nodiscard]] JuxtaposedZone juxtaposeLeft(const TimedCondition &left, std::size_t commonVariableSize) const {
+      return JuxtaposedZone{left.zone, this->zone, commonVariableSize};
     }
 
     /*!
@@ -287,6 +315,18 @@ namespace learnta {
     }
 
     /*!
+     * @brief Return if there is \f$\mathbb{T}_{i,N} = c\f$.
+     *
+     * @pre the timed condition is simple
+     */
+    [[nodiscard]] bool hasEqualityN() const {
+      // By simplicity of the timed condition, we can check only the one side
+      return this->zone.value.array().col(0).unaryExpr([](const Bounds &bound) {
+        return bound.second;
+      }).any();
+    }
+
+    /*!
      * @brief Rename each variable \f$x_i\f$ to \f$x_{i+1}\f$ and add \f$x_0\f$ such that \f$x_0 = x_1\f$.
      */
     [[nodiscard]] TimedCondition extendZero() const {
@@ -304,6 +344,23 @@ namespace learnta {
       result.value(2, 1) = {0, true};
 
       return TimedCondition(result);
+    }
+
+    /*!
+     * @brief Returns the set of variables strictly constrained compared with the original condition.
+     *
+     * @pre this condition and original condition should have the same variable space.
+     */
+    [[nodiscard]] std::vector<std::size_t> getStrictlyConstrainedVariables(const TimedCondition &originalCondition,
+                                                                           const size_t examinedVariableSize) const {
+      std::vector<std::size_t> result;
+      for (int i = 1; i <= examinedVariableSize; ++i) {
+        if (this->zone.value.col(i) != originalCondition.zone.value.col(i) ||
+            this->zone.value.row(i) != originalCondition.zone.value.row(i)) {
+          result.push_back(i);
+        }
+      }
+      return result;
     }
 
     bool operator==(const TimedCondition &condition) const {

@@ -23,6 +23,7 @@ namespace learnta {
   protected:
     FractionalOrder fractionalOrder;
   public:
+    //! @brief Construct the empty language
     ForwardRegionalElementaryLanguage() = default;
 
     ForwardRegionalElementaryLanguage(ElementaryLanguage elementary, FractionalOrder fractionalOrder) :
@@ -43,6 +44,16 @@ namespace learnta {
     [[nodiscard]] ForwardRegionalElementaryLanguage successor () const {
       return {{this->word, this->timedCondition.successor(fractionalOrder.successorVariables())},
               fractionalOrder.successor()};
+    }
+
+    /*!
+     * @brief Return if there is \f$\mathbb{T}_{i,N} = c\f$.
+     *
+     * @pre the timed condition is simple
+     */
+    [[nodiscard]] bool hasEqualityN() const {
+      // By simplicity of the timed condition, we can check only the one side
+      return this->timedCondition.hasEqualityN();
     }
   };
 }

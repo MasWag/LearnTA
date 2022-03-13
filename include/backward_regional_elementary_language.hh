@@ -23,14 +23,15 @@ namespace learnta {
   protected:
     FractionalOrder fractionalOrder;
   public:
+    //! @brief Construct the empty language
     BackwardRegionalElementaryLanguage() = default;
 
     BackwardRegionalElementaryLanguage(ElementaryLanguage elementary, FractionalOrder fractionalOrder) :
             ElementaryLanguage(std::move(elementary)), fractionalOrder(std::move(fractionalOrder)) {}
 
-    /*!
-     * @brief Construct the discrete predecessor
-     */
+      /*!
+       * @brief Construct the discrete predecessor
+       */
     [[nodiscard]] BackwardRegionalElementaryLanguage predecessor (char action) const {
       return {{action + this->word, this->timedCondition.extendZero()}, fractionalOrder.extendZero()};
     }
