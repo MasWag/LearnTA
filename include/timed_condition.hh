@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <iostream>
+
 #include "zone.hh"
 #include "juxtaposed_zone.hh"
 
@@ -84,7 +86,11 @@ namespace learnta {
       result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(1, 0, M - 1, 1);
       // Copy \f$\mathbb{T}\f$
       result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value.block(0, 0, N + 1, N + 1);
-      // Construct \f$\mathbb{T}''_{i, N + M}\f$ for each i <= N
+      // Construct \f$\mathbb{T}''_{i, j + N} = \mathbb{T}''_{i, N + M} - \mathbb{T}''_{j + N, N + M}\f$ for each i <= N, j <= M
+      for (int i = 1; i <= N; ++i) {
+        result.zone.value.block(i, N , 1, M).array() += another.zone.value(1, 0);
+        result.zone.value.block(N, i, M, 1).array() += another.zone.value(0, 1);
+      }
       result.zone.value.block(0, 0, 1, N + 1).array() += another.zone.value(0, 1);
       result.zone.value.block(0, 0, N + 1, 1).array() += another.zone.value(1, 0);
       result.zone.canonize();
@@ -281,15 +287,15 @@ namespace learnta {
       Zone result = this->zone;
 
       for (const auto i: variables) {
-        // Bound of \f$\mathbb{T}_{i,N}
-        Bounds &upperBound = result.value(i + 1, 0);
-        Bounds &lowerBound = result.value(0, i + 1);
+        // Bound of \f$\mathbb{T}_{0, i} = \mathbb{T}_{0, N} - \mathbb{T}_{i + 1, N}\f$
+        Bounds &upperBound = result.value(1, (i + 2) % result.value.cols());
+        Bounds &lowerBound = result.value((i + 2) % result.value.cols(), 1);
         if (isPoint(upperBound, lowerBound)) {
-          lowerBound.first++;
+          upperBound.first++;
           upperBound.second = false;
           lowerBound.second = false;
         } else {
-          upperBound.first--;
+          lowerBound.first--;
           lowerBound.second = true;
           upperBound.second = true;
         }

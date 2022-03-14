@@ -46,7 +46,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/timed_condition_test.cc
   tests/timed_word_test.cc
   tests/fractional_order_test.cc
-  tests/timed_automaton_runner_test.cc tests/symbolic_membership_oracle_test.cc)
+  tests/timed_automaton_runner_test.cc tests/symbolic_membership_oracle_test.cc tests/equivalence_test.cc tests/juxtaposed_zone_test.cc)
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}

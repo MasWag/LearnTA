@@ -230,4 +230,19 @@ namespace learnta {
       return value == z.value;
     }
   };
+
+  static inline std::ostream &print(std::ostream &os, const learnta::Zone &zone) {
+    for (int i = 0; i < zone.value.cols(); ++i) {
+      for (int j = 0; j < zone.value.rows(); ++j) {
+        print(os, zone.value(i, j));
+        os << " ";
+      }
+    }
+
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::Zone &zone) {
+    return learnta::print(os, zone);
+  }
 }

@@ -28,7 +28,7 @@ namespace learnta {
 
     ForwardRegionalElementaryLanguage(ElementaryLanguage elementary, FractionalOrder fractionalOrder) :
             ElementaryLanguage(std::move(elementary)), fractionalOrder(std::move(fractionalOrder)) {
-      assert(this->fractionalOrder.size == this->wordSize() + 1);
+      assert(this->fractionalOrder.getSize() == this->wordSize() + 1);
     }
 
     /*!

@@ -39,11 +39,11 @@ namespace learnta {
       const auto rightConcatenation = right + suffixes.at(i);
       auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(i),
                                                  rightConcatenation.getTimedCondition(),
-                                                 suffixes.at(i).wordSize() + 1};
+                                                 suffixes.at(i).wordSize()};
       leftJuxtaposition.addRenaming(renaming);
       auto rightJuxtaposition = JuxtaposedZoneSet{leftConcatenation.getTimedCondition(),
                                                   rightRow.at(i),
-                                                  suffixes.at(i).wordSize() + 1};
+                                                  suffixes.at(i).wordSize()};
       rightJuxtaposition.addRenaming(renaming);
       if (leftJuxtaposition != rightJuxtaposition) {
         return false;

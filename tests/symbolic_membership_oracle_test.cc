@@ -5,50 +5,25 @@
 
 #include <iostream>
 #include <boost/test/unit_test.hpp>
+
 #define protected public
-#include "../include/timed_automaton.hh"
+
 #include "../include/timed_automaton_runner.hh"
 #include "../include/symbolic_membership_oracle.hh"
 
+#include "simple_automaton_fixture.hh"
 
-BOOST_AUTO_TEST_SUITE(SymbolicMembershipOracleTest)
+using namespace learnta;
 
-  using namespace learnta;
+struct SimpleAutomatonOracleFixture : public SimpleAutomatonFixture {
+  std::unique_ptr<learnta::SymbolicMembershipOracle> oracle;
+  ElementaryLanguage p4, p5, s1, s3;
 
-  struct SimpleAutomatonFixture {
-    SimpleAutomatonFixture() {
-      learnta::TimedAutomaton automaton;
-      automaton.states.resize(2);
-      automaton.states.at(0) = std::make_shared<learnta::TAState>(true);
-      automaton.states.at(0)->next['a'].resize(2);
-      automaton.states.at(1) = std::make_shared<learnta::TAState>(false);
-      automaton.states.at(1)->next['a'].resize(2);
-      // Transitions from loc0
-      automaton.states.at(0)->next['a'].at(0).target = automaton.states.at(0).get();
-      automaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < 1};
-      automaton.states.at(0)->next['a'].at(1).target = automaton.states.at(1).get();
-      automaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= 1};
-      automaton.states.at(0)->next['a'].at(1).resetVars.push_back(0);
-      // Transitions from loc1
-      automaton.states.at(1)->next['a'].at(0).target = automaton.states.at(0).get();
-      automaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= 1};
-      automaton.states.at(1)->next['a'].at(1).target = automaton.states.at(1).get();
-      automaton.states.at(1)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) > 1};
+  SimpleAutomatonOracleFixture() : SimpleAutomatonFixture() {
+    auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{automaton});
 
-      automaton.initialStates.push_back(automaton.states.at(0));
-      automaton.maxConstraints.resize(1);
-      automaton.maxConstraints[0] = 1;
+    this->oracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
 
-      auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{automaton});
-
-      this->oracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
-    }
-
-    std::unique_ptr<learnta::SymbolicMembershipOracle> oracle;
-  };
-
-  BOOST_FIXTURE_TEST_CASE(query, SimpleAutomatonFixture) {
-    ElementaryLanguage p4, p5, s1, s3;
     p4.word = "a";
     p4.timedCondition.zone = Zone::top(3);
     p4.timedCondition.restrictUpperBound(0, 0, {1, true});
@@ -74,15 +49,30 @@ BOOST_AUTO_TEST_SUITE(SymbolicMembershipOracleTest)
     s3.timedCondition.restrictLowerBound(0, 1, {0, false});
     s3.timedCondition.restrictUpperBound(1, 1, {0, true});
     s3.timedCondition.restrictLowerBound(1, 1, {0, true});
+  }
+};
+
+BOOST_AUTO_TEST_SUITE(SymbolicMembershipOracleTest)
+
+  BOOST_FIXTURE_TEST_CASE(p4s1, SimpleAutomatonOracleFixture) {
     // Bottom
     BOOST_CHECK(this->oracle->query(p4 + s1).empty());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(p5s1, SimpleAutomatonOracleFixture) {
     // Bottom
     BOOST_CHECK(this->oracle->query(p5 + s1).empty());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(p4s3, SimpleAutomatonOracleFixture) {
     // Top
     auto p4s3 = p4 + s3;
     auto resultP4S3 = this->oracle->query(p4s3);
     BOOST_CHECK_EQUAL(1, resultP4S3.size());
     BOOST_CHECK_EQUAL(p4s3.timedCondition, resultP4S3.front());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(p5s3, SimpleAutomatonOracleFixture) {
     // Top && 0 < tau1 <= 1
     auto p5s3 = p5 + s3;
     auto resultP5S3 = this->oracle->query(p5s3);

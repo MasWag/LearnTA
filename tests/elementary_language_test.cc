@@ -10,6 +10,7 @@ using namespace learnta;
 
 #include <boost/test/unit_test.hpp>
 
+#include "simple_observation_table_keys_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(ElementaryLanguageTest)
 
@@ -55,6 +56,15 @@ BOOST_AUTO_TEST_SUITE(ElementaryLanguageTest)
     BOOST_REQUIRE_EQUAL(2, sample.getDurations().size());
     BOOST_CHECK_EQUAL(1, sample.getDurations()[0]);
     BOOST_CHECK_EQUAL(0.5, sample.getDurations()[1]);
+  }
+
+  BOOST_FIXTURE_TEST_CASE(concatenation, SimpleObservationTableKeysFixture) {
+    // p1s3 should be (a, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 < T_{1, 1}  < 1)
+    auto p1s3 = p1 + s3;
+    std::cout << p1s3.getTimedCondition() << std::endl;
+    // p2s3 should be (a, -0 < T_{0, 0}  < 2 && -0 < T_{0, 1}  < 2 && -0 < T_{1, 1}  < 1)
+    auto p2s3 = p2 + s3;
+    std::cout << p2s3.getTimedCondition() << std::endl;
   }
 
 BOOST_AUTO_TEST_SUITE_END()

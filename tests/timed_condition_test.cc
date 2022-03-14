@@ -7,7 +7,9 @@
 #include "../include/timed_condition.hh"
 
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 
+#include "simple_observation_table_keys_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(TimedConditionTest)
 
@@ -39,11 +41,11 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     right.zone.tighten(-1, 0, {0, false}); // x0 - x1 < 0
 
     TimedCondition result = left + right;
-    // result should be \tau_0 \in (0,1) && \tau_0 + \tau_1 = (1,2) && \tau_1 \in (0,2)
+    // result should be \tau_0 \in (0,2) && \tau_0 + \tau_1 = (1,2) && \tau_1 \in (0,2)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
     // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 < 2 && x0 - x2 < 0
     BOOST_CHECK_EQUAL(2, result.size());
-    BOOST_CHECK_EQUAL((Bounds{1, false}), result.zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), result.zone.value(1, 2));
     BOOST_CHECK_EQUAL((Bounds{0, false}), result.zone.value(2, 1));
     BOOST_CHECK_EQUAL((Bounds{2, false}), result.zone.value(1, 0));
     BOOST_CHECK_EQUAL((Bounds{-1, false}), result.zone.value(0, 1));
@@ -172,35 +174,35 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
       BOOST_REQUIRE_EQUAL(2, predecessor.size());
     }
 
-    // predecessors[0] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 \in (0,1)
+    // predecessors[0] is \tau_0 = 1 && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
-    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0  && x1 - x0 < 1 && x0 - x1 < 0 && x2 - x0 < 1 && x0 - x2 < 0
-    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(1, 2));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(2, 1));
-    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(1, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(0, 1));
+    // Therefore, we have x1 - x2 <= 1 && x2 - x1 <= -1  && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    BOOST_CHECK_EQUAL((Bounds{1, true}), predecessors[0].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), predecessors[0].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), predecessors[0].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), predecessors[0].zone.value(0, 1));
     BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[0].zone.value(2, 0));
     BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[0].zone.value(0, 2));
 
-    // predecessors[1] is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 = 0
+    // predecessors[1] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (1, 2) && \tau_1 \in (0, 1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
-    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 <= 1 && x0 - x2 <= -1
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
     BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[1].zone.value(1, 2));
     BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[1].zone.value(2, 1));
-    BOOST_CHECK_EQUAL((Bounds{1, true}), predecessors[1].zone.value(1, 0));
-    BOOST_CHECK_EQUAL((Bounds{-1, true}), predecessors[1].zone.value(0, 1));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[1].zone.value(2, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[1].zone.value(0, 2));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), predecessors[1].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), predecessors[1].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[1].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[1].zone.value(0, 2));
 
-    // predecessors[2] is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 = 0
+    // predecessors[2] is \tau_0 = 1 && \tau_0 + \tau_1 \in (1, 2) && \tau_1 \in (0, 1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
-    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 1 && x0 - x1 < 0 && x2 - x0 <= 0 && x0 - x2 <= 0
-    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[2].zone.value(1, 2));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[2].zone.value(2, 1));
-    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[2].zone.value(1, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[2].zone.value(0, 1));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[2].zone.value(2, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), predecessors[2].zone.value(0, 2));
+    // Therefore, we have x1 - x2 <= 1 && x2 - x1 <= 1 && x1 - x0 < 2 && x0 - x1 < 1 && x2 - x0 < 1 && x0 - x2 < 0
+    BOOST_CHECK_EQUAL((Bounds{1, true}), predecessors[2].zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), predecessors[2].zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), predecessors[2].zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), predecessors[2].zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), predecessors[2].zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), predecessors[2].zone.value(0, 2));
   }
 
   BOOST_AUTO_TEST_CASE(extendN) {
@@ -284,6 +286,13 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     BOOST_CHECK_EQUAL((Bounds{0, false}), extendZero.zone.value(3, 1));
     BOOST_CHECK_EQUAL((Bounds{1, true}), extendZero.zone.value(1, 0));
     BOOST_CHECK_EQUAL((Bounds{-1, true}), extendZero.zone.value(0, 1));
+  }
+
+  BOOST_FIXTURE_TEST_CASE(p1s1Juxtaposition, SimpleObservationTableKeysFixture) {
+    auto juxtaposition = p1.getTimedCondition() ^ s1.getTimedCondition();
+    juxtaposition.canonize();
+
+    BOOST_CHECK(juxtaposition.isSatisfiable());
   }
 
 BOOST_AUTO_TEST_SUITE_END()

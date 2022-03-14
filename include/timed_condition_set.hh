@@ -40,11 +40,11 @@ namespace learnta {
       }
       // Assert the equivalence of all the words
       assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&](const auto &elem) {
-        return elem.word == elementaryLanguages.front().word;
+        return elem.getWord() == elementaryLanguages.front().getWord();
       }));
       // Assert the simplicity
       assert(std::all_of(elementaryLanguages.begin(), elementaryLanguages.end(), [&](const auto &elem) {
-        return elem.timedCondition.isSimple();
+        return elem.getTimedCondition().isSimple();
       }));
       std::list<std::pair<TimedCondition, int>> timedConditionsWithSize;
       timedConditionsWithSize.resize(elementaryLanguages.size());
@@ -52,7 +52,7 @@ namespace learnta {
                      std::make_move_iterator(elementaryLanguages.end()),
                      timedConditionsWithSize.begin(),
                      [&](auto &&elementary) {
-                       return std::make_pair(elementary.timedCondition, 1);
+                       return std::make_pair(elementary.getTimedCondition(), 1);
                      });
       auto it = timedConditionsWithSize.begin();
       while (it != timedConditionsWithSize.end()) {

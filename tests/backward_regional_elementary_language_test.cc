@@ -10,12 +10,13 @@
 
 #include "../include/backward_regional_elementary_language.hh"
 
+#include "simple_observation_table_keys_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(BackwardRegionalElementaryLanguageTest)
 
   using namespace learnta;
 
-  BOOST_AUTO_TEST_CASE(continuousSuccessor) {
+  BOOST_AUTO_TEST_CASE(continuousPredecessor) {
     TimedCondition timedCondition;
     // timedCondition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
@@ -28,19 +29,19 @@ BOOST_AUTO_TEST_SUITE(BackwardRegionalElementaryLanguageTest)
     timedCondition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
     timedCondition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
     FractionalOrder order;
-    order.order.push_back({1});
+    order.order = {{1}, {0}};
     order.size = 2;
     BackwardRegionalElementaryLanguage elementary = {{"a", timedCondition}, order};
 
     auto continuousPredecessor = elementary.predecessor();
     BOOST_CHECK_EQUAL("a", continuousPredecessor.word);
-    // continuousPredecessor.timedCondition is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 \in (0,1)
+    // continuousPredecessor.timedCondition is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (1, 2) && \tau_1 \in (0, 1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
     // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 1 && x0 - x1 < 0 && x2 - x0 < 1 && x0 - x2 < 0
     BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(1, 2));
     BOOST_CHECK_EQUAL((Bounds{0, false}), continuousPredecessor.timedCondition.zone.value(2, 1));
-    BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(1, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), continuousPredecessor.timedCondition.zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), continuousPredecessor.timedCondition.zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), continuousPredecessor.timedCondition.zone.value(0, 1));
     BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(2, 0));
     BOOST_CHECK_EQUAL((Bounds{0, false}), continuousPredecessor.timedCondition.zone.value(0, 2));
     // Check the fractional order
@@ -50,31 +51,31 @@ BOOST_AUTO_TEST_SUITE(BackwardRegionalElementaryLanguageTest)
     BOOST_CHECK(it->empty());
     it++;
     BOOST_CHECK_EQUAL(1, it->size());
-    BOOST_CHECK_EQUAL(1, it->front());
+    BOOST_CHECK_EQUAL(0, it->front());
     it++;
     BOOST_CHECK_EQUAL(1, it->size());
-    BOOST_CHECK_EQUAL(0, it->front());
+    BOOST_CHECK_EQUAL(1, it->front());
 
     continuousPredecessor = continuousPredecessor.predecessor();
     BOOST_CHECK_EQUAL("a", continuousPredecessor.word); // here
-    // continuousSuccessor.timedCondition is \tau_0 \in (0,1) && \tau_0 + \tau_1 \in (0, 1) && \tau_1 = 0
+    // continuousPredecessor.timedCondition is \tau_0 = 1 && \tau_0 + \tau_1 \in (1, 2) && \tau_1 \in (0, 1)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
     // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 <= 1 && x0 - x2 <= -1
-    BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(1, 2));
-    BOOST_CHECK_EQUAL((Bounds{0, false}), continuousPredecessor.timedCondition.zone.value(2, 1));
-    BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(1, 0));
-    BOOST_CHECK_EQUAL((Bounds{-0, false}), continuousPredecessor.timedCondition.zone.value(0, 1));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), continuousPredecessor.timedCondition.zone.value(2, 0));
-    BOOST_CHECK_EQUAL((Bounds{0, true}), continuousPredecessor.timedCondition.zone.value(0, 2));
+    BOOST_CHECK_EQUAL((Bounds{1, true}), continuousPredecessor.timedCondition.zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{-1, true}), continuousPredecessor.timedCondition.zone.value(2, 1));
+    BOOST_CHECK_EQUAL((Bounds{2, false}), continuousPredecessor.timedCondition.zone.value(1, 0));
+    BOOST_CHECK_EQUAL((Bounds{-1, false}), continuousPredecessor.timedCondition.zone.value(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), continuousPredecessor.timedCondition.zone.value(2, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), continuousPredecessor.timedCondition.zone.value(0, 2));
     // Check the fractional order
     BOOST_REQUIRE_EQUAL(2, continuousPredecessor.fractionalOrder.size);
     BOOST_REQUIRE_EQUAL(2, continuousPredecessor.fractionalOrder.order.size());
     it = continuousPredecessor.fractionalOrder.order.begin();
     BOOST_CHECK_EQUAL(1, it->size());
-    BOOST_CHECK_EQUAL(1, it->front());
+    BOOST_CHECK_EQUAL(0, it->front());
     it++;
     BOOST_CHECK_EQUAL(1, it->size());
-    BOOST_CHECK_EQUAL(0, it->front());
+    BOOST_CHECK_EQUAL(1, it->front());
   }
 
   BOOST_AUTO_TEST_CASE(discreteSuccessor) {
@@ -193,6 +194,35 @@ BOOST_AUTO_TEST_SUITE(BackwardRegionalElementaryLanguageTest)
     it++;
     BOOST_CHECK_EQUAL(1, it->size());
     BOOST_CHECK_EQUAL(3, it->front());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(predecessor, SimpleObservationTableKeysFixture) {
+    // s1 should be (epsilon, -0 <= T_{0, 0}  <= 0)
+    // std::cout << s1.getTimedCondition() << std::endl;
+    BOOST_CHECK_EQUAL(0, s1.wordSize());
+    BOOST_CHECK_EQUAL("", s1.getWord());
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s1.getTimedCondition().getLowerBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s1.getTimedCondition().getUpperBound(0, 0));
+    // s2 should be (a, -0 <= T_{0, 0}  <= 0 && -0 <= T_{0, 1}  <= 0 && -0 <= T_{1, 1}  <= 0)
+    // std::cout << s2.getTimedCondition() << std::endl;
+    BOOST_CHECK_EQUAL(1, s2.wordSize());
+    BOOST_CHECK_EQUAL("a", s2.getWord());
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getLowerBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getUpperBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getLowerBound(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getUpperBound(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getLowerBound(1, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s2.getTimedCondition().getUpperBound(1, 1));
+    // s2 should be (a, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0)
+    // std::cout << s3.getTimedCondition() << std::endl;
+    BOOST_CHECK_EQUAL(1, s3.wordSize());
+    BOOST_CHECK_EQUAL("a", s3.getWord());
+    BOOST_CHECK_EQUAL((Bounds{0, false}), s3.getTimedCondition().getLowerBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), s3.getTimedCondition().getUpperBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, false}), s3.getTimedCondition().getLowerBound(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), s3.getTimedCondition().getUpperBound(0, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s3.getTimedCondition().getLowerBound(1, 1));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), s3.getTimedCondition().getUpperBound(1, 1));
   }
 
 BOOST_AUTO_TEST_SUITE_END()
