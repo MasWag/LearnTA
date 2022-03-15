@@ -12,43 +12,17 @@
 #include "../include/symbolic_membership_oracle.hh"
 
 #include "simple_automaton_fixture.hh"
+#include "simple_observation_table_keys_fixture.hh"
 
 using namespace learnta;
 
-struct SimpleAutomatonOracleFixture : public SimpleAutomatonFixture {
+struct SimpleAutomatonOracleFixture : public SimpleAutomatonFixture, public SimpleObservationTableKeysFixture {
   std::unique_ptr<learnta::SymbolicMembershipOracle> oracle;
-  ElementaryLanguage p4, p5, s1, s3;
 
-  SimpleAutomatonOracleFixture() : SimpleAutomatonFixture() {
+  SimpleAutomatonOracleFixture() : SimpleAutomatonFixture(), SimpleObservationTableKeysFixture() {
     auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{automaton});
 
     this->oracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
-
-    p4.word = "a";
-    p4.timedCondition.zone = Zone::top(3);
-    p4.timedCondition.restrictUpperBound(0, 0, {1, true});
-    p4.timedCondition.restrictLowerBound(0, 0, {-1, true});
-    p4.timedCondition.restrictUpperBound(0, 1, {1, true});
-    p4.timedCondition.restrictLowerBound(0, 1, {-1, true});
-    p4.timedCondition.restrictUpperBound(1, 1, {0, true});
-    p4.timedCondition.restrictLowerBound(1, 1, {0, true});
-    p5.word = "a";
-    p5.timedCondition.zone = Zone::top(3);
-    p5.timedCondition.restrictUpperBound(0, 0, {1, true});
-    p5.timedCondition.restrictLowerBound(0, 0, {-1, true});
-    p5.timedCondition.restrictUpperBound(0, 1, {2, false});
-    p5.timedCondition.restrictLowerBound(0, 1, {-1, false});
-    p5.timedCondition.restrictUpperBound(1, 1, {1, false});
-    p5.timedCondition.restrictLowerBound(1, 1, {0, false});
-    s1 = ElementaryLanguage::empty();
-    s3.word = "a";
-    s3.timedCondition.zone = Zone::top(3);
-    s3.timedCondition.restrictUpperBound(0, 0, {1, false});
-    s3.timedCondition.restrictLowerBound(0, 0, {0, false});
-    s3.timedCondition.restrictUpperBound(0, 1, {1, false});
-    s3.timedCondition.restrictLowerBound(0, 1, {0, false});
-    s3.timedCondition.restrictUpperBound(1, 1, {0, true});
-    s3.timedCondition.restrictLowerBound(1, 1, {0, true});
   }
 };
 

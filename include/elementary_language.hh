@@ -41,7 +41,7 @@ namespace learnta {
     /*!
      * @brief Construct a convex-hull of the given timed conditions
      */
-    static ElementaryLanguage convexHull(std::list<ElementaryLanguage> elementaryLanguages) {
+    static ElementaryLanguage convexHull(const std::list<ElementaryLanguage>& elementaryLanguages) {
       if (elementaryLanguages.empty()) {
         return empty();
       }

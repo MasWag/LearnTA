@@ -2,6 +2,9 @@
  * @author Masaki Waga
  * @date 2022/03/03.
  */
+
+#include <sstream>
+
 #define protected public
 
 #include "../include/elementary_language.hh"
@@ -59,12 +62,35 @@ BOOST_AUTO_TEST_SUITE(ElementaryLanguageTest)
   }
 
   BOOST_FIXTURE_TEST_CASE(concatenation, SimpleObservationTableKeysFixture) {
-    // p1s3 should be (a, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 < T_{1, 1}  < 1)
+    std::stringstream ss;
+    std::string result;
+    // p1s3 should be (a, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0)
     auto p1s3 = p1 + s3;
-    std::cout << p1s3.getTimedCondition() << std::endl;
+    // std::cout << p1s3.getTimedCondition() << std::endl;
+    ss << p1s3.getTimedCondition();
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0", ss.str());
+    ss.str("");
+
     // p2s3 should be (a, -0 < T_{0, 0}  < 2 && -0 < T_{0, 1}  < 2 && -0 < T_{1, 1}  < 1)
     auto p2s3 = p2 + s3;
-    std::cout << p2s3.getTimedCondition() << std::endl;
+    // std::cout << p2s3.getTimedCondition() << std::endl;
+    ss << p2s3.getTimedCondition();
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 2 && -0 < T_{0, 1}  < 2 && -0 <= T_{1, 1}  <= 0", ss.str());
+    ss.str("");
+
+    // p5s1 should be T_{0, 0} = 1 && 1 < T_{0, 1}  < 2 && 0 < T_{1, 1}  < 1
+    auto p5s1 = p5 + s1;
+    // std::cout << p5s1.getTimedCondition() << std::endl;
+    ss << p5s1.getTimedCondition();
+    BOOST_CHECK_EQUAL("1 <= T_{0, 0}  <= 1 && 1 < T_{0, 1}  < 2 && -0 < T_{1, 1}  < 1", ss.str());
+    ss.str("");
+
+    // p5s3 should be T_{0, 0} = 1 && 1 < T_{0, 1}  < 3 && 1 < T_{0, 2}  < 3 && -0 < T_{1, 1}  < 2 && -0 < T_{1, 2}  < 2 && -0 <= T_{2, 2}  <= 0
+    auto p5s3 = p5 + s3;
+    // std::cout << p5s3.getTimedCondition() << std::endl;
+    ss << p5s3.getTimedCondition();
+    BOOST_CHECK_EQUAL("1 <= T_{0, 0}  <= 1 && 1 < T_{0, 1}  < 3 && 1 < T_{0, 2}  < 3 && -0 < T_{1, 1}  < 2 && -0 < T_{1, 2}  < 2 && -0 <= T_{2, 2}  <= 0", ss.str());
+    ss.str("");
   }
 
 BOOST_AUTO_TEST_SUITE_END()

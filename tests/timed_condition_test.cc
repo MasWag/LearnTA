@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
     // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 < 2 && x0 - x1 < -1 && x2 - x0 < 2 && x0 - x2 < 0
     BOOST_CHECK_EQUAL(2, result.size());
-    BOOST_CHECK_EQUAL((Bounds{2, false}), result.zone.value(1, 2));
+    BOOST_CHECK_EQUAL((Bounds{1, false}), result.zone.value(1, 2));
     BOOST_CHECK_EQUAL((Bounds{0, false}), result.zone.value(2, 1));
     BOOST_CHECK_EQUAL((Bounds{2, false}), result.zone.value(1, 0));
     BOOST_CHECK_EQUAL((Bounds{-1, false}), result.zone.value(0, 1));

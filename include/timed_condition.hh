@@ -68,9 +68,38 @@ namespace learnta {
      *
      * Let \f$N\f$ and \f$M\f$ be the dimensions of the concatenated timed conditions \f$\Lambda\f$ and \f$\Lambda'\f$. The resulting timed condition \f$\Lambda''\f$ satisfies the following.
      *
-     * - The constraint on \f$\mathbb{T}_{i,j}\f$ in \f$\Lambda\f$ is the same as the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ if \f$ 0 \leq i \leq j < N\f$.
-     * - The constraint on \f$\mathbb{T}'_{i,j}\f$ in \f$\Lambda'\f$ is the same as the constraint on \f$\mathbb{T}''_{i + N,j + N}\f$ in \f$\Lambda''\f$ if \f$ 0 < i \leq j \leq M\f$.
-     * - The constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i,N} + \mathbb{T}'_{0, j - N}\f$ if \f$ 0 \leq i < N \leq j\f$.
+     * - If \f$ 0 \leq i \leq j < N\f$, the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i,j}\f$ in \f$\Lambda\f$.
+     * - If \f$ N < i \leq j \leq N + M\f$, the constraint on \f$\mathbb{T}''_{i, j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}'_{i - N, j - N}\f$ in \f$\Lambda'\f$.
+     * - If \f$ 0 \leq i \leq N \leq j\f$, the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i, N} + \mathbb{T}'_{0, j - N}\f$.
+     *
+     *
+     *  Let \f$A, B, C\f$ be the DBM representing \f$\Lambda, \Lambda', \Lambda''\f$, respectively. To construct \f$C\f$ from \f$A\f$ and \f$B\f$, what we have to do is as follows.
+     *
+     *  - If \f$ 0 \leq i \leq j < N\f$, the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i,j}\f$ in \f$\Lambda\f$.
+     *      - Copy \f$A_{(1, 1), (N, N)}\f$ to \f$C_{(1, 1), (N, N)}\f$.
+     *  - If \f$ N < i \leq j \leq N + M\f$, the constraint on \f$\mathbb{T}''_{i, j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}'_{i - N, j - N}\f$ in \f$\Lambda'\f$.
+     *      - Copy \f$B_{(2, 2), (M - 1, M - 1)}\f$ to \f$C_{(N + 1, N + 1), (M - 1, M - 1)}\f$.
+     *      - Copy \f$B_{(2, 0), (M - 1, 1)}\f$ to \f$C_{(N + 1, 0), (M - 1, 1)}\f$.
+     *      - Copy \f$B_{(0, 2), (1, M - 1)}\f$ to \f$C_{(0, N + 1), (1, M - 1)}\f$.
+     *  - If \f$ 0 \leq i \leq N \leq j\f$, the constraint on \f$\mathbb{T}''_{i,j}\f$ in \f$\Lambda''\f$ is the same as the constraint on \f$\mathbb{T}_{i, N} + \mathbb{T}'_{0, j - N}\f$.
+     *      - Copy \f$A_{(1, 0), (N, 1)}\f$ to \f$C_{(1, i), (N, 1)}\f$ for each \f$i \in \{0, N, N + 1, \dots, N + M - 1\}\f$.
+     *      - Copy \f$A_{(0, 1), (1, N)}\f$ to \f$C_{(i, 1), (1, N)}\f$ for each \f$i \in \{0, N, N + 1, \dots, N + M - 1\}\f$.
+     *      - Add  \f$B_{(2, 1), (M - 1, 1)}\f$ to \f$C_{(N + 1, i), (M - 1, 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+     *      - Add  \f$B_{(1, 2), (1, M - 1)}\f$ to \f$C_{(i, N + 1), (1, M - 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+     *      - Add  \f$B_{(1, 0)}\f$ to \f$C_{(1, 0), (N, 1)}\f$.
+     *      - Add  \f$B_{(0, 1)}\f$ to \f$C_{(0, 1), (1, N)}\f$.
+     *
+     *  By combining the above, what we do is as follows.
+     *  - Copy \f$A_{(0, 0), (N + 1, N + 1)}\f$ to \f$C_{(0, 0), (N + 1, N + 1)}\f$.
+     *  - Copy \f$A_{(1, 0), (N, 1)}\f$ to \f$C_{(1, i), (N, 1)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
+     *  - Copy \f$A_{(0, 1), (1, N)}\f$ to \f$C_{(i, 1), (1, N)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
+     *  - Copy \f$B_{(2, 2), (M - 1, M - 1)}\f$ to \f$C_{(N + 2, N + 2), (M - 1, M - 1)}\f$.
+     *  - Copy \f$B_{(2, 0), (M - 1, 1)}\f$ to \f$C_{(N + 1, 0), (M - 1, 1)}\f$.
+     *  - Copy \f$B_{(0, 2), (1, M - 1)}\f$ to \f$C_{(0, N + 1), (1, M - 1)}\f$.
+     *  - Add  \f$B_{(2, 1), (M - 1, 1)}\f$ to \f$C_{(N + 1, i), (M - 1, 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+     *  - Add  \f$B_{(1, 2), (1, M - 1)}\f$ to \f$C_{(i, N + 1), (1, M - 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+     *  - Add  \f$B_{(1, 0)}\f$ to \f$C_{(1, 0), (N, 1)}\f$.
+     *  - Add  \f$B_{(0, 1)}\f$ to \f$C_{(0, 1), (1, N)}\f$.
      *
      * @post The dimension of the resulting timed conditions is the sum of the dimensions of the inputs - 1.
      */
@@ -80,19 +109,33 @@ namespace learnta {
       const size_t M = another.size();
       result = TimedCondition();
       result.zone = Zone::top(N + M);
-      // Copy \f$\mathbb{T}'\f$
-      result.zone.value.block(N, N, M, M) = another.zone.value.block(1, 1, M, M);
-      result.zone.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 1, 1, M - 1);
-      result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(1, 0, M - 1, 1);
-      // Copy \f$\mathbb{T}\f$
-      result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value.block(0, 0, N + 1, N + 1);
-      // Construct \f$\mathbb{T}''_{i, j + N} = \mathbb{T}''_{i, N + M} - \mathbb{T}''_{j + N, N + M}\f$ for each i <= N, j <= M
-      for (int i = 1; i <= N; ++i) {
-        result.zone.value.block(i, N , 1, M).array() += another.zone.value(1, 0);
-        result.zone.value.block(N, i, M, 1).array() += another.zone.value(0, 1);
+      // Copy \f$A_{(0, 0), (N + 1, N + 1)}\f$ to \f$C_{(0, 0), (N + 1, N + 1)}\f$.
+      result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value;
+      for (int i = N + 1; i < N + M; ++i) {
+        // Copy \f$A_{(1, 0), (N, 1)}\f$ to \f$C_{(1, i), (N, 1)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
+        result.zone.value.block(1, i, N, 1) = this->zone.value.block(1, 0, N, 1);
+        // Copy \f$A_{(0, 1), (1, N)}\f$ to \f$C_{(i, 1), (1, N)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
+        result.zone.value.block(i, 1, 1, N) = this->zone.value.block(0, 1, 1, N);
       }
-      result.zone.value.block(0, 0, 1, N + 1).array() += another.zone.value(0, 1);
-      result.zone.value.block(0, 0, N + 1, 1).array() += another.zone.value(1, 0);
+      if (M >= 2) {
+        // Copy \f$B_{(2, 2), (M - 1, M - 1)}\f$ to \f$C_{(N + 1, N + 1), (M - 1, M - 1)}\f$.
+        result.zone.value.block(N + 1, N + 1, M - 1, M - 1) = another.zone.value.block(2, 2, M - 1, M - 1);
+        // Copy \f$B_{(2, 0), (M - 1, 1)}\f$ to \f$C_{(N + 1, 0), (M - 1, 1)}\f$.
+        result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(2, 0, M - 1, 1);
+        // Copy \f$B_{(0, 2), (1, M - 1)}\f$ to \f$C_{(0, N + 1), (1, M - 1)}\f$.
+        result.zone.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 2, 1, M - 1);
+      }
+      for (int i = 1; i <= N; ++i) {
+        // Add  \f$B_{(2, 1), (M - 1, 1)}\f$ to \f$C_{(N + 1, i), (M - 1, 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+        result.zone.value.block(N + 1, i, M - 1, 1).array() += another.zone.value.block(2, 1, M - 1, 1).array();
+        // Add  \f$B_{(1, 2), (1, M - 1)}\f$ to \f$C_{(i, N + 1), (1, M - 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
+        result.zone.value.block(i, N + 1, 1, M - 1).array() += another.zone.value.block(1, 2, 1, M - 1).array();
+      }
+      // Add  \f$B_{(1, 0)}\f$ to \f$C_{(1, 0), (N, 1)}\f$.
+      result.zone.value.block(1, 0, N, 1).array() += another.zone.value(1, 0);
+      // Add  \f$B_{(0, 1)}\f$ to \f$C_{(0, 1), (1, N)}\f$.
+      result.zone.value.block(0, 1, 1, N).array() += another.zone.value(0, 1);
+
       result.zone.canonize();
 
       return result;
@@ -186,8 +229,8 @@ namespace learnta {
     /*!
      * @brief Make it to be the convex hull of this timed condition and the given timed condition
      */
-    void convexHullAssign(TimedCondition condition) {
-      this->zone.value.array().max(condition.zone.value.array());
+    void convexHullAssign(const TimedCondition& condition) {
+      this->zone.value = this->zone.value.cwiseMax(condition.zone.value);
     }
 
     /*!
