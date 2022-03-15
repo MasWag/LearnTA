@@ -7,9 +7,11 @@
 
 #include "common_types.hh"
 #include "bounds.hh"
+#include "constraint.hh"
 // #include "constraint.hh"
 
 #include <Eigen/Core>
+#include <utility>
 
 namespace learnta {
   static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
@@ -47,10 +49,22 @@ namespace learnta {
             value(std::move(value)), M(std::move(m)) {}
 
     /*!
+     * @brief Construct a zone containing only the given valuation
+     */
+    explicit Zone(const std::vector<double> &valuation, Bounds M) : M(std::move(M)) {
+      value.resize(valuation.size() + 1, valuation.size() + 1);
+      value.fill(Bounds(std::numeric_limits<double>::max(), false));
+      for (int i = 0; i < valuation.size(); ++i) {
+        this->tighten(i, -1, Bounds{valuation.at(i), true});
+        this->tighten(-1, i, Bounds{-valuation.at(i), true});
+      }
+    }
+
+    /*!
       Returns the number of the variables represented by this zone
       @returns the number of the variables
     */
-    inline std::size_t getNumOfVar() const noexcept {
+    [[nodiscard]] inline std::size_t getNumOfVar() const noexcept {
       return value.cols() - 1;
     }
 
@@ -102,6 +116,28 @@ namespace learnta {
       close1(y);
     }
 
+    //! @brief Add a guard of a timed automaton
+    void tighten(const Constraint &constraint) {
+      switch (constraint.odr) {
+        case learnta::Constraint::Order::ge:
+          // lower bound
+          this->tighten(-1, constraint.x, Bounds{-constraint.c, true});
+          break;
+        case learnta::Constraint::Order::gt:
+          // lower bound
+          this->tighten(-1, constraint.x, Bounds{-constraint.c, false});
+          break;
+        case learnta::Constraint::Order::le:
+          // upper bound
+          this->tighten(constraint.x, -1, Bounds{constraint.c, true});
+          break;
+        case learnta::Constraint::Order::lt:
+          // upper bound
+          this->tighten(constraint.x, -1, Bounds{constraint.c, false});
+          break;
+      }
+    }
+
     /*!
      * @brief Returns the intersection of two zones
      */
@@ -109,6 +145,16 @@ namespace learnta {
       assert(this->value.cols() == another.value.cols());
       assert(this->value.rows() == another.value.rows());
       return Zone{this->value.array().min(another.value.array())};
+    }
+
+    /*!
+     * @brief Assign the intersection of two zones
+     */
+    Zone operator&=(const Zone &another) {
+      assert(this->value.cols() == another.value.cols());
+      assert(this->value.rows() == another.value.rows());
+      this->value = this->value.cwiseMin(another.value);
+      return *this;
     }
 
     /*!
@@ -130,6 +176,35 @@ namespace learnta {
       return result;
     }
 
+    /*!
+     * @brief Return a clock valuation in this zone
+     */
+    [[nodiscard]] std::vector<double> sample() const {
+      std::vector<double> valuation;
+      std::size_t N = this->getNumOfVar();
+      valuation.resize(N);
+      for (int i = 0; i < N; i++) {
+        Bounds lowerBound = this->value(0, i + 1);
+        Bounds upperBound = this->value(i + 1, 0);
+        if (isPoint(upperBound, lowerBound)) {
+          valuation[i] = upperBound.first;
+        } else {
+          double lower = -lowerBound.first;
+          double upper = upperBound.first;
+          for (int j = 0; j < i; j++) {
+            Bounds tmpLowerBound = this->value(j + 1, i + 1);
+            Bounds tmpUpperBound = this->value(i + 1, j + 1);
+            lower = std::max(lower, -tmpLowerBound.first - valuation[j]);
+            upper = std::min(upper, tmpUpperBound.first + valuation[j]);
+          }
+          assert(lower <= upper);
+          valuation[i] = (lower + upper) * 0.5;
+        }
+      }
+
+      return valuation;
+    }
+
     void close1(ClockVariables x) {
       for (int i = 0; i < value.rows(); i++) {
         value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));
@@ -141,12 +216,22 @@ namespace learnta {
 
     // The reset value is always (0, \le)
     void reset(ClockVariables x) {
-      // 0 is the special varibale here
+      // 0 is the special variable here
       x++;
       value(0, x) = Bounds(0, true);
       value(x, 0) = Bounds(0, true);
       value.col(x).tail(value.rows() - 1) = value.col(0).tail(value.rows() - 1);
       value.row(x).tail(value.cols() - 1) = value.row(0).tail(value.cols() - 1);
+    }
+
+    /*!
+     * @brief Unconstrain the constraint on this clock
+     */
+    void unconstrain(ClockVariables x) {
+      // 0 is the special variable here
+      x++;
+      value.col(x).fill(Bounds(std::numeric_limits<double>::max(), false));
+      value.row(x).fill(Bounds(std::numeric_limits<double>::max(), false));
     }
 
     void elapse() {
@@ -157,8 +242,16 @@ namespace learnta {
       }
     }
 
-    /*
-      @brief make the zone canonical
+    void reverseElapse() {
+      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+      value.row(0).fill(Bounds(infinity));
+      for (int i = 0; i < value.col(0).size(); ++i) {
+        value.col(0)[i].second = false;
+      }
+    }
+
+    /*!
+     * @brief make the zone canonical
     */
     void canonize() {
       for (int k = 0; k < value.cols(); k++) {
@@ -166,8 +259,8 @@ namespace learnta {
       }
     }
 
-    /*
-      @brief check if the zone is satisfiable
+    /*!
+     * @brief check if the zone is satisfiable
     */
     bool isSatisfiable() {
       canonize();
@@ -178,7 +271,7 @@ namespace learnta {
       return isSatisfiable();
     }
 
-    /*
+    /*!
       @brief truncate the constraints compared with a constant greater than or equal to M
     */
     void abstractize() {

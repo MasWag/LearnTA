@@ -17,9 +17,10 @@ namespace learnta {
   class EquivalenceOracle {
   public:
     virtual ~EquivalenceOracle() = default;
+
     /*!
      * @brief Make an equivalence query
      */
-    virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &automaton) = 0;
+    virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) = 0;
   };
 }
