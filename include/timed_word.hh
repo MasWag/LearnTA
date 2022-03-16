@@ -4,6 +4,7 @@
  */
 
 #pragma once
+
 #include <iostream>
 #include <string>
 #include <utility>
@@ -23,7 +24,8 @@ namespace learnta {
   public:
     TimedWord() : durations({0}) {}
 
-    TimedWord(std::string word, std::vector<double> durations) : word(std::move(word)), durations(std::move(durations)) {
+    TimedWord(std::string word, std::vector<double> durations) : word(std::move(word)),
+                                                                 durations(std::move(durations)) {
       assert(this->word.size() + 1 == this->durations.size());
     }
 
@@ -32,7 +34,7 @@ namespace learnta {
      *
      * Let this be \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$ and another be \f$\tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m} \f$. The result is \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} + \tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m}\f$.
      */
-    TimedWord operator+(const TimedWord& another) {
+    TimedWord operator+(const TimedWord &another) {
       TimedWord result = *this;
       result.word += another.word;
       auto it = another.durations.begin();
@@ -75,7 +77,7 @@ namespace learnta {
      * @param stream The stream to write this timed word
      * @return stream
      */
-    std::ostream& print(std::ostream& stream) {
+    std::ostream &print(std::ostream &stream) {
       stream << durations[0];
       for (int i = 0; i < word.size(); i++) {
         stream << " " << word[i] << " " << durations[i + 1];
@@ -90,11 +92,28 @@ namespace learnta {
     [[nodiscard]] const std::vector<double> &getDurations() const {
       return durations;
     }
+
     /*!
      * @brief Return the number of the actions in this timed word
      */
     [[nodiscard]] std::size_t wordSize() const {
       return this->word.size();
     }
+
+    bool operator==(const TimedWord &another) const {
+      return this->word == another.word && this->durations == another.durations;
+    }
   };
+
+  static inline std::ostream &print(std::ostream &os, const learnta::TimedWord &word) {
+    os << word.getDurations().front();
+    for (int i = 0; i < word.wordSize(); ++i) {
+      os << " " << word.getWord().at(i) << " " << word.getDurations().at(i + 1);
+    }
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::TimedWord &word) {
+    return learnta::print(os, word);
+  }
 }

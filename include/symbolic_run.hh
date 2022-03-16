@@ -95,6 +95,7 @@ namespace learnta {
       std::vector<double> durationsVector;
       durationsVector.resize(durations.size());
       std::move(durations.begin(), durations.end(), durationsVector.begin());
+      durationsVector.push_back(0);
 
       return {word, durationsVector};
     }

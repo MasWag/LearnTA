@@ -27,7 +27,7 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) {
+    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(complement, hypothesis, intersection, toIState);
