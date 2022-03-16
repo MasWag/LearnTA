@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['makeunsat_23',['makeUnsat',['../structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5',1,'learnta::Zone']]],
-  ['maxconstraints_24',['maxConstraints',['../structlearnta_1_1TimedAutomaton.html#a53ca7f0fa2e0cfd6d91d17c303aa7047',1,'learnta::TimedAutomaton']]]
+  ['juxtaposedzone_44',['JuxtaposedZone',['../classlearnta_1_1JuxtaposedZone.html',1,'learnta::JuxtaposedZone'],['../classlearnta_1_1JuxtaposedZone.html#a377dda9e71f3656c251a632c7ba41a17',1,'learnta::JuxtaposedZone::JuxtaposedZone(const Zone &amp;left, const Zone &amp;right)'],['../classlearnta_1_1JuxtaposedZone.html#ad7533df7f2de86a9c5235a21d1b8dda2',1,'learnta::JuxtaposedZone::JuxtaposedZone(const Zone &amp;left, const Zone &amp;right, std::size_t commonVariableSize)']]],
+  ['juxtaposedzoneset_45',['JuxtaposedZoneSet',['../classlearnta_1_1JuxtaposedZoneSet.html',1,'learnta::JuxtaposedZoneSet'],['../classlearnta_1_1JuxtaposedZoneSet.html#a49285f79b5a7485a67bf847664b50cf0',1,'learnta::JuxtaposedZoneSet::JuxtaposedZoneSet(const TimedConditionSet &amp;left, const TimedCondition &amp;right, const std::size_t commonVariableSize)'],['../classlearnta_1_1JuxtaposedZoneSet.html#abb90d5bd78d3842f96249ff8ddfa582b',1,'learnta::JuxtaposedZoneSet::JuxtaposedZoneSet(const TimedCondition &amp;left, const TimedConditionSet &amp;right, const std::size_t commonVariableSize)']]],
+  ['juxtaposeleft_46',['juxtaposeLeft',['../classlearnta_1_1TimedCondition.html#a1db5823b7740492d5994ff7c07506103',1,'learnta::TimedCondition']]],
+  ['juxtaposeright_47',['juxtaposeRight',['../classlearnta_1_1TimedCondition.html#abac6e5ec2ef916ff15793f74a0e91488',1,'learnta::TimedCondition']]]
 ];

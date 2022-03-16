@@ -1,6 +1,9 @@
 var searchData=
 [
-  ['operator_26_26_91',['operator&amp;&amp;',['../structlearnta_1_1Zone.html#a72d4d332ea89437b5719a0e1d61041d5',1,'learnta::Zone']]],
-  ['operator_2b_92',['operator+',['../classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517',1,'learnta::ElementaryLanguage::operator+()'],['../classlearnta_1_1TimedCondition.html#ae9d8c8d259ad69283d7e4e6354d8cde0',1,'learnta::TimedCondition::operator+()'],['../classlearnta_1_1TimedWord.html#a76c2a121b3b7217313b6ece9392ded42',1,'learnta::TimedWord::operator+(const TimedWord &amp;another)'],['../classlearnta_1_1TimedWord.html#ab943c77c128219dabd55d197490cf937',1,'learnta::TimedWord::operator+(const char action)'],['../classlearnta_1_1TimedWord.html#a54ae0ddb0de7decad91a2a3b34da2b8a',1,'learnta::TimedWord::operator+(const double duration)']]],
-  ['operator_5e_93',['operator^',['../structlearnta_1_1Zone.html#afcfe186899d9ffbf8892cab672a0a140',1,'learnta::Zone']]]
+  ['generatehypothesis_157',['generateHypothesis',['../classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3',1,'learnta::ObservationTable']]],
+  ['getlowerbound_158',['getLowerBound',['../classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a',1,'learnta::TimedCondition']]],
+  ['getnumofvar_159',['getNumOfVar',['../structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13',1,'learnta::Zone']]],
+  ['getsize_160',['getSize',['../classlearnta_1_1FractionalOrder.html#a7abeb42ab966729744c098265626bdcd',1,'learnta::FractionalOrder']]],
+  ['getstrictlyconstrainedvariables_161',['getStrictlyConstrainedVariables',['../classlearnta_1_1TimedCondition.html#a14d7563e79e0e726585cf4522d961fc5',1,'learnta::TimedCondition::getStrictlyConstrainedVariables()'],['../classlearnta_1_1TimedConditionSet.html#a45cae12ebf109cb26cd5798305f6a661',1,'learnta::TimedConditionSet::getStrictlyConstrainedVariables()']]],
+  ['getupperbound_162',['getUpperBound',['../classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824',1,'learnta::TimedCondition']]]
 ];

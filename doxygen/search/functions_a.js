@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['tighten_107',['tighten',['../structlearnta_1_1Zone.html#aff37cdb723fe639f78390497d548b98c',1,'learnta::Zone']]],
-  ['top_108',['top',['../structlearnta_1_1Zone.html#aa39fb558607fdd31247f507f606b9e83',1,'learnta::Zone']]]
+  ['makeunsat_171',['makeUnsat',['../structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5',1,'learnta::Zone']]]
 ];

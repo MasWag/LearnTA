@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['widen_57',['widen',['../namespacelearnta.html#ab9b93a397db0905ecbd5f2cd2d930b28',1,'learnta']]],
-  ['wordsize_58',['wordSize',['../classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67',1,'learnta::ElementaryLanguage::wordSize()'],['../classlearnta_1_1TimedWord.html#a90763ffa159da7f7631e03efa657ab14',1,'learnta::TimedWord::wordSize()']]]
+  ['reconstructword_65',['reconstructWord',['../classlearnta_1_1SymbolicRun.html#a4fd962629dc34bc1c95c747e3c67e6e4',1,'learnta::SymbolicRun']]],
+  ['reduce_66',['reduce',['../classlearnta_1_1TimedConditionSet.html#a38ded097fcac1f6d174aac75d1df67a2',1,'learnta::TimedConditionSet']]],
+  ['resetvars_67',['resetVars',['../structlearnta_1_1TATransition.html#a635652dd2635db8438577b6042e2bc24',1,'learnta::TATransition']]],
+  ['restrictlowerbound_68',['restrictLowerBound',['../classlearnta_1_1TimedCondition.html#a362bf3162f7ec8d067cc53bca119f879',1,'learnta::TimedCondition']]],
+  ['restrictupperbound_69',['restrictUpperBound',['../classlearnta_1_1TimedCondition.html#a94a36f5e1439896148cd3957678cf4c3',1,'learnta::TimedCondition']]]
 ];

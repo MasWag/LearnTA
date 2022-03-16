@@ -110,6 +110,10 @@ Collaboration diagram for learnta::ForwardRegionalElementaryLanguage:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a763d4108cbf06082552dc3bee5a3ed5f"><td class="memItemLeft" align="right" valign="top"><a id="a763d4108cbf06082552dc3bee5a3ed5f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#a763d4108cbf06082552dc3bee5a3ed5f">ForwardRegionalElementaryLanguage</a> ()=default</td></tr>
+<tr class="memdesc:a763d4108cbf06082552dc3bee5a3ed5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the empty language. <br /></td></tr>
+<tr class="separator:a763d4108cbf06082552dc3bee5a3ed5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e2ec3c6ae66835c4d57fc48c92f403c"><td class="memItemLeft" align="right" valign="top"><a id="a3e2ec3c6ae66835c4d57fc48c92f403c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ForwardRegionalElementaryLanguage</b> (<a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> elementary, <a class="el" href="classlearnta_1_1FractionalOrder.html">FractionalOrder</a> fractionalOrder)</td></tr>
 <tr class="separator:a3e2ec3c6ae66835c4d57fc48c92f403c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,6 +125,9 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html">ForwardRegionalElementaryLanguage</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#a277a04f4a6b934e1c922360744351870">successor</a> () const</td></tr>
 <tr class="memdesc:a277a04f4a6b934e1c922360744351870"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the continuous successor. <br /></td></tr>
 <tr class="separator:a277a04f4a6b934e1c922360744351870"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af79ca7c791e670e3c1652bc915d0c674"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#af79ca7c791e670e3c1652bc915d0c674">hasEqualityN</a> () const</td></tr>
+<tr class="memdesc:af79ca7c791e670e3c1652bc915d0c674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return if there is \(\mathbb{T}_{i,N} = c\).  <a href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#af79ca7c791e670e3c1652bc915d0c674">More...</a><br /></td></tr>
+<tr class="separator:af79ca7c791e670e3c1652bc915d0c674"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classlearnta_1_1ElementaryLanguage"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classlearnta_1_1ElementaryLanguage')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlearnta_1_1ElementaryLanguage.html">learnta::ElementaryLanguage</a></td></tr>
 <tr class="memitem:a5940613f6f24185f104064550b974fe3 inherit pub_methods_classlearnta_1_1ElementaryLanguage"><td class="memItemLeft" align="right" valign="top"><a id="a5940613f6f24185f104064550b974fe3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ElementaryLanguage</b> (std::string word, <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> timedCondition)</td></tr>
@@ -172,12 +179,45 @@ Additional Inherited Members</h2></td></tr>
 static <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ElementaryLanguage.html#a41934ee9c109567f5f7833a1a52d4662">empty</a> ()</td></tr>
 <tr class="memdesc:a41934ee9c109567f5f7833a1a52d4662 inherit pub_static_methods_classlearnta_1_1ElementaryLanguage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct the empty elementary language containing only 0. <br /></td></tr>
 <tr class="separator:a41934ee9c109567f5f7833a1a52d4662 inherit pub_static_methods_classlearnta_1_1ElementaryLanguage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96a7fc756709cce8d0ced34fc6ea75a6 inherit pub_static_methods_classlearnta_1_1ElementaryLanguage"><td class="memItemLeft" align="right" valign="top"><a id="a96a7fc756709cce8d0ced34fc6ea75a6"></a>
+static <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6">convexHull</a> (const std::list&lt; <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &gt; &amp;elementaryLanguages)</td></tr>
+<tr class="memdesc:a96a7fc756709cce8d0ced34fc6ea75a6 inherit pub_static_methods_classlearnta_1_1ElementaryLanguage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a convex-hull of the given timed conditions. <br /></td></tr>
+<tr class="separator:a96a7fc756709cce8d0ced34fc6ea75a6 inherit pub_static_methods_classlearnta_1_1ElementaryLanguage"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A forward regional elementary language. </p>
 <p>A forward regional elementary language is an elementary langauge \((u, \Lambda)\) with an order over the fractional parts of \(\mathbb{T}_{0,N},\mathbb{T}_{1,N},\dots,\mathbb{T}_{N,N}\), where \(\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\).</p>
 <dl class="section invariant"><dt>Invariant</dt><dd>elementary.wordSize() + 1 == fractionalOrder.size() </dd></dl>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="af79ca7c791e670e3c1652bc915d0c674"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af79ca7c791e670e3c1652bc915d0c674">&#9670;&nbsp;</a></span>hasEqualityN()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool learnta::ForwardRegionalElementaryLanguage::hasEqualityN </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return if there is \(\mathbb{T}_{i,N} = c\). </p>
+<dl class="section pre"><dt>Precondition</dt><dd>the timed condition is simple </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/<a class="el" href="forward__regional__elementary__language_8hh_source.html">forward_regional_elementary_language.hh</a></li>
 </ul>
 </div><!-- contents -->

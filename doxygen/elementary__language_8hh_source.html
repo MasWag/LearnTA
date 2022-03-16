@@ -104,82 +104,99 @@ $(function() {
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      <span class="keywordflow">return</span> elementary;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    }</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">   44</a></span>&#160;    [[nodiscard]] <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">isSimple</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keywordflow">return</span> this-&gt;timedCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#a2ce25c8e996bee578ab50d4cb87961e7">isSimple</a>();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    }</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">   51</a></span>&#160;    [[nodiscard]] std::size_t <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">wordSize</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      <span class="keywordflow">return</span> this-&gt;word.size();</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">   58</a></span>&#160;    <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">operator+</a>(<span class="keyword">const</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;another)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      <span class="keywordflow">return</span> {this-&gt;word + another.word, this-&gt;timedCondition + another.timedCondition};</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">   65</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">enumerate</a>(std::vector&lt;ElementaryLanguage&gt;&amp; result)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;      <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">isSimple</a>()) {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        result = {*<span class="keyword">this</span>};</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <span class="keywordflow">return</span>;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;      }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      std::vector&lt;TimedCondition&gt; simpleTimedConditions;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      this-&gt;timedCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">enumerate</a>(simpleTimedConditions);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      std::transform(simpleTimedConditions.begin(), simpleTimedConditions.end(), result.begin(), [&amp;](<a class="code" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&amp; cond) {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        return ElementaryLanguage{this-&gt;word, std::move(cond)};</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      });</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    }</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">   80</a></span>&#160;    [[nodiscard]] <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">sample</a>()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      std::vector&lt;double&gt; durations;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      std::size_t N = this-&gt;wordSize() + 1;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;      durations.resize(N);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; N; i++) {</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        Bounds lowerBound = this-&gt;timedCondition.getLowerBound(i, i);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        Bounds upperBound = this-&gt;timedCondition.getUpperBound(i, i);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        <span class="keywordflow">if</span> (isPoint(upperBound, lowerBound)) {</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;          durations[i] = upperBound.first;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;          <span class="keywordtype">double</span> lower = -lowerBound.first;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;          <span class="keywordtype">double</span> upper = upperBound.first;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;          <span class="keywordtype">double</span> sum = 0;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;          <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = i - 1; j &gt;= 0; j--) {</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;            <span class="comment">// sum = durations[j] + durations[j + 1] + ... + durations[i - 1]</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            sum += durations[j];</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            Bounds tmpLowerBound = this-&gt;timedCondition.getLowerBound(j, i);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;            Bounds tmpUpperBound = this-&gt;timedCondition.getUpperBound(j, i);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;            lower = std::max(lower, -tmpLowerBound.first - sum);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;            upper = std::min(upper, tmpUpperBound.first - sum);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;          }</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;          assert(lower &lt;= upper);</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;          durations[i] = (lower + upper) * 0.5;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        }</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;      }</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;      <span class="keywordflow">return</span> {this-&gt;word, durations};</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    }</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160; </div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    [[nodiscard]] <span class="keyword">const</span> std::string &amp;getWord()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      <span class="keywordflow">return</span> word;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    }</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    [[nodiscard]] <span class="keyword">const</span> TimedCondition &amp;getTimedCondition()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;      <span class="keywordflow">return</span> timedCondition;</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    }</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  };</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;}</div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6">   44</a></span>&#160;    <span class="keyword">static</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6">convexHull</a>(<span class="keyword">const</span> std::list&lt;ElementaryLanguage&gt;&amp; elementaryLanguages) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keywordflow">if</span> (elementaryLanguages.empty()) {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a41934ee9c109567f5f7833a1a52d4662">empty</a>();</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      }</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> result = elementaryLanguages.front();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; elementary: elementaryLanguages) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        assert(elementary.word == result.word);</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        result.timedCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aefc4f5c388a269721ea15a619da8005c">convexHullAssign</a>(elementary.timedCondition);</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    }</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">   60</a></span>&#160;    [[nodiscard]] <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">isSimple</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;      <span class="keywordflow">return</span> this-&gt;timedCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#a2ce25c8e996bee578ab50d4cb87961e7">isSimple</a>();</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    }</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">   67</a></span>&#160;    [[nodiscard]] std::size_t <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">wordSize</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      <span class="keywordflow">return</span> this-&gt;word.size();</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">   74</a></span>&#160;    <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">operator+</a>(<span class="keyword">const</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;another)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      <span class="keywordflow">return</span> {this-&gt;word + another.word, this-&gt;timedCondition + another.timedCondition};</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">   81</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">enumerate</a>(std::vector&lt;ElementaryLanguage&gt; &amp;result)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      <span class="keywordflow">if</span> (this-&gt;<a class="code" href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">isSimple</a>()) {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        result = {*<span class="keyword">this</span>};</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        <span class="keywordflow">return</span>;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      }</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      std::vector&lt;TimedCondition&gt; simpleTimedConditions;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      this-&gt;timedCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">enumerate</a>(simpleTimedConditions);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;      result.resize(simpleTimedConditions.size());</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;      std::transform(simpleTimedConditions.begin(), simpleTimedConditions.end(), result.begin(),</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                     [&amp;](<span class="keyword">const</span> <a class="code" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;cond) {</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                       return ElementaryLanguage{this-&gt;word, cond};</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                     });</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
+<div class="line"><a name="l00098"></a><span class="lineno"><a class="line" href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">   98</a></span>&#160;    [[nodiscard]] <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a> <a class="code" href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">sample</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;      std::vector&lt;double&gt; durations;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      std::size_t N = this-&gt;wordSize() + 1;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      durations.resize(N);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; N; i++) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        Bounds lowerBound = this-&gt;timedCondition.getLowerBound(i, i);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        Bounds upperBound = this-&gt;timedCondition.getUpperBound(i, i);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        <span class="keywordflow">if</span> (isPoint(upperBound, lowerBound)) {</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;          durations[i] = upperBound.first;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;          <span class="keywordtype">double</span> lower = -lowerBound.first;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;          <span class="keywordtype">double</span> upper = upperBound.first;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;          <span class="keywordtype">double</span> sum = 0;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;          <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = i - 1; j &gt;= 0; j--) {</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            <span class="comment">// sum = durations[j] + durations[j + 1] + ... + durations[i - 1]</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            sum += durations[j];</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;            Bounds tmpLowerBound = this-&gt;timedCondition.getLowerBound(j, i);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;            Bounds tmpUpperBound = this-&gt;timedCondition.getUpperBound(j, i);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;            lower = std::max(lower, -tmpLowerBound.first - sum);</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            upper = std::min(upper, tmpUpperBound.first - sum);</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;          }</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;          assert(lower &lt;= upper);</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;          durations[i] = (lower + upper) * 0.5;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;        }</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;      }</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;      <span class="keywordflow">return</span> {this-&gt;word, durations};</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    }</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160; </div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    [[nodiscard]] <span class="keyword">const</span> std::string &amp;getWord()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;      <span class="keywordflow">return</span> word;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    }</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    [[nodiscard]] <span class="keyword">const</span> TimedCondition &amp;getTimedCondition()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;      <span class="keywordflow">return</span> timedCondition;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    }</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  };</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a84782c0fb4e877578546716afef7f9c5"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">learnta::ElementaryLanguage::sample</a></div><div class="ttdeci">TimedWord sample() const</div><div class="ttdoc">Return a timed word in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:80</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:19</div></div>
-<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a009731c04f58d92868f31a94a94565d3"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">learnta::ElementaryLanguage::isSimple</a></div><div class="ttdeci">bool isSimple() const</div><div class="ttdoc">Returns if this elementary language is simple.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:44</div></div>
-<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a6e896b809c9a6f81ef2d5ecd85118a67"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">learnta::ElementaryLanguage::wordSize</a></div><div class="ttdeci">std::size_t wordSize() const</div><div class="ttdoc">Returns the number of the events in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:51</div></div>
-<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_ab7a7c87c36437581133a87de1dd11517"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">learnta::ElementaryLanguage::operator+</a></div><div class="ttdeci">ElementaryLanguage operator+(const ElementaryLanguage &amp;another) const</div><div class="ttdoc">Concatenate two elementary languages.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:58</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a84782c0fb4e877578546716afef7f9c5"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5">learnta::ElementaryLanguage::sample</a></div><div class="ttdeci">TimedWord sample() const</div><div class="ttdoc">Return a timed word in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:98</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:20</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a009731c04f58d92868f31a94a94565d3"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a009731c04f58d92868f31a94a94565d3">learnta::ElementaryLanguage::isSimple</a></div><div class="ttdeci">bool isSimple() const</div><div class="ttdoc">Returns if this elementary language is simple.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:60</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a6e896b809c9a6f81ef2d5ecd85118a67"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67">learnta::ElementaryLanguage::wordSize</a></div><div class="ttdeci">std::size_t wordSize() const</div><div class="ttdoc">Returns the number of the events in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:67</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_ab7a7c87c36437581133a87de1dd11517"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517">learnta::ElementaryLanguage::operator+</a></div><div class="ttdeci">ElementaryLanguage operator+(const ElementaryLanguage &amp;another) const</div><div class="ttdoc">Concatenate two elementary languages.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:74</div></div>
 <div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html">learnta::ElementaryLanguage</a></div><div class="ttdoc">An elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:21</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedCondition_html"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html">learnta::TimedCondition</a></div><div class="ttdoc">A timed condition, a finite conjunction of inequalities of the form , where  and .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:13</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_aefc4f5c388a269721ea15a619da8005c"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#aefc4f5c388a269721ea15a619da8005c">learnta::TimedCondition::convexHullAssign</a></div><div class="ttdeci">void convexHullAssign(const TimedCondition &amp;condition)</div><div class="ttdoc">Make it to be the convex hull of this timed condition and the given timed condition.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:232</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html">learnta::TimedCondition</a></div><div class="ttdoc">A timed condition, a finite conjunction of inequalities of the form , where  and .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:18</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a96a7fc756709cce8d0ced34fc6ea75a6"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6">learnta::ElementaryLanguage::convexHull</a></div><div class="ttdeci">static ElementaryLanguage convexHull(const std::list&lt; ElementaryLanguage &gt; &amp;elementaryLanguages)</div><div class="ttdoc">Construct a convex-hull of the given timed conditions.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:44</div></div>
 <div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a41934ee9c109567f5f7833a1a52d4662"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a41934ee9c109567f5f7833a1a52d4662">learnta::ElementaryLanguage::empty</a></div><div class="ttdeci">static ElementaryLanguage empty()</div><div class="ttdoc">Construct the empty elementary language containing only 0.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:34</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_a2ce25c8e996bee578ab50d4cb87961e7"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#a2ce25c8e996bee578ab50d4cb87961e7">learnta::TimedCondition::isSimple</a></div><div class="ttdeci">bool isSimple() const</div><div class="ttdoc">Returns if this timed condition is simple.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:45</div></div>
-<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a75524080dd6ea14e386e8290e166a14b"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">learnta::ElementaryLanguage::enumerate</a></div><div class="ttdeci">void enumerate(std::vector&lt; ElementaryLanguage &gt; &amp;result) const</div><div class="ttdoc">Make a vector of simple elementary languages in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:65</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_abe8cf60a4a9f8789727be572e607ea14"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">learnta::TimedCondition::enumerate</a></div><div class="ttdeci">void enumerate(std::vector&lt; TimedCondition &gt; &amp;simpleConditions) const</div><div class="ttdoc">Make a vector of simple timed conditions in this timed condition.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:159</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_a2ce25c8e996bee578ab50d4cb87961e7"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#a2ce25c8e996bee578ab50d4cb87961e7">learnta::TimedCondition::isSimple</a></div><div class="ttdeci">bool isSimple() const</div><div class="ttdoc">Returns if this timed condition is simple.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:52</div></div>
+<div class="ttc" id="aclasslearnta_1_1ElementaryLanguage_html_a75524080dd6ea14e386e8290e166a14b"><div class="ttname"><a href="classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b">learnta::ElementaryLanguage::enumerate</a></div><div class="ttdeci">void enumerate(std::vector&lt; ElementaryLanguage &gt; &amp;result) const</div><div class="ttdoc">Make a vector of simple elementary languages in this elementary language.</div><div class="ttdef"><b>Definition:</b> elementary_language.hh:81</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_abe8cf60a4a9f8789727be572e607ea14"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14">learnta::TimedCondition::enumerate</a></div><div class="ttdeci">void enumerate(std::vector&lt; TimedCondition &gt; &amp;simpleConditions) const</div><div class="ttdoc">Make a vector of simple timed conditions in this timed condition.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:256</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_ae550d64c8a43fb121806b54302e2eca2"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#ae550d64c8a43fb121806b54302e2eca2">learnta::TimedCondition::empty</a></div><div class="ttdeci">static TimedCondition empty()</div><div class="ttdoc">Construct the empty timed condition, i.e. .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:26</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_ae550d64c8a43fb121806b54302e2eca2"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#ae550d64c8a43fb121806b54302e2eca2">learnta::TimedCondition::empty</a></div><div class="ttdeci">static TimedCondition empty()</div><div class="ttdoc">Construct the empty timed condition, i.e. .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:33</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

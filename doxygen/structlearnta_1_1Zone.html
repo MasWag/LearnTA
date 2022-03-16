@@ -88,6 +88,15 @@ $(function() {
  <a href="structlearnta_1_1Zone.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="zone_8hh_source.html">zone.hh</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for learnta::Zone:</div>
+<div class="dyncontent">
+<div class="center"><img src="structlearnta_1_1Zone__inherit__graph.png" border="0" usemap="#learnta_1_1Zone_inherit__map" alt="Inheritance graph"/></div>
+<map name="learnta_1_1Zone_inherit__map" id="learnta_1_1Zone_inherit__map">
+<area shape="rect" title="Implementation of a zone with DBM." alt="" coords="41,5,151,32"/>
+<area shape="rect" href="classlearnta_1_1JuxtaposedZone.html" title="A zone constructed by juxtaposing two zones with or without shared variables." alt="" coords="5,80,187,107"/>
+</map>
+<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
@@ -106,6 +115,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a34f5f83dc9233c3a3fea5a67d1b04ed4"><td class="memItemLeft" align="right" valign="top"><a id="a34f5f83dc9233c3a3fea5a67d1b04ed4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Zone</b> (Eigen::Matrix&lt; Bounds, Eigen::Dynamic, Eigen::Dynamic &gt; value, Bounds m)</td></tr>
 <tr class="separator:a34f5f83dc9233c3a3fea5a67d1b04ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3170fb968b7baf72a38f1c3f362865f2"><td class="memItemLeft" align="right" valign="top"><a id="a3170fb968b7baf72a38f1c3f362865f2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a3170fb968b7baf72a38f1c3f362865f2">Zone</a> (const std::vector&lt; double &gt; &amp;valuation, Bounds M)</td></tr>
+<tr class="memdesc:a3170fb968b7baf72a38f1c3f362865f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a zone containing only the given valuation. <br /></td></tr>
+<tr class="separator:a3170fb968b7baf72a38f1c3f362865f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a19cc6fccb902d0bf84e8d8a719953d13"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13">getNumOfVar</a> () const noexcept</td></tr>
 <tr class="separator:a19cc6fccb902d0bf84e8d8a719953d13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72c84a19cfd9ee27e27d777661b4e59a"><td class="memItemLeft" align="right" valign="top"><a id="a72c84a19cfd9ee27e27d777661b4e59a"></a>
@@ -118,34 +131,56 @@ std::tuple&lt; std::vector&lt; Bounds &gt;, Bounds &gt;&#160;</td><td class="mem
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#aff37cdb723fe639f78390497d548b98c">tighten</a> (ClockVariables x, ClockVariables y, Bounds c)</td></tr>
 <tr class="memdesc:aff37cdb723fe639f78390497d548b98c"><td class="mdescLeft">&#160;</td><td class="mdescRight">add the constraint x - y \le (c,s) <br /></td></tr>
 <tr class="separator:aff37cdb723fe639f78390497d548b98c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac88b74fe6b89e6551851cf172b5356d3"><td class="memItemLeft" align="right" valign="top"><a id="ac88b74fe6b89e6551851cf172b5356d3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#ac88b74fe6b89e6551851cf172b5356d3">tighten</a> (const <a class="el" href="structlearnta_1_1Constraint.html">Constraint</a> &amp;constraint)</td></tr>
+<tr class="memdesc:ac88b74fe6b89e6551851cf172b5356d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a guard of a timed automaton. <br /></td></tr>
+<tr class="separator:ac88b74fe6b89e6551851cf172b5356d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72d4d332ea89437b5719a0e1d61041d5"><td class="memItemLeft" align="right" valign="top"><a id="a72d4d332ea89437b5719a0e1d61041d5"></a>
 <a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a72d4d332ea89437b5719a0e1d61041d5">operator&amp;&amp;</a> (const <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &amp;another)</td></tr>
 <tr class="memdesc:a72d4d332ea89437b5719a0e1d61041d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the intersection of two zones. <br /></td></tr>
 <tr class="separator:a72d4d332ea89437b5719a0e1d61041d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac8bcca631873630c50aadfd3474fab7"><td class="memItemLeft" align="right" valign="top"><a id="aac8bcca631873630c50aadfd3474fab7"></a>
+<a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#aac8bcca631873630c50aadfd3474fab7">operator&amp;=</a> (const <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &amp;another)</td></tr>
+<tr class="memdesc:aac8bcca631873630c50aadfd3474fab7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the intersection of two zones. <br /></td></tr>
+<tr class="separator:aac8bcca631873630c50aadfd3474fab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcfe186899d9ffbf8892cab672a0a140"><td class="memItemLeft" align="right" valign="top"><a id="afcfe186899d9ffbf8892cab672a0a140"></a>
 <a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#afcfe186899d9ffbf8892cab672a0a140">operator^</a> (const <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &amp;another) const</td></tr>
 <tr class="memdesc:afcfe186899d9ffbf8892cab672a0a140"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the juxtaposition of two zones. <br /></td></tr>
 <tr class="separator:afcfe186899d9ffbf8892cab672a0a140"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c98b7423e777b687c2fe1f9694d4f29"><td class="memItemLeft" align="right" valign="top"><a id="a3c98b7423e777b687c2fe1f9694d4f29"></a>
+std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a3c98b7423e777b687c2fe1f9694d4f29">sample</a> () const</td></tr>
+<tr class="memdesc:a3c98b7423e777b687c2fe1f9694d4f29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a clock valuation in this zone. <br /></td></tr>
+<tr class="separator:a3c98b7423e777b687c2fe1f9694d4f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6da03722fe448c42a526b3e464285060"><td class="memItemLeft" align="right" valign="top"><a id="a6da03722fe448c42a526b3e464285060"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>close1</b> (ClockVariables x)</td></tr>
 <tr class="separator:a6da03722fe448c42a526b3e464285060"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8de9742ceb3d51b6686d4b49037eb13f"><td class="memItemLeft" align="right" valign="top"><a id="a8de9742ceb3d51b6686d4b49037eb13f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>reset</b> (ClockVariables x)</td></tr>
 <tr class="separator:a8de9742ceb3d51b6686d4b49037eb13f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14319cd4aabafc0dbd7b0b20804253fd"><td class="memItemLeft" align="right" valign="top"><a id="a14319cd4aabafc0dbd7b0b20804253fd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">unconstrain</a> (ClockVariables x)</td></tr>
+<tr class="memdesc:a14319cd4aabafc0dbd7b0b20804253fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unconstrain the constraint on this clock. <br /></td></tr>
+<tr class="separator:a14319cd4aabafc0dbd7b0b20804253fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a397c590e4fc65dd98db81eed65b2d361"><td class="memItemLeft" align="right" valign="top"><a id="a397c590e4fc65dd98db81eed65b2d361"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>elapse</b> ()</td></tr>
 <tr class="separator:a397c590e4fc65dd98db81eed65b2d361"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea2ee49991647180a1bb75c2587041d3"><td class="memItemLeft" align="right" valign="top"><a id="aea2ee49991647180a1bb75c2587041d3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>reverseElapse</b> ()</td></tr>
+<tr class="separator:aea2ee49991647180a1bb75c2587041d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6653b6cfe832a8700d4df7640e5abbfd"><td class="memItemLeft" align="right" valign="top"><a id="a6653b6cfe832a8700d4df7640e5abbfd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>canonize</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a> ()</td></tr>
+<tr class="memdesc:a6653b6cfe832a8700d4df7640e5abbfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">make the zone canonical <br /></td></tr>
 <tr class="separator:a6653b6cfe832a8700d4df7640e5abbfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8c15ab1d50bc2267b9ccb4b30ec08ec"><td class="memItemLeft" align="right" valign="top"><a id="af8c15ab1d50bc2267b9ccb4b30ec08ec"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isSatisfiable</b> ()</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">isSatisfiable</a> ()</td></tr>
+<tr class="memdesc:af8c15ab1d50bc2267b9ccb4b30ec08ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">check if the zone is satisfiable <br /></td></tr>
 <tr class="separator:af8c15ab1d50bc2267b9ccb4b30ec08ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26e527be98d1e1dac48705b4a546994c"><td class="memItemLeft" align="right" valign="top"><a id="a26e527be98d1e1dac48705b4a546994c"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>operator bool</b> ()</td></tr>
 <tr class="separator:a26e527be98d1e1dac48705b4a546994c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6099b3a3497d52df3ba6475a983932c"><td class="memItemLeft" align="right" valign="top"><a id="ad6099b3a3497d52df3ba6475a983932c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>abstractize</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">abstractize</a> ()</td></tr>
+<tr class="memdesc:ad6099b3a3497d52df3ba6475a983932c"><td class="mdescLeft">&#160;</td><td class="mdescRight">truncate the constraints compared with a constant greater than or equal to M <br /></td></tr>
 <tr class="separator:ad6099b3a3497d52df3ba6475a983932c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11001663fe3f55f38b9c7b68c448e1b5"><td class="memItemLeft" align="right" valign="top"><a id="a11001663fe3f55f38b9c7b68c448e1b5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">makeUnsat</a> ()</td></tr>

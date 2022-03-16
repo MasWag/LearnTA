@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['next_25',['next',['../structlearnta_1_1TAState.html#a512c5bc75b5b2870b714cef441df39b5',1,'learnta::TAState']]]
+  ['learnta_48',['learnta',['../namespacelearnta.html',1,'']]]
 ];

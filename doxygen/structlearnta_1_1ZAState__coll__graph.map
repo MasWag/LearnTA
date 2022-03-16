@@ -1,0 +1,5 @@
+<map id="learnta::ZAState" name="learnta::ZAState">
+<area shape="rect" id="node1" title="A state of a zone automaton." alt="" coords="67,95,195,121"/>
+<area shape="rect" id="node2" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="5,5,115,32"/>
+<area shape="rect" id="node3" href="$structlearnta_1_1TAState.html" title="A state of timed automata." alt="" coords="139,5,266,32"/>
+</map>

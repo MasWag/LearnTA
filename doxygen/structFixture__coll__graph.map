@@ -1,0 +1,13 @@
+<map id="Fixture" name="Fixture">
+<area shape="rect" id="node1" title=" " alt="" coords="1477,156,1544,183"/>
+<area shape="rect" id="node2" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="1217,118,1428,159"/>
+<area shape="rect" id="node3" href="$classlearnta_1_1ForwardRegionalElementaryLanguage.html" title="A forward regional elementary language." alt="" coords="902,43,1087,85"/>
+<area shape="rect" id="node4" href="$classlearnta_1_1ElementaryLanguage.html" title="An elementary language." alt="" coords="531,111,745,137"/>
+<area shape="rect" id="node8" href="$classlearnta_1_1BackwardRegionalElementaryLanguage.html" title="A back regional elementary language." alt="" coords="896,118,1093,159"/>
+<area shape="rect" id="node5" href="$classlearnta_1_1TimedCondition.html" title="A timed condition, a finite conjunction of inequalities of the form , where &#160;and ." alt="" coords="199,111,377,137"/>
+<area shape="rect" id="node6" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="5,111,115,137"/>
+<area shape="rect" id="node7" href="$classlearnta_1_1FractionalOrder.html" title="Order on the fractional part of the variables." alt="" coords="550,56,726,83"/>
+<area shape="rect" id="node9" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="1231,184,1415,211"/>
+<area shape="rect" id="node10" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="900,184,1089,211"/>
+<area shape="rect" id="node11" href="$structAutomaton.html" title=" " alt="" coords="551,184,725,211"/>
+</map>

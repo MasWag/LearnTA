@@ -1,7 +1,10 @@
 var searchData=
 [
-  ['empty_81',['empty',['../classlearnta_1_1ElementaryLanguage.html#a41934ee9c109567f5f7833a1a52d4662',1,'learnta::ElementaryLanguage::empty()'],['../classlearnta_1_1TimedCondition.html#ae550d64c8a43fb121806b54302e2eca2',1,'learnta::TimedCondition::empty()']]],
-  ['enumerate_82',['enumerate',['../classlearnta_1_1ElementaryLanguage.html#a75524080dd6ea14e386e8290e166a14b',1,'learnta::ElementaryLanguage::enumerate()'],['../classlearnta_1_1TimedCondition.html#abe8cf60a4a9f8789727be572e607ea14',1,'learnta::TimedCondition::enumerate()']]],
-  ['extendn_83',['extendN',['../classlearnta_1_1FractionalOrder.html#a22b6ce3d0265976cc96e832fb19d6cfd',1,'learnta::FractionalOrder::extendN()'],['../classlearnta_1_1TimedCondition.html#ab637f901480b841af2f1d2c342ea3100',1,'learnta::TimedCondition::extendN()']]],
-  ['extendzero_84',['extendZero',['../classlearnta_1_1FractionalOrder.html#a2cfcd9e02e7e3424078fca44e7578c69',1,'learnta::FractionalOrder::extendZero()'],['../classlearnta_1_1TimedCondition.html#a1a6dd9d9973b7c684655862103492a01',1,'learnta::TimedCondition::extendZero()']]]
+  ['canonize_140',['canonize',['../structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd',1,'learnta::Zone']]],
+  ['clocksize_141',['clockSize',['../structlearnta_1_1TimedAutomaton.html#a2bde072ab8b151b391a79187c23c5c5f',1,'learnta::TimedAutomaton']]],
+  ['close_142',['close',['../classlearnta_1_1ObservationTable.html#a7cc1bb895eb5dd0a4f955a3c5ed09c84',1,'learnta::ObservationTable']]],
+  ['complementtimedautomataequivalenceoracle_143',['ComplementTimedAutomataEquivalenceOracle',['../classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#ac98d8bc76b5c8236d52c1bb66e9245f7',1,'learnta::ComplementTimedAutomataEquivalenceOracle']]],
+  ['consistent_144',['consistent',['../classlearnta_1_1ObservationTable.html#aca5b9500d50fcfee8890665a854847ea',1,'learnta::ObservationTable']]],
+  ['convexhull_145',['convexHull',['../classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6',1,'learnta::ElementaryLanguage::convexHull()'],['../classlearnta_1_1TimedCondition.html#ae150e3bb980a10b8fda4a50f730e9964',1,'learnta::TimedCondition::convexHull()']]],
+  ['convexhullassign_146',['convexHullAssign',['../classlearnta_1_1TimedCondition.html#aefc4f5c388a269721ea15a619da8005c',1,'learnta::TimedCondition']]]
 ];

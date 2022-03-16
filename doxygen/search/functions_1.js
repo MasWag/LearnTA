@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['deepcopy_80',['deepCopy',['../structlearnta_1_1TimedAutomaton.html#ad5dbc50e466af49f087ae29561e4de89',1,'learnta::TimedAutomaton']]]
+  ['backwardregionalelementarylanguage_139',['BackwardRegionalElementaryLanguage',['../classlearnta_1_1BackwardRegionalElementaryLanguage.html#abb41c8c99218362c0770cdcbdfc9c768',1,'learnta::BackwardRegionalElementaryLanguage']]]
 ];

@@ -1,0 +1,9 @@
+<map id="SimpleObservationTableKeysFixture" name="SimpleObservationTableKeysFixture">
+<area shape="rect" id="node1" title="Fixture of the keys of the observation table in the paper." alt="" coords="1163,77,1373,118"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1ForwardRegionalElementaryLanguage.html" title="A forward regional elementary language." alt="" coords="902,39,1087,81"/>
+<area shape="rect" id="node3" href="$classlearnta_1_1ElementaryLanguage.html" title="An elementary language." alt="" coords="531,45,745,72"/>
+<area shape="rect" id="node7" href="$classlearnta_1_1BackwardRegionalElementaryLanguage.html" title="A back regional elementary language." alt="" coords="896,114,1093,155"/>
+<area shape="rect" id="node4" href="$classlearnta_1_1TimedCondition.html" title="A timed condition, a finite conjunction of inequalities of the form , where &#160;and ." alt="" coords="199,45,377,72"/>
+<area shape="rect" id="node5" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="5,45,115,72"/>
+<area shape="rect" id="node6" href="$classlearnta_1_1FractionalOrder.html" title="Order on the fractional part of the variables." alt="" coords="550,111,726,137"/>
+</map>

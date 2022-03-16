@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['widen_109',['widen',['../namespacelearnta.html#ab9b93a397db0905ecbd5f2cd2d930b28',1,'learnta']]],
-  ['wordsize_110',['wordSize',['../classlearnta_1_1ElementaryLanguage.html#a6e896b809c9a6f81ef2d5ecd85118a67',1,'learnta::ElementaryLanguage::wordSize()'],['../classlearnta_1_1TimedWord.html#a90763ffa159da7f7631e03efa657ab14',1,'learnta::TimedWord::wordSize()']]]
+  ['operator_26_26_172',['operator&amp;&amp;',['../structlearnta_1_1Zone.html#a72d4d332ea89437b5719a0e1d61041d5',1,'learnta::Zone']]],
+  ['operator_26_3d_173',['operator&amp;=',['../structlearnta_1_1Zone.html#aac8bcca631873630c50aadfd3474fab7',1,'learnta::Zone']]],
+  ['operator_2b_174',['operator+',['../classlearnta_1_1ElementaryLanguage.html#ab7a7c87c36437581133a87de1dd11517',1,'learnta::ElementaryLanguage::operator+()'],['../classlearnta_1_1TimedCondition.html#ae9d8c8d259ad69283d7e4e6354d8cde0',1,'learnta::TimedCondition::operator+()'],['../classlearnta_1_1TimedWord.html#a76c2a121b3b7217313b6ece9392ded42',1,'learnta::TimedWord::operator+(const TimedWord &amp;another)'],['../classlearnta_1_1TimedWord.html#ab943c77c128219dabd55d197490cf937',1,'learnta::TimedWord::operator+(const char action)'],['../classlearnta_1_1TimedWord.html#a54ae0ddb0de7decad91a2a3b34da2b8a',1,'learnta::TimedWord::operator+(const double duration)']]],
+  ['operator_3d_3d_175',['operator==',['../classlearnta_1_1JuxtaposedZoneSet.html#a57b54d1dd06260a2fe4727e0b3657586',1,'learnta::JuxtaposedZoneSet']]],
+  ['operator_5e_176',['operator^',['../classlearnta_1_1TimedCondition.html#ac2af0fc5db718586d8e7bd5a1f7b4f54',1,'learnta::TimedCondition::operator^()'],['../structlearnta_1_1Zone.html#afcfe186899d9ffbf8892cab672a0a140',1,'learnta::Zone::operator^()']]]
 ];

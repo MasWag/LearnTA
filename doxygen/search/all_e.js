@@ -1,13 +1,8 @@
 var searchData=
 [
-  ['sample_38',['sample',['../classlearnta_1_1ElementaryLanguage.html#a84782c0fb4e877578546716afef7f9c5',1,'learnta::ElementaryLanguage']]],
-  ['simpleautomatonfixture_39',['SimpleAutomatonFixture',['../structSimpleAutomatonFixture.html',1,'']]],
-  ['size_40',['size',['../classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c',1,'learnta::TimedCondition']]],
-  ['states_41',['states',['../structAutomaton.html#a4a34bd622ed2977a61d25c540b72e306',1,'Automaton']]],
-  ['statesize_42',['stateSize',['../structAutomaton.html#a1df4190cfbafc00202faa9f524f243c6',1,'Automaton']]],
-  ['step_43',['step',['../classlearnta_1_1SUL.html#a17c6835f9bf99d5038fb24acffee9212',1,'learnta::SUL::step(char action)=0'],['../classlearnta_1_1SUL.html#a1dcbc36bb5027b8cfff930ddbe72ac48',1,'learnta::SUL::step(double duration)=0'],['../classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019',1,'learnta::TimedAutomatonRunner::step(char action) override'],['../classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2',1,'learnta::TimedAutomatonRunner::step(double duration) override']]],
-  ['successor_44',['successor',['../classlearnta_1_1ForwardRegionalElementaryLanguage.html#a3194735b89bb44185e5bee5fc5f20ed1',1,'learnta::ForwardRegionalElementaryLanguage::successor(char action) const'],['../classlearnta_1_1ForwardRegionalElementaryLanguage.html#a277a04f4a6b934e1c922360744351870',1,'learnta::ForwardRegionalElementaryLanguage::successor() const'],['../classlearnta_1_1FractionalOrder.html#af3973b9da46805205827a8f784667f79',1,'learnta::FractionalOrder::successor()'],['../classlearnta_1_1TimedCondition.html#a24e755a0be93f28be23c36ee1064ef6c',1,'learnta::TimedCondition::successor()']]],
-  ['successorvariables_45',['successorVariables',['../classlearnta_1_1FractionalOrder.html#a85a67f4a994b1af64df9a95d3d783d42',1,'learnta::FractionalOrder']]],
-  ['sul_46',['SUL',['../classlearnta_1_1SUL.html',1,'learnta']]],
-  ['symbolicmembershiporacle_47',['SymbolicMembershipOracle',['../classlearnta_1_1SymbolicMembershipOracle.html',1,'learnta']]]
+  ['post_59',['post',['../classlearnta_1_1SUL.html#abb5a50158841fb86e3b50d966c96796f',1,'learnta::SUL::post()'],['../classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331',1,'learnta::TimedAutomatonRunner::post()']]],
+  ['pre_60',['pre',['../classlearnta_1_1SUL.html#a7d326067b62fc316dadd2a13d177a117',1,'learnta::SUL::pre()'],['../classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559',1,'learnta::TimedAutomatonRunner::pre()']]],
+  ['predecessor_61',['predecessor',['../classlearnta_1_1BackwardRegionalElementaryLanguage.html#aac631f109d66fda776fe9ede87341941',1,'learnta::BackwardRegionalElementaryLanguage::predecessor(char action) const'],['../classlearnta_1_1BackwardRegionalElementaryLanguage.html#a8b73d3c1b703d5017a118eab1b9387f8',1,'learnta::BackwardRegionalElementaryLanguage::predecessor() const'],['../classlearnta_1_1FractionalOrder.html#a6ad9b54b45bbae0733c58633961b9c17',1,'learnta::FractionalOrder::predecessor()'],['../classlearnta_1_1TimedCondition.html#aacb51d1f3f5252e5e0b5df6ddd614123',1,'learnta::TimedCondition::predecessor()']]],
+  ['predecessorvariables_62',['predecessorVariables',['../classlearnta_1_1FractionalOrder.html#a686be9b2cbdf72725a88c63b8e588bb6',1,'learnta::FractionalOrder']]],
+  ['print_63',['print',['../classlearnta_1_1TimedWord.html#a41eca53ee19d4a876388e3d92ee62465',1,'learnta::TimedWord']]]
 ];
