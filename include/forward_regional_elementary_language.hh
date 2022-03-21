@@ -71,5 +71,48 @@ namespace learnta {
       // By simplicity of the timed condition, we can check only the one side
       return this->timedCondition.hasEqualityN();
     }
+
+    /*!
+     * @brief Return the immediate prefix if exists
+     */
+    [[nodiscard]] std::optional<ForwardRegionalElementaryLanguage> immediatePrefix() const {
+      if (this->getWord().empty() && !this->getTimedCondition().hasPrefix()) {
+        // When no prefix exists
+        return std::nullopt;
+      } else if (this->getTimedCondition().hasPrefix()) {
+        // return the continuous prefix
+        return std::make_optional(ForwardRegionalElementaryLanguage{
+                {this->getWord(), this->getTimedCondition().prefix(this->fractionalOrder.predecessorVariables())},
+                this->fractionalOrder.predecessor()});
+      } else {
+        // return the discrete prefix
+        auto word = this->getWord();
+        word.pop_back();
+        return std::make_optional(ForwardRegionalElementaryLanguage{
+                {word, this->timedCondition.removeN()}, this->fractionalOrder.removeN()});
+      }
+    }
+
+    /*!
+     * @brief Return the prefixes
+     */
+    [[nodiscard]] std::vector<ForwardRegionalElementaryLanguage> prefixes() const {
+      std::list<ForwardRegionalElementaryLanguage> resultList;
+      auto language = *this;
+      resultList.push_front(language);
+      auto next = language.immediatePrefix();
+
+      while (next.has_value()) {
+        language = *next;
+        resultList.push_front(language);
+        next = language.immediatePrefix();
+      }
+
+      std::vector<ForwardRegionalElementaryLanguage> result;
+      result.resize(resultList.size());
+      std::move(resultList.begin(), resultList.end(), result.begin());
+
+      return result;
+    }
   };
 }

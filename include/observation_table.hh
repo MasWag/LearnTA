@@ -259,10 +259,19 @@ namespace learnta {
 
     /*!
      * @brief Add each prefix of counterExample to P
-     *
-     * @todo implement this
      */
     void addCounterExample(const ForwardRegionalElementaryLanguage &counterExample) {
+      const auto newPrefixes = counterExample.prefixes();
+      for (const auto &prefix: newPrefixes) {
+        auto it = std::find(this->prefixes.begin(), this->prefixes.end(), prefix);
+        // prefix should be in the observation table
+        assert(it != this->prefixes.end());
+        const auto index = it - this->prefixes.begin();
+        auto pIt = this->pIndices.find(index);
+        if (pIt == this->pIndices.end()) {
+          this->moveToP(index);
+        }
+      }
     }
 
     /*!

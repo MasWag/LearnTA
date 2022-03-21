@@ -371,6 +371,30 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make a continuous prefix
+     */
+    [[nodiscard]] TimedCondition prefix(const std::list<ClockVariables> &variables) const {
+      Zone result = this->zone;
+
+      for (const auto i: variables) {
+        // Bound of \f$\mathbb{T}_{i, N}
+        Bounds &upperBound = result.value(i + 1, 0);
+        Bounds &lowerBound = result.value(0, i + 1);
+        if (isPoint(upperBound, lowerBound)) {
+          upperBound.second = false;
+          lowerBound.first++;
+          lowerBound.second = false;
+        } else {
+          lowerBound.second = true;
+          upperBound.first--;
+          upperBound.second = true;
+        }
+      }
+
+      return TimedCondition(result);
+    }
+
+    /*!
      * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
      */
     [[nodiscard]] TimedCondition extendN() const {
@@ -382,6 +406,17 @@ namespace learnta {
       // Add \f$x_n = x_{n+1}\f$
       result.zone.value(N, 0) = {0, true};
       result.zone.value(0, N) = {0, true};
+
+      return result;
+    }
+
+    /*!
+     * @brief Remove \f$x_{N}\f$
+     */
+    [[nodiscard]] TimedCondition removeN() const {
+      TimedCondition result = *this;
+      const auto N = result.zone.value.cols();
+      result.zone.value.conservativeResize(N - 1, N - 1);
 
       return result;
     }
@@ -466,6 +501,15 @@ namespace learnta {
       }
 
       return result;
+    }
+
+    /*!
+     * @brief Return if this timed condition has a (continuous) prefix
+     */
+    [[nodiscard]] bool hasPrefix() const {
+      const auto N = zone.value.cols() - 1;
+
+      return this->getUpperBound(N, N) == Bounds{0, true} && this->getLowerBound(N, N) == Bounds{0, true};
     }
   };
 }

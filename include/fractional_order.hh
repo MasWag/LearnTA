@@ -71,8 +71,7 @@ namespace learnta {
       if (order.front().empty()) {
         // If there is no variables equal to 0.
         std::swap(result.order.front(), result.order.back());
-        auto lastIt = result.order.end();
-        result.order.erase(--lastIt);
+        result.order.pop_back();
       } else {
         // If there are some variables equal to 0.
         result.order.emplace_front();
@@ -117,6 +116,18 @@ namespace learnta {
     [[nodiscard]] FractionalOrder extendN() const {
       FractionalOrder result = *this;
       result.order.front().push_back(result.size++);
+      return result;
+    }
+
+    /*!
+     * @brief Remove \f$x_{N}\f$
+     *
+     * @pre \f$x_{N} = 0\f$
+     */
+    [[nodiscard]] FractionalOrder removeN() const {
+      FractionalOrder result = *this;
+      assert(result.order.front().back() + 1== this->size);
+      result.order.front().pop_back();
       return result;
     }
 
