@@ -10,6 +10,9 @@
 #include <queue>
 #include <unordered_map>
 
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
+
 #include "forward_regional_elementary_language.hh"
 #include "backward_regional_elementary_language.hh"
 #include "symbolic_membership_oracle.hh"
@@ -34,9 +37,9 @@ namespace learnta {
     // The table containing the symbolic membership
     std::vector<std::vector<TimedConditionSet>> table;
     std::unordered_map<std::size_t, std::size_t> continuousSuccessors;
-    std::unordered_map<std::pair<std::size_t, Alphabet>, std::size_t> discreteSuccessors;
+    boost::unordered_map<std::pair<std::size_t, Alphabet>, std::size_t> discreteSuccessors;
     // The pair of prefixes such that we know that they are distinguished
-    std::unordered_set<std::pair<std::size_t, std::size_t>> distinguishedPrefix;
+    boost::unordered_set<std::pair<std::size_t, std::size_t>> distinguishedPrefix;
 
     // Fill the observation table
     void refreshTable() {
@@ -199,7 +202,7 @@ namespace learnta {
               if (!this->equivalentWithMemo(this->discreteSuccessors.at({i, action}),
                                             this->discreteSuccessors.at({j, action}))) {
                 // The observation table is inconsistent due to a discrete successor
-                auto it = std::find(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
+                auto it = std::find_if(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
                   return !equivalent(i, j, suffix.predecessor(action));
                 });
                 // we assume that we have such a suffix
@@ -210,7 +213,7 @@ namespace learnta {
             }
             if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))) {
               // The observation table is inconsistent due to a continuous successor
-              auto it = std::find(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
+              auto it = std::find_if(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
                 return !equivalent(i, j, suffix.predecessor());
               });
               // we assume that we have such a suffix
@@ -385,7 +388,7 @@ namespace learnta {
 
       //! Construct transitions by discrete immediate exteriors
       for (auto[sourceIndex, action]: discreteBoundaries) {
-        std::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedCondition> sourceMap;
+        boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedCondition> sourceMap;
         auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
         {
           auto it = this->closedRelation.at(targetIndex).begin();

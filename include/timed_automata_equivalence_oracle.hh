@@ -15,7 +15,7 @@ namespace learnta {
   /*!
    * @brief Equivalence oracle with a timed automaton recognizing the complement of the target language
    */
-  class ComplementTimedAutomataEquivalenceOracle {
+  class ComplementTimedAutomataEquivalenceOracle : public EquivalenceOracle {
   private:
     TimedAutomaton complement;
   public:
@@ -27,7 +27,7 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const {
+    [[nodiscard]] virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(complement, hypothesis, intersection, toIState);

@@ -114,5 +114,10 @@ namespace learnta {
 
       return result;
     }
+
+    bool operator==(const ForwardRegionalElementaryLanguage &another) const {
+      return this->getWord() == another.getWord() && this->getTimedCondition() == another.getTimedCondition() &&
+      this->fractionalOrder == another.fractionalOrder;
+    }
   };
 }

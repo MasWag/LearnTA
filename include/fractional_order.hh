@@ -151,5 +151,9 @@ namespace learnta {
     [[nodiscard]] size_t getSize() const {
       return size;
     }
+
+    bool operator==(const FractionalOrder& another) const {
+      return this->size == another.size && this->order == another.order;
+    }
   };
 }

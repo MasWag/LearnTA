@@ -19,12 +19,12 @@ namespace learnta {
    *
    * @pre leftRow.size() == rightRow.size() == suffixes.size()
    */
-  bool equivalence(const ElementaryLanguage &left,
-                   const std::vector<TimedConditionSet> &leftRow,
-                   const ElementaryLanguage &right,
-                   const std::vector<TimedConditionSet> &rightRow,
-                   const std::vector<BackwardRegionalElementaryLanguage> &suffixes,
-                   const RenamingRelation &renaming) {
+  static bool equivalence(const ElementaryLanguage &left,
+                          const std::vector<TimedConditionSet> &leftRow,
+                          const ElementaryLanguage &right,
+                          const std::vector<TimedConditionSet> &rightRow,
+                          const std::vector<BackwardRegionalElementaryLanguage> &suffixes,
+                          const RenamingRelation &renaming) {
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());
     // Check the compatibility of prefixes up to renaming
@@ -77,11 +77,11 @@ namespace learnta {
    * @pre left and right are simple
    * @todo Write the test
    */
-  std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
-                                                         const std::vector<TimedConditionSet> &leftRow,
-                                                         const ElementaryLanguage &right,
-                                                         const std::vector<TimedConditionSet> &rightRow,
-                                                         const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
+  static std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
+                                                                const std::vector<TimedConditionSet> &leftRow,
+                                                                const ElementaryLanguage &right,
+                                                                const std::vector<TimedConditionSet> &rightRow,
+                                                                const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
     // 0. Asserts the preconditions
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());

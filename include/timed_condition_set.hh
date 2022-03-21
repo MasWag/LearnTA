@@ -21,6 +21,8 @@ namespace learnta {
     explicit TimedConditionSet(std::vector<TimedCondition> conditions) : conditions(std::move(conditions)) {}
 
   public:
+    TimedConditionSet() : conditions(std::vector<TimedCondition>{}) {}
+
     explicit TimedConditionSet(TimedCondition condition) : conditions({std::move(condition)}) {
     }
 
