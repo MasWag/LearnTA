@@ -31,17 +31,33 @@ namespace learnta {
       assert(this->fractionalOrder.getSize() == this->wordSize() + 1);
     }
 
+    static ForwardRegionalElementaryLanguage fromTimedWord(const TimedWord &timedWord) {
+      std::vector<double> fractionalPart, accumulatedDuration;
+      fractionalPart.resize(timedWord.wordSize() + 1);
+      accumulatedDuration.resize(timedWord.wordSize() + 1);
+      accumulatedDuration.back() = timedWord.getDurations().back();
+      fractionalPart.back() = timedWord.getDurations().back() - double(long(timedWord.getDurations().back()));
+      for (int i = fractionalPart.size() - 2; i >= 0; --i) {
+        accumulatedDuration.at(i) = accumulatedDuration.at(i + 1) + timedWord.getDurations().at(i);
+        fractionalPart.at(i) = accumulatedDuration.at(i);
+        fractionalPart.at(i) -= double(long(fractionalPart.at(i)));
+      }
+
+      return {ElementaryLanguage{timedWord.getWord(), TimedCondition{accumulatedDuration}},
+              FractionalOrder{fractionalPart}};
+    }
+
     /*!
      * @brief Construct the discrete successor
      */
-    [[nodiscard]] ForwardRegionalElementaryLanguage successor (char action) const {
+    [[nodiscard]] ForwardRegionalElementaryLanguage successor(char action) const {
       return {{this->word + action, this->timedCondition.extendN()}, fractionalOrder.extendN()};
     }
 
     /*!
      * @brief Construct the continuous successor
      */
-    [[nodiscard]] ForwardRegionalElementaryLanguage successor () const {
+    [[nodiscard]] ForwardRegionalElementaryLanguage successor() const {
       return {{this->word, this->timedCondition.successor(fractionalOrder.successorVariables())},
               fractionalOrder.successor()};
     }

@@ -11,7 +11,7 @@
 #include "backward_regional_elementary_language.hh"
 #include "timed_condition_set.hh"
 #include "juxtaposed_zone_set.hh"
-
+#include "renaming_relation.hh"
 
 namespace learnta {
   /*!
@@ -24,7 +24,7 @@ namespace learnta {
                    const ElementaryLanguage &right,
                    const std::vector<TimedConditionSet> &rightRow,
                    const std::vector<BackwardRegionalElementaryLanguage> &suffixes,
-                   const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
+                   const RenamingRelation &renaming) {
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());
     // Check the compatibility of prefixes up to renaming
@@ -77,12 +77,11 @@ namespace learnta {
    * @pre left and right are simple
    * @todo Write the test
    */
-  std::optional<std::vector<std::pair<std::size_t, std::size_t>>>
-  findEquivalentRenaming(const ElementaryLanguage &left,
-                         const std::vector<TimedConditionSet> &leftRow,
-                         const ElementaryLanguage &right,
-                         const std::vector<TimedConditionSet> &rightRow,
-                         const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
+  std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
+                                                         const std::vector<TimedConditionSet> &leftRow,
+                                                         const ElementaryLanguage &right,
+                                                         const std::vector<TimedConditionSet> &rightRow,
+                                                         const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
     // 0. Asserts the preconditions
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());
@@ -152,7 +151,7 @@ namespace learnta {
     constrainedV2.erase(std::unique(constrainedV2.begin(), constrainedV2.end()), constrainedV2.end());
 
     // 3. Generate candidate renaming
-    std::vector<std::vector<std::pair<std::size_t, std::size_t>>> candidates;
+    std::vector<RenamingRelation> candidates;
     candidates.emplace_back();
     {
       auto v1Index = 0, v2Index = 0;
@@ -168,7 +167,7 @@ namespace learnta {
         }
         const auto smallestEdge = std::make_pair(v1, v2);
         const auto largestEdge = std::make_pair(v1Edges.at(v1).back(), v2Edges.at(v2).back());
-        std::vector<std::vector<std::pair<std::size_t, std::size_t>>> tmp;
+        std::vector<RenamingRelation> tmp;
         tmp.reserve(candidates.size() * 2);
         for (const auto &candidate: candidates) {
           tmp.push_back(candidate);
@@ -189,7 +188,7 @@ namespace learnta {
     }
 
     // 4. Check candidate renaming
-    auto it = std::find_if(candidates.begin(), candidates.end(), [&] (const auto& candidate) {
+    auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
       return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
     });
     if (it == candidates.end()) {

@@ -60,7 +60,12 @@ namespace learnta {
                                   e2.resetVars.begin(), e2.resetVars.end());
       std::for_each(transition.resetVars.begin() + e1.resetVars.size(),
                     transition.resetVars.end(),
-                    [&](ClockVariables &v) { v += in1.clockSize(); });
+                    [&](auto &v) {
+        v.first += in1.clockSize();
+        if (v.second) {
+          *(v.second) += in1.clockSize();
+        }
+      });
 
       // concat constraints
       transition.guard.reserve(e1.guard.size() + e2.guard.size());
@@ -203,7 +208,12 @@ namespace learnta {
                                   e2.resetVars.begin(), e2.resetVars.end());
       std::for_each(transition.resetVars.begin() + e1.resetVars.size(),
                     transition.resetVars.end(),
-                    [&](ClockVariables &v) { v += in1.clockSize(); });
+                    [&](auto &v) {
+        v.first += in1.clockSize();
+        if (v.second) {
+          *(v.second) += in1.clockSize();
+        }
+      });
 
       // concat constraints
       transition.guard.reserve(e1.guard.size() + e2.guard.size());

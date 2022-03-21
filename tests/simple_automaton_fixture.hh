@@ -22,7 +22,7 @@ struct SimpleAutomatonFixture {
     automaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < 1};
     automaton.states.at(0)->next['a'].at(1).target = automaton.states.at(1).get();
     automaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= 1};
-    automaton.states.at(0)->next['a'].at(1).resetVars.push_back(0);
+    automaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
     // Transitions from loc1
     automaton.states.at(1)->next['a'].at(0).target = automaton.states.at(0).get();
     automaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= 1};
@@ -49,7 +49,7 @@ struct ComplementSimpleAutomatonFixture {
     complementAutomaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < 1};
     complementAutomaton.states.at(0)->next['a'].at(1).target = complementAutomaton.states.at(1).get();
     complementAutomaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= 1};
-    complementAutomaton.states.at(0)->next['a'].at(1).resetVars.push_back(0);
+    complementAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
     // Transitions from loc1
     complementAutomaton.states.at(1)->next['a'].at(0).target = complementAutomaton.states.at(0).get();
     complementAutomaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= 1};

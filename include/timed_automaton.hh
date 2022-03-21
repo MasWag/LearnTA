@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include <unordered_map>
+#include <utility>
 #include <valarray>
 #include <vector>
 
@@ -39,10 +40,21 @@ namespace learnta {
   struct TATransition {
     //! @brief The pointer to the target state.
     TAState *target;
-    //! @brief The clock variables reset after this transition.
-    std::vector<ClockVariables> resetVars;
+    /*!
+     * @brief The clock variables reset after this transition.
+     *
+     * clock[i] is reset to 0 if resetVars[i].has_value() == false. clock[i] is reset to clock[*resetVars[i]] otherwise
+     */
+    std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> resetVars;
     //! @brief The guard for this transition.
     std::vector<Constraint> guard;
+
+    TATransition() {}
+
+    TATransition(TAState *target,
+                 std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> resetVars,
+                 std::vector<Constraint> guard)
+            : target(target), resetVars(std::move(resetVars)), guard(std::move(guard)) {}
   };
 
   /*!
@@ -95,7 +107,7 @@ namespace learnta {
       return maxConstraints.size();
     }
   };
-
+/*
   static inline std::ostream &operator<<(std::ostream &os,
                                          const TimedAutomaton &TA) {
     std::unordered_map<TAState *, bool> isInit;
@@ -153,5 +165,5 @@ namespace learnta {
     }
     os << "}\n";
     return os;
-  }
+  } */
 }

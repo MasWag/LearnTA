@@ -28,15 +28,40 @@ namespace learnta {
     }
 
     /*!
+     * @brief Construct a fractional order from a concrete vector of fractional parts.
+     */
+    explicit FractionalOrder(const std::vector<double> &fractionalParts) {
+      std::vector<std::pair<double, ClockVariables>> fractionalPartsWithIndices;
+      fractionalPartsWithIndices.resize(fractionalParts.size());
+      for (int i = 0; i < fractionalParts.size(); ++i) {
+        fractionalPartsWithIndices.at(i) = std::make_pair(fractionalParts.at(i), i);
+      }
+      std::sort(fractionalPartsWithIndices.begin(), fractionalPartsWithIndices.end(),
+                [&](const auto &left, const auto &right) {
+                  return left.first < right.first;
+                });
+      double currentFractionalPart = 0;
+      for (const auto& [fractionalPart, index]: fractionalPartsWithIndices) {
+        if (currentFractionalPart == fractionalPart) {
+          order.back().push_back(index);
+        } else {
+          order.emplace_back(std::list<ClockVariables>{index});
+        }
+      }
+      //order.push_front({0});
+      size = fractionalParts.size();
+    }
+
+    /*!
      * @brief Return the variable to elapse
      */
-     [[nodiscard]] std::list<ClockVariables> successorVariables() const {
-       if (order.front().empty()) {
-         return order.back();
-       } else {
-         return order.front();
-       }
-     }
+    [[nodiscard]] std::list<ClockVariables> successorVariables() const {
+      if (order.front().empty()) {
+        return order.back();
+      } else {
+        return order.front();
+      }
+    }
 
     /*!
      * @brief Make it to be the successor
@@ -110,6 +135,7 @@ namespace learnta {
       result.size++;
       return result;
     }
+
     //! @brief Returns the number of the variables
     [[nodiscard]] size_t getSize() const {
       return size;

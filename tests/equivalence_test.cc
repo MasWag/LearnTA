@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
       p1Row.push_back(this->oracle->query(p1 + suffix));
       p2Row.push_back(this->oracle->query(p2 + suffix));
     }
-    std::vector<std::pair<std::size_t, std::size_t>> renaming = {};
+    RenamingRelation renaming = {};
     BOOST_CHECK(equivalence(p1, p1Row, p2, p2Row, suffixes, renaming));
   }
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
       p1Row.push_back(this->oracle->query(p1 + suffix));
       p2Row.push_back(this->oracle->query(p2 + suffix));
     }
-    std::vector<std::pair<std::size_t, std::size_t>> renaming = {};
+    RenamingRelation renaming = {};
 
     BOOST_CHECK(!equivalence(p1, p1Row, p2, p2Row, suffixes, renaming));
   }

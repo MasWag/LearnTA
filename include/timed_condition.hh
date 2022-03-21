@@ -28,6 +28,29 @@ namespace learnta {
     TimedCondition() : zone(Zone::zero(2)) {}
 
     /*!
+     * @brief Construct a timed condition from concrete values of T_{i,j}.
+     *
+     * @param [in] accumulatedDuration a vector representing \f$\mathbb{T}_{i,N}\f$, where \f$N\f$ is the length.
+     */
+    explicit TimedCondition(const std::vector<double>& accumulatedDuration) {
+      this->zone = Zone::top(accumulatedDuration.size());
+      for (int i = 0; i < accumulatedDuration.size(); ++i) {
+        for (int j = i; j < accumulatedDuration.size(); ++j) {
+          // T_{i, j} = accumulatedDuration.at(i) - accumulatedDuration.at(j + 1)
+          const auto concreteDifference = accumulatedDuration.at(i) -
+                  ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
+          if (double(long(concreteDifference)) == concreteDifference) {
+            this->restrictUpperBound(i, j, Bounds{concreteDifference, true});
+            this->restrictLowerBound(i, j, Bounds{-concreteDifference, true});
+          } else {
+            this->restrictUpperBound(i, j, Bounds{double(long(concreteDifference)) + 1, false});
+            this->restrictLowerBound(i, j, Bounds{-double(long(concreteDifference)), false});
+          }
+        }
+      }
+    }
+
+    /*!
      * @brief Construct the empty timed condition, i.e. \f$\tau_0 = 0\f$.
      */
     static TimedCondition empty() {
@@ -414,6 +437,35 @@ namespace learnta {
 
     bool operator==(const TimedCondition &condition) const {
       return this->zone == condition.zone;
+    }
+
+    /*!
+     * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mattbb{T}_{i,N}\f$.
+     */
+    [[nodiscard]] std::vector<Constraint> toGuard() const {
+      std::vector <Constraint> result;
+      const auto N = this->size();
+      result.reserve(N * 2);
+      for (int i = 0; i < this->size(); ++i) {
+        const auto lowerBound = this->getLowerBound(i, N);
+        const auto upperBound = this->getUpperBound(i, N);
+        if (!std::isinf(lowerBound.first)) {
+          if (lowerBound.second) {
+            result.push_back(ConstraintMaker(i) >= -int(lowerBound.first));
+          } else {
+            result.push_back(ConstraintMaker(i) > -int(lowerBound.first));
+          }
+        }
+        if (!std::isinf(upperBound.first)) {
+          if (upperBound.second) {
+            result.push_back(ConstraintMaker(i) <= int(upperBound.first));
+          } else {
+            result.push_back(ConstraintMaker(i) < int(upperBound.first));
+          }
+        }
+      }
+
+      return result;
     }
   };
 }

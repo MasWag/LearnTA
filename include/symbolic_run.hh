@@ -67,9 +67,15 @@ namespace learnta {
 
         // Construct the zone just before jump
         auto zoneBeforeJump = Zone{postValuation, postZone.M};
+        const auto originalZoneBeforeJump = Zone{postValuation, postZone.M};
         const auto transition = this->edgeAt(i);
-        for (const auto reset: transition.resetVars) {
-          zoneBeforeJump.unconstrain(reset);
+        for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
+          if (updatedVariable) {
+            zoneBeforeJump.value.col(resetVariable + 1) = originalZoneBeforeJump.value.col(*updatedVariable + 1);
+            zoneBeforeJump.value.row(resetVariable + 1) = originalZoneBeforeJump.value.row(*updatedVariable + 1);
+          } else {
+            zoneBeforeJump.unconstrain(resetVariable);
+          }
         }
         for (const auto guard: transition.guard) {
           zoneBeforeJump.tighten(guard);

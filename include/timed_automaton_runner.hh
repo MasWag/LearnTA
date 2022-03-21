@@ -54,8 +54,13 @@ namespace learnta {
           return guard.satisfy(this->clockValuation.at(guard.x));
         })) {
           // Reset the clock variables
-          for (const auto reset: transition.resetVars) {
-            this->clockValuation.at(reset) = 0;
+          const auto oldValuation = this->clockValuation;
+          for (const auto& [resetVariable, targetVariable]: transition.resetVars) {
+            if (targetVariable) {
+              this->clockValuation.at(resetVariable) = oldValuation.at(*targetVariable);
+            } else {
+              this->clockValuation.at(resetVariable) = 0;
+            }
           }
           this->state = transition.target;
 

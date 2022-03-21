@@ -7,6 +7,7 @@
 
 #include <utility>
 #include <vector>
+#include <queue>
 #include <unordered_map>
 
 #include "forward_regional_elementary_language.hh"
@@ -14,6 +15,7 @@
 #include "symbolic_membership_oracle.hh"
 #include "timed_automaton.hh"
 #include "equivalence.hh"
+#include "renaming_relation.hh"
 
 namespace learnta {
   /*!
@@ -28,7 +30,7 @@ namespace learnta {
     // The indexes of prefixes in P
     std::unordered_set<std::size_t> pIndices;
     // prefixes[first] and prefixes[second.first] are in the same equivalence class witnessed by second.second
-    std::unordered_map<std::size_t, std::unordered_map<std::size_t, std::vector<std::pair<std::size_t, std::size_t>>>> closedRelation;
+    std::unordered_map<std::size_t, std::unordered_map<std::size_t, RenamingRelation>> closedRelation;
     // The table containing the symbolic membership
     std::vector<std::vector<TimedConditionSet>> table;
     std::unordered_map<std::size_t, std::size_t> continuousSuccessors;
@@ -108,24 +110,25 @@ namespace learnta {
                                     newSuffixes).has_value();
     }
 
-    explicit ObservationTable(std::vector<Alphabet> alphabet, std::unique_ptr<SymbolicMembershipOracle> memOracle) :
-            memOracle(std::move(memOracle)),
-            alphabet(std::move(alphabet)),
-            prefixes{ForwardRegionalElementaryLanguage{}},
-            suffixes{BackwardRegionalElementaryLanguage{}} {
-      pIndices.insert(0);
+    /*!
+     * @brief Returns if row[i] is accepting or not
+     */
+    [[nodiscard]] bool isMatch(std::size_t i) const {
+      return !this->table.at(i).at(0).empty();
     }
 
   public:
     /*!
      * @brief Initialize the observation table
      */
-    static ObservationTable
-    initialize(std::vector<Alphabet> alphabet, std::unique_ptr<SymbolicMembershipOracle> memOracle) {
-      ObservationTable observationTable{std::move(alphabet), std::move(memOracle)};
-      observationTable.moveToP(0);
-      observationTable.refreshTable();
-      return observationTable;
+    ObservationTable(std::vector<Alphabet> alphabet, std::unique_ptr<SymbolicMembershipOracle> memOracle) :
+            memOracle(std::move(memOracle)),
+            alphabet(std::move(alphabet)),
+            prefixes{ForwardRegionalElementaryLanguage{}},
+            suffixes{BackwardRegionalElementaryLanguage{}} {
+      pIndices.insert(0);
+      this->moveToP(0);
+      this->refreshTable();
     }
 
     /*!
@@ -255,11 +258,175 @@ namespace learnta {
     }
 
     /*!
+     * @brief Add each prefix of counterExample to P
+     *
+     * @todo implement this
+     */
+    void addCounterExample(const ForwardRegionalElementaryLanguage &counterExample) {
+    }
+
+    /*!
      * @brief Construct a hypothesis DTA from the current timed observation table
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
      * @todo not implemented
      */
-    TimedAutomaton generateHypothesis();
+    TimedAutomaton generateHypothesis() {
+      std::unordered_map<std::size_t, std::shared_ptr<TAState>> indexToState;
+      std::unordered_map<std::shared_ptr<TAState>, std::vector<std::size_t>> stateToIndices;
+      std::vector<std::shared_ptr<TAState>> states;
+      std::size_t variableSize = 0;
+      auto addState = [&](std::size_t index) {
+        auto state = std::make_shared<TAState>(this->isMatch(index));
+        indexToState[index] = state;
+        auto it = stateToIndices.find(state);
+        if (it == stateToIndices.end()) {
+          stateToIndices[state] = {index};
+        } else {
+          it->second.push_back(index);
+        }
+        states.push_back(state);
+
+        return state;
+      };
+
+      auto initialState = addState(0);
+      // construct the initial state
+      const auto handleInternalContinuousSuccessors = [&](std::size_t initialIndex) {
+        auto nextIndex = this->continuousSuccessors[initialIndex];
+        while (pIndices.find(nextIndex) != pIndices.end()) {
+          if (isMatch(initialIndex) == isMatch(nextIndex)) {
+            auto state = indexToState[initialIndex];
+            indexToState[nextIndex] = state;
+            stateToIndices[state].push_back(nextIndex);
+          } else {
+            // We have not implemented such a case that an unobservatble transition is necessary
+            abort();
+          }
+
+          // Our optimization to merge the continuous exterior
+          if (equivalentWithMemo(nextIndex, initialIndex)) {
+            auto state = indexToState[initialIndex];
+            indexToState[nextIndex] = state;
+            stateToIndices[state].push_back(nextIndex);
+          }
+
+          initialIndex = nextIndex;
+          nextIndex = this->continuousSuccessors[initialIndex];
+        }
+      };
+      handleInternalContinuousSuccessors(0);
+
+      std::vector<std::pair<std::size_t, Alphabet>> discreteBoundaries;
+
+      // explore new states
+      std::queue<std::shared_ptr<TAState>> newStates;
+      newStates.push(initialState);
+      while (!newStates.empty()) {
+        auto newState = newStates.front();
+        newStates.pop();
+        auto newStateIndices = stateToIndices.at(newState);
+        for (const auto action: alphabet) {
+          const auto baseSuccessorIndex = this->discreteSuccessors.at(std::make_pair(newStateIndices.front(), action));
+          // Add states only if the successor is also in P
+          if (this->pIndices.find(baseSuccessorIndex) == this->pIndices.end()) {
+            discreteBoundaries.emplace_back(newStateIndices.front(), action);
+            continue;
+          }
+
+          auto successor = addState(baseSuccessorIndex);
+          newStates.push(successor);
+          handleInternalContinuousSuccessors(baseSuccessorIndex);
+          std::unordered_map<std::shared_ptr<TAState>, TimedCondition> sourceMap;
+          sourceMap[successor] = this->prefixes.at(baseSuccessorIndex).getTimedCondition();
+          variableSize = std::max(variableSize, sourceMap[successor].size());
+
+          for (auto it = newStateIndices.begin(); std::next(it) != newStateIndices.end(); ++it) {
+            const auto discreteAfterContinuous = this->discreteSuccessors[{*std::next(it), action}];
+            const auto continuousAfterDiscrete =
+                    this->continuousSuccessors[this->discreteSuccessors[std::make_pair(*it, action)]];
+
+            if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
+              // merge p --continuous--> --discrete--> and p --discrete--> --continuous--> if they are equivalent
+              indexToState.at(discreteAfterContinuous) = successor;
+              stateToIndices[successor].push_back(discreteAfterContinuous);
+
+              // We use the convexity of the timed conditions of this and its continuous successor
+              sourceMap[successor] = sourceMap[successor].convexHull(
+                      this->prefixes.at(*std::next(it)).getTimedCondition());
+            } else {
+              // Otherwise, we create a new state
+              successor = addState(discreteAfterContinuous);
+              newStates.push(successor);
+              sourceMap[successor] = this->prefixes.at(*std::next(it)).getTimedCondition();
+            }
+
+            handleInternalContinuousSuccessors(discreteAfterContinuous);
+          }
+
+          newState->next[action].reserve(sourceMap.size());
+          for (const auto&[target, timedCondition]: sourceMap) {
+            newState->next[action].emplace_back(target.get(),
+                                                std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{
+                                                        std::make_pair(timedCondition.size(), std::nullopt)},
+                                                timedCondition.toGuard());
+          }
+        }
+      }
+
+      //! Construct transitions by discrete immediate exteriors
+      for (auto[sourceIndex, action]: discreteBoundaries) {
+        std::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedCondition> sourceMap;
+        auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
+        {
+          auto it = this->closedRelation.at(targetIndex).begin();
+          // Find a successor in P
+          while (this->pIndices.find(it->first) == this->pIndices.end()) {
+            ++it;
+          }
+          const auto &[jumpedTargetIndex, renamingRelation] = *it;
+          sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
+                  this->prefixes.at(targetIndex).getTimedCondition();
+        }
+
+        while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
+          sourceIndex = this->continuousSuccessors.at(sourceIndex);
+          targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
+          auto it = this->closedRelation.at(targetIndex).begin();
+          // Find a successor in P
+          while (this->pIndices.find(it->first) == this->pIndices.end()) {
+            ++it;
+          }
+          const auto &[jumpedTargetIndex, renamingRelation] = *it;
+          sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
+                  this->prefixes.at(targetIndex).getTimedCondition();
+        }
+      }
+
+      //! @todo construct transitions by continuous immediate exteriors
+
+      // Construct the max constants
+      std::vector<int> maxConstants;
+      maxConstants.resize(variableSize);
+      for (const auto &state: states) {
+        for (const auto &[action, transitions]: state->next) {
+          for (const auto &transition: transitions) {
+            for (const auto &guard: transition.guard) {
+              maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);
+            }
+          }
+        }
+      }
+
+      return TimedAutomaton{{states, {initialState}}, maxConstants};
+    }
+
+    std::ostream &printStatistics(std::ostream &stream) {
+      stream << "|P| = " << this->pIndices.size() << "\n";
+      stream << "|ext(P)| = " << this->prefixes.size() - this->pIndices.size() << "\n";
+      stream << "|S| = " << this->suffixes.size() << "\n";
+
+      return stream;
+    }
   };
 }
