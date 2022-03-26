@@ -97,14 +97,14 @@ namespace learnta {
     std::size_t v1 = 0, v2 = 0;
     std::vector<std::size_t> currentSameV1, currentSameV2;
     while (v1 < v1Edges.size() && v2 < v2Edges.size()) {
-      if (left.getTimedCondition().getUpperBound(v1, N) == right.getTimedCondition().getUpperBound(v2, N)) {
+      if (left.getTimedCondition().getUpperBound(v1, N - 1) == right.getTimedCondition().getUpperBound(v2, M - 1)) {
         v1Edges.reserve(currentSameV2.size());
         v2Edges.reserve(currentSameV1.size());
         std::copy(currentSameV2.begin(), currentSameV2.end(), std::back_inserter(v1Edges.at(v1)));
         std::for_each(currentSameV2.begin(), currentSameV2.end(), [&](const auto oldV2) {
           v2Edges.at(oldV2).push_back(v1);
         });
-        std::copy(currentSameV1.begin(), currentSameV1.end(), std::back_inserter(v2Edges.at(v1)));
+        std::copy(currentSameV1.begin(), currentSameV1.end(), std::back_inserter(v2Edges.at(v2)));
         std::for_each(currentSameV1.begin(), currentSameV1.end(), [&](const auto oldV1) {
           v1Edges.at(oldV1).push_back(v2);
         });
@@ -112,10 +112,12 @@ namespace learnta {
         v2Edges.at(v2).push_back(v1);
         currentSameV1.push_back(v1);
         currentSameV2.push_back(v2);
+        v1++;
+        v2++;
       } else {
         currentSameV1.clear();
         currentSameV2.clear();
-        if (left.getTimedCondition().getUpperBound(v1, N) < right.getTimedCondition().getUpperBound(v2, N)) {
+        if (left.getTimedCondition().getUpperBound(v1, N - 1) < right.getTimedCondition().getUpperBound(v2, M - 1)) {
           v2++;
         } else {
           v1++;
@@ -134,9 +136,9 @@ namespace learnta {
         return std::nullopt;
       }
       auto currentV1Constrained =
-              leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenation.getTimedCondition(), N - 1);
+              leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenation.getTimedCondition(), N);
       auto currentV2Constrained =
-              rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenation.getTimedCondition(), M - 1);
+              rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenation.getTimedCondition(), M);
       if ((currentV1Constrained.empty() && !currentV2Constrained.empty()) ||
           (!currentV1Constrained.empty() && currentV2Constrained.empty())) {
         // One of them is trivial but another is not
@@ -158,15 +160,33 @@ namespace learnta {
       while (v1Index < constrainedV1.size() && v2Index < constrainedV2.size()) {
         v1 = constrainedV1.at(v1Index);
         v2 = constrainedV2.at(v2Index);
-        // 3-1. We quickly check if we cannot construct any candidate
+        // 3-1. We check if we cannot include these vertices
+        if (v1Edges.at(v1).empty()) {
+          v1Index++;
+          continue;
+        }
+        if (v2Edges.at(v2).empty()) {
+          v2Index++;
+          continue;
+        }
         if (!std::binary_search(v1Edges.at(v1).begin(), v1Edges.at(v1).end(), v2)) {
-          return std::nullopt;
+          if (v1Edges.at(v1).back() >= v2) {
+            v2Index++;
+          } else {
+            v1Index++;
+          }
+          continue;
         }
         if (!std::binary_search(v2Edges.at(v2).begin(), v2Edges.at(v2).end(), v1)) {
-          return std::nullopt;
+          if (v2Edges.at(v2).back() >= v1) {
+            v1Index++;
+          } else {
+            v2Index++;
+          }
+          continue;
         }
         const auto smallestEdge = std::make_pair(v1, v2);
-        const auto largestEdge = std::make_pair(v1Edges.at(v1).back(), v2Edges.at(v2).back());
+        const auto largestEdge = std::make_pair(v2Edges.at(v2).back(), v1Edges.at(v1).back());
         std::vector<RenamingRelation> tmp;
         tmp.reserve(candidates.size() * 2);
         for (const auto &candidate: candidates) {
@@ -181,7 +201,7 @@ namespace learnta {
         while (v1Index < constrainedV1.size() && constrainedV1.at(v1Index) <= v2Edges.at(v2).back()) {
           v1Index++;
         }
-        while (v2Index < constrainedV2.size() && constrainedV2.at(v1Index) <= v1Edges.at(v1).back()) {
+        while (v2Index < constrainedV2.size() && constrainedV2.at(v2Index) <= v1Edges.at(v1).back()) {
           v2Index++;
         }
       }

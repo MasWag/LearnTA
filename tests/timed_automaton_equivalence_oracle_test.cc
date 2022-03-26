@@ -16,7 +16,8 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
   };
 
   BOOST_FIXTURE_TEST_CASE(query, Fixture) {
-    auto oracle = ComplementTimedAutomataEquivalenceOracle{this->complementAutomaton};
+    auto oracle = ComplementTimedAutomataEquivalenceOracle{this->automaton, this->complementAutomaton};
+
     BOOST_CHECK(oracle.findCounterExample(this->universalAutomaton));
     auto counterexample = oracle.findCounterExample(this->universalAutomaton).value();
     BOOST_CHECK_EQUAL(1, counterexample.wordSize());

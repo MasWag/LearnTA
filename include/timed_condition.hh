@@ -32,13 +32,13 @@ namespace learnta {
      *
      * @param [in] accumulatedDuration a vector representing \f$\mathbb{T}_{i,N}\f$, where \f$N\f$ is the length.
      */
-    explicit TimedCondition(const std::vector<double>& accumulatedDuration) {
-      this->zone = Zone::top(accumulatedDuration.size());
+    explicit TimedCondition(const std::vector<double> &accumulatedDuration) {
+      this->zone = Zone::top(accumulatedDuration.size() + 1);
       for (int i = 0; i < accumulatedDuration.size(); ++i) {
         for (int j = i; j < accumulatedDuration.size(); ++j) {
           // T_{i, j} = accumulatedDuration.at(i) - accumulatedDuration.at(j + 1)
           const auto concreteDifference = accumulatedDuration.at(i) -
-                  ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
+                                          ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
           if (double(long(concreteDifference)) == concreteDifference) {
             this->restrictUpperBound(i, j, Bounds{concreteDifference, true});
             this->restrictLowerBound(i, j, Bounds{-concreteDifference, true});
@@ -252,7 +252,7 @@ namespace learnta {
     /*!
      * @brief Make it to be the convex hull of this timed condition and the given timed condition
      */
-    void convexHullAssign(const TimedCondition& condition) {
+    void convexHullAssign(const TimedCondition &condition) {
       this->zone.value = this->zone.value.cwiseMax(condition.zone.value);
     }
 
@@ -347,6 +347,20 @@ namespace learnta {
     }
 
     /*!
+     * @brief Remove the equality upper bound
+     */
+    void removeEqualityUpperBoundAssign() {
+
+      for (auto i = 0; i < this->zone.getNumOfVar(); i++) {
+        // Bound of \f$\mathbb{T}_{i,N}
+        Bounds &upperBound = this->zone.value(i + 1, 0);
+        if (upperBound.second) {
+          upperBound = Bounds{std::numeric_limits<double>::max(), false};
+        }
+      }
+    }
+
+    /*!
      * @brief Make a continuous predecessor by backward-elapsing variables
      */
     [[nodiscard]] TimedCondition predecessor(const std::list<ClockVariables> &variables) const {
@@ -428,7 +442,7 @@ namespace learnta {
      */
     [[nodiscard]] bool hasEqualityN() const {
       // By simplicity of the timed condition, we can check only the one side
-      return this->zone.value.array().col(0).unaryExpr([](const Bounds &bound) {
+      return this->zone.value.col(0).tail(this->size()).unaryExpr([](const Bounds &bound) {
         return bound.second;
       }).any();
     }
@@ -464,7 +478,7 @@ namespace learnta {
       for (int i = 1; i <= examinedVariableSize; ++i) {
         if (this->zone.value.col(i) != originalCondition.zone.value.col(i) ||
             this->zone.value.row(i) != originalCondition.zone.value.row(i)) {
-          result.push_back(i);
+          result.push_back(i-1);
         }
       }
       return result;
@@ -478,20 +492,20 @@ namespace learnta {
      * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mattbb{T}_{i,N}\f$.
      */
     [[nodiscard]] std::vector<Constraint> toGuard() const {
-      std::vector <Constraint> result;
+      std::vector<Constraint> result;
       const auto N = this->size();
       result.reserve(N * 2);
       for (int i = 0; i < this->size(); ++i) {
-        const auto lowerBound = this->getLowerBound(i, N);
-        const auto upperBound = this->getUpperBound(i, N);
-        if (!std::isinf(lowerBound.first)) {
+        const auto lowerBound = this->getLowerBound(i, N - 1);
+        const auto upperBound = this->getUpperBound(i, N - 1);
+        if (lowerBound.first != std::numeric_limits<double>::max() && lowerBound != Bounds{0, true}) {
           if (lowerBound.second) {
             result.push_back(ConstraintMaker(i) >= -int(lowerBound.first));
           } else {
             result.push_back(ConstraintMaker(i) > -int(lowerBound.first));
           }
         }
-        if (!std::isinf(upperBound.first)) {
+        if (upperBound.first != std::numeric_limits<double>::max()) {
           if (upperBound.second) {
             result.push_back(ConstraintMaker(i) <= int(upperBound.first));
           } else {
@@ -509,7 +523,8 @@ namespace learnta {
     [[nodiscard]] bool hasPrefix() const {
       const auto N = zone.value.cols() - 1;
 
-      return this->getUpperBound(N, N) == Bounds{0, true} && this->getLowerBound(N, N) == Bounds{0, true};
+      return !(this->getUpperBound(N - 1, N - 1) == Bounds{0, true} &&
+               this->getLowerBound(N - 1, N - 1) == Bounds{0, true});
     }
   };
 }

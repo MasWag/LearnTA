@@ -119,5 +119,15 @@ namespace learnta {
       return this->getWord() == another.getWord() && this->getTimedCondition() == another.getTimedCondition() &&
       this->fractionalOrder == another.fractionalOrder;
     }
+
+    std::ostream &print(std::ostream &os) const {
+      os << "(" << this->getWord() << ", " << this->getTimedCondition() << ", " << this->fractionalOrder;
+
+      return os;
+    }
   };
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::ForwardRegionalElementaryLanguage &lang) {
+    return lang.print(os);
+  }
 }

@@ -26,13 +26,15 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
       auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{this->automaton});
       this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
       this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
-              new learnta::ComplementTimedAutomataEquivalenceOracle{this->complementAutomaton});
+              new learnta::ComplementTimedAutomataEquivalenceOracle{this->automaton, this->complementAutomaton});
     }
   };
 
   BOOST_FIXTURE_TEST_CASE(simpleDTA, SimpleAutomatonOracleFixture) {
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
-    learner.run();
+    const auto result = learner.run();
+    learner.printStatistics(std::cout);
+    BOOST_CHECK_EQUAL(2, result.stateSize());
   }
 
 BOOST_AUTO_TEST_SUITE_END()

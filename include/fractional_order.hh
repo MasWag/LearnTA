@@ -41,6 +41,7 @@ namespace learnta {
                   return left.first < right.first;
                 });
       double currentFractionalPart = 0;
+      order.emplace_back();
       for (const auto& [fractionalPart, index]: fractionalPartsWithIndices) {
         if (currentFractionalPart == fractionalPart) {
           order.back().push_back(index);
@@ -126,8 +127,9 @@ namespace learnta {
      */
     [[nodiscard]] FractionalOrder removeN() const {
       FractionalOrder result = *this;
-      assert(result.order.front().back() + 1== this->size);
+      assert(result.order.front().back() + 1 == this->size);
       result.order.front().pop_back();
+      result.size--;
       return result;
     }
 
@@ -155,5 +157,28 @@ namespace learnta {
     bool operator==(const FractionalOrder& another) const {
       return this->size == another.size && this->order == another.order;
     }
+
+    std::ostream &print(std::ostream &os) const {
+      auto it = order.begin();
+      if (it->empty()) {
+        os << "0 < ";
+        it++;
+      } else {
+        os << "0 <= ";
+      }
+      for (; it != order.end(); it++) {
+        os << "{";
+        for (const auto var: *it) {
+          os << "x" << int(var) << ", ";
+        }
+        os << "}";
+      }
+
+      return os;
+    }
   };
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::FractionalOrder &order) {
+    return order.print(os);
+  }
 }

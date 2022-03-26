@@ -29,19 +29,34 @@ namespace learnta {
     BackwardRegionalElementaryLanguage(ElementaryLanguage elementary, FractionalOrder fractionalOrder) :
             ElementaryLanguage(std::move(elementary)), fractionalOrder(std::move(fractionalOrder)) {}
 
-      /*!
-       * @brief Construct the discrete predecessor
-       */
-    [[nodiscard]] BackwardRegionalElementaryLanguage predecessor (char action) const {
+    /*!
+     * @brief Construct the discrete predecessor
+     */
+    [[nodiscard]] BackwardRegionalElementaryLanguage predecessor(char action) const {
       return {{action + this->word, this->timedCondition.extendZero()}, fractionalOrder.extendZero()};
     }
 
     /*!
      * @brief Construct the continuous predecessor
      */
-    [[nodiscard]] BackwardRegionalElementaryLanguage predecessor () const {
+    [[nodiscard]] BackwardRegionalElementaryLanguage predecessor() const {
       return {{this->word, this->timedCondition.predecessor(fractionalOrder.predecessorVariables())},
               fractionalOrder.predecessor()};
     }
+
+    std::ostream &print(std::ostream &os) const {
+      os << "(" << this->getWord() << ", " << this->getTimedCondition() << ", " << this->fractionalOrder;
+
+      return os;
+    }
+
+    bool operator==(const BackwardRegionalElementaryLanguage &another) const {
+      return this->word == another.word && this->timedCondition == another.timedCondition &&
+             this->fractionalOrder == another.fractionalOrder;
+    }
   };
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::BackwardRegionalElementaryLanguage &lang) {
+    return lang.print(os);
+  }
 }

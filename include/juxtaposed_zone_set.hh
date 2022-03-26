@@ -68,15 +68,16 @@ namespace learnta {
      *
      * @pre Both of the juxtaposed zones are canonical
      */
-    bool operator==(const JuxtaposedZoneSet& another) const {
-      return std::all_of(this->zones.begin(), this->zones.end(), [&] (const JuxtaposedZone &zone) {
-        return std::any_of(another.zones.begin(), another.zones.end(), [&] (const JuxtaposedZone& anotherZone) {
-          return zone == anotherZone;
-        });
-      });
+    bool operator==(const JuxtaposedZoneSet &another) const {
+      return this->zones.size() == another.zones.size() &&
+             std::all_of(this->zones.begin(), this->zones.end(), [&](const JuxtaposedZone &zone) {
+               return std::any_of(another.zones.begin(), another.zones.end(), [&](const JuxtaposedZone &anotherZone) {
+                 return zone == anotherZone;
+               });
+             });
     }
 
-    bool operator!=(const JuxtaposedZoneSet& another) const {
+    bool operator!=(const JuxtaposedZoneSet &another) const {
       return !(*this == another);
     }
   };

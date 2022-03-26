@@ -198,7 +198,13 @@ namespace learnta {
             upper = std::min(upper, tmpUpperBound.first + valuation[j]);
           }
           assert(lower <= upper);
-          valuation[i] = (lower + upper) * 0.5;
+          if (lowerBound.second) {
+            valuation[i] = lower;
+          } else if (upper - lower > 0.5) {
+            valuation[i] = lower + 0.5;
+          } else {
+            valuation[i] = (lower + upper) * 0.5;
+          }
         }
       }
 

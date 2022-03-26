@@ -9,7 +9,7 @@
 #define private public
 
 #include "../include/forward_regional_elementary_language.hh"
-
+#include "simple_observation_table_keys_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
 
@@ -195,4 +195,21 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     BOOST_CHECK_EQUAL(1, it->front());
   }
 
-BOOST_AUTO_TEST_SUITE_END()
+  BOOST_AUTO_TEST_CASE(fromWord) {
+    const auto emptyWord = ForwardRegionalElementaryLanguage::fromTimedWord({"", {0}});
+
+    BOOST_CHECK_EQUAL("", emptyWord.getWord());
+    BOOST_CHECK_EQUAL(1, emptyWord.getTimedCondition().size());
+    BOOST_CHECK_EQUAL((Bounds{0, true}), emptyWord.getTimedCondition().getUpperBound(0, 0));
+    BOOST_CHECK_EQUAL((Bounds{0, true}), emptyWord.getTimedCondition().getLowerBound(0, 0));
+    BOOST_CHECK_EQUAL(1, emptyWord.fractionalOrder.order.size());
+    BOOST_CHECK_EQUAL(1, emptyWord.fractionalOrder.order.front().size());
+    BOOST_CHECK_EQUAL(0, emptyWord.fractionalOrder.order.front().front());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(p7HasEqualityN, SimpleObservationTableKeysFixture) {
+    std::cout << p7 << std::endl;
+    BOOST_CHECK(!p7.hasEqualityN());
+  }
+
+  BOOST_AUTO_TEST_SUITE_END()

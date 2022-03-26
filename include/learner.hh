@@ -28,12 +28,12 @@ namespace learnta {
 
     TimedAutomaton run() {
       while (true) {
-        bool notUpdated = false;
+        bool notUpdated;
         do {
           notUpdated = observationTable.close();
           notUpdated = notUpdated && observationTable.consistent();
           notUpdated = notUpdated && observationTable.exteriorConsistent();
-        } while (notUpdated);
+        } while (!notUpdated);
         auto hypothesis = observationTable.generateHypothesis();
         const auto counterExample = eqOracle->findCounterExample(hypothesis);
         eqQueryCount++;

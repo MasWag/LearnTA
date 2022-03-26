@@ -12,6 +12,9 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
 
 #include "forward_regional_elementary_language.hh"
 #include "backward_regional_elementary_language.hh"
@@ -43,13 +46,11 @@ namespace learnta {
 
     // Fill the observation table
     void refreshTable() {
-      table.reserve(prefixes.size());
+      table.resize(prefixes.size());
       for (int prefixIndex = 0; prefixIndex < prefixes.size(); ++prefixIndex) {
-        if (table.size() >= prefixIndex) {
-          table.emplace_back();
-        }
+        const auto originalSize = table.at(prefixIndex).size();
         table.at(prefixIndex).resize(suffixes.size());
-        for (auto suffixIndex = table.at(prefixIndex).size(); suffixIndex < suffixes.size(); ++suffixIndex) {
+        for (auto suffixIndex = originalSize; suffixIndex < suffixes.size(); ++suffixIndex) {
           table.at(prefixIndex).at(suffixIndex) = this->memOracle->query(
                   prefixes.at(prefixIndex) + suffixes.at(suffixIndex));
         }
@@ -63,11 +64,11 @@ namespace learnta {
       // Add successors to the prefixes
       prefixes.reserve(prefixes.size() + alphabet.size() + 1);
       for (Alphabet c: alphabet) {
+        discreteSuccessors[std::make_pair(index, c)] = prefixes.size();
         prefixes.push_back(prefixes.at(index).successor(c));
-        discreteSuccessors.at(std::make_pair(index, c)) = prefixes.size();
       }
+      continuousSuccessors[index] = prefixes.size();
       prefixes.push_back(prefixes.at(index).successor());
-      continuousSuccessors.at(index) = prefixes.size();
       // fill the observation table
       refreshTable();
     }
@@ -88,13 +89,17 @@ namespace learnta {
       if (this->distinguishedPrefix.find(std::make_pair(i, j)) != this->distinguishedPrefix.end() ||
           this->distinguishedPrefix.find(std::make_pair(j, i)) != this->distinguishedPrefix.end()) {
         // we already know that they are not equivalent
+        assert(!this->equivalent(i, j));
         return false;
       }
-      auto it = this->closedRelation.at(i).find(j);
-      if (it != this->closedRelation.at(i).end()) {
-        if (equivalence(this->prefixes.at(i), this->table.at(i),
-                        this->prefixes.at(j), this->table.at(j), this->suffixes, it->second)) {
-          return true;
+      auto equivalentPrefixesIT = this->closedRelation.find(i);
+      if (equivalentPrefixesIT != this->closedRelation.end()) {
+        auto it = equivalentPrefixesIT->second.find(j);
+        if (it != this->closedRelation.at(i).end()) {
+          if (equivalence(this->prefixes.at(i), this->table.at(i),
+                          this->prefixes.at(j), this->table.at(j), this->suffixes, it->second)) {
+            return true;
+          }
         }
       }
       return this->equivalent(i, j);
@@ -120,6 +125,13 @@ namespace learnta {
       return !this->table.at(i).at(0).empty();
     }
 
+    /*!
+     * @brief Returns if prefixes[i] is in P or not
+     */
+    [[nodiscard]] bool inP(std::size_t i) const {
+      return this->pIndices.find(i) != this->pIndices.end();
+    }
+
   public:
     /*!
      * @brief Initialize the observation table
@@ -129,7 +141,6 @@ namespace learnta {
             alphabet(std::move(alphabet)),
             prefixes{ForwardRegionalElementaryLanguage{}},
             suffixes{BackwardRegionalElementaryLanguage{}} {
-      pIndices.insert(0);
       this->moveToP(0);
       this->refreshTable();
     }
@@ -137,7 +148,7 @@ namespace learnta {
     /*!
      * @brief Close the observation table
      *
-     * @returns This returns true if the observation table is already closed
+     * @returns returns true if the observation table is already closed
      */
     bool close() {
       for (std::size_t i = 0; i < this->prefixes.size(); i++) {
@@ -163,7 +174,7 @@ namespace learnta {
                 found = true;
                 break;
               } else {
-                targetIt = this->closedRelation.at(i).erase(targetIt);
+                targetIt = it->second.erase(targetIt);
               }
             }
           }
@@ -176,7 +187,10 @@ namespace learnta {
         }
         if (!found) {
           // The observation table is not closed
+          const auto prePSize = this->pIndices.size();
           this->moveToP(i);
+          assert(prePSize < this->pIndices.size());
+          BOOST_LOG_TRIVIAL(debug) << "Observation table is not closed because of " << this->prefixes.at(i);
           return false;
         }
       }
@@ -201,12 +215,22 @@ namespace learnta {
             for (const auto action: this->alphabet) {
               if (!this->equivalentWithMemo(this->discreteSuccessors.at({i, action}),
                                             this->discreteSuccessors.at({j, action}))) {
+                BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of discrete successor of "
+                                         << this->prefixes.at(i) << " and " << this->prefixes.at(j)
+                                         << " with action " << action;
+
                 // The observation table is inconsistent due to a discrete successor
                 auto it = std::find_if(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
                   return !equivalent(i, j, suffix.predecessor(action));
                 });
                 // we assume that we have such a suffix
-                suffixes.push_back(it->predecessor(action));
+                const auto newSuffix = it->predecessor(action);
+                suffixes.push_back(newSuffix);
+                BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+
+                this->refreshTable();
+                // i and j should not be equivalent after adding the new suffix
+                assert(!this->equivalentWithMemo(i, j));
 
                 return false;
               }
@@ -218,6 +242,7 @@ namespace learnta {
               });
               // we assume that we have such a suffix
               suffixes.push_back(it->predecessor());
+              this->refreshTable();
 
               return false;
             }
@@ -238,8 +263,7 @@ namespace learnta {
       for (const std::size_t pIndex: pIndices) {
         const auto successorIndex = continuousSuccessors.at(pIndex);
         // Check if p is the boundary
-        auto it = pIndices.find(successorIndex);
-        if (it != pIndices.end()) {
+        if (this->inP(successorIndex)) {
           continue;
         }
         // Check if p has equality constraints in \f$\mathbb{T}_{i,N}\f$.
@@ -281,13 +305,12 @@ namespace learnta {
      * @brief Construct a hypothesis DTA from the current timed observation table
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
-     * @todo not implemented
+     * @todo We currently construct only the DTAs without unobservable transitions.
      */
     TimedAutomaton generateHypothesis() {
       std::unordered_map<std::size_t, std::shared_ptr<TAState>> indexToState;
       std::unordered_map<std::shared_ptr<TAState>, std::vector<std::size_t>> stateToIndices;
       std::vector<std::shared_ptr<TAState>> states;
-      std::size_t variableSize = 0;
       auto addState = [&](std::size_t index) {
         auto state = std::make_shared<TAState>(this->isMatch(index));
         indexToState[index] = state;
@@ -306,7 +329,7 @@ namespace learnta {
       // construct the initial state
       const auto handleInternalContinuousSuccessors = [&](std::size_t initialIndex) {
         auto nextIndex = this->continuousSuccessors[initialIndex];
-        while (pIndices.find(nextIndex) != pIndices.end()) {
+        while (this->inP(nextIndex)) {
           if (isMatch(initialIndex) == isMatch(nextIndex)) {
             auto state = indexToState[initialIndex];
             indexToState[nextIndex] = state;
@@ -315,17 +338,18 @@ namespace learnta {
             // We have not implemented such a case that an unobservatble transition is necessary
             abort();
           }
-
-          // Our optimization to merge the continuous exterior
-          if (equivalentWithMemo(nextIndex, initialIndex)) {
-            auto state = indexToState[initialIndex];
-            indexToState[nextIndex] = state;
-            stateToIndices[state].push_back(nextIndex);
-          }
-
-          initialIndex = nextIndex;
-          nextIndex = this->continuousSuccessors[initialIndex];
+          nextIndex = this->continuousSuccessors[nextIndex];
         }
+
+        // Our optimization to merge the continuous exterior
+        if (equivalentWithMemo(nextIndex, initialIndex)) {
+          auto state = indexToState[initialIndex];
+          indexToState[nextIndex] = state;
+          stateToIndices[state].push_back(nextIndex);
+        }
+
+        initialIndex = nextIndex;
+        nextIndex = this->continuousSuccessors[initialIndex];
       };
       handleInternalContinuousSuccessors(0);
 
@@ -339,41 +363,69 @@ namespace learnta {
         newStates.pop();
         auto newStateIndices = stateToIndices.at(newState);
         for (const auto action: alphabet) {
-          const auto baseSuccessorIndex = this->discreteSuccessors.at(std::make_pair(newStateIndices.front(), action));
-          // Add states only if the successor is also in P
-          if (this->pIndices.find(baseSuccessorIndex) == this->pIndices.end()) {
-            discreteBoundaries.emplace_back(newStateIndices.front(), action);
-            continue;
-          }
-
-          auto successor = addState(baseSuccessorIndex);
-          newStates.push(successor);
-          handleInternalContinuousSuccessors(baseSuccessorIndex);
+          // TargetState -> the timed condition to reach that state
           std::unordered_map<std::shared_ptr<TAState>, TimedCondition> sourceMap;
-          sourceMap[successor] = this->prefixes.at(baseSuccessorIndex).getTimedCondition();
-          variableSize = std::max(variableSize, sourceMap[successor].size());
+          for (auto it = newStateIndices.begin(); it != newStateIndices.end(); ++it) {
+            if (this->discreteSuccessors.find(std::make_pair(*it, action)) == this->discreteSuccessors.end()) {
+              // if `it` is not in P
+              // q' in the diagram below.
+              const auto discrete = this->discreteSuccessors[std::make_pair(*std::prev(it), action)];
+              // let the discrete successor of *it to q' if it and std::prev(it) are equivalent
+              if (this->inP(discrete) && this->equivalentWithMemo(*it, *std::prev(it))) {
+                \
+                sourceMap[indexToState.at(discrete)].removeEqualityUpperBoundAssign();
+              }
 
-          for (auto it = newStateIndices.begin(); std::next(it) != newStateIndices.end(); ++it) {
-            const auto discreteAfterContinuous = this->discreteSuccessors[{*std::next(it), action}];
-            const auto continuousAfterDiscrete =
-                    this->continuousSuccessors[this->discreteSuccessors[std::make_pair(*it, action)]];
-
-            if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
-              // merge p --continuous--> --discrete--> and p --discrete--> --continuous--> if they are equivalent
-              indexToState.at(discreteAfterContinuous) = successor;
-              stateToIndices[successor].push_back(discreteAfterContinuous);
-
-              // We use the convexity of the timed conditions of this and its continuous successor
-              sourceMap[successor] = sourceMap[successor].convexHull(
-                      this->prefixes.at(*std::next(it)).getTimedCondition());
-            } else {
-              // Otherwise, we create a new state
-              successor = addState(discreteAfterContinuous);
-              newStates.push(successor);
-              sourceMap[successor] = this->prefixes.at(*std::next(it)).getTimedCondition();
+              continue;
             }
+            const auto discreteSuccessorIndex = this->discreteSuccessors.at(std::make_pair(*it, action));
+            // Add states only if the successor is also in P
+            if (!this->inP(discreteSuccessorIndex)) {
+              discreteBoundaries.emplace_back(newStateIndices.front(), action);
+              continue;
+            }
+            /*
+             * Check if the following q and q'' are similar. If yes, we merge q with q'
+             *          std::prev(it) ---cont--> it
+             *           |                        |
+             *         action                   action
+             *           |                        |
+             *           v                        v
+             *           q'--------cont--> q'' ~~ q
+             */
+            // we just add a new state if std::prev(it) does not exist or q' in the above diagram is not in P
+            if (it == newStateIndices.begin() ||
+                !this->inP(this->discreteSuccessors[std::make_pair(*std::prev(it), action)])) {
+              auto successor = addState(discreteSuccessorIndex);
+              newStates.push(successor);
+              handleInternalContinuousSuccessors(discreteSuccessorIndex);
+              sourceMap[successor] = this->prefixes.at(*it).getTimedCondition();
+            } else {
+              // q in the above diagram
+              const auto discreteAfterContinuous =
+                      this->discreteSuccessors[std::make_pair(*it, action)];
+              // q' in the above diagram
+              const auto discrete = this->discreteSuccessors[std::make_pair(*std::prev(it), action)];
+              // q'' in the above diagram
+              const auto continuousAfterDiscrete = this->continuousSuccessors[discrete];
 
-            handleInternalContinuousSuccessors(discreteAfterContinuous);
+              if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
+                // merge q and q'' in the above diagram
+                indexToState.at(discreteAfterContinuous) = indexToState.at(discrete);
+                stateToIndices[indexToState.at(discrete)].push_back(discreteAfterContinuous);
+
+                // We use the convexity of the timed conditions of this and its continuous successor
+                sourceMap[indexToState.at(discrete)] = sourceMap[indexToState.at(discrete)].convexHull(
+                        this->prefixes.at(*it).getTimedCondition());
+              } else {
+                // Otherwise, we create a new state
+                const auto successor = addState(discreteAfterContinuous);
+                newStates.push(successor);
+                sourceMap[successor] = this->prefixes.at(*it).getTimedCondition();
+              }
+
+              handleInternalContinuousSuccessors(discreteAfterContinuous);
+            }
           }
 
           newState->next[action].reserve(sourceMap.size());
@@ -387,43 +439,85 @@ namespace learnta {
       }
 
       //! Construct transitions by discrete immediate exteriors
+      std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
+      discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
+                               discreteBoundaries.end());
       for (auto[sourceIndex, action]: discreteBoundaries) {
+        const auto originalSourceIndex = sourceIndex;
+
+        // (TargetState, RenamingRelation) -> TimedCondition of the source
         boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedCondition> sourceMap;
         auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
+        unsigned long jumpedTargetIndex;
+        RenamingRelation renamingRelation;
         {
           auto it = this->closedRelation.at(targetIndex).begin();
+          assert(this->pIndices.find(targetIndex) == this->pIndices.end());
           // Find a successor in P
           while (this->pIndices.find(it->first) == this->pIndices.end()) {
             ++it;
           }
-          const auto &[jumpedTargetIndex, renamingRelation] = *it;
+          jumpedTargetIndex = it->first;
+          renamingRelation = it->second;
           sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                  this->prefixes.at(targetIndex).getTimedCondition();
+                  this->prefixes.at(sourceIndex).getTimedCondition();
         }
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
           sourceIndex = this->continuousSuccessors.at(sourceIndex);
-          targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
-          auto it = this->closedRelation.at(targetIndex).begin();
+          {
+            auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
+            if (it == this->discreteSuccessors.end()) {
+              // Include immediate exterior
+              sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex),
+                                       renamingRelation)].removeEqualityUpperBoundAssign();
+              break;
+            }
+            targetIndex = it->second;
+            if (this->pIndices.find(targetIndex) != this->pIndices.end()) {
+              break;
+            }
+          }
           // Find a successor in P
+          auto it = this->closedRelation.at(targetIndex).begin();
           while (this->pIndices.find(it->first) == this->pIndices.end()) {
             ++it;
           }
-          const auto &[jumpedTargetIndex, renamingRelation] = *it;
-          sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                  this->prefixes.at(targetIndex).getTimedCondition();
+          jumpedTargetIndex = it->first;
+          assert(this->inP(jumpedTargetIndex));
+          renamingRelation = it->second;
+
+          {
+            auto it2 = sourceMap.find(std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation));
+            if (it2 == sourceMap.end()) {
+              sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
+                      this->prefixes.at(sourceIndex).getTimedCondition();
+            } else {
+              it2->second = it2->second.convexHull(this->prefixes.at(sourceIndex).getTimedCondition());
+            }
+          }
+        }
+
+        indexToState[originalSourceIndex]->next[action].reserve(sourceMap.size());
+        for (const auto&[targetWithRenaming, timedCondition]: sourceMap) {
+          const auto &[target, renamingRelation] = targetWithRenaming;
+          indexToState[originalSourceIndex]->next[action].emplace_back(target.get(),
+                                                                       renamingRelation.toReset(),
+                                                                       timedCondition.toGuard());
         }
       }
 
-      //! @todo construct transitions by continuous immediate exteriors
+      //! @todo We need to implement transitions by continuous immediate exteriors to support unobservable transitions
 
       // Construct the max constants
       std::vector<int> maxConstants;
-      maxConstants.resize(variableSize);
       for (const auto &state: states) {
         for (const auto &[action, transitions]: state->next) {
           for (const auto &transition: transitions) {
             for (const auto &guard: transition.guard) {
+              if (guard.x >= maxConstants.size()) {
+                maxConstants.resize(guard.x + 1);
+              }
               maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);
             }
           }
@@ -433,7 +527,21 @@ namespace learnta {
       return TimedAutomaton{{states, {initialState}}, maxConstants};
     }
 
-    std::ostream &printStatistics(std::ostream &stream) {
+    std::ostream &printDetail(std::ostream &stream) const {
+      printStatistics(stream);
+      stream << "P is as follows\n";
+      for (const auto &pIndex: this->pIndices) {
+        stream << this->prefixes.at(pIndex) << "\n";
+      }
+      stream << "S is as follows\n";
+      for (const auto &suffix: this->suffixes) {
+        stream << suffix << "\n";
+      }
+
+      return stream;
+    }
+
+    std::ostream &printStatistics(std::ostream &stream) const {
       stream << "|P| = " << this->pIndices.size() << "\n";
       stream << "|ext(P)| = " << this->prefixes.size() - this->pIndices.size() << "\n";
       stream << "|S| = " << this->suffixes.size() << "\n";

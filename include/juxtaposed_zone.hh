@@ -55,8 +55,8 @@ namespace learnta {
       const auto N = right.getNumOfVar();
       const auto L = commonVariableSize;
       const auto resultVariableSize = M + N - L;
-      const auto commonBeginIndex = N - L + 1;
-      const auto commonBeginInRightIndex = M - L + 1;
+      const auto commonBeginIndex = M - L + 1;
+      const auto commonBeginInRightIndex = N - L + 1;
       const auto rightBeginIndex = M + 1;
       this->value.resize(resultVariableSize + 1, resultVariableSize + 1);
       this->value.fill(Bounds(std::numeric_limits<double>::max(), false));

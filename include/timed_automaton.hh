@@ -106,8 +106,24 @@ namespace learnta {
     [[nodiscard]] inline size_t clockSize() const {
       return maxConstraints.size();
     }
+
+    /*!
+     * @brief Take the complement of this timed automaton
+     *
+     * @pre This timed automaton is deterministic and the transitions are complete
+     */
+    [[nodiscard]] TimedAutomaton complement() const {
+      TimedAutomaton result;
+      std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new;
+      deepCopy(result, old2new);
+      for (auto& state: result.states) {
+        state->isMatch = !state->isMatch;
+      }
+
+      return result;
+    }
   };
-/*
+
   static inline std::ostream &operator<<(std::ostream &os,
                                          const TimedAutomaton &TA) {
     std::unordered_map<TAState *, bool> isInit;
@@ -129,9 +145,9 @@ namespace learnta {
          << "]\n";
     }
 
-    for (std::shared_ptr<TAState> source: TA.states) {
+    for (const std::shared_ptr<TAState>& source: TA.states) {
       for (auto edges: source->next) {
-        for (TATransition edge: edges.second) {
+        for (const TATransition& edge: edges.second) {
           TAState *target = edge.target;
           os << "        loc" << stateNumber.at(source.get()) << "->loc"
              << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
@@ -150,11 +166,16 @@ namespace learnta {
           if (!edge.resetVars.empty()) {
             os << ", reset=\"{";
             bool isFirst = true;
-            for (const ClockVariables var: edge.resetVars) {
+            for (const auto& [resetVar, newVar]: edge.resetVars) {
               if (!isFirst) {
                 os << ", ";
               }
-              os << int(var);
+              os << "x" << int(resetVar) << " := ";
+              if (newVar) {
+                os << "x" << int(newVar.value());
+              } else {
+                os << "0";
+              }
               isFirst = false;
             }
             os << "}\"";
@@ -165,5 +186,5 @@ namespace learnta {
     }
     os << "}\n";
     return os;
-  } */
+  }
 }

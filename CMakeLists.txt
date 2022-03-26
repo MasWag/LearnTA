@@ -22,7 +22,8 @@ else()
 endif()
 
 find_package(Boost REQUIRED COMPONENTS
-  unit_test_framework)
+  unit_test_framework
+  log)
 find_package(Eigen3 REQUIRED)
 
 include_directories(
@@ -55,10 +56,14 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/symbolic_membership_oracle_test.cc
   tests/equivalence_test.cc
   tests/juxtaposed_zone_test.cc
-  tests/timed_automaton_equivalence_oracle_test.cc tests/learner_test.cc)
+  tests/timed_automaton_equivalence_oracle_test.cc
+  tests/observation_table_test.cc
+  tests/learner_test.cc
+  )
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  ${Boost_LOG_LIBRARY}
   )
 
 # add a target to generate API documentation with Doxygen
