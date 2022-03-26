@@ -179,7 +179,9 @@ namespace learnta {
     /*!
      * @brief Return a clock valuation in this zone
      */
-    [[nodiscard]] std::vector<double> sample() const {
+    [[nodiscard]] std::vector<double> sample() {
+      this->canonize();
+      assert(this->isSatisfiableNoCanonize());
       std::vector<double> valuation;
       std::size_t N = this->getNumOfVar();
       valuation.resize(N);
@@ -194,7 +196,7 @@ namespace learnta {
           for (int j = 0; j < i; j++) {
             Bounds tmpLowerBound = this->value(j + 1, i + 1);
             Bounds tmpUpperBound = this->value(i + 1, j + 1);
-            lower = std::max(lower, -tmpLowerBound.first - valuation[j]);
+            lower = std::max(lower, -tmpLowerBound.first + valuation[j]);
             upper = std::min(upper, tmpUpperBound.first + valuation[j]);
           }
           assert(lower <= upper);
@@ -270,6 +272,13 @@ namespace learnta {
     */
     bool isSatisfiable() {
       canonize();
+      return this->isSatisfiableNoCanonize();
+    }
+
+    /*!
+     * @brief check if the zone is satisfiable
+     */
+    [[nodiscard]] bool isSatisfiableNoCanonize() const {
       return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
     }
 
@@ -283,8 +292,10 @@ namespace learnta {
     void abstractize() {
       static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
       for (auto it = value.data(); it < value.data() + value.size(); it++) {
-        if (*it >= M) {
+        if (*it > Bounds{M.first, true}) {
           *it = Bounds(infinity);
+        } else if (*it < Bounds{-M.first, false}) {
+          *it = Bounds(-M.first, false);
         }
       }
     }
@@ -295,14 +306,16 @@ namespace learnta {
     void makeUnsat() {
       value(0, 0) = Bounds(-std::numeric_limits<double>::infinity(), false);
     }
+
     /*!
      * @brief Return if this zone includes the given zone
      *
      * @pre both this and the given zones are canonized
      */
-    [[nodiscard]] bool includes(const Zone& zone) const {
+    [[nodiscard]] bool includes(const Zone &zone) const {
       return this->value.cwiseMax(zone.value) == this->value;
     };
+
     /*
     //! @brief make the strongest guard including the zone
     std::vector<Constraint> makeGuard() {

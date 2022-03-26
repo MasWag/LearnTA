@@ -15,8 +15,11 @@ namespace learnta {
       std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> result;
       result.resize(this->size());
       std::transform(this->begin(), this->end(), result.begin(), [&] (const auto &renamingPair) {
-        return std::make_pair(renamingPair.first, renamingPair.second);
+        return std::make_pair(renamingPair.second, renamingPair.first);
       });
+      result.erase(std::remove_if(result.begin(), result.end(), [] (const auto &resetPair) {
+        return resetPair.first == *resetPair.second;
+      }), result.end());
 
       return result;
     }

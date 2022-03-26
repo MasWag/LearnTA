@@ -71,9 +71,9 @@ namespace learnta {
         TAState *taState = conf->taState;
         Zone nowZone = conf->zone;
         nowZone.elapse();
-        for (auto it = taState->next.begin(); it != taState->next.end(); it++) {
-          const Alphabet c = it->first;
-          for (const auto &edge: it->second) {
+        for (auto & it : taState->next) {
+          const Alphabet c = it.first;
+          for (const auto &edge: it.second) {
             Zone nextZone = nowZone;
             auto nextState = edge.target;
             if (!nextState) {
@@ -99,13 +99,17 @@ namespace learnta {
             if (nextZone.isSatisfiable()) {
               const auto nextZoneBeforeReset = nextZone;
               for (const auto &[resetVariable, updatedVariable]: edge.resetVars) {
-                if (updatedVariable) {
+                if (updatedVariable && resetVariable != *updatedVariable) {
                   nextZone.value.col(resetVariable + 1) = nextZoneBeforeReset.value.col(*updatedVariable + 1);
                   nextZone.value.row(resetVariable + 1) = nextZoneBeforeReset.value.row(*updatedVariable + 1);
-                } else {
+                }
+              }
+              for (const auto &[resetVariable, updatedVariable]: edge.resetVars) {
+                if (!updatedVariable) {
                   nextZone.reset(resetVariable);
                 }
               }
+              nextZone.canonize();
               nextZone.abstractize();
               nextZone.canonize();
               // nextZone state is new

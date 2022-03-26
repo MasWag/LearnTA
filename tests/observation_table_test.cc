@@ -120,6 +120,8 @@ BOOST_AUTO_TEST_SUITE(ObservationTableTest)
     BOOST_CHECK(hypothesis.states.front()->isMatch);
 
     BOOST_CHECK_EQUAL(2, hypothesis.maxConstraints.size());
+    BOOST_CHECK_EQUAL(2, hypothesis.maxConstraints.front());
+    BOOST_CHECK_EQUAL(1, hypothesis.maxConstraints.back());
   }
 
 BOOST_AUTO_TEST_SUITE_END()

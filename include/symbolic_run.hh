@@ -67,26 +67,35 @@ namespace learnta {
 
         // Construct the zone just before jump
         auto zoneBeforeJump = Zone{postValuation, postZone.M};
-        const auto originalZoneBeforeJump = Zone{postValuation, postZone.M};
+        assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto transition = this->edgeAt(i);
         for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
-          if (updatedVariable) {
-            zoneBeforeJump.value.col(resetVariable + 1) = originalZoneBeforeJump.value.col(*updatedVariable + 1);
-            zoneBeforeJump.value.row(resetVariable + 1) = originalZoneBeforeJump.value.row(*updatedVariable + 1);
-          } else {
+          if (!updatedVariable) {
             zoneBeforeJump.unconstrain(resetVariable);
           }
         }
+        const auto originalZoneBeforeJump = zoneBeforeJump;
+        for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
+          if (updatedVariable) {
+            zoneBeforeJump.value.col(*updatedVariable + 1) = originalZoneBeforeJump.value.col(resetVariable + 1);
+            zoneBeforeJump.value.row(*updatedVariable + 1) = originalZoneBeforeJump.value.row(resetVariable + 1);
+            zoneBeforeJump.unconstrain(resetVariable);
+          }
+        }
+        assert(zoneBeforeJump.isSatisfiableNoCanonize());
         for (const auto guard: transition.guard) {
           zoneBeforeJump.tighten(guard);
+          assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
         {
           auto tmpPreZone = preZone;
           tmpPreZone.elapse();
           zoneBeforeJump &= tmpPreZone;
+          assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
 
         // Sample the valuation just before discrete jump
+        assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto valuationBeforeJump = zoneBeforeJump.sample();
         auto backwardPreZone = Zone{valuationBeforeJump, postZone.M};
         backwardPreZone.reverseElapse();
