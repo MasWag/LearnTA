@@ -100,6 +100,9 @@ Collaboration diagram for learnta::TimedCondition:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a9de414ecee1f5676192aa7ecd7db5241"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a9de414ecee1f5676192aa7ecd7db5241">TimedCondition</a> (const std::vector&lt; double &gt; &amp;accumulatedDuration)</td></tr>
+<tr class="memdesc:a9de414ecee1f5676192aa7ecd7db5241"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a timed condition from concrete values of T_{i,j}.  <a href="classlearnta_1_1TimedCondition.html#a9de414ecee1f5676192aa7ecd7db5241">More...</a><br /></td></tr>
+<tr class="separator:a9de414ecee1f5676192aa7ecd7db5241"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3cf8a7534cb95bd124700ad20d3180c"><td class="memItemLeft" align="right" valign="top"><a id="aa3cf8a7534cb95bd124700ad20d3180c"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a> () const</td></tr>
 <tr class="memdesc:aa3cf8a7534cb95bd124700ad20d3180c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of the variables in this timed condition. <br /></td></tr>
@@ -148,14 +151,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a24e755a0be93f28be23c36ee1064ef6c">successor</a> (const std::list&lt; ClockVariables &gt; &amp;variables) const</td></tr>
 <tr class="memdesc:a24e755a0be93f28be23c36ee1064ef6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a continuous successor by elapsing variables. <br /></td></tr>
 <tr class="separator:a24e755a0be93f28be23c36ee1064ef6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc981ddc136bd122b2f525edc8635957"><td class="memItemLeft" align="right" valign="top"><a id="adc981ddc136bd122b2f525edc8635957"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#adc981ddc136bd122b2f525edc8635957">removeEqualityUpperBoundAssign</a> ()</td></tr>
+<tr class="memdesc:adc981ddc136bd122b2f525edc8635957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the equality upper bound. <br /></td></tr>
+<tr class="separator:adc981ddc136bd122b2f525edc8635957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="memItemLeft" align="right" valign="top"><a id="aacb51d1f3f5252e5e0b5df6ddd614123"></a>
 <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#aacb51d1f3f5252e5e0b5df6ddd614123">predecessor</a> (const std::list&lt; ClockVariables &gt; &amp;variables) const</td></tr>
 <tr class="memdesc:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a continuous predecessor by backward-elapsing variables. <br /></td></tr>
 <tr class="separator:aacb51d1f3f5252e5e0b5df6ddd614123"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9e74ea01a8b8dd4683738eb609ef145"><td class="memItemLeft" align="right" valign="top"><a id="ad9e74ea01a8b8dd4683738eb609ef145"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#ad9e74ea01a8b8dd4683738eb609ef145">prefix</a> (const std::list&lt; ClockVariables &gt; &amp;variables) const</td></tr>
+<tr class="memdesc:ad9e74ea01a8b8dd4683738eb609ef145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make a continuous prefix. <br /></td></tr>
+<tr class="separator:ad9e74ea01a8b8dd4683738eb609ef145"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab637f901480b841af2f1d2c342ea3100"><td class="memItemLeft" align="right" valign="top"><a id="ab637f901480b841af2f1d2c342ea3100"></a>
 <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#ab637f901480b841af2f1d2c342ea3100">extendN</a> () const</td></tr>
 <tr class="memdesc:ab637f901480b841af2f1d2c342ea3100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add another variable \(x_{n+1}\) such that \(x_n = x_{n+1}\). <br /></td></tr>
 <tr class="separator:ab637f901480b841af2f1d2c342ea3100"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14b9c2a7066b560dcb3f0e87cbec9dd4"><td class="memItemLeft" align="right" valign="top"><a id="a14b9c2a7066b560dcb3f0e87cbec9dd4"></a>
+<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a14b9c2a7066b560dcb3f0e87cbec9dd4">removeN</a> () const</td></tr>
+<tr class="memdesc:a14b9c2a7066b560dcb3f0e87cbec9dd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove \(x_{N}\). <br /></td></tr>
+<tr class="separator:a14b9c2a7066b560dcb3f0e87cbec9dd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a593d92649256b951090faa5cab9350"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a2a593d92649256b951090faa5cab9350">hasEqualityN</a> () const</td></tr>
 <tr class="memdesc:a2a593d92649256b951090faa5cab9350"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return if there is \(\mathbb{T}_{i,N} = c\).  <a href="classlearnta_1_1TimedCondition.html#a2a593d92649256b951090faa5cab9350">More...</a><br /></td></tr>
 <tr class="separator:a2a593d92649256b951090faa5cab9350"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,6 +184,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:a087676199935803a006556aaae76eb1f"><td class="memItemLeft" align="right" valign="top"><a id="a087676199935803a006556aaae76eb1f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;condition) const</td></tr>
 <tr class="separator:a087676199935803a006556aaae76eb1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ee5ed5ddd97df3627e462cfc2213bbf"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structlearnta_1_1Constraint.html">Constraint</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a9ee5ed5ddd97df3627e462cfc2213bbf">toGuard</a> () const</td></tr>
+<tr class="separator:a9ee5ed5ddd97df3627e462cfc2213bbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a5a743a3fe6637b5c25b0824f86d848"><td class="memItemLeft" align="right" valign="top"><a id="a3a5a743a3fe6637b5c25b0824f86d848"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1TimedCondition.html#a3a5a743a3fe6637b5c25b0824f86d848">hasPrefix</a> () const</td></tr>
+<tr class="memdesc:a3a5a743a3fe6637b5c25b0824f86d848"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return if this timed condition has a (continuous) prefix. <br /></td></tr>
+<tr class="separator:a3a5a743a3fe6637b5c25b0824f86d848"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -194,7 +215,42 @@ Protected Attributes</h2></td></tr>
 <div class="textblock"><p>A timed condition, a finite conjunction of inequalities of the form \(\tau_{i} + \tau_{i + 1} \dots \tau_{j} \bowtie c\), where \({\bowtie} \in \{&gt;,\ge,\le,&lt;\}\) and \(c \in \mathbb{N} \). </p>
 <p>Let \(x_0, x_1, \dots x_N\) be the variables in the zone. We use \(x_i\) to represent \(\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\). We note that the first row and column with index 0 of DBM are for the constant 0, and we have to shift the index appropriately.</p>
 <dl class="section note"><dt>Note</dt><dd>Policy: We wrap all the low-level DBM operations in this class. </dd></dl>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a9de414ecee1f5676192aa7ecd7db5241"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9de414ecee1f5676192aa7ecd7db5241">&#9670;&nbsp;</a></span>TimedCondition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">learnta::TimedCondition::TimedCondition </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; double &gt; &amp;&#160;</td>
+          <td class="paramname"><em>accumulatedDuration</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a timed condition from concrete values of T_{i,j}. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">accumulatedDuration</td><td>a vector representing \(\mathbb{T}_{i,N}\), where \(N\) is the length. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="abe8cf60a4a9f8789727be572e607ea14"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abe8cf60a4a9f8789727be572e607ea14">&#9670;&nbsp;</a></span>enumerate()</h2>
 
@@ -590,6 +646,32 @@ Protected Attributes</h2></td></tr>
 
 <p>Restrict the upper bound of \(\tau_i + \tau_{i+1} + \dots \tau_{j} \). </p>
 <dl class="section post"><dt>Postcondition</dt><dd>zone is canonical </dd></dl>
+
+</div>
+</div>
+<a id="a9ee5ed5ddd97df3627e462cfc2213bbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ee5ed5ddd97df3627e462cfc2213bbf">&#9670;&nbsp;</a></span>toGuard()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="structlearnta_1_1Constraint.html">Constraint</a>&gt; learnta::TimedCondition::toGuard </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>@breif Construct a guard over \({x_0, x_1,\dots,x_N}\) such that \(x_i = \mattbb{T}_{i,N}\). </p>
 
 </div>
 </div>

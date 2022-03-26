@@ -248,145 +248,151 @@ $(function() {
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;            upper = std::min(upper, tmpUpperBound.first + valuation[j]);</div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;          }</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;          assert(lower &lt;= upper);</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;          valuation[i] = (lower + upper) * 0.5;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        }</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;      }</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;      <span class="keywordflow">return</span> valuation;</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    }</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160; </div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">void</span> close1(ClockVariables x) {</div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.rows(); i++) {</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;        value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;        <span class="comment">//      for (int j = 0; j &lt; value.cols(); j++) {</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;        <span class="comment">//        value(i, j) = std::min(value(i, j), value(i, x) + value(x, j));</span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        <span class="comment">//      }</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;      }</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    }</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160; </div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="comment">// The reset value is always (0, \le)</span></div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keywordtype">void</span> reset(ClockVariables x) {</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;      <span class="comment">// 0 is the special variable here</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;      x++;</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;      value(0, x) = Bounds(0, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;      value(x, 0) = Bounds(0, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;      value.col(x).tail(value.rows() - 1) = value.col(0).tail(value.rows() - 1);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;      value.row(x).tail(value.cols() - 1) = value.row(0).tail(value.cols() - 1);</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    }</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
-<div class="line"><a name="l00230"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">  230</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">unconstrain</a>(ClockVariables x) {</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;      <span class="comment">// 0 is the special variable here</span></div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;      x++;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;      value.col(x).fill(Bounds(std::numeric_limits&lt;double&gt;::max(), <span class="keyword">false</span>));</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;      value.row(x).fill(Bounds(std::numeric_limits&lt;double&gt;::max(), <span class="keyword">false</span>));</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    }</div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordtype">void</span> elapse() {</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;      value.col(0).fill(Bounds(infinity));</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.row(0).size(); ++i) {</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;        value.row(0)[i].second = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;      }</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    }</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordtype">void</span> reverseElapse() {</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;      value.row(0).fill(Bounds(infinity));</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.col(0).size(); ++i) {</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;        value.col(0)[i].second = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;      }</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    }</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160; </div>
-<div class="line"><a name="l00256"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">  256</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a>() {</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; value.cols(); k++) {</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;        close1(k);</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;      }</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    }</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; </div>
-<div class="line"><a name="l00265"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">  265</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">isSatisfiable</a>() {</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;      <a class="code" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a>();</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;      <span class="keywordflow">return</span> (value + value.transpose()).minCoeff() &gt;= Bounds(0.0, <span class="keyword">true</span>);</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    }</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160; </div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keyword">explicit</span> <span class="keyword">operator</span> bool() {</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">isSatisfiable</a>();</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    }</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160; </div>
-<div class="line"><a name="l00277"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">  277</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">abstractize</a>() {</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">auto</span> it = value.data(); it &lt; value.data() + value.size(); it++) {</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;        <span class="keywordflow">if</span> (*it &gt;= M) {</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;          *it = Bounds(infinity);</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;        }</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      }</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    }</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160; </div>
-<div class="line"><a name="l00289"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">  289</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">makeUnsat</a>() {</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;      value(0, 0) = Bounds(-std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    }</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="comment">/*</span></div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;<span class="comment">    std::vector&lt;Constraint&gt; makeGuard() {</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;<span class="comment">      std::vector&lt;Constraint&gt; guard;</span></div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;<span class="comment">      canonize();</span></div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="comment">      abstractize();</span></div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="comment">      for (int i = 0; i &lt; getNumOfVar(); ++i) {</span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="comment">        // the second element of Bound is true if the constraint is not strict, i.e., LE or GE.</span></div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="comment">        Bounds lowerBound = value(0, i + 1);</span></div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="comment">        if (lowerBound.first &gt; 0 or (lowerBound.first == 0 and lowerBound.second == false)) {</span></div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="comment">          if (lowerBound.second) {</span></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &gt;= lowerBound.first);</span></div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;<span class="comment">          } else {</span></div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &gt; lowerBound.first);</span></div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;<span class="comment">          }</span></div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="comment">        }</span></div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="comment">        Bounds upperBound = value(i + 1, 0);</span></div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;<span class="comment">        if (upperBound &lt; M) {</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;<span class="comment">          if (upperBound.second) {</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &lt;= upperBound.first);</span></div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;<span class="comment">          } else {</span></div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &lt; upperBound.first);</span></div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="comment">          }</span></div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;<span class="comment">        }</span></div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;<span class="comment">      }</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;<span class="comment">      return guard;</span></div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="comment">    }*/</span></div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160; </div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;    <span class="keywordtype">bool</span> operator==(<a class="code" href="structlearnta_1_1Zone.html">Zone</a> z)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;      z.value(0, 0) = value(0, 0);</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;      <span class="keywordflow">return</span> value == z.value;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    }</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;  };</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;          <span class="keywordflow">if</span> (lowerBound.second) {</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;            valuation[i] = lower;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;          } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (upper - lower &gt; 0.5) {</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;            valuation[i] = lower + 0.5;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;          } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;            valuation[i] = (lower + upper) * 0.5;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;          }</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;        }</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;      }</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160; </div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;      <span class="keywordflow">return</span> valuation;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    }</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160; </div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="keywordtype">void</span> close1(ClockVariables x) {</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.rows(); i++) {</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;        value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;        <span class="comment">//      for (int j = 0; j &lt; value.cols(); j++) {</span></div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        <span class="comment">//        value(i, j) = std::min(value(i, j), value(i, x) + value(x, j));</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;        <span class="comment">//      }</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;      }</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    }</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="comment">// The reset value is always (0, \le)</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">void</span> reset(ClockVariables x) {</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;      <span class="comment">// 0 is the special variable here</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;      x++;</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;      value(0, x) = Bounds(0, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;      value(x, 0) = Bounds(0, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;      value.col(x).tail(value.rows() - 1) = value.col(0).tail(value.rows() - 1);</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;      value.row(x).tail(value.cols() - 1) = value.row(0).tail(value.cols() - 1);</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    }</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160; </div>
+<div class="line"><a name="l00236"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">  236</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">unconstrain</a>(ClockVariables x) {</div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;      <span class="comment">// 0 is the special variable here</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;      x++;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;      value.col(x).fill(Bounds(std::numeric_limits&lt;double&gt;::max(), <span class="keyword">false</span>));</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;      value.row(x).fill(Bounds(std::numeric_limits&lt;double&gt;::max(), <span class="keyword">false</span>));</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    }</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordtype">void</span> elapse() {</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;      value.col(0).fill(Bounds(infinity));</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.row(0).size(); ++i) {</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        value.row(0)[i].second = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;      }</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    }</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160; </div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keywordtype">void</span> reverseElapse() {</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;      value.row(0).fill(Bounds(infinity));</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; value.col(0).size(); ++i) {</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        value.col(0)[i].second = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;      }</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    }</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160; </div>
+<div class="line"><a name="l00262"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">  262</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a>() {</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> k = 0; k &lt; value.cols(); k++) {</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        close1(k);</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;      }</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    }</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160; </div>
+<div class="line"><a name="l00271"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">  271</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">isSatisfiable</a>() {</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;      <a class="code" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a>();</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;      <span class="keywordflow">return</span> (value + value.transpose()).minCoeff() &gt;= Bounds(0.0, <span class="keyword">true</span>);</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    }</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keyword">explicit</span> <span class="keyword">operator</span> bool() {</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">isSatisfiable</a>();</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    }</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
+<div class="line"><a name="l00283"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">  283</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">abstractize</a>() {</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;      <span class="keyword">static</span> constexpr Bounds infinity = Bounds(std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">auto</span> it = value.data(); it &lt; value.data() + value.size(); it++) {</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;        <span class="keywordflow">if</span> (*it &gt;= M) {</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;          *it = Bounds(infinity);</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;        }</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;      }</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    }</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
+<div class="line"><a name="l00295"></a><span class="lineno"><a class="line" href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">  295</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">makeUnsat</a>() {</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;      value(0, 0) = Bounds(-std::numeric_limits&lt;double&gt;::infinity(), <span class="keyword">false</span>);</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    }</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160; </div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="comment">/*</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="comment">    std::vector&lt;Constraint&gt; makeGuard() {</span></div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="comment">      std::vector&lt;Constraint&gt; guard;</span></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="comment">      canonize();</span></div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="comment">      abstractize();</span></div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;<span class="comment">      for (int i = 0; i &lt; getNumOfVar(); ++i) {</span></div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;<span class="comment">        // the second element of Bound is true if the constraint is not strict, i.e., LE or GE.</span></div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;<span class="comment">        Bounds lowerBound = value(0, i + 1);</span></div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="comment">        if (lowerBound.first &gt; 0 or (lowerBound.first == 0 and lowerBound.second == false)) {</span></div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="comment">          if (lowerBound.second) {</span></div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &gt;= lowerBound.first);</span></div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;<span class="comment">          } else {</span></div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &gt; lowerBound.first);</span></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;<span class="comment">          }</span></div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="comment">        }</span></div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="comment">        Bounds upperBound = value(i + 1, 0);</span></div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;<span class="comment">        if (upperBound &lt; M) {</span></div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;<span class="comment">          if (upperBound.second) {</span></div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &lt;= upperBound.first);</span></div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="comment">          } else {</span></div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="comment">            guard.push_back(ConstraintMaker(i) &lt; upperBound.first);</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;<span class="comment">          }</span></div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;<span class="comment">        }</span></div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;<span class="comment">      }</span></div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;<span class="comment">      return guard;</span></div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;<span class="comment">    }*/</span></div>
 <div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160; </div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> std::ostream &amp;print(std::ostream &amp;os, <span class="keyword">const</span> <a class="code" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone) {</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; zone.value.cols(); ++i) {</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; zone.value.rows(); ++j) {</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;        print(os, zone.value(i, j));</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        os &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;      }</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;    }</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160; </div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="keywordflow">return</span> os;</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;  }</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160; </div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, <span class="keyword">const</span> <a class="code" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone) {</div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    <span class="keywordflow">return</span> learnta::print(os, zone);</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  }</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;}</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;    <span class="keywordtype">bool</span> operator==(<a class="code" href="structlearnta_1_1Zone.html">Zone</a> z)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;      z.value(0, 0) = value(0, 0);</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;      <span class="keywordflow">return</span> value == z.value;</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    }</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;  };</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160; </div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> std::ostream &amp;print(std::ostream &amp;os, <span class="keyword">const</span> <a class="code" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone) {</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; zone.value.cols(); ++i) {</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; zone.value.rows(); ++j) {</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;        print(os, zone.value(i, j));</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;        os &lt;&lt; <span class="stringliteral">&quot; &quot;</span>;</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;      }</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    }</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160; </div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;    <span class="keywordflow">return</span> os;</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;  }</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160; </div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;  <span class="keyword">static</span> <span class="keyword">inline</span> std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, <span class="keyword">const</span> <a class="code" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone) {</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <span class="keywordflow">return</span> learnta::print(os, zone);</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;  }</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="astructlearnta_1_1Zone_html_ad6099b3a3497d52df3ba6475a983932c"><div class="ttname"><a href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">learnta::Zone::abstractize</a></div><div class="ttdeci">void abstractize()</div><div class="ttdoc">truncate the constraints compared with a constant greater than or equal to M</div><div class="ttdef"><b>Definition:</b> zone.hh:277</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_ad6099b3a3497d52df3ba6475a983932c"><div class="ttname"><a href="structlearnta_1_1Zone.html#ad6099b3a3497d52df3ba6475a983932c">learnta::Zone::abstractize</a></div><div class="ttdeci">void abstractize()</div><div class="ttdoc">truncate the constraints compared with a constant greater than or equal to M</div><div class="ttdef"><b>Definition:</b> zone.hh:283</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_a3c98b7423e777b687c2fe1f9694d4f29"><div class="ttname"><a href="structlearnta_1_1Zone.html#a3c98b7423e777b687c2fe1f9694d4f29">learnta::Zone::sample</a></div><div class="ttdeci">std::vector&lt; double &gt; sample() const</div><div class="ttdoc">Return a clock valuation in this zone.</div><div class="ttdef"><b>Definition:</b> zone.hh:182</div></div>
-<div class="ttc" id="astructlearnta_1_1Zone_html_a6653b6cfe832a8700d4df7640e5abbfd"><div class="ttname"><a href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">learnta::Zone::canonize</a></div><div class="ttdeci">void canonize()</div><div class="ttdoc">make the zone canonical</div><div class="ttdef"><b>Definition:</b> zone.hh:256</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_a6653b6cfe832a8700d4df7640e5abbfd"><div class="ttname"><a href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">learnta::Zone::canonize</a></div><div class="ttdeci">void canonize()</div><div class="ttdoc">make the zone canonical</div><div class="ttdef"><b>Definition:</b> zone.hh:262</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_ac88b74fe6b89e6551851cf172b5356d3"><div class="ttname"><a href="structlearnta_1_1Zone.html#ac88b74fe6b89e6551851cf172b5356d3">learnta::Zone::tighten</a></div><div class="ttdeci">void tighten(const Constraint &amp;constraint)</div><div class="ttdoc">Add a guard of a timed automaton.</div><div class="ttdef"><b>Definition:</b> zone.hh:120</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_aa39fb558607fdd31247f507f606b9e83"><div class="ttname"><a href="structlearnta_1_1Zone.html#aa39fb558607fdd31247f507f606b9e83">learnta::Zone::top</a></div><div class="ttdeci">static Zone top(std::size_t size)</div><div class="ttdoc">Make the zone of size size with no constraints.</div><div class="ttdef"><b>Definition:</b> zone.hh:95</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_a72d4d332ea89437b5719a0e1d61041d5"><div class="ttname"><a href="structlearnta_1_1Zone.html#a72d4d332ea89437b5719a0e1d61041d5">learnta::Zone::operator&amp;&amp;</a></div><div class="ttdeci">Zone operator&amp;&amp;(const Zone &amp;another)</div><div class="ttdoc">Returns the intersection of two zones.</div><div class="ttdef"><b>Definition:</b> zone.hh:144</div></div>
-<div class="ttc" id="astructlearnta_1_1Zone_html_a14319cd4aabafc0dbd7b0b20804253fd"><div class="ttname"><a href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">learnta::Zone::unconstrain</a></div><div class="ttdeci">void unconstrain(ClockVariables x)</div><div class="ttdoc">Unconstrain the constraint on this clock.</div><div class="ttdef"><b>Definition:</b> zone.hh:230</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_a14319cd4aabafc0dbd7b0b20804253fd"><div class="ttname"><a href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">learnta::Zone::unconstrain</a></div><div class="ttdeci">void unconstrain(ClockVariables x)</div><div class="ttdoc">Unconstrain the constraint on this clock.</div><div class="ttdef"><b>Definition:</b> zone.hh:236</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_aff37cdb723fe639f78390497d548b98c"><div class="ttname"><a href="structlearnta_1_1Zone.html#aff37cdb723fe639f78390497d548b98c">learnta::Zone::tighten</a></div><div class="ttdeci">void tighten(ClockVariables x, ClockVariables y, Bounds c)</div><div class="ttdoc">add the constraint x - y \le (c,s)</div><div class="ttdef"><b>Definition:</b> zone.hh:111</div></div>
 <div class="ttc" id="astructlearnta_1_1Constraint_html"><div class="ttname"><a href="structlearnta_1_1Constraint.html">learnta::Constraint</a></div><div class="ttdoc">A constraint in a guard of transitions.</div><div class="ttdef"><b>Definition:</b> constraint.hh:20</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_a19cc6fccb902d0bf84e8d8a719953d13"><div class="ttname"><a href="structlearnta_1_1Zone.html#a19cc6fccb902d0bf84e8d8a719953d13">learnta::Zone::getNumOfVar</a></div><div class="ttdeci">std::size_t getNumOfVar() const noexcept</div><div class="ttdef"><b>Definition:</b> zone.hh:67</div></div>
-<div class="ttc" id="astructlearnta_1_1Zone_html_a11001663fe3f55f38b9c7b68c448e1b5"><div class="ttname"><a href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">learnta::Zone::makeUnsat</a></div><div class="ttdeci">void makeUnsat()</div><div class="ttdoc">make the zone unsatisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:289</div></div>
-<div class="ttc" id="astructlearnta_1_1Zone_html_af8c15ab1d50bc2267b9ccb4b30ec08ec"><div class="ttname"><a href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">learnta::Zone::isSatisfiable</a></div><div class="ttdeci">bool isSatisfiable()</div><div class="ttdoc">check if the zone is satisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:265</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_a11001663fe3f55f38b9c7b68c448e1b5"><div class="ttname"><a href="structlearnta_1_1Zone.html#a11001663fe3f55f38b9c7b68c448e1b5">learnta::Zone::makeUnsat</a></div><div class="ttdeci">void makeUnsat()</div><div class="ttdoc">make the zone unsatisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:295</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_af8c15ab1d50bc2267b9ccb4b30ec08ec"><div class="ttname"><a href="structlearnta_1_1Zone.html#af8c15ab1d50bc2267b9ccb4b30ec08ec">learnta::Zone::isSatisfiable</a></div><div class="ttdeci">bool isSatisfiable()</div><div class="ttdoc">check if the zone is satisfiable</div><div class="ttdef"><b>Definition:</b> zone.hh:271</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_afcfe186899d9ffbf8892cab672a0a140"><div class="ttname"><a href="structlearnta_1_1Zone.html#afcfe186899d9ffbf8892cab672a0a140">learnta::Zone::operator^</a></div><div class="ttdeci">Zone operator^(const Zone &amp;another) const</div><div class="ttdoc">Returns the juxtaposition of two zones.</div><div class="ttdef"><b>Definition:</b> zone.hh:163</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html"><div class="ttname"><a href="structlearnta_1_1Zone.html">learnta::Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:36</div></div>
 <div class="ttc" id="astructlearnta_1_1Zone_html_a3170fb968b7baf72a38f1c3f362865f2"><div class="ttname"><a href="structlearnta_1_1Zone.html#a3170fb968b7baf72a38f1c3f362865f2">learnta::Zone::Zone</a></div><div class="ttdeci">Zone(const std::vector&lt; double &gt; &amp;valuation, Bounds M)</div><div class="ttdoc">Construct a zone containing only the given valuation.</div><div class="ttdef"><b>Definition:</b> zone.hh:54</div></div>

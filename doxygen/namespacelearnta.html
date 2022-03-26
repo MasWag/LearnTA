@@ -109,8 +109,13 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZoneSet.html">JuxtaposedZoneSet</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1Learner.html">Learner</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The deterministic timed automata learner.  <a href="classlearnta_1_1Learner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTable</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timed observation table.  <a href="classlearnta_1_1ObservationTable.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SUL.html">SUL</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface of the system under learning.  <a href="classlearnta_1_1SUL.html#details">More...</a><br /></td></tr>
@@ -169,6 +174,9 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ac75df99c800eea7d89ca49e1a34af62e"><td class="memItemLeft" align="right" valign="top"><a id="ac75df99c800eea7d89ca49e1a34af62e"></a>
+static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classlearnta_1_1BackwardRegionalElementaryLanguage.html">learnta::BackwardRegionalElementaryLanguage</a> &amp;lang)</td></tr>
+<tr class="separator:ac75df99c800eea7d89ca49e1a34af62e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f9906740b3c93deb349aec1a79c7f11"><td class="memItemLeft" align="right" valign="top"><a id="a2f9906740b3c93deb349aec1a79c7f11"></a>
 static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> (std::ostream &amp;os, const learnta::Bounds &amp;b)</td></tr>
 <tr class="separator:a2f9906740b3c93deb349aec1a79c7f11"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -188,10 +196,16 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#ab9b93a397db0905ecbd5f2cd2d930b28">widen</a> (std::vector&lt; <a class="el" href="structlearnta_1_1Constraint.html">Constraint</a> &gt; &amp;guard)</td></tr>
 <tr class="memdesc:ab9b93a397db0905ecbd5f2cd2d930b28"><td class="mdescLeft">&#160;</td><td class="mdescRight">remove any inequality x &gt; c or x &gt;= c <br /></td></tr>
 <tr class="separator:ab9b93a397db0905ecbd5f2cd2d930b28"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adfa9447fc46533e012b435c9c010d1b8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#adfa9447fc46533e012b435c9c010d1b8">equivalence</a> (const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;left, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;leftRow, const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;right, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;rightRow, const std::vector&lt; <a class="el" href="classlearnta_1_1BackwardRegionalElementaryLanguage.html">BackwardRegionalElementaryLanguage</a> &gt; &amp;suffixes, const std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt;&gt; &amp;renaming)</td></tr>
-<tr class="separator:adfa9447fc46533e012b435c9c010d1b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ce28254efa47d8fa31ada038ee500d6"><td class="memItemLeft" align="right" valign="top">std::optional&lt; std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt; &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#a7ce28254efa47d8fa31ada038ee500d6">findEquivalentRenaming</a> (const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;left, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;leftRow, const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;right, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;rightRow, const std::vector&lt; <a class="el" href="classlearnta_1_1BackwardRegionalElementaryLanguage.html">BackwardRegionalElementaryLanguage</a> &gt; &amp;suffixes)</td></tr>
-<tr class="separator:a7ce28254efa47d8fa31ada038ee500d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab09b0ca2ddff9426799262001f300cce"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#ab09b0ca2ddff9426799262001f300cce">equivalence</a> (const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;left, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;leftRow, const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;right, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;rightRow, const std::vector&lt; <a class="el" href="classlearnta_1_1BackwardRegionalElementaryLanguage.html">BackwardRegionalElementaryLanguage</a> &gt; &amp;suffixes, const <a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> &amp;renaming)</td></tr>
+<tr class="separator:ab09b0ca2ddff9426799262001f300cce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fd9dca7ad90a3b325113ed29e2d992a"><td class="memItemLeft" align="right" valign="top">static std::optional&lt; <a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#a9fd9dca7ad90a3b325113ed29e2d992a">findEquivalentRenaming</a> (const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;left, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;leftRow, const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;right, const std::vector&lt; <a class="el" href="classlearnta_1_1TimedConditionSet.html">TimedConditionSet</a> &gt; &amp;rightRow, const std::vector&lt; <a class="el" href="classlearnta_1_1BackwardRegionalElementaryLanguage.html">BackwardRegionalElementaryLanguage</a> &gt; &amp;suffixes)</td></tr>
+<tr class="separator:a9fd9dca7ad90a3b325113ed29e2d992a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add6380dc32c5cdbdc87442dabfb3b7c1"><td class="memItemLeft" align="right" valign="top"><a id="add6380dc32c5cdbdc87442dabfb3b7c1"></a>
+static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html">learnta::ForwardRegionalElementaryLanguage</a> &amp;lang)</td></tr>
+<tr class="separator:add6380dc32c5cdbdc87442dabfb3b7c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac473b9a27de386897c4023635963c289"><td class="memItemLeft" align="right" valign="top"><a id="ac473b9a27de386897c4023635963c289"></a>
+static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classlearnta_1_1FractionalOrder.html">learnta::FractionalOrder</a> &amp;order)</td></tr>
+<tr class="separator:ac473b9a27de386897c4023635963c289"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e061a8ca57649a0c33c39f64b256dfd"><td class="memItemLeft" align="right" valign="top"><a id="a6e061a8ca57649a0c33c39f64b256dfd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>intersectionTA</b> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;in1, const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;in2, <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;out, boost::unordered_map&lt; std::pair&lt; <a class="el" href="structlearnta_1_1TAState.html">TAState</a> *, <a class="el" href="structlearnta_1_1TAState.html">TAState</a> * &gt;, std::shared_ptr&lt; <a class="el" href="structlearnta_1_1TAState.html">TAState</a> &gt;&gt; &amp;toIState)</td></tr>
 <tr class="separator:a6e061a8ca57649a0c33c39f64b256dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,16 +258,23 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/05.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2022/03/13. </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/13.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/20.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/21. </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="adfa9447fc46533e012b435c9c010d1b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adfa9447fc46533e012b435c9c010d1b8">&#9670;&nbsp;</a></span>equivalence()</h2>
+<a id="ab09b0ca2ddff9426799262001f300cce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab09b0ca2ddff9426799262001f300cce">&#9670;&nbsp;</a></span>equivalence()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool learnta::equivalence </td>
+          <td class="memname">static bool learnta::equivalence </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;&#160;</td>
           <td class="paramname"><em>left</em>, </td>
@@ -285,7 +306,7 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt;&gt; &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> &amp;&#160;</td>
           <td class="paramname"><em>renaming</em>&#160;</td>
         </tr>
         <tr>
@@ -294,20 +315,28 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Return if two elementary languages are equivalent</p>
 <dl class="section pre"><dt>Precondition</dt><dd>leftRow.size() == rightRow.size() == suffixes.size() </dd></dl>
 
 </div>
 </div>
-<a id="a7ce28254efa47d8fa31ada038ee500d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ce28254efa47d8fa31ada038ee500d6">&#9670;&nbsp;</a></span>findEquivalentRenaming()</h2>
+<a id="a9fd9dca7ad90a3b325113ed29e2d992a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fd9dca7ad90a3b325113ed29e2d992a">&#9670;&nbsp;</a></span>findEquivalentRenaming()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::optional&lt;std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt; &gt; &gt; learnta::findEquivalentRenaming </td>
+          <td class="memname">static std::optional&lt;<a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a>&gt; learnta::findEquivalentRenaming </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classlearnta_1_1ElementaryLanguage.html">ElementaryLanguage</a> &amp;&#160;</td>
           <td class="paramname"><em>left</em>, </td>
@@ -342,6 +371,11 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Construct a renaming constraint if two elementary languages are equivalent</p>
 <p>The outline of our construction is as follows.</p><ol type="1">

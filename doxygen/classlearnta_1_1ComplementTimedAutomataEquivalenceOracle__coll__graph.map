@@ -1,0 +1,4 @@
+<map id="learnta::ComplementTimedAutomataEquivalenceOracle" name="learnta::ComplementTimedAutomataEquivalenceOracle">
+<area shape="rect" id="node1" title="Equivalence oracle with a timed automaton recognizing the complement of the target language." alt="" coords="5,80,212,121"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1EquivalenceOracle.html" title="Interface of the equivalence oracle." alt="" coords="10,5,207,32"/>
+</map>

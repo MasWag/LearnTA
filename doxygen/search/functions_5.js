@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['findcounterexample_154',['findCounterExample',['../classlearnta_1_1EquivalenceOracle.html#a3bbb16989ada019f295d96c8cbd91e12',1,'learnta::EquivalenceOracle::findCounterExample()'],['../classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#a2f08d99e772f32d6d6698b32c2bc64fc',1,'learnta::ComplementTimedAutomataEquivalenceOracle::findCounterExample()']]],
-  ['findequivalentrenaming_155',['findEquivalentRenaming',['../namespacelearnta.html#a7ce28254efa47d8fa31ada038ee500d6',1,'learnta']]],
-  ['forwardregionalelementarylanguage_156',['ForwardRegionalElementaryLanguage',['../classlearnta_1_1ForwardRegionalElementaryLanguage.html#a763d4108cbf06082552dc3bee5a3ed5f',1,'learnta::ForwardRegionalElementaryLanguage']]]
+  ['findcounterexample_168',['findCounterExample',['../classlearnta_1_1EquivalenceOracle.html#a1036ad2871625b29cb43c8d41270e604',1,'learnta::EquivalenceOracle::findCounterExample()'],['../classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#a18d0aeacbcd23883d7cbea3fd37d783c',1,'learnta::ComplementTimedAutomataEquivalenceOracle::findCounterExample()']]],
+  ['findequivalentrenaming_169',['findEquivalentRenaming',['../namespacelearnta.html#a9fd9dca7ad90a3b325113ed29e2d992a',1,'learnta']]],
+  ['forwardregionalelementarylanguage_170',['ForwardRegionalElementaryLanguage',['../classlearnta_1_1ForwardRegionalElementaryLanguage.html#a763d4108cbf06082552dc3bee5a3ed5f',1,'learnta::ForwardRegionalElementaryLanguage']]],
+  ['fractionalorder_171',['FractionalOrder',['../classlearnta_1_1FractionalOrder.html#a4cfd9b8a1568c0276afca992601dabf6',1,'learnta::FractionalOrder']]]
 ];

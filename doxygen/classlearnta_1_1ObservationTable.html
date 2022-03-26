@@ -75,7 +75,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classlearnta_1_1ObservationTable-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">learnta::ObservationTable Class Reference</div>  </div>
@@ -89,6 +88,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aa1e3a36aff7c539519e2499654865e49"><td class="memItemLeft" align="right" valign="top"><a id="aa1e3a36aff7c539519e2499654865e49"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#aa1e3a36aff7c539519e2499654865e49">ObservationTable</a> (std::vector&lt; Alphabet &gt; alphabet, std::unique_ptr&lt; <a class="el" href="classlearnta_1_1SymbolicMembershipOracle.html">SymbolicMembershipOracle</a> &gt; memOracle)</td></tr>
+<tr class="memdesc:aa1e3a36aff7c539519e2499654865e49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the observation table. <br /></td></tr>
+<tr class="separator:aa1e3a36aff7c539519e2499654865e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cc1bb895eb5dd0a4f955a3c5ed09c84"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a7cc1bb895eb5dd0a4f955a3c5ed09c84">close</a> ()</td></tr>
 <tr class="memdesc:a7cc1bb895eb5dd0a4f955a3c5ed09c84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the observation table.  <a href="classlearnta_1_1ObservationTable.html#a7cc1bb895eb5dd0a4f955a3c5ed09c84">More...</a><br /></td></tr>
 <tr class="separator:a7cc1bb895eb5dd0a4f955a3c5ed09c84"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -98,16 +101,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3ca2a3ed61d87d24973c2b355965d33e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">exteriorConsistent</a> ()</td></tr>
 <tr class="memdesc:a3ca2a3ed61d87d24973c2b355965d33e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make the observation table exterior-consistent.  <a href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">More...</a><br /></td></tr>
 <tr class="separator:a3ca2a3ed61d87d24973c2b355965d33e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d393f8a1bfc394bb9ce65825ac37368"><td class="memItemLeft" align="right" valign="top"><a id="a7d393f8a1bfc394bb9ce65825ac37368"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a7d393f8a1bfc394bb9ce65825ac37368">addCounterExample</a> (const <a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html">ForwardRegionalElementaryLanguage</a> &amp;counterExample)</td></tr>
+<tr class="memdesc:a7d393f8a1bfc394bb9ce65825ac37368"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add each prefix of counterExample to P. <br /></td></tr>
+<tr class="separator:a7d393f8a1bfc394bb9ce65825ac37368"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a421f0cfa34bd68cbea30e245016a05c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">generateHypothesis</a> ()</td></tr>
 <tr class="memdesc:a421f0cfa34bd68cbea30e245016a05c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a hypothesis DTA from the current timed observation table.  <a href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">More...</a><br /></td></tr>
 <tr class="separator:a421f0cfa34bd68cbea30e245016a05c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a18cf57da61c916b4086b16ab605a4d6c"><td class="memItemLeft" align="right" valign="top"><a id="a18cf57da61c916b4086b16ab605a4d6c"></a>
-static <a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a18cf57da61c916b4086b16ab605a4d6c">initialize</a> (std::vector&lt; Alphabet &gt; alphabet, std::unique_ptr&lt; <a class="el" href="classlearnta_1_1SymbolicMembershipOracle.html">SymbolicMembershipOracle</a> &gt; memOracle)</td></tr>
-<tr class="memdesc:a18cf57da61c916b4086b16ab605a4d6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the observation table. <br /></td></tr>
-<tr class="separator:a18cf57da61c916b4086b16ab605a4d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9853c9160cc41f365cd02516ec4f7021"><td class="memItemLeft" align="right" valign="top"><a id="a9853c9160cc41f365cd02516ec4f7021"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>printDetail</b> (std::ostream &amp;stream) const</td></tr>
+<tr class="separator:a9853c9160cc41f365cd02516ec4f7021"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ffa62f3687be360eb3002aa7836e192"><td class="memItemLeft" align="right" valign="top"><a id="a6ffa62f3687be360eb3002aa7836e192"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>printStatistics</b> (std::ostream &amp;stream) const</td></tr>
+<tr class="separator:a6ffa62f3687be360eb3002aa7836e192"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Timed observation table. </p>
@@ -136,8 +142,7 @@ static <a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTab
 </div><div class="memdoc">
 
 <p>Close the observation table. </p>
-<dl class="section return"><dt>Returns</dt><dd>if the observation table is already closed </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>Implement this </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>returns true if the observation table is already closed </dd></dl>
 
 </div>
 </div>
@@ -165,8 +170,7 @@ static <a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTab
 </div><div class="memdoc">
 
 <p>Make the observation table consistent. </p>
-<dl class="section return"><dt>Returns</dt><dd>if the observation table is already consistent </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000003">Todo:</a></b></dt><dd>Implement this </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>This return true if the observation table is already consistent </dd></dl>
 
 </div>
 </div>
@@ -203,6 +207,9 @@ static <a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTab
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> learnta::ObservationTable::generateHypothesis </td>
@@ -211,10 +218,18 @@ static <a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTab
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Construct a hypothesis DTA from the current timed observation table. </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000004">Todo:</a></b></dt><dd>not implemented </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd>The observation table is closed, consistent, and exterior-consistent. </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>We currently construct only the DTAs without unobservable transitions. </dd></dl>
+<p>Construct transitions by discrete immediate exteriors</p>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000003">Todo:</a></b></dt><dd>We need to implement transitions by continuous immediate exteriors to support unobservable transitions </dd></dl>
 
 </div>
 </div>

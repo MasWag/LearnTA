@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['learnta_48',['learnta',['../namespacelearnta.html',1,'']]]
+  ['learner_51',['Learner',['../classlearnta_1_1Learner.html',1,'learnta']]],
+  ['learnta_52',['learnta',['../namespacelearnta.html',1,'']]]
 ];
