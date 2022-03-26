@@ -526,6 +526,13 @@ namespace learnta {
       return !(this->getUpperBound(N - 1, N - 1) == Bounds{0, true} &&
                this->getLowerBound(N - 1, N - 1) == Bounds{0, true});
     }
+
+    /*!
+     * @brief Return if this timed condition includes the given timed condition
+     */
+    [[nodiscard]] bool includes(const TimedCondition& condition) const {
+      return this->zone.includes(condition.zone);
+    };
   };
 }
 

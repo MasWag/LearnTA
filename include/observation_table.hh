@@ -327,29 +327,28 @@ namespace learnta {
 
       auto initialState = addState(0);
       // construct the initial state
-      const auto handleInternalContinuousSuccessors = [&](std::size_t initialIndex) {
+      const auto handleInternalContinuousSuccessors = [&](const std::size_t initialIndex) {
+        auto sourceIndex = initialIndex;
         auto nextIndex = this->continuousSuccessors[initialIndex];
         while (this->inP(nextIndex)) {
-          if (isMatch(initialIndex) == isMatch(nextIndex)) {
-            auto state = indexToState[initialIndex];
+          if (isMatch(sourceIndex) == isMatch(nextIndex)) {
+            auto state = indexToState[sourceIndex];
             indexToState[nextIndex] = state;
             stateToIndices[state].push_back(nextIndex);
           } else {
-            // We have not implemented such a case that an unobservatble transition is necessary
+            // We have not implemented such a case that an unobservable transition is necessary
             abort();
           }
+          sourceIndex = nextIndex;
           nextIndex = this->continuousSuccessors[nextIndex];
         }
 
         // Our optimization to merge the continuous exterior
-        if (equivalentWithMemo(nextIndex, initialIndex)) {
-          auto state = indexToState[initialIndex];
+        if (equivalentWithMemo(nextIndex, sourceIndex)) {
+          auto state = indexToState[sourceIndex];
           indexToState[nextIndex] = state;
           stateToIndices[state].push_back(nextIndex);
         }
-
-        initialIndex = nextIndex;
-        nextIndex = this->continuousSuccessors[initialIndex];
       };
       handleInternalContinuousSuccessors(0);
 
@@ -372,7 +371,6 @@ namespace learnta {
               const auto discrete = this->discreteSuccessors[std::make_pair(*std::prev(it), action)];
               // let the discrete successor of *it to q' if it and std::prev(it) are equivalent
               if (this->inP(discrete) && this->equivalentWithMemo(*it, *std::prev(it))) {
-                \
                 sourceMap[indexToState.at(discrete)].removeEqualityUpperBoundAssign();
               }
 
@@ -446,32 +444,33 @@ namespace learnta {
         const auto originalSourceIndex = sourceIndex;
 
         // (TargetState, RenamingRelation) -> TimedCondition of the source
-        boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedCondition> sourceMap;
+        boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedConditionSet> sourceMap;
         auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
         unsigned long jumpedTargetIndex;
         RenamingRelation renamingRelation;
         {
-          auto it = this->closedRelation.at(targetIndex).begin();
           assert(this->pIndices.find(targetIndex) == this->pIndices.end());
           // Find a successor in P
-          while (this->pIndices.find(it->first) == this->pIndices.end()) {
-            ++it;
-          }
+          auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
+                                 this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
+                    return this->inP(rel.first);
+                  });
           jumpedTargetIndex = it->first;
           renamingRelation = it->second;
           sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                  this->prefixes.at(sourceIndex).getTimedCondition();
+                  TimedConditionSet{this->prefixes.at(sourceIndex).getTimedCondition()};
         }
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
           sourceIndex = this->continuousSuccessors.at(sourceIndex);
+          BOOST_LOG_TRIVIAL(debug) << "Constructing a transition from " << this->prefixes.at(sourceIndex);
           {
             auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
             if (it == this->discreteSuccessors.end()) {
               // Include immediate exterior
               sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex),
                                        renamingRelation)].removeEqualityUpperBoundAssign();
-              break;
+              continue;
             }
             targetIndex = it->second;
             if (this->pIndices.find(targetIndex) != this->pIndices.end()) {
@@ -479,10 +478,10 @@ namespace learnta {
             }
           }
           // Find a successor in P
-          auto it = this->closedRelation.at(targetIndex).begin();
-          while (this->pIndices.find(it->first) == this->pIndices.end()) {
-            ++it;
-          }
+          auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
+                                 this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
+                    return this->inP(rel.first);
+                  });
           jumpedTargetIndex = it->first;
           assert(this->inP(jumpedTargetIndex));
           renamingRelation = it->second;
@@ -491,19 +490,27 @@ namespace learnta {
             auto it2 = sourceMap.find(std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation));
             if (it2 == sourceMap.end()) {
               sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                      this->prefixes.at(sourceIndex).getTimedCondition();
+                      TimedConditionSet{this->prefixes.at(sourceIndex).getTimedCondition()};
             } else {
-              it2->second = it2->second.convexHull(this->prefixes.at(sourceIndex).getTimedCondition());
+              if (it2->second.back().includes(this->prefixes.at(sourceIndex).immediatePrefix()->getTimedCondition())) {
+                it2->second.back().convexHullAssign(this->prefixes.at(sourceIndex).getTimedCondition());
+              } else {
+                it2->second.push_back(this->prefixes.at(sourceIndex).getTimedCondition());
+              }
             }
           }
         }
 
         indexToState[originalSourceIndex]->next[action].reserve(sourceMap.size());
-        for (const auto&[targetWithRenaming, timedCondition]: sourceMap) {
-          const auto &[target, renamingRelation] = targetWithRenaming;
-          indexToState[originalSourceIndex]->next[action].emplace_back(target.get(),
-                                                                       renamingRelation.toReset(),
-                                                                       timedCondition.toGuard());
+        for (auto&[targetWithRenaming, timedCondition]: sourceMap) {
+          const auto &[target, currentRenamingRelation] = targetWithRenaming;
+          for (const auto &condition: timedCondition.getConditions()) {
+            BOOST_LOG_TRIVIAL(debug) << "Constructing a transition with " << condition << " and "
+                                     << currentRenamingRelation.size();
+            indexToState[originalSourceIndex]->next[action].emplace_back(target.get(),
+                                                                         currentRenamingRelation.toReset(),
+                                                                         condition.toGuard());
+          }
         }
       }
 

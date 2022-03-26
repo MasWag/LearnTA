@@ -122,5 +122,22 @@ namespace learnta {
       }
       return result;
     }
+
+    /*!
+     * @brief Remove the equality upper bound
+     */
+    void removeEqualityUpperBoundAssign() {
+      for (auto &condition: this->conditions) {
+        condition.removeEqualityUpperBoundAssign();
+      }
+    }
+
+    void push_back(const TimedCondition &condition) {
+      this->conditions.push_back(condition);
+    }
+
+    TimedCondition& back() {
+      return this->conditions.back();
+    }
   };
 }

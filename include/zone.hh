@@ -295,7 +295,14 @@ namespace learnta {
     void makeUnsat() {
       value(0, 0) = Bounds(-std::numeric_limits<double>::infinity(), false);
     }
-
+    /*!
+     * @brief Return if this zone includes the given zone
+     *
+     * @pre both this and the given zones are canonized
+     */
+    [[nodiscard]] bool includes(const Zone& zone) const {
+      return this->value.cwiseMax(zone.value) == this->value;
+    };
     /*
     //! @brief make the strongest guard including the zone
     std::vector<Constraint> makeGuard() {
