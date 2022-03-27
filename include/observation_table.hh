@@ -22,6 +22,7 @@
 #include "timed_automaton.hh"
 #include "equivalence.hh"
 #include "renaming_relation.hh"
+#include "external_transition_maker.hh"
 
 namespace learnta {
   /*!
@@ -443,8 +444,7 @@ namespace learnta {
       for (auto[sourceIndex, action]: discreteBoundaries) {
         const auto originalSourceIndex = sourceIndex;
 
-        // (TargetState, RenamingRelation) -> TimedCondition of the source
-        boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedConditionSet> sourceMap;
+        ExternalTransitionMaker transitionMaker;
         auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
         unsigned long jumpedTargetIndex;
         RenamingRelation renamingRelation;
@@ -457,8 +457,9 @@ namespace learnta {
                   });
           jumpedTargetIndex = it->first;
           renamingRelation = it->second;
-          sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                  TimedConditionSet{this->prefixes.at(sourceIndex).getTimedCondition()};
+          transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
+                              this->prefixes.at(sourceIndex).getTimedCondition(),
+                              this->prefixes.at(jumpedTargetIndex).getTimedCondition());
         }
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
@@ -468,8 +469,7 @@ namespace learnta {
             auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
             if (it == this->discreteSuccessors.end()) {
               // Include immediate exterior
-              sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex),
-                                       renamingRelation)].removeEqualityUpperBoundAssign();
+              transitionMaker.includeImmediateExterior(indexToState.at(jumpedTargetIndex), renamingRelation);
               continue;
             }
             targetIndex = it->second;
@@ -486,32 +486,14 @@ namespace learnta {
           assert(this->inP(jumpedTargetIndex));
           renamingRelation = it->second;
 
-          {
-            auto it2 = sourceMap.find(std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation));
-            if (it2 == sourceMap.end()) {
-              sourceMap[std::make_pair(indexToState.at(jumpedTargetIndex), renamingRelation)] =
-                      TimedConditionSet{this->prefixes.at(sourceIndex).getTimedCondition()};
-            } else {
-              if (it2->second.back().includes(this->prefixes.at(sourceIndex).immediatePrefix()->getTimedCondition())) {
-                it2->second.back().convexHullAssign(this->prefixes.at(sourceIndex).getTimedCondition());
-              } else {
-                it2->second.push_back(this->prefixes.at(sourceIndex).getTimedCondition());
-              }
-            }
-          }
+          transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
+                              this->prefixes.at(sourceIndex).getTimedCondition(),
+                              this->prefixes.at(jumpedTargetIndex).getTimedCondition(),
+                              this->prefixes.at(sourceIndex).immediatePrefix()->getTimedCondition());
         }
-
-        indexToState[originalSourceIndex]->next[action].reserve(sourceMap.size());
-        for (auto&[targetWithRenaming, timedCondition]: sourceMap) {
-          const auto &[target, currentRenamingRelation] = targetWithRenaming;
-          for (const auto &condition: timedCondition.getConditions()) {
-            BOOST_LOG_TRIVIAL(debug) << "Constructing a transition with " << condition << " and "
-                                     << currentRenamingRelation.size();
-            indexToState[originalSourceIndex]->next[action].emplace_back(target.get(),
-                                                                         currentRenamingRelation.toReset(),
-                                                                         condition.toGuard());
-          }
-        }
+        auto newTransitions = transitionMaker.make();
+        indexToState[originalSourceIndex]->next[action].insert(indexToState[originalSourceIndex]->next[action].end(),
+                                                               newTransitions.begin(), newTransitions.end());
       }
 
       //! @todo We need to implement transitions by continuous immediate exteriors to support unobservable transitions
