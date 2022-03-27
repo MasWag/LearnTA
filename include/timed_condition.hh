@@ -332,7 +332,7 @@ namespace learnta {
         // Bound of \f$\mathbb{T}_{i,N}
         Bounds &upperBound = result.value(i + 1, 0);
         Bounds &lowerBound = result.value(0, i + 1);
-        if (isPoint(upperBound, lowerBound)) {
+        if (lowerBound.second) {
           upperBound.first++;
           upperBound.second = false;
           lowerBound.second = false;

@@ -124,6 +124,10 @@ namespace learnta {
       return {this->word, durations};
     }
 
+    void removeEqualityUpperBoundAssign() {
+      timedCondition.removeEqualityUpperBoundAssign();
+    };
+
     [[nodiscard]] const std::string &getWord() const {
       return word;
     }

@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_SUITE(ObservationTableTest)
      *     - Merging of transitions should be conducted later
      * - DONE: we need x0 := x1 at least in loc2->loc1 [label="a", guard="{x0 >= 1, x0 <= 1, x1 <= 0}"]
      *     - We need to infer this reset by comparing the timed conditions of the source and the target
-     * - the upper bound on x0 in loc2 must be removed
+     * - DONE: the upper bound on x0 in loc2 must be removed
      *     - We need to update the prefixes to do this
       digraph G {
         loc1 [init=1, match=1]
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_SUITE(ObservationTableTest)
     BOOST_CHECK(hypothesis.states.front()->isMatch);
 
     BOOST_CHECK_EQUAL(2, hypothesis.maxConstraints.size());
-    BOOST_CHECK_EQUAL(2, hypothesis.maxConstraints.front());
-    BOOST_CHECK_EQUAL(1, hypothesis.maxConstraints.back());
+    BOOST_CHECK_EQUAL(3, hypothesis.maxConstraints.front());
+    BOOST_CHECK_EQUAL(2, hypothesis.maxConstraints.back());
   }
 
 BOOST_AUTO_TEST_SUITE_END()
