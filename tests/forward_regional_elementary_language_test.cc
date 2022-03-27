@@ -207,6 +207,17 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     BOOST_CHECK_EQUAL(0, emptyWord.fractionalOrder.order.front().front());
   }
 
+  BOOST_AUTO_TEST_CASE(fromWord_2022_03_27) {
+    const auto word = ForwardRegionalElementaryLanguage::fromTimedWord({"aaa", {2,1,0.5,0}});
+    BOOST_CHECK_EQUAL(4, word.fractionalOrder.size);
+    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.size());
+    BOOST_CHECK_EQUAL(1, word.fractionalOrder.order.front().size());
+    BOOST_CHECK_EQUAL(3, word.fractionalOrder.order.front().front());
+    BOOST_CHECK_EQUAL(3, word.fractionalOrder.order.back().size());
+    BOOST_CHECK_EQUAL(0, word.fractionalOrder.order.back().front());
+    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.back().back());
+  }
+
   BOOST_FIXTURE_TEST_CASE(p7HasEqualityN, SimpleObservationTableKeysFixture) {
     std::cout << p7 << std::endl;
     BOOST_CHECK(!p7.hasEqualityN());

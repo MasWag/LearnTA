@@ -289,6 +289,7 @@ namespace learnta {
     void addCounterExample(const ForwardRegionalElementaryLanguage &counterExample) {
       const auto newPrefixes = counterExample.prefixes();
       for (const auto &prefix: newPrefixes) {
+        BOOST_LOG_TRIVIAL(debug) << "Adding a prefix " << prefix << " to P";
         auto it = std::find(this->prefixes.begin(), this->prefixes.end(), prefix);
         // prefix should be in the observation table
         assert(it != this->prefixes.end());

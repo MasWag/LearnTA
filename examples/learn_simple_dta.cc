@@ -75,7 +75,7 @@ void run(int scale) {
 }
 
 int main(int argc, const char *argv[]) {
-  boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+  // boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 
   std::cout << "Usage: " << argv[0] << " [scales]" << std::endl;
   if (argc == 1) {

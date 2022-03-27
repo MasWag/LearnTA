@@ -36,20 +36,18 @@ namespace learnta {
       for (int i = 0; i < fractionalParts.size(); ++i) {
         fractionalPartsWithIndices.at(i) = std::make_pair(fractionalParts.at(i), i);
       }
-      std::sort(fractionalPartsWithIndices.begin(), fractionalPartsWithIndices.end(),
-                [&](const auto &left, const auto &right) {
-                  return left.first < right.first;
-                });
+      std::sort(fractionalPartsWithIndices.begin(), fractionalPartsWithIndices.end());
       double currentFractionalPart = 0;
       order.emplace_back();
-      for (const auto& [fractionalPart, index]: fractionalPartsWithIndices) {
+      for (const auto&[fractionalPart, index]: fractionalPartsWithIndices) {
         if (currentFractionalPart == fractionalPart) {
           order.back().push_back(index);
         } else {
           order.emplace_back(std::list<ClockVariables>{index});
+          currentFractionalPart = fractionalPart;
         }
       }
-      //order.push_front({0});
+
       size = fractionalParts.size();
     }
 
@@ -154,7 +152,7 @@ namespace learnta {
       return size;
     }
 
-    bool operator==(const FractionalOrder& another) const {
+    bool operator==(const FractionalOrder &another) const {
       return this->size == another.size && this->order == another.order;
     }
 

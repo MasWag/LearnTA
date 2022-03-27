@@ -190,4 +190,18 @@ BOOST_AUTO_TEST_SUITE(FractionalOrderTest)
     BOOST_CHECK_EQUAL(1, it->back());
   }
 
+  BOOST_AUTO_TEST_CASE(fromFractionalParts) {
+    std::vector<double> fractionalParts = {0.5, 0.5, 0.5, 0};
+    const auto fractionalOrder = FractionalOrder{fractionalParts};
+
+    BOOST_CHECK_EQUAL(4, fractionalOrder.size);
+    BOOST_CHECK_EQUAL(2, fractionalOrder.order.size());
+    BOOST_CHECK_EQUAL(1, fractionalOrder.order.front().size());
+    BOOST_CHECK_EQUAL(3, fractionalOrder.order.front().front());
+    BOOST_CHECK_EQUAL(3, fractionalOrder.order.back().size());
+    BOOST_CHECK_EQUAL(0, fractionalOrder.order.back().front());
+    BOOST_CHECK_EQUAL(1, *std::next(fractionalOrder.order.back().begin()));
+    BOOST_CHECK_EQUAL(2, fractionalOrder.order.back().back());
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
