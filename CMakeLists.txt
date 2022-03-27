@@ -92,3 +92,5 @@ if(BUILD_DOCUMENTATION)
         COMMENT "Generating API documentation with Doxygen"
         VERBATIM)
 endif()
+
+add_subdirectory(examples)

@@ -206,7 +206,6 @@ namespace learnta {
     bool consistent() {
       for (const auto i: pIndices) {
         for (const auto j: pIndices) {
-          bool eq = false;
           if (i <= j) {
             continue;
           }
