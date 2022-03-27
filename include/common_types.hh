@@ -10,7 +10,8 @@ typedef uint8_t ClockVariables;
 /*!
   @brief An automaton
  */
-template <class State> struct Automaton {
+template<class State>
+struct Automaton {
   struct TATransition;
 
   //! @brief The states of this automaton.
@@ -19,9 +20,10 @@ template <class State> struct Automaton {
   std::vector<std::shared_ptr<State>> initialStates;
 
   //! @brief Returns the number of the states.
-  inline std::size_t stateSize() const { return states.size(); }
+  [[nodiscard]] inline std::size_t stateSize() const { return states.size(); }
 
-  inline bool operator==(const Automaton<State> A) const {
+  //! @brief Check the equivalence of two automata
+  inline bool operator==(const Automaton<State> &A) const {
     return initialStates == A.initialStates && states == A.states;
   }
 };

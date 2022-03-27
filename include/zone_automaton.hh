@@ -15,7 +15,6 @@ namespace learnta {
    * @brief A Zone automaton
    */
   struct ZoneAutomaton : public Automaton<ZAState> {
-    using State = ZAState;
     /*!
      * @brief Sample a timed word in this zone automaton
      *

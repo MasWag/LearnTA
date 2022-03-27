@@ -23,7 +23,9 @@ namespace learnta {
      * @note An epsilon transition is denoted by the null character (\0)
      */
     std::array<std::vector<std::pair<TATransition, std::weak_ptr<ZAState>>>, CHAR_MAX> next;
+    //! @brief The state in the timed automaton represented by this state
     TAState *taState = nullptr;
+    //! @brief The zone of this state
     Zone zone;
 
     ZAState() : isMatch(false), next({}) {}
@@ -36,6 +38,7 @@ namespace learnta {
     ZAState(bool isMatch, std::array<std::vector<std::pair<TATransition, std::weak_ptr<ZAState>>>, CHAR_MAX> next)
             : isMatch(isMatch), next(std::move(next)) {}
 
+    //! @brief Check the equivalence of two states only using TAState and Zone
     bool operator==(const std::pair<TAState *, Zone> &pair) const {
       return pair.first == taState && pair.second == zone;
     }

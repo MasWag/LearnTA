@@ -21,6 +21,9 @@ else()
     LearnTA_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
+find_package(Threads REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   unit_test_framework
   log)
@@ -64,6 +67,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   ${Boost_LOG_LIBRARY}
+  "-pthread"
   )
 
 # add a target to generate API documentation with Doxygen

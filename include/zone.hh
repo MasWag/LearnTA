@@ -8,7 +8,6 @@
 #include "common_types.hh"
 #include "bounds.hh"
 #include "constraint.hh"
-// #include "constraint.hh"
 
 #include <Eigen/Core>
 #include <utility>
@@ -34,17 +33,21 @@ namespace learnta {
     @note internally, the variable 0 is used for the constant while externally, the actual clock variable is 0 origin, i.e., the variable 0 for the user is the variable 1 internally. So, we need increment or decrement to fill the gap.
   */
   struct Zone {
-    using Tuple = std::tuple<std::vector<Bounds>, Bounds>;
+    //! @brief The matrix representing the DBM
     Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value;
+    //! @brief The threshold for the normalization
     Bounds M;
 
     Zone() = default;
 
+    //! @brief Construct a zone from a matrix representing the zone
     explicit Zone(const Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &value) :
             Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>(value)) {}
 
+    //! @brief Construct a zone from a matrix representing the zone
     explicit Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &&value) : value(std::move(value)) {}
 
+    //! @brief Construct a zone from a matrix representing the zone and the bound
     Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value, Bounds m) :
             value(std::move(value)), M(std::move(m)) {}
 
@@ -68,17 +71,7 @@ namespace learnta {
       return value.cols() - 1;
     }
 
-    inline void cutVars(std::shared_ptr<Zone> &out, std::size_t from, std::size_t to) {
-      out = std::make_shared<Zone>();
-      out->value.resize(to - from + 2, to - from + 2);
-      out->value.block(0, 0, 1, 1) << Bounds(0, true);
-      out->value.block(1, 1, to - from + 1, to - from + 1) = value.block(from + 1, from + 1, to - from + 1,
-                                                                         to - from + 1);
-      out->value.block(1, 0, to - from + 1, 1) = value.block(from + 1, 0, to - from + 1, 1);
-      out->value.block(0, 1, 1, to - from + 1) = value.block(0, from + 1, 1, to - from + 1);
-      out->M = M;
-    }
-
+    //! @brief Make the zone of size `size` such that all the values are zero
     static Zone zero(int size) {
       static Zone zeroZone;
       if (zeroZone.value.cols() == size) {
@@ -102,12 +95,7 @@ namespace learnta {
       return topZone;
     }
 
-    [[nodiscard]] std::tuple<std::vector<Bounds>, Bounds> toTuple() const {
-      // omit (0,0)
-      return {std::vector<Bounds>(value.data() + 1, value.data() + value.size()), M};
-    }
-
-    //! @brief add the constraint x - y \le (c,s)
+    //! @brief add the constraint \f$x - y \le (c,s)\f$
     void tighten(ClockVariables x, ClockVariables y, Bounds c) {
       x++;
       y++;
@@ -213,6 +201,7 @@ namespace learnta {
       return valuation;
     }
 
+    //! @brief Close using only x
     void close1(ClockVariables x) {
       for (int i = 0; i < value.rows(); i++) {
         value.row(i) = value.row(i).array().min(value.row(x).array() + value(i, x));
@@ -222,6 +211,7 @@ namespace learnta {
       }
     }
 
+    //! @brief Reset the value of the clock variable x to zero
     // The reset value is always (0, \le)
     void reset(ClockVariables x) {
       // 0 is the special variable here
@@ -242,6 +232,7 @@ namespace learnta {
       value.row(x).fill(Bounds(std::numeric_limits<double>::max(), false));
     }
 
+    //! @brief Assign the strongest post-condition of the delay
     void elapse() {
       static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
       value.col(0).fill(Bounds(infinity));
@@ -250,6 +241,7 @@ namespace learnta {
       }
     }
 
+    //! @brief Assign the weakest pre-condition of the delay
     void reverseElapse() {
       static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
       value.row(0).fill(Bounds(infinity));
@@ -269,7 +261,7 @@ namespace learnta {
 
     /*!
      * @brief check if the zone is satisfiable
-    */
+     */
     bool isSatisfiable() {
       canonize();
       return this->isSatisfiableNoCanonize();
@@ -277,11 +269,16 @@ namespace learnta {
 
     /*!
      * @brief check if the zone is satisfiable
+     *
+     * @pre The zone is canonical
      */
     [[nodiscard]] bool isSatisfiableNoCanonize() const {
       return (value + value.transpose()).minCoeff() >= Bounds(0.0, true);
     }
 
+    /*!
+     * @brief check if the zone is satisfiable
+     */
     explicit operator bool() {
       return isSatisfiable();
     }
@@ -316,40 +313,14 @@ namespace learnta {
       return this->value.cwiseMax(zone.value) == this->value;
     };
 
-    /*
-    //! @brief make the strongest guard including the zone
-    std::vector<Constraint> makeGuard() {
-      std::vector<Constraint> guard;
-      canonize();
-      abstractize();
-      for (int i = 0; i < getNumOfVar(); ++i) {
-        // the second element of Bound is true if the constraint is not strict, i.e., LE or GE.
-        Bounds lowerBound = value(0, i + 1);
-        if (lowerBound.first > 0 or (lowerBound.first == 0 and lowerBound.second == false)) {
-          if (lowerBound.second) {
-            guard.push_back(ConstraintMaker(i) >= lowerBound.first);
-          } else {
-            guard.push_back(ConstraintMaker(i) > lowerBound.first);
-          }
-        }
-        Bounds upperBound = value(i + 1, 0);
-        if (upperBound < M) {
-          if (upperBound.second) {
-            guard.push_back(ConstraintMaker(i) <= upperBound.first);
-          } else {
-            guard.push_back(ConstraintMaker(i) < upperBound.first);
-          }
-        }
-      }
-      return guard;
-    }*/
-
+    //! @brief Check the equivalence of two zones
     bool operator==(Zone z) const {
       z.value(0, 0) = value(0, 0);
       return value == z.value;
     }
   };
 
+  //! @brief Print the zone
   static inline std::ostream &print(std::ostream &os, const learnta::Zone &zone) {
     for (int i = 0; i < zone.value.cols(); ++i) {
       for (int j = 0; j < zone.value.rows(); ++j) {
