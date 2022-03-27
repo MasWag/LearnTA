@@ -67,15 +67,20 @@ void run(int scale) {
 
   // Run the learning
   const auto startTime = std::chrono::system_clock::now(); // Current time
-  learner.run();
+  const auto hypothesis = learner.run();
   const auto endTime = std::chrono::system_clock::now(); // End time
+
+  std::cout << "Learning Finished!!" << std::endl;
+  std::cout << "The learned DTA is as follows\n" << hypothesis << std::endl;
   learner.printStatistics(std::cout);
   std::cout << "Execution Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
             << " [ms]" << std::endl;
 }
 
 int main(int argc, const char *argv[]) {
-  // boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+#ifdef NDEBUG
+  boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+#endif
 
   std::cout << "Usage: " << argv[0] << " [scales]" << std::endl;
   if (argc == 1) {
