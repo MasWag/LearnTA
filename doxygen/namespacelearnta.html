@@ -98,6 +98,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html">EquivalenceOracle</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface of the equivalence oracle.  <a href="classlearnta_1_1EquivalenceOracle.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ExternalTransitionMaker.html">ExternalTransitionMaker</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class to make a transition from P to ext(P)  <a href="classlearnta_1_1ExternalTransitionMaker.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html">ForwardRegionalElementaryLanguage</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A forward regional elementary language.  <a href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -215,7 +218,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>updateInitAccepting</
 <tr class="memitem:a0ad3639758e1b80563eeb0e7addcd982"><td class="memItemLeft" align="right" valign="top"><a id="a0ad3639758e1b80563eeb0e7addcd982"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>intersectionSignalTA</b> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;in1, const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;in2, <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;out)</td></tr>
 <tr class="separator:a0ad3639758e1b80563eeb0e7addcd982"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad47393820ddbdae86390e7efdbfd70d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#aad47393820ddbdae86390e7efdbfd70d">ta2za</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;TA, <a class="el" href="structlearnta_1_1ZoneAutomaton.html">ZoneAutomaton</a> &amp;ZA, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> initialZone=Zone::zero(0))</td></tr>
+<tr class="memitem:aad47393820ddbdae86390e7efdbfd70d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#aad47393820ddbdae86390e7efdbfd70d">ta2za</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;TA, <a class="el" href="structlearnta_1_1ZoneAutomaton.html">ZoneAutomaton</a> &amp;ZA, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> initialZone=<a class="el" href="structlearnta_1_1Zone.html#a1be4745c52a6af64c050aff66b60a004">Zone::zero</a>(0))</td></tr>
 <tr class="memdesc:aad47393820ddbdae86390e7efdbfd70d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a zone automaton from a timed automaton.  <a href="namespacelearnta.html#aad47393820ddbdae86390e7efdbfd70d">More...</a><br /></td></tr>
 <tr class="separator:aad47393820ddbdae86390e7efdbfd70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a78514fbefc7f979a6122fd32e9bc5fea"><td class="memItemLeft" align="right" valign="top"><a id="a78514fbefc7f979a6122fd32e9bc5fea"></a>
@@ -240,7 +243,8 @@ static bool&#160;</td><td class="memItemRight" valign="bottom"><b>isPoint</b> (c
 static bool&#160;</td><td class="memItemRight" valign="bottom"><b>isUnitOpen</b> (const Bounds &amp;upperBound, const Bounds &amp;lowerBound)</td></tr>
 <tr class="separator:a11ebb668cbba5d9268f79cd261e4d6ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d761b17021123d7c2b441d75b605815"><td class="memItemLeft" align="right" valign="top"><a id="a6d761b17021123d7c2b441d75b605815"></a>
-static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>print</b> (std::ostream &amp;os, const <a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone)</td></tr>
+static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#a6d761b17021123d7c2b441d75b605815">print</a> (std::ostream &amp;os, const <a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone)</td></tr>
+<tr class="memdesc:a6d761b17021123d7c2b441d75b605815"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the zone. <br /></td></tr>
 <tr class="separator:a6d761b17021123d7c2b441d75b605815"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ee40ac5b097d4249c2d53ca6344774a"><td class="memItemLeft" align="right" valign="top"><a id="a6ee40ac5b097d4249c2d53ca6344774a"></a>
 static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone)</td></tr>
@@ -255,6 +259,8 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <dl class="section date"><dt>Date</dt><dd>2022/03/04.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/15.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/27.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/05.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
@@ -419,7 +425,7 @@ left and right are simple </dd></dl>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td>
-          <td class="paramname"><em>initialZone</em> = <code>Zone::zero(0)</code>&#160;</td>
+          <td class="paramname"><em>initialZone</em> = <code><a class="el" href="structlearnta_1_1Zone.html#a1be4745c52a6af64c050aff66b60a004">Zone::zero</a>(0)</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

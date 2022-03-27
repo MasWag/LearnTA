@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['resetvars_228',['resetVars',['../structlearnta_1_1TATransition.html#a7c22b5c38532eb06331b8fe9c0cbe601',1,'learnta::TATransition']]]
+  ['resetvars_255',['resetVars',['../structlearnta_1_1TATransition.html#a7c22b5c38532eb06331b8fe9c0cbe601',1,'learnta::TATransition']]]
 ];

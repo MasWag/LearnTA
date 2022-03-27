@@ -100,7 +100,7 @@ Collaboration diagram for learnta::ZAState:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ade2ca87b676c994114c7e91f1bd9189f"><td class="memItemLeft" align="right" valign="top"><a id="ade2ca87b676c994114c7e91f1bd9189f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ZAState</b> (<a class="el" href="structlearnta_1_1TAState.html">TAState</a> *taState, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> zone)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ZAState</b> (<a class="el" href="structlearnta_1_1TAState.html">TAState</a> *<a class="el" href="structlearnta_1_1ZAState.html#a7d20fe01501397cd7da0e6fc55f598a3">taState</a>, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> <a class="el" href="structlearnta_1_1ZAState.html#a3e255fefc0daea6381720075e39df4dc">zone</a>)</td></tr>
 <tr class="separator:ade2ca87b676c994114c7e91f1bd9189f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61fd766dd46be0340ad3a11ca9db18f8"><td class="memItemLeft" align="right" valign="top"><a id="a61fd766dd46be0340ad3a11ca9db18f8"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ZAState</b> (bool <a class="el" href="structlearnta_1_1ZAState.html#ad815b7311af1f7695d501af279c4afdc">isMatch</a>)</td></tr>
@@ -109,7 +109,8 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ZAState</b> (bool <a class="el" href="structlearnta_1_1ZAState.html#ad815b7311af1f7695d501af279c4afdc">isMatch</a>, std::array&lt; std::vector&lt; std::pair&lt; <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a>, std::weak_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt;&gt;&gt;, CHAR_MAX &gt; <a class="el" href="structlearnta_1_1ZAState.html#abdfd98a4aeb9a8dc3c90e2252f993891">next</a>)</td></tr>
 <tr class="separator:a676b9f5b920b05412d9bdbaaeabc3061"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a359d34da4bb445617a4eb2f7db7f2a"><td class="memItemLeft" align="right" valign="top"><a id="a6a359d34da4bb445617a4eb2f7db7f2a"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const std::pair&lt; <a class="el" href="structlearnta_1_1TAState.html">TAState</a> *, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &gt; &amp;pair) const</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1ZAState.html#a6a359d34da4bb445617a4eb2f7db7f2a">operator==</a> (const std::pair&lt; <a class="el" href="structlearnta_1_1TAState.html">TAState</a> *, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &gt; &amp;pair) const</td></tr>
+<tr class="memdesc:a6a359d34da4bb445617a4eb2f7db7f2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the equivalence of two states only using <a class="el" href="structlearnta_1_1TAState.html" title="A state of timed automata.">TAState</a> and <a class="el" href="structlearnta_1_1Zone.html" title="Implementation of a zone with DBM.">Zone</a>. <br /></td></tr>
 <tr class="separator:a6a359d34da4bb445617a4eb2f7db7f2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -122,10 +123,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 <tr class="memdesc:abdfd98a4aeb9a8dc3c90e2252f993891"><td class="mdescLeft">&#160;</td><td class="mdescRight">The transitions from this state.  <a href="structlearnta_1_1ZAState.html#abdfd98a4aeb9a8dc3c90e2252f993891">More...</a><br /></td></tr>
 <tr class="separator:abdfd98a4aeb9a8dc3c90e2252f993891"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d20fe01501397cd7da0e6fc55f598a3"><td class="memItemLeft" align="right" valign="top"><a id="a7d20fe01501397cd7da0e6fc55f598a3"></a>
-<a class="el" href="structlearnta_1_1TAState.html">TAState</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>taState</b> = nullptr</td></tr>
+<a class="el" href="structlearnta_1_1TAState.html">TAState</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1ZAState.html#a7d20fe01501397cd7da0e6fc55f598a3">taState</a> = nullptr</td></tr>
+<tr class="memdesc:a7d20fe01501397cd7da0e6fc55f598a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The state in the timed automaton represented by this state. <br /></td></tr>
 <tr class="separator:a7d20fe01501397cd7da0e6fc55f598a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e255fefc0daea6381720075e39df4dc"><td class="memItemLeft" align="right" valign="top"><a id="a3e255fefc0daea6381720075e39df4dc"></a>
-<a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><b>zone</b></td></tr>
+<a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1ZAState.html#a3e255fefc0daea6381720075e39df4dc">zone</a></td></tr>
+<tr class="memdesc:a3e255fefc0daea6381720075e39df4dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">The zone of this state. <br /></td></tr>
 <tr class="separator:a3e255fefc0daea6381720075e39df4dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>

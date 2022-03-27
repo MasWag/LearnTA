@@ -107,36 +107,38 @@ $(function() {
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;          notUpdated = notUpdated &amp;&amp; observationTable.<a class="code" href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">exteriorConsistent</a>();</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        } <span class="keywordflow">while</span> (!notUpdated);</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keyword">auto</span> hypothesis = observationTable.<a class="code" href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">generateHypothesis</a>();</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> counterExample = eqOracle-&gt;findCounterExample(hypothesis);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        eqQueryCount++;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">if</span> (counterExample) {</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;          observationTable.<a class="code" href="classlearnta_1_1ObservationTable.html#a7d393f8a1bfc394bb9ce65825ac37368">addCounterExample</a>(ForwardRegionalElementaryLanguage::fromTimedWord(counterExample.value()));</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          <span class="keywordflow">return</span> hypothesis;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        }</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      }</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    }</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    std::ostream &amp;printStatistics(std::ostream &amp;stream) {</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      this-&gt;observationTable.printStatistics(stream);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;Number of equivalence queries: &quot;</span> &lt;&lt; this-&gt;eqQueryCount &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;The learner generated a hypothesis\n&quot;</span> &lt;&lt; hypothesis;</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> counterExample = eqOracle-&gt;findCounterExample(hypothesis);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        eqQueryCount++;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160; </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <span class="keywordflow">if</span> (counterExample) {</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;Equivalence oracle returned a counter example: &quot;</span> &lt;&lt; counterExample.value();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          observationTable.<a class="code" href="classlearnta_1_1ObservationTable.html#a7d393f8a1bfc394bb9ce65825ac37368">addCounterExample</a>(ForwardRegionalElementaryLanguage::fromTimedWord(counterExample.value()));</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;          <span class="keywordflow">return</span> hypothesis;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        }</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      }</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    std::ostream &amp;printStatistics(std::ostream &amp;stream) {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      this-&gt;observationTable.printStatistics(stream);</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">return</span> stream;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    }</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  };</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;Number of equivalence queries: &quot;</span> &lt;&lt; this-&gt;eqQueryCount &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="keywordflow">return</span> stream;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  };</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasslearnta_1_1Learner_html"><div class="ttname"><a href="classlearnta_1_1Learner.html">learnta::Learner</a></div><div class="ttdoc">The deterministic timed automata learner.</div><div class="ttdef"><b>Definition:</b> learner.hh:18</div></div>
 <div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:63</div></div>
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a7d393f8a1bfc394bb9ce65825ac37368"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a7d393f8a1bfc394bb9ce65825ac37368">learnta::ObservationTable::addCounterExample</a></div><div class="ttdeci">void addCounterExample(const ForwardRegionalElementaryLanguage &amp;counterExample)</div><div class="ttdoc">Add each prefix of counterExample to P.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:290</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
-<div class="ttc" id="aclasslearnta_1_1ObservationTable_html"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html">learnta::ObservationTable</a></div><div class="ttdoc">Timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:30</div></div>
-<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a421f0cfa34bd68cbea30e245016a05c3"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">learnta::ObservationTable::generateHypothesis</a></div><div class="ttdeci">TimedAutomaton generateHypothesis()</div><div class="ttdoc">Construct a hypothesis DTA from the current timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:310</div></div>
-<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_aca5b9500d50fcfee8890665a854847ea"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#aca5b9500d50fcfee8890665a854847ea">learnta::ObservationTable::consistent</a></div><div class="ttdeci">bool consistent()</div><div class="ttdoc">Make the observation table consistent.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:206</div></div>
+<div class="ttc" id="aclasslearnta_1_1ObservationTable_html"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html">learnta::ObservationTable</a></div><div class="ttdoc">Timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:31</div></div>
+<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a421f0cfa34bd68cbea30e245016a05c3"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">learnta::ObservationTable::generateHypothesis</a></div><div class="ttdeci">TimedAutomaton generateHypothesis()</div><div class="ttdoc">Construct a hypothesis DTA from the current timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:311</div></div>
+<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_aca5b9500d50fcfee8890665a854847ea"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#aca5b9500d50fcfee8890665a854847ea">learnta::ObservationTable::consistent</a></div><div class="ttdeci">bool consistent()</div><div class="ttdoc">Make the observation table consistent.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:207</div></div>
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a3ca2a3ed61d87d24973c2b355965d33e"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">learnta::ObservationTable::exteriorConsistent</a></div><div class="ttdeci">bool exteriorConsistent()</div><div class="ttdoc">Make the observation table exterior-consistent.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:260</div></div>
-<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a7cc1bb895eb5dd0a4f955a3c5ed09c84"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a7cc1bb895eb5dd0a4f955a3c5ed09c84">learnta::ObservationTable::close</a></div><div class="ttdeci">bool close()</div><div class="ttdoc">Close the observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:153</div></div>
+<div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a7cc1bb895eb5dd0a4f955a3c5ed09c84"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a7cc1bb895eb5dd0a4f955a3c5ed09c84">learnta::ObservationTable::close</a></div><div class="ttdeci">bool close()</div><div class="ttdoc">Close the observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:154</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

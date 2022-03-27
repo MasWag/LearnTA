@@ -130,56 +130,66 @@ $(function() {
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <span class="keyword">auto</span> preZone = preZoneState-&gt;zone;</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <span class="comment">// Construct the zone just before jump</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keyword">auto</span> zoneBeforeJump = <a class="code" href="structlearnta_1_1Zone.html">Zone</a>{postValuation, postZone.M};</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> originalZoneBeforeJump = <a class="code" href="structlearnta_1_1Zone.html">Zone</a>{postValuation, postZone.M};</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keyword">auto</span> zoneBeforeJump = <a class="code" href="structlearnta_1_1Zone.html">Zone</a>{postValuation, postZone.<a class="code" href="structlearnta_1_1Zone.html#a70d5cc40c5bc923025fbb27efd8c28a3">M</a>};</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        assert(zoneBeforeJump.isSatisfiableNoCanonize());</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> transition = this-&gt;edgeAt(i);</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[resetVariable, updatedVariable]: transition.<a class="code" href="structlearnta_1_1TATransition.html#a7c22b5c38532eb06331b8fe9c0cbe601">resetVars</a>) {</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;          <span class="keywordflow">if</span> (updatedVariable) {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            zoneBeforeJump.value.col(resetVariable + 1) = originalZoneBeforeJump.value.col(*updatedVariable + 1);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;            zoneBeforeJump.value.row(resetVariable + 1) = originalZoneBeforeJump.value.row(*updatedVariable + 1);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;          } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            zoneBeforeJump.unconstrain(resetVariable);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;          }</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> guard: transition.<a class="code" href="structlearnta_1_1TATransition.html#ab2b68fe28dd55e5aef86fab6134854b2">guard</a>) {</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;          zoneBeforeJump.tighten(guard);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;        }</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        {</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;          <span class="keyword">auto</span> tmpPreZone = preZone;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;          tmpPreZone.elapse();</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;          zoneBeforeJump &amp;= tmpPreZone;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;        }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        <span class="comment">// Sample the valuation just before discrete jump</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> valuationBeforeJump = zoneBeforeJump.sample();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;        <span class="keyword">auto</span> backwardPreZone = <a class="code" href="structlearnta_1_1Zone.html">Zone</a>{valuationBeforeJump, postZone.M};</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;        backwardPreZone.reverseElapse();</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> preValuation = (preZone &amp;&amp; backwardPreZone).sample();</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        durations.push_front(valuationBeforeJump.at(0) - preValuation.at(0));</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        <span class="comment">// Update the variables</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        postZone = std::move(preZone);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        postValuation = preValuation;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;      }</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;      <span class="comment">// Return the timed word</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;      std::vector&lt;double&gt; durationsVector;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;      durationsVector.resize(durations.size());</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;      std::move(durations.begin(), durations.end(), durationsVector.begin());</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;      durationsVector.push_back(0);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;      <span class="keywordflow">return</span> {word, durationsVector};</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    }</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  };</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;}</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;          <span class="keywordflow">if</span> (!updatedVariable) {</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;            zoneBeforeJump.unconstrain(resetVariable);</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;          }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        }</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> originalZoneBeforeJump = zoneBeforeJump;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[resetVariable, updatedVariable]: transition.<a class="code" href="structlearnta_1_1TATransition.html#a7c22b5c38532eb06331b8fe9c0cbe601">resetVars</a>) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;          <span class="keywordflow">if</span> (updatedVariable) {</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;            zoneBeforeJump.value.col(*updatedVariable + 1) = originalZoneBeforeJump.value.col(resetVariable + 1);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;            zoneBeforeJump.value.row(*updatedVariable + 1) = originalZoneBeforeJump.value.row(resetVariable + 1);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;            zoneBeforeJump.unconstrain(resetVariable);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;          }</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;        }</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;        assert(zoneBeforeJump.isSatisfiableNoCanonize());</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> guard: transition.<a class="code" href="structlearnta_1_1TATransition.html#ab2b68fe28dd55e5aef86fab6134854b2">guard</a>) {</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;          zoneBeforeJump.tighten(guard);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;          assert(zoneBeforeJump.isSatisfiableNoCanonize());</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;        }</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;        {</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;          <span class="keyword">auto</span> tmpPreZone = preZone;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;          tmpPreZone.elapse();</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;          zoneBeforeJump &amp;= tmpPreZone;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;          assert(zoneBeforeJump.isSatisfiableNoCanonize());</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        }</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        <span class="comment">// Sample the valuation just before discrete jump</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        assert(zoneBeforeJump.isSatisfiableNoCanonize());</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> valuationBeforeJump = zoneBeforeJump.sample();</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;        <span class="keyword">auto</span> backwardPreZone = <a class="code" href="structlearnta_1_1Zone.html">Zone</a>{valuationBeforeJump, postZone.<a class="code" href="structlearnta_1_1Zone.html#a70d5cc40c5bc923025fbb27efd8c28a3">M</a>};</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;        backwardPreZone.reverseElapse();</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> preValuation = (preZone &amp;&amp; backwardPreZone).sample();</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        durations.push_front(valuationBeforeJump.at(0) - preValuation.at(0));</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;        <span class="comment">// Update the variables</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        postZone = std::move(preZone);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        postValuation = preValuation;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;      }</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;      <span class="comment">// Return the timed word</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;      std::vector&lt;double&gt; durationsVector;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;      durationsVector.resize(durations.size());</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;      std::move(durations.begin(), durations.end(), durationsVector.begin());</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;      durationsVector.push_back(0);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;      <span class="keywordflow">return</span> {word, durationsVector};</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    }</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  };</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="astructlearnta_1_1TATransition_html_ab2b68fe28dd55e5aef86fab6134854b2"><div class="ttname"><a href="structlearnta_1_1TATransition.html#ab2b68fe28dd55e5aef86fab6134854b2">learnta::TATransition::guard</a></div><div class="ttdeci">std::vector&lt; Constraint &gt; guard</div><div class="ttdoc">The guard for this transition.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:50</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:20</div></div>
 <div class="ttc" id="astructlearnta_1_1TATransition_html_a7c22b5c38532eb06331b8fe9c0cbe601"><div class="ttname"><a href="structlearnta_1_1TATransition.html#a7c22b5c38532eb06331b8fe9c0cbe601">learnta::TATransition::resetVars</a></div><div class="ttdeci">std::vector&lt; std::pair&lt; ClockVariables, std::optional&lt; ClockVariables &gt; &gt; &gt; resetVars</div><div class="ttdoc">The clock variables reset after this transition.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:48</div></div>
 <div class="ttc" id="aclasslearnta_1_1SymbolicRun_html"><div class="ttname"><a href="classlearnta_1_1SymbolicRun.html">learnta::SymbolicRun</a></div><div class="ttdoc">Run of a zone automaton.</div><div class="ttdef"><b>Definition:</b> symbolic_run.hh:23</div></div>
 <div class="ttc" id="aclasslearnta_1_1SymbolicRun_html_a4fd962629dc34bc1c95c747e3c67e6e4"><div class="ttname"><a href="classlearnta_1_1SymbolicRun.html#a4fd962629dc34bc1c95c747e3c67e6e4">learnta::SymbolicRun::reconstructWord</a></div><div class="ttdeci">TimedWord reconstructWord() const</div><div class="ttdef"><b>Definition:</b> symbolic_run.hh:55</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html_a70d5cc40c5bc923025fbb27efd8c28a3"><div class="ttname"><a href="structlearnta_1_1Zone.html#a70d5cc40c5bc923025fbb27efd8c28a3">learnta::Zone::M</a></div><div class="ttdeci">Bounds M</div><div class="ttdoc">The threshold for the normalization.</div><div class="ttdef"><b>Definition:</b> zone.hh:39</div></div>
 <div class="ttc" id="astructlearnta_1_1TATransition_html"><div class="ttname"><a href="structlearnta_1_1TATransition.html">learnta::TATransition</a></div><div class="ttdoc">A state of timed automata.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:40</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
-<div class="ttc" id="astructlearnta_1_1Zone_html"><div class="ttname"><a href="structlearnta_1_1Zone.html">learnta::Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:36</div></div>
+<div class="ttc" id="astructlearnta_1_1Zone_html"><div class="ttname"><a href="structlearnta_1_1Zone.html">learnta::Zone</a></div><div class="ttdoc">Implementation of a zone with DBM.</div><div class="ttdef"><b>Definition:</b> zone.hh:35</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

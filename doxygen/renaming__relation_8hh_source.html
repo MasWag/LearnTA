@@ -83,23 +83,60 @@ $(function() {
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;utility&gt;</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacelearnta.html">learnta</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="classlearnta_1_1RenamingRelation.html">   12</a></span>&#160;  <span class="keyword">class </span><a class="code" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> : <span class="keyword">public</span> std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt; {</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    [[nodiscard]] std::vector&lt;std::pair&lt;ClockVariables, std::optional&lt;ClockVariables&gt;&gt;&gt; toReset()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;      std::vector&lt;std::pair&lt;ClockVariables, std::optional&lt;ClockVariables&gt;&gt;&gt; result;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;      result.resize(this-&gt;size());</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;      std::transform(this-&gt;begin(), this-&gt;end(), result.begin(), [&amp;] (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;renamingPair) {</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        return std::make_pair(renamingPair.first, renamingPair.second);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;      });</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;      <span class="keywordflow">return</span> result;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    }</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  };</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;}</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#include &quot;timed_condition.hh&quot;</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacelearnta.html">learnta</a> {</div>
+<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="classlearnta_1_1RenamingRelation.html">   14</a></span>&#160;  <span class="keyword">class </span><a class="code" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> : <span class="keyword">public</span> std::vector&lt;std::pair&lt;std::size_t, std::size_t&gt;&gt; {</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    [[nodiscard]] std::vector&lt;std::pair&lt;ClockVariables, std::optional&lt;ClockVariables&gt;&gt;&gt;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    toReset(<span class="keyword">const</span> <a class="code" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;sourceCondition, <span class="keyword">const</span> <a class="code" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;targetCondition)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;      <span class="comment">// Construct the reset from the renaming relation</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;      std::vector&lt;std::pair&lt;ClockVariables, std::optional&lt;ClockVariables&gt;&gt;&gt; result;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;      result.resize(this-&gt;size());</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;      std::transform(this-&gt;begin(), this-&gt;end(), result.begin(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;renamingPair) {</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        return std::make_pair(renamingPair.second, renamingPair.first);</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      });</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;      result.erase(std::remove_if(result.begin(), result.end(), [](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;resetPair) {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        return resetPair.first == *resetPair.second;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;      }), result.end());</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; </div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      <span class="comment">// Construct the reset from the timed conditions</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      <span class="keywordtype">int</span> j = 0;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>(); ++i) {</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        <span class="keywordflow">if</span> (std::find_if(result.begin(), result.end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> p) { return p.first == i; }) != result.end()) {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;          <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        }</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">if</span> (j &gt;= sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>()) {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;          <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        }</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keywordflow">while</span> (targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824">getUpperBound</a>(i, targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>() - 1) !=</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;               sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824">getUpperBound</a>(j, sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>() - 1) ||</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;               targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a">getLowerBound</a>(i, targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>() - 1) !=</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;               sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a">getLowerBound</a>(j, sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>() - 1)) {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;          j++;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;          <span class="keywordflow">if</span> (j &gt;= sourceCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>()) {</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;            <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          }</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        }</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        <span class="keywordflow">if</span> (i != j) {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;          result.emplace_back(i, j);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        }</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordflow">if</span> (i + 1 &lt; targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">size</a>() &amp;&amp; targetCondition.<a class="code" href="classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a">getLowerBound</a>(i, i + 1) != Bounds{0, true}) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;          j++;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160; </div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    }</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  };</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasslearnta_1_1RenamingRelation_html"><div class="ttname"><a href="classlearnta_1_1RenamingRelation.html">learnta::RenamingRelation</a></div><div class="ttdef"><b>Definition:</b> renaming_relation.hh:12</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_a0b5ad62daede8c6d33c901ad67a08824"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#a0b5ad62daede8c6d33c901ad67a08824">learnta::TimedCondition::getUpperBound</a></div><div class="ttdeci">Bounds getUpperBound(int i, int j) const</div><div class="ttdoc">Returns the upper bound of .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:210</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html">learnta::TimedCondition</a></div><div class="ttdoc">A timed condition, a finite conjunction of inequalities of the form , where  and .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:18</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_aa3cf8a7534cb95bd124700ad20d3180c"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#aa3cf8a7534cb95bd124700ad20d3180c">learnta::TimedCondition::size</a></div><div class="ttdeci">size_t size() const</div><div class="ttdoc">Return the number of the variables in this timed condition.</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:66</div></div>
+<div class="ttc" id="aclasslearnta_1_1RenamingRelation_html"><div class="ttname"><a href="classlearnta_1_1RenamingRelation.html">learnta::RenamingRelation</a></div><div class="ttdef"><b>Definition:</b> renaming_relation.hh:14</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedCondition_html_aaa8296739b165f2ab4d4584d7184e76a"><div class="ttname"><a href="classlearnta_1_1TimedCondition.html#aaa8296739b165f2ab4d4584d7184e76a">learnta::TimedCondition::getLowerBound</a></div><div class="ttdeci">Bounds getLowerBound(int i, int j) const</div><div class="ttdoc">Returns the lower bound of .</div><div class="ttdef"><b>Definition:</b> timed_condition.hh:197</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
