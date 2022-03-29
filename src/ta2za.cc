@@ -118,6 +118,10 @@ namespace learnta {
 
                 nextConf.push_back(ZA.states.back());
               }
+              // We shortcut the zone construction once we reach an accepting state
+              if (nextState->isMatch) {
+                return;
+              }
             }
           }
         }
