@@ -26,6 +26,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED COMPONENTS
   unit_test_framework
+  system
   log)
 find_package(Eigen3 REQUIRED)
 
