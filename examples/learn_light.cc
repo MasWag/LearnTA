@@ -4,6 +4,13 @@
  * @date 2022/03/28.
  *
  * - [APT'20]: Aichernig, Bernhard K., Andrea Pferscher, and Martin Tappler. "From passive to active: learning timed automata efficiently." NASA Formal Methods Symposium. Springer, Cham, 2020.
+ *
+ * Encoding of the events are as follows
+ * - p: press
+ * - r: release
+ * - s: starthold
+ * - e: endhold
+ * - t: touch
  */
 
 #include <iostream>
