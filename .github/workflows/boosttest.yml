@@ -3,6 +3,8 @@ name: Boost.Test
 on:
   push:
     paths:
+      - 'CMakeLists.txt'
+      - 'src/*'
       - 'include/*'
       - 'tests/*'
 
