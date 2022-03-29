@@ -1,0 +1,5 @@
+<map id="LightAutomatonFixture" name="LightAutomatonFixture">
+<area shape="rect" id="node1" title="Fixture of the Light DTA in [APT&#39;20]." alt="" coords="15,185,185,212"/>
+<area shape="rect" id="node2" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="5,81,195,108"/>
+<area shape="rect" id="node3" href="$structAutomaton.html" title=" " alt="" coords="13,5,187,32"/>
+</map>

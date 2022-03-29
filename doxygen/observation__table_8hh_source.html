@@ -442,7 +442,7 @@ $(function() {
 <div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;            <span class="keyword">const</span> <span class="keyword">auto</span> discreteSuccessorIndex = this-&gt;discreteSuccessors.at(std::make_pair(*it, action));</div>
 <div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;            <span class="comment">// Add states only if the successor is also in P</span></div>
 <div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;            <span class="keywordflow">if</span> (!this-&gt;inP(discreteSuccessorIndex)) {</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;              discreteBoundaries.emplace_back(newStateIndices.front(), action);</div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;              discreteBoundaries.emplace_back(*it, action);</div>
 <div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;              <span class="keywordflow">continue</span>;</div>
 <div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;            }</div>
 <div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;            <span class="comment">/*</span></div>
@@ -510,99 +510,110 @@ $(function() {
 <div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;        <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> jumpedTargetIndex;</div>
 <div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;        <a class="code" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> renamingRelation;</div>
 <div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;        {</div>
-<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;          assert(this-&gt;pIndices.find(targetIndex) == this-&gt;pIndices.end());</div>
-<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;          <span class="comment">// Find a successor in P</span></div>
-<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;          <span class="keyword">auto</span> it = std::find_if(this-&gt;closedRelation.at(targetIndex).begin(),</div>
-<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;                                 this-&gt;closedRelation.at(targetIndex).end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel) {</div>
-<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;                    return this-&gt;inP(rel.first);</div>
-<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;                  });</div>
-<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;          jumpedTargetIndex = it-&gt;first;</div>
-<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;          renamingRelation = it-&gt;second;</div>
-<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;          transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#afdee38b0348d7fb79a31d6062d12c426">add</a>(indexToState.at(jumpedTargetIndex), renamingRelation,</div>
-<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160;                              tmpPrefixes.at(sourceIndex).getTimedCondition(),</div>
-<div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;                              tmpPrefixes.at(jumpedTargetIndex).getTimedCondition());</div>
-<div class="line"><a name="l00486"></a><span class="lineno">  486</span>&#160;        }</div>
-<div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160; </div>
-<div class="line"><a name="l00488"></a><span class="lineno">  488</span>&#160;        <span class="keywordflow">while</span> (this-&gt;continuousSuccessors.find(sourceIndex) != this-&gt;continuousSuccessors.end()) {</div>
-<div class="line"><a name="l00489"></a><span class="lineno">  489</span>&#160;          sourceIndex = this-&gt;continuousSuccessors.at(sourceIndex);</div>
-<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;Constructing a transition from &quot;</span> &lt;&lt; tmpPrefixes.at(sourceIndex);</div>
-<div class="line"><a name="l00491"></a><span class="lineno">  491</span>&#160;          {</div>
-<div class="line"><a name="l00492"></a><span class="lineno">  492</span>&#160;            <span class="keyword">auto</span> it = this-&gt;discreteSuccessors.find(std::make_pair(sourceIndex, action));</div>
-<div class="line"><a name="l00493"></a><span class="lineno">  493</span>&#160;            <span class="keywordflow">if</span> (it == this-&gt;discreteSuccessors.end()) {</div>
-<div class="line"><a name="l00494"></a><span class="lineno">  494</span>&#160;              <span class="comment">// Include immediate exterior</span></div>
-<div class="line"><a name="l00495"></a><span class="lineno">  495</span>&#160;              transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#ac1497a02721bffb46e9a60e8941fbdf8">includeImmediateExterior</a>(indexToState.at(jumpedTargetIndex), renamingRelation);</div>
-<div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;              <span class="keywordflow">continue</span>;</div>
-<div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160;            }</div>
-<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;            targetIndex = it-&gt;second;</div>
-<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;            <span class="keywordflow">if</span> (this-&gt;pIndices.find(targetIndex) != this-&gt;pIndices.end()) {</div>
-<div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;              <span class="keywordflow">break</span>;</div>
-<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;            }</div>
-<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;          }</div>
-<div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160;          <span class="comment">// Find a successor in P</span></div>
-<div class="line"><a name="l00504"></a><span class="lineno">  504</span>&#160;          <span class="keyword">auto</span> it = std::find_if(this-&gt;closedRelation.at(targetIndex).begin(),</div>
-<div class="line"><a name="l00505"></a><span class="lineno">  505</span>&#160;                                 this-&gt;closedRelation.at(targetIndex).end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel) {</div>
-<div class="line"><a name="l00506"></a><span class="lineno">  506</span>&#160;                    return this-&gt;inP(rel.first);</div>
-<div class="line"><a name="l00507"></a><span class="lineno">  507</span>&#160;                  });</div>
-<div class="line"><a name="l00508"></a><span class="lineno">  508</span>&#160;          jumpedTargetIndex = it-&gt;first;</div>
-<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;          assert(this-&gt;inP(jumpedTargetIndex));</div>
-<div class="line"><a name="l00510"></a><span class="lineno">  510</span>&#160;          renamingRelation = it-&gt;second;</div>
-<div class="line"><a name="l00511"></a><span class="lineno">  511</span>&#160; </div>
-<div class="line"><a name="l00512"></a><span class="lineno">  512</span>&#160;          transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#afdee38b0348d7fb79a31d6062d12c426">add</a>(indexToState.at(jumpedTargetIndex), renamingRelation,</div>
-<div class="line"><a name="l00513"></a><span class="lineno">  513</span>&#160;                              tmpPrefixes.at(sourceIndex).getTimedCondition(),</div>
-<div class="line"><a name="l00514"></a><span class="lineno">  514</span>&#160;                              tmpPrefixes.at(jumpedTargetIndex).getTimedCondition(),</div>
-<div class="line"><a name="l00515"></a><span class="lineno">  515</span>&#160;                              tmpPrefixes.at(sourceIndex).immediatePrefix()-&gt;getTimedCondition());</div>
-<div class="line"><a name="l00516"></a><span class="lineno">  516</span>&#160;        }</div>
-<div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;        <span class="keyword">auto</span> newTransitions = transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#a311c644ae9d9208ce1f02e619b3df533">make</a>();</div>
-<div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;        indexToState[originalSourceIndex]-&gt;next[action].insert(indexToState[originalSourceIndex]-&gt;next[action].end(),</div>
-<div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;                                                               newTransitions.begin(), newTransitions.end());</div>
-<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;      }</div>
-<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160; </div>
-<div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160; </div>
-<div class="line"><a name="l00524"></a><span class="lineno">  524</span>&#160;      <span class="comment">// Construct the max constants</span></div>
-<div class="line"><a name="l00525"></a><span class="lineno">  525</span>&#160;      std::vector&lt;int&gt; maxConstants;</div>
-<div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;state: states) {</div>
-<div class="line"><a name="l00527"></a><span class="lineno">  527</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[action, transitions]: state-&gt;next) {</div>
-<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;          <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;transition: transitions) {</div>
-<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;            <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;guard: transition.guard) {</div>
-<div class="line"><a name="l00530"></a><span class="lineno">  530</span>&#160;              <span class="keywordflow">if</span> (guard.x &gt;= maxConstants.size()) {</div>
-<div class="line"><a name="l00531"></a><span class="lineno">  531</span>&#160;                maxConstants.resize(guard.x + 1);</div>
-<div class="line"><a name="l00532"></a><span class="lineno">  532</span>&#160;              }</div>
-<div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;              maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);</div>
-<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;            }</div>
-<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;          }</div>
-<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;        }</div>
-<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;      }</div>
-<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160; </div>
-<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a>{{states, {initialState}}, maxConstants};</div>
-<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;    }</div>
-<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160; </div>
-<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;    std::ostream &amp;printDetail(std::ostream &amp;stream)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;      printStatistics(stream);</div>
-<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;P is as follows\n&quot;</span>;</div>
-<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pIndex: this-&gt;pIndices) {</div>
-<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;        stream &lt;&lt; this-&gt;prefixes.at(pIndex) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;      }</div>
-<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;S is as follows\n&quot;</span>;</div>
-<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;suffix: this-&gt;suffixes) {</div>
-<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;        stream &lt;&lt; suffix &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;      }</div>
+<div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;          <span class="keywordflow">if</span> (this-&gt;pIndices.find(targetIndex) == this-&gt;pIndices.end()) {</div>
+<div class="line"><a name="l00476"></a><span class="lineno">  476</span>&#160;            <span class="comment">// Find a successor in P</span></div>
+<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;            <span class="keyword">auto</span> it = std::find_if(this-&gt;closedRelation.at(targetIndex).begin(),</div>
+<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;                                   this-&gt;closedRelation.at(targetIndex).end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel) {</div>
+<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;                      return this-&gt;inP(rel.first);</div>
+<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;                    });</div>
+<div class="line"><a name="l00481"></a><span class="lineno">  481</span>&#160;            jumpedTargetIndex = it-&gt;first;</div>
+<div class="line"><a name="l00482"></a><span class="lineno">  482</span>&#160;            renamingRelation = it-&gt;second;</div>
+<div class="line"><a name="l00483"></a><span class="lineno">  483</span>&#160;          } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00484"></a><span class="lineno">  484</span>&#160;            jumpedTargetIndex = targetIndex;</div>
+<div class="line"><a name="l00485"></a><span class="lineno">  485</span>&#160;          }</div>
+<div class="line"><a name="l00486"></a><span class="lineno">  486</span>&#160;          transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#afdee38b0348d7fb79a31d6062d12c426">add</a>(indexToState.at(jumpedTargetIndex), renamingRelation,</div>
+<div class="line"><a name="l00487"></a><span class="lineno">  487</span>&#160;                              tmpPrefixes.at(sourceIndex).getTimedCondition(),</div>
+<div class="line"><a name="l00488"></a><span class="lineno">  488</span>&#160;                              tmpPrefixes.at(jumpedTargetIndex).getTimedCondition());</div>
+<div class="line"><a name="l00489"></a><span class="lineno">  489</span>&#160;        }</div>
+<div class="line"><a name="l00490"></a><span class="lineno">  490</span>&#160; </div>
+<div class="line"><a name="l00491"></a><span class="lineno">  491</span>&#160;        <span class="keywordflow">while</span> (this-&gt;continuousSuccessors.find(sourceIndex) != this-&gt;continuousSuccessors.end()) {</div>
+<div class="line"><a name="l00492"></a><span class="lineno">  492</span>&#160;          sourceIndex = this-&gt;continuousSuccessors.at(sourceIndex);</div>
+<div class="line"><a name="l00493"></a><span class="lineno">  493</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;Constructing a transition from &quot;</span> &lt;&lt; tmpPrefixes.at(sourceIndex);</div>
+<div class="line"><a name="l00494"></a><span class="lineno">  494</span>&#160;          {</div>
+<div class="line"><a name="l00495"></a><span class="lineno">  495</span>&#160;            <span class="keyword">auto</span> it = this-&gt;discreteSuccessors.find(std::make_pair(sourceIndex, action));</div>
+<div class="line"><a name="l00496"></a><span class="lineno">  496</span>&#160;            <span class="keywordflow">if</span> (it == this-&gt;discreteSuccessors.end()) {</div>
+<div class="line"><a name="l00497"></a><span class="lineno">  497</span>&#160;              <span class="comment">// Include immediate exterior</span></div>
+<div class="line"><a name="l00498"></a><span class="lineno">  498</span>&#160;              transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#ac1497a02721bffb46e9a60e8941fbdf8">includeImmediateExterior</a>(indexToState.at(jumpedTargetIndex), renamingRelation);</div>
+<div class="line"><a name="l00499"></a><span class="lineno">  499</span>&#160;              <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00500"></a><span class="lineno">  500</span>&#160;            }</div>
+<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;            targetIndex = it-&gt;second;</div>
+<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;            <span class="keywordflow">if</span> (this-&gt;pIndices.find(targetIndex) != this-&gt;pIndices.end()) {</div>
+<div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160;              <span class="keywordflow">break</span>;</div>
+<div class="line"><a name="l00504"></a><span class="lineno">  504</span>&#160;            }</div>
+<div class="line"><a name="l00505"></a><span class="lineno">  505</span>&#160;          }</div>
+<div class="line"><a name="l00506"></a><span class="lineno">  506</span>&#160;          <span class="comment">// Find a successor in P</span></div>
+<div class="line"><a name="l00507"></a><span class="lineno">  507</span>&#160;          <span class="keyword">auto</span> it = std::find_if(this-&gt;closedRelation.at(targetIndex).begin(),</div>
+<div class="line"><a name="l00508"></a><span class="lineno">  508</span>&#160;                                 this-&gt;closedRelation.at(targetIndex).end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;rel) {</div>
+<div class="line"><a name="l00509"></a><span class="lineno">  509</span>&#160;                    return this-&gt;inP(rel.first);</div>
+<div class="line"><a name="l00510"></a><span class="lineno">  510</span>&#160;                  });</div>
+<div class="line"><a name="l00511"></a><span class="lineno">  511</span>&#160;          jumpedTargetIndex = it-&gt;first;</div>
+<div class="line"><a name="l00512"></a><span class="lineno">  512</span>&#160;          assert(this-&gt;inP(jumpedTargetIndex));</div>
+<div class="line"><a name="l00513"></a><span class="lineno">  513</span>&#160;          renamingRelation = it-&gt;second;</div>
+<div class="line"><a name="l00514"></a><span class="lineno">  514</span>&#160; </div>
+<div class="line"><a name="l00515"></a><span class="lineno">  515</span>&#160;          transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#afdee38b0348d7fb79a31d6062d12c426">add</a>(indexToState.at(jumpedTargetIndex), renamingRelation,</div>
+<div class="line"><a name="l00516"></a><span class="lineno">  516</span>&#160;                              tmpPrefixes.at(sourceIndex).getTimedCondition(),</div>
+<div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;                              tmpPrefixes.at(jumpedTargetIndex).getTimedCondition(),</div>
+<div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;                              tmpPrefixes.at(sourceIndex).immediatePrefix()-&gt;getTimedCondition());</div>
+<div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;        }</div>
+<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;        <span class="keyword">auto</span> newTransitions = transitionMaker.<a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#a311c644ae9d9208ce1f02e619b3df533">make</a>();</div>
+<div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;        indexToState[originalSourceIndex]-&gt;next[action].insert(indexToState[originalSourceIndex]-&gt;next[action].end(),</div>
+<div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160;                                                               newTransitions.begin(), newTransitions.end());</div>
+<div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160;      }</div>
+<div class="line"><a name="l00524"></a><span class="lineno">  524</span>&#160; </div>
+<div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160; </div>
+<div class="line"><a name="l00527"></a><span class="lineno">  527</span>&#160;      <span class="comment">// Construct the max constants</span></div>
+<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;      std::vector&lt;int&gt; maxConstants;</div>
+<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;state: states) {</div>
+<div class="line"><a name="l00530"></a><span class="lineno">  530</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[action, transitions]: state-&gt;next) {</div>
+<div class="line"><a name="l00531"></a><span class="lineno">  531</span>&#160;          <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;transition: transitions) {</div>
+<div class="line"><a name="l00532"></a><span class="lineno">  532</span>&#160;            <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;guard: transition.guard) {</div>
+<div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;              <span class="keywordflow">if</span> (guard.x &gt;= maxConstants.size()) {</div>
+<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;                maxConstants.resize(guard.x + 1);</div>
+<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;              }</div>
+<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;              maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);</div>
+<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;            }</div>
+<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;            <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;[resetVar, updatedVarOpt]: transition.resetVars) {</div>
+<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;              <span class="keywordflow">if</span> (resetVar &gt;= maxConstants.size()) {</div>
+<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;                maxConstants.resize(resetVar + 1);</div>
+<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;              }</div>
+<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;              <span class="keywordflow">if</span> (updatedVarOpt &amp;&amp; *updatedVarOpt &gt;= maxConstants.size()) {</div>
+<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;                maxConstants.resize(*updatedVarOpt + 1);</div>
+<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;              }</div>
+<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;            }</div>
+<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;          }</div>
+<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;        }</div>
+<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;      }</div>
+<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160; </div>
+<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;      <span class="keywordflow">return</span> <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a>{{states, {initialState}}, maxConstants}.<a class="code" href="structlearnta_1_1TimedAutomaton.html#a78d58ff471fe889a9db53e0f06465ac7">simplify</a>();</div>
+<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;    }</div>
 <div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160; </div>
-<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;      <span class="keywordflow">return</span> stream;</div>
-<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;    }</div>
-<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160; </div>
-<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;    std::ostream &amp;printStatistics(std::ostream &amp;stream)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|P| = &quot;</span> &lt;&lt; this-&gt;pIndices.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|ext(P)| = &quot;</span> &lt;&lt; this-&gt;prefixes.size() - this-&gt;pIndices.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|S| = &quot;</span> &lt;&lt; this-&gt;suffixes.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
-<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160; </div>
-<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;      <span class="keywordflow">return</span> stream;</div>
-<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;    }</div>
-<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;  };</div>
-<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;}</div>
+<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;    std::ostream &amp;printDetail(std::ostream &amp;stream)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;      printStatistics(stream);</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;P is as follows\n&quot;</span>;</div>
+<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pIndex: this-&gt;pIndices) {</div>
+<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;        stream &lt;&lt; this-&gt;prefixes.at(pIndex) &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;      }</div>
+<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;S is as follows\n&quot;</span>;</div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;suffix: this-&gt;suffixes) {</div>
+<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;        stream &lt;&lt; suffix &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;      }</div>
+<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160; </div>
+<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;      <span class="keywordflow">return</span> stream;</div>
+<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;    }</div>
+<div class="line"><a name="l00566"></a><span class="lineno">  566</span>&#160; </div>
+<div class="line"><a name="l00567"></a><span class="lineno">  567</span>&#160;    std::ostream &amp;printStatistics(std::ostream &amp;stream)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00568"></a><span class="lineno">  568</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|P| = &quot;</span> &lt;&lt; this-&gt;pIndices.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|ext(P)| = &quot;</span> &lt;&lt; this-&gt;prefixes.size() - this-&gt;pIndices.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;      stream &lt;&lt; <span class="stringliteral">&quot;|S| = &quot;</span> &lt;&lt; this-&gt;suffixes.size() &lt;&lt; <span class="stringliteral">&quot;\n&quot;</span>;</div>
+<div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160; </div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;      <span class="keywordflow">return</span> stream;</div>
+<div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;    }</div>
+<div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;  };</div>
+<div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasslearnta_1_1ForwardRegionalElementaryLanguage_html_aa6473ef9ca10a0eed7ac9143f60e8ee3"><div class="ttname"><a href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#aa6473ef9ca10a0eed7ac9143f60e8ee3">learnta::ForwardRegionalElementaryLanguage::prefixes</a></div><div class="ttdeci">std::vector&lt; ForwardRegionalElementaryLanguage &gt; prefixes() const</div><div class="ttdoc">Return the prefixes.</div><div class="ttdef"><b>Definition:</b> forward_regional_elementary_language.hh:99</div></div>
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html_aa1e3a36aff7c539519e2499654865e49"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#aa1e3a36aff7c539519e2499654865e49">learnta::ObservationTable::ObservationTable</a></div><div class="ttdeci">ObservationTable(std::vector&lt; Alphabet &gt; alphabet, std::unique_ptr&lt; SymbolicMembershipOracle &gt; memOracle)</div><div class="ttdoc">Initialize the observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:140</div></div>
-<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:63</div></div>
+<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:64</div></div>
 <div class="ttc" id="aclasslearnta_1_1ExternalTransitionMaker_html_ac1497a02721bffb46e9a60e8941fbdf8"><div class="ttname"><a href="classlearnta_1_1ExternalTransitionMaker.html#ac1497a02721bffb46e9a60e8941fbdf8">learnta::ExternalTransitionMaker::includeImmediateExterior</a></div><div class="ttdeci">void includeImmediateExterior(const std::shared_ptr&lt; TAState &gt; &amp;targetState, const RenamingRelation &amp;renamingRelation)</div><div class="ttdoc">Include the transition of the immediate exterior of the current conditions.</div><div class="ttdef"><b>Definition:</b> external_transition_maker.hh:60</div></div>
 <div class="ttc" id="aclasslearnta_1_1ExternalTransitionMaker_html_afdee38b0348d7fb79a31d6062d12c426"><div class="ttname"><a href="classlearnta_1_1ExternalTransitionMaker.html#afdee38b0348d7fb79a31d6062d12c426">learnta::ExternalTransitionMaker::add</a></div><div class="ttdeci">void add(const std::shared_ptr&lt; TAState &gt; &amp;targetState, const RenamingRelation &amp;renamingRelation, const TimedCondition &amp;sourceCondition, const TimedCondition &amp;targetCondition, const std::optional&lt; TimedCondition &gt; &amp;prefixSourceCondition=std::nullopt)</div><div class="ttdoc">Add a transition to targetState.</div><div class="ttdef"><b>Definition:</b> external_transition_maker.hh:40</div></div>
 <div class="ttc" id="aclasslearnta_1_1ForwardRegionalElementaryLanguage_html"><div class="ttname"><a href="classlearnta_1_1ForwardRegionalElementaryLanguage.html">learnta::ForwardRegionalElementaryLanguage</a></div><div class="ttdoc">A forward regional elementary language.</div><div class="ttdef"><b>Definition:</b> forward_regional_elementary_language.hh:22</div></div>
@@ -612,6 +623,7 @@ $(function() {
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a7d393f8a1bfc394bb9ce65825ac37368"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a7d393f8a1bfc394bb9ce65825ac37368">learnta::ObservationTable::addCounterExample</a></div><div class="ttdeci">void addCounterExample(const ForwardRegionalElementaryLanguage &amp;counterExample)</div><div class="ttdoc">Add each prefix of counterExample to P.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:290</div></div>
 <div class="ttc" id="anamespacelearnta_html_a9fd9dca7ad90a3b325113ed29e2d992a"><div class="ttname"><a href="namespacelearnta.html#a9fd9dca7ad90a3b325113ed29e2d992a">learnta::findEquivalentRenaming</a></div><div class="ttdeci">static std::optional&lt; RenamingRelation &gt; findEquivalentRenaming(const ElementaryLanguage &amp;left, const std::vector&lt; TimedConditionSet &gt; &amp;leftRow, const ElementaryLanguage &amp;right, const std::vector&lt; TimedConditionSet &gt; &amp;rightRow, const std::vector&lt; BackwardRegionalElementaryLanguage &gt; &amp;suffixes)</div><div class="ttdef"><b>Definition:</b> equivalence.hh:80</div></div>
 <div class="ttc" id="aclasslearnta_1_1RenamingRelation_html"><div class="ttname"><a href="classlearnta_1_1RenamingRelation.html">learnta::RenamingRelation</a></div><div class="ttdef"><b>Definition:</b> renaming_relation.hh:14</div></div>
+<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html_a78d58ff471fe889a9db53e0f06465ac7"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html#a78d58ff471fe889a9db53e0f06465ac7">learnta::TimedAutomaton::simplify</a></div><div class="ttdeci">TimedAutomaton simplify()</div><div class="ttdoc">Simplify the timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:201</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html">learnta::ObservationTable</a></div><div class="ttdoc">Timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:31</div></div>
 <div class="ttc" id="aclasslearnta_1_1ObservationTable_html_a421f0cfa34bd68cbea30e245016a05c3"><div class="ttname"><a href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">learnta::ObservationTable::generateHypothesis</a></div><div class="ttdeci">TimedAutomaton generateHypothesis()</div><div class="ttdoc">Construct a hypothesis DTA from the current timed observation table.</div><div class="ttdef"><b>Definition:</b> observation_table.hh:311</div></div>

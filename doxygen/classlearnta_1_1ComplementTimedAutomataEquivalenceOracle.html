@@ -106,8 +106,8 @@ Collaboration diagram for learnta::ComplementTimedAutomataEquivalenceOracle:</di
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a17166c9dd0f8bd5b7b57b66d56543de5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#a17166c9dd0f8bd5b7b57b66d56543de5">ComplementTimedAutomataEquivalenceOracle</a> (<a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> target, <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> complement)</td></tr>
-<tr class="separator:a17166c9dd0f8bd5b7b57b66d56543de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78633292eaf75f1cb0fb1a12e45c06f9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#a78633292eaf75f1cb0fb1a12e45c06f9">ComplementTimedAutomataEquivalenceOracle</a> (<a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> target, <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> complement, std::vector&lt; Alphabet &gt; alphabet)</td></tr>
+<tr class="separator:a78633292eaf75f1cb0fb1a12e45c06f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a18d0aeacbcd23883d7cbea3fd37d783c"><td class="memItemLeft" align="right" valign="top"><a id="a18d0aeacbcd23883d7cbea3fd37d783c"></a>
 std::optional&lt; <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html#a18d0aeacbcd23883d7cbea3fd37d783c">findCounterExample</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis) const override</td></tr>
 <tr class="memdesc:a18d0aeacbcd23883d7cbea3fd37d783c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make an equivalence query. <br /></td></tr>
@@ -116,8 +116,8 @@ std::optional&lt; <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord<
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Equivalence oracle with a timed automaton recognizing the complement of the target language. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a17166c9dd0f8bd5b7b57b66d56543de5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17166c9dd0f8bd5b7b57b66d56543de5">&#9670;&nbsp;</a></span>ComplementTimedAutomataEquivalenceOracle()</h2>
+<a id="a78633292eaf75f1cb0fb1a12e45c06f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78633292eaf75f1cb0fb1a12e45c06f9">&#9670;&nbsp;</a></span>ComplementTimedAutomataEquivalenceOracle()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -135,7 +135,13 @@ std::optional&lt; <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord<
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a>&#160;</td>
-          <td class="paramname"><em>complement</em>&#160;</td>
+          <td class="paramname"><em>complement</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::vector&lt; Alphabet &gt;&#160;</td>
+          <td class="paramname"><em>alphabet</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

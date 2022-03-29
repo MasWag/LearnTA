@@ -153,13 +153,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a14319cd4aabafc0dbd7b0b20804253fd">unconstrain</a> (ClockVariables x)</td></tr>
 <tr class="memdesc:a14319cd4aabafc0dbd7b0b20804253fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unconstrain the constraint on this clock. <br /></td></tr>
 <tr class="separator:a14319cd4aabafc0dbd7b0b20804253fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a397c590e4fc65dd98db81eed65b2d361"><td class="memItemLeft" align="right" valign="top"><a id="a397c590e4fc65dd98db81eed65b2d361"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a397c590e4fc65dd98db81eed65b2d361">elapse</a> ()</td></tr>
-<tr class="memdesc:a397c590e4fc65dd98db81eed65b2d361"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the strongest post-condition of the delay. <br /></td></tr>
+<tr class="memitem:a397c590e4fc65dd98db81eed65b2d361"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a397c590e4fc65dd98db81eed65b2d361">elapse</a> ()</td></tr>
+<tr class="memdesc:a397c590e4fc65dd98db81eed65b2d361"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the strongest post-condition of the delay.  <a href="structlearnta_1_1Zone.html#a397c590e4fc65dd98db81eed65b2d361">More...</a><br /></td></tr>
 <tr class="separator:a397c590e4fc65dd98db81eed65b2d361"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea2ee49991647180a1bb75c2587041d3"><td class="memItemLeft" align="right" valign="top"><a id="aea2ee49991647180a1bb75c2587041d3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#aea2ee49991647180a1bb75c2587041d3">reverseElapse</a> ()</td></tr>
-<tr class="memdesc:aea2ee49991647180a1bb75c2587041d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the weakest pre-condition of the delay. <br /></td></tr>
+<tr class="memitem:aea2ee49991647180a1bb75c2587041d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#aea2ee49991647180a1bb75c2587041d3">reverseElapse</a> ()</td></tr>
+<tr class="memdesc:aea2ee49991647180a1bb75c2587041d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign the weakest pre-condition of the delay.  <a href="structlearnta_1_1Zone.html#aea2ee49991647180a1bb75c2587041d3">More...</a><br /></td></tr>
 <tr class="separator:aea2ee49991647180a1bb75c2587041d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6653b6cfe832a8700d4df7640e5abbfd"><td class="memItemLeft" align="right" valign="top"><a id="a6653b6cfe832a8700d4df7640e5abbfd"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a6653b6cfe832a8700d4df7640e5abbfd">canonize</a> ()</td></tr>
@@ -218,6 +216,34 @@ Bounds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 <div class="textblock"><p>Implementation of a zone with DBM. </p>
 <dl class="section note"><dt>Note</dt><dd>internally, the variable 0 is used for the constant while externally, the actual clock variable is 0 origin, i.e., the variable 0 for the user is the variable 1 internally. So, we need increment or decrement to fill the gap. </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a397c590e4fc65dd98db81eed65b2d361"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a397c590e4fc65dd98db81eed65b2d361">&#9670;&nbsp;</a></span>elapse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void learnta::Zone::elapse </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assign the strongest post-condition of the delay. </p>
+<dl class="section note"><dt>Note</dt><dd>We allow time elapse of duration zero </dd></dl>
+
+</div>
+</div>
 <a id="a19cc6fccb902d0bf84e8d8a719953d13"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a19cc6fccb902d0bf84e8d8a719953d13">&#9670;&nbsp;</a></span>getNumOfVar()</h2>
 
@@ -298,6 +324,34 @@ Bounds&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="st
 
 <p>check if the zone is satisfiable </p>
 <dl class="section pre"><dt>Precondition</dt><dd>The zone is canonical </dd></dl>
+
+</div>
+</div>
+<a id="aea2ee49991647180a1bb75c2587041d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea2ee49991647180a1bb75c2587041d3">&#9670;&nbsp;</a></span>reverseElapse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void learnta::Zone::reverseElapse </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Assign the weakest pre-condition of the delay. </p>
+<dl class="section note"><dt>Note</dt><dd>We allow time elapse of duration zero </dd></dl>
 
 </div>
 </div>
