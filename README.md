@@ -3,6 +3,7 @@ LearnTA
 
 [![Boost.Test](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml/badge.svg?branch=master)](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
+[![Doxygen](https://img.shields.io/badge/docs-Doxygen-deepgreen.svg)](https://maswag.github.io/LearnTA/doxygen/index.html)
 
 This is the source code repository for LearnTA --- A C++ library for active learning of deterministic timed automata.
 
@@ -25,3 +26,7 @@ mkdir build
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
 ```
 
+How to run examples
+-------------------
+
+The examples are in [`./examples`](./examples).

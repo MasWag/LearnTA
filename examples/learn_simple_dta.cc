@@ -62,7 +62,7 @@ void run(int scale) {
   auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
   auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
   auto eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
-          new learnta::ComplementTimedAutomataEquivalenceOracle(targetAutomaton, complementTargetAutomaton));
+          new learnta::ComplementTimedAutomataEquivalenceOracle(targetAutomaton, complementTargetAutomaton, alphabet));
   learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
 
   // Run the learning

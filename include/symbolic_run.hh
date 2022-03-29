@@ -9,6 +9,10 @@
 #include <string>
 #include <list>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+
 #include "timed_word.hh"
 #include "zone.hh"
 #include "timed_automaton.hh"
@@ -67,6 +71,9 @@ namespace learnta {
 
         // Construct the zone just before jump
         auto zoneBeforeJump = Zone{postValuation, postZone.M};
+        if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
+          BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
+        }
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto transition = this->edgeAt(i);
         for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
@@ -85,6 +92,10 @@ namespace learnta {
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         for (const auto guard: transition.guard) {
           zoneBeforeJump.tighten(guard);
+          if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
+            BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
+            BOOST_LOG_TRIVIAL(error) << "The unsatisfiable zone\n" << zoneBeforeJump;
+          }
           assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
         {
@@ -114,5 +125,31 @@ namespace learnta {
 
       return {word, durationsVector};
     }
+
+    //! @brief Print the symbolic run
+    static inline std::ostream &print(std::ostream &os, const learnta::SymbolicRun &run) {
+      os << run.states.front()->zone;
+
+      for (int i = 0; i < run.word.size(); ++i) {
+        os << run.word.at(i) << "\n";
+        for (const auto &guard: run.edges.at(i).guard) {
+          os << guard << ", ";
+        }
+        for (const auto &[resetVar, updatedVarOpt]: run.edges.at(i).resetVars) {
+          if (updatedVarOpt) {
+            os << "x" << int(resetVar) << " := x" << int(*updatedVarOpt) << ", ";
+          } else {
+            os << "x" << int(resetVar) << " := 0, ";
+          }
+        }
+        os << "\n" << run.states.at(i + 1)->zone;
+      }
+
+      return os;
+    }
   };
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::SymbolicRun &run) {
+    return learnta::SymbolicRun::print(os, run);
+  }
 }

@@ -223,4 +223,33 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     BOOST_CHECK(!p7.hasEqualityN());
   }
 
-  BOOST_AUTO_TEST_SUITE_END()
+  BOOST_AUTO_TEST_CASE(equality) {
+    const auto word = "1";
+    TimedCondition leftCondition = TimedCondition{Zone::top(3)};
+    leftCondition.restrictLowerBound(0, 0, Bounds{-0.0, false});
+    leftCondition.restrictUpperBound(0, 0, Bounds{1.0, false});
+    leftCondition.restrictLowerBound(0, 1, Bounds{-0.0, false});
+    leftCondition.restrictUpperBound(0, 1, Bounds{1.0, false});
+    leftCondition.restrictLowerBound(1, 1, Bounds{-0.0, true});
+    leftCondition.restrictUpperBound(1, 1, Bounds{0.0, true});
+
+    TimedCondition rightCondition = TimedCondition{Zone::top(3)};
+    rightCondition.restrictLowerBound(0, 0, Bounds{0.0, false});
+    rightCondition.restrictUpperBound(0, 0, Bounds{1.0, false});
+    rightCondition.restrictLowerBound(0, 1, Bounds{0.0, false});
+    rightCondition.restrictUpperBound(0, 1, Bounds{1.0, false});
+    rightCondition.restrictLowerBound(1, 1, Bounds{0.0, true});
+    rightCondition.restrictUpperBound(1, 1, Bounds{0.0, true});
+
+    const auto fractionalOrder = FractionalOrder({0.5, 0});
+    // (1, 0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && 0 <= T_{1, 1}  <= 0, 0 <= {x1, }{x0, }
+    const auto left = ForwardRegionalElementaryLanguage{ElementaryLanguage{word, leftCondition}, fractionalOrder};
+    std::cout << left << std::endl;
+    // (1, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0, 0 <= {x1, }{x0, }
+    const auto right = ForwardRegionalElementaryLanguage{ElementaryLanguage{word, rightCondition}, fractionalOrder};
+    std::cout << right << std::endl;
+
+    BOOST_CHECK_EQUAL(left, right);
+  }
+
+BOOST_AUTO_TEST_SUITE_END()

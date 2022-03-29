@@ -45,4 +45,29 @@ BOOST_AUTO_TEST_CASE(makeGuard) {
   }
 }
 */
+
+  BOOST_AUTO_TEST_CASE(elapseTighten) {
+    const auto guard = ConstraintMaker(0) >= 5;
+    // Construct the initial zone
+    auto zone = Zone::top(5);
+    zone.reset(0);
+    zone.reset(2);
+    zone.tighten(ConstraintMaker(1) >= 0);
+    zone.tighten(ConstraintMaker(3) >= 0);
+    zone.tighten(1, 3, Bounds{0, true});
+    zone.tighten(3, 1, Bounds{0, true});
+    zone.canonize();
+    std::cout << zone << std::endl;
+    BOOST_TEST(zone.isSatisfiable());
+
+    // Time elapse
+    zone.elapse();
+    std::cout << zone << std::endl;
+    BOOST_TEST(zone.isSatisfiable());
+
+    // Guard
+    zone.tighten(guard);
+    std::cout << zone << std::endl;
+    BOOST_TEST(zone.isSatisfiable());
+  }
 BOOST_AUTO_TEST_SUITE_END()

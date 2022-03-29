@@ -403,7 +403,7 @@ namespace learnta {
             const auto discreteSuccessorIndex = this->discreteSuccessors.at(std::make_pair(*it, action));
             // Add states only if the successor is also in P
             if (!this->inP(discreteSuccessorIndex)) {
-              discreteBoundaries.emplace_back(newStateIndices.front(), action);
+              discreteBoundaries.emplace_back(*it, action);
               continue;
             }
             /*
@@ -472,14 +472,17 @@ namespace learnta {
         unsigned long jumpedTargetIndex;
         RenamingRelation renamingRelation;
         {
-          assert(this->pIndices.find(targetIndex) == this->pIndices.end());
-          // Find a successor in P
-          auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
-                                 this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
-                    return this->inP(rel.first);
-                  });
-          jumpedTargetIndex = it->first;
-          renamingRelation = it->second;
+          if (this->pIndices.find(targetIndex) == this->pIndices.end()) {
+            // Find a successor in P
+            auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
+                                   this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
+                      return this->inP(rel.first);
+                    });
+            jumpedTargetIndex = it->first;
+            renamingRelation = it->second;
+          } else {
+            jumpedTargetIndex = targetIndex;
+          }
           transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition());
@@ -532,11 +535,19 @@ namespace learnta {
               }
               maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);
             }
+            for (const auto &[resetVar, updatedVarOpt]: transition.resetVars) {
+              if (resetVar >= maxConstants.size()) {
+                maxConstants.resize(resetVar + 1);
+              }
+              if (updatedVarOpt && *updatedVarOpt >= maxConstants.size()) {
+                maxConstants.resize(*updatedVarOpt + 1);
+              }
+            }
           }
         }
       }
 
-      return TimedAutomaton{{states, {initialState}}, maxConstants};
+      return TimedAutomaton{{states, {initialState}}, maxConstants}.simplify();
     }
 
     std::ostream &printDetail(std::ostream &stream) const {

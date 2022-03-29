@@ -8,6 +8,7 @@
 #include <utility>
 #include <valarray>
 #include <vector>
+#include <queue>
 
 #include "common_types.hh"
 #include "constraint.hh"
@@ -61,10 +62,6 @@ namespace learnta {
    * @brief A timed automaton
    */
   struct TimedAutomaton : public Automaton<TAState> {
-    using X = ConstraintMaker;
-    using TATransition = TATransition;
-    using State = learnta::TAState;
-
     //! @brief The maximum constraints for each clock variables.
     std::vector<int> maxConstraints;
 
@@ -75,7 +72,7 @@ namespace learnta {
       @param [out] old2new The mapping from the original state to the
       corresponding new state.
      */
-    void deepCopy (
+    void deepCopy(
             TimedAutomaton &dest,
             std::unordered_map<TAState *, std::shared_ptr<TAState>> &old2new) const {
       // copy states
@@ -112,15 +109,100 @@ namespace learnta {
      *
      * @pre This timed automaton is deterministic and the transitions are complete
      */
-    [[nodiscard]] TimedAutomaton complement() const {
+    [[nodiscard]] TimedAutomaton complement(const std::vector<Alphabet> &alphabet) const {
       TimedAutomaton result;
       std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new;
       deepCopy(result, old2new);
-      for (auto& state: result.states) {
+      result.makeComplete(alphabet);
+      for (auto &state: result.states) {
         state->isMatch = !state->isMatch;
       }
 
       return result;
+    }
+
+    /*!
+     * @brief Add transitions to make it complete
+     */
+    void makeComplete(const std::vector<Alphabet> &alphabet) {
+      this->states.push_back(std::make_shared<TAState>(false));
+      // If the transition is empty, we make a transition to the sink state
+      for (auto &state: this->states) {
+        for (const auto &action: alphabet) {
+          if (state->next.find(action) == state->next.end()) {
+            state->next[action].emplace_back();
+            state->next.at(action).back().target = this->states.back().get();
+          }
+        }
+      }
+    };
+
+    //! @brief simplify the transitions by reducing the duplications
+    void simplifyTransitions() {
+      for (auto &state: this->states) {
+        std::unordered_map<Alphabet, std::vector<learnta::TATransition>> newNext;
+        for (auto&[action, transitions]: state->next) {
+          std::vector<learnta::TATransition> reducedTransitions;
+          for (const auto &transition: transitions) {
+            auto it = std::find_if(reducedTransitions.begin(), reducedTransitions.end(), [&](const auto &another) {
+              return transition.target == another.target && transition.resetVars == another.resetVars &&
+                     isWeaker(another.guard, transition.guard);
+            });
+            if (it == reducedTransitions.end()) {
+              reducedTransitions.push_back(transition);
+            }
+          }
+          newNext[action] = reducedTransitions;
+        }
+        state->next = newNext;
+      }
+    }
+
+    //! @brief Remove self loop of non-accepting locations
+    void removeDeadLoop() {
+      std::deque<std::shared_ptr<TAState>> nonAccepting;
+      std::copy_if(this->states.begin(), this->states.end(), std::back_inserter(nonAccepting),
+                   [](const std::shared_ptr<TAState>& state) {
+                     return !state->isMatch;
+                   });
+      while (!nonAccepting.empty()) {
+        std::shared_ptr<TAState> current = nonAccepting.front();
+        nonAccepting.pop_front();
+        // We do not remove the initial states
+        if (std::find(this->initialStates.begin(), this->initialStates.end(), current) != this->initialStates.end()) {
+          continue;
+        }
+        if (std::all_of(current->next.begin(), current->next.end(), [&](const auto &pair) {
+          return std::all_of(pair.second.begin(), pair.second.end(), [&] (const auto &transition) {
+            return transition.target == current.get();
+          });
+        })) {
+          this->states.erase(std::remove(this->states.begin(), this->states.end(), current), this->states.end());
+          // Remove the transition to the removed location
+          for (auto &state: this->states) {
+            for (auto it = state->next.begin(); it != state->next.end(); ) {
+             auto &[action, transitions] = *it;
+              transitions.erase(std::remove_if(transitions.begin(), transitions.end(), [&] (const auto &transition){
+                return transition.target == current.get();
+              }), transitions.end());
+
+              if (transitions.empty()) {
+                it = state->next.erase(it);
+              } else {
+                ++it;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    //! @brief Simplify the timed automaton
+    TimedAutomaton simplify() {
+      this->simplifyTransitions();
+      this->removeDeadLoop();
+
+      return *this;
     }
   };
 
@@ -145,9 +227,9 @@ namespace learnta {
          << "]\n";
     }
 
-    for (const std::shared_ptr<TAState>& source: TA.states) {
+    for (const std::shared_ptr<TAState> &source: TA.states) {
       for (auto edges: source->next) {
-        for (const TATransition& edge: edges.second) {
+        for (const TATransition &edge: edges.second) {
           TAState *target = edge.target;
           os << "        loc" << stateNumber.at(source.get()) << "->loc"
              << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
@@ -166,7 +248,7 @@ namespace learnta {
           if (!edge.resetVars.empty()) {
             os << ", reset=\"{";
             bool isFirst = true;
-            for (const auto& [resetVar, newVar]: edge.resetVars) {
+            for (const auto&[resetVar, newVar]: edge.resetVars) {
               if (!isFirst) {
                 os << ", ";
               }

@@ -80,20 +80,7 @@ namespace learnta {
               continue;
             }
             for (const auto &delta: edge.guard) {
-              switch (delta.odr) {
-                case Constraint::Order::lt:
-                  nextZone.tighten(delta.x, -1, {delta.c, false});
-                  break;
-                case Constraint::Order::le:
-                  nextZone.tighten(delta.x, -1, {delta.c, true});
-                  break;
-                case Constraint::Order::gt:
-                  nextZone.tighten(-1, delta.x, {-delta.c, false});
-                  break;
-                case Constraint::Order::ge:
-                  nextZone.tighten(-1, delta.x, {-delta.c, true});
-                  break;
-              }
+              nextZone.tighten(delta);
             }
 
             if (nextZone.isSatisfiable()) {
@@ -111,7 +98,9 @@ namespace learnta {
               }
               nextZone.canonize();
               nextZone.abstractize();
-              nextZone.canonize();
+              if (!nextZone.isSatisfiable()) {
+                continue;
+              }
               // nextZone state is new
               const auto targetStateInZA = std::find_if(
                       ZA.states.begin(), ZA.states.end(),
@@ -126,8 +115,6 @@ namespace learnta {
                 // targetStateInZA is new
                 ZA.states.push_back(std::make_shared<ZAState>(nextState, nextZone));
                 conf->next[c].emplace_back(edge, ZA.states.back());
-
-                // ZA.edgeMap[newEdge.toTuple()] = taEdge;
 
                 nextConf.push_back(ZA.states.back());
               }

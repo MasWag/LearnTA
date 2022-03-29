@@ -232,22 +232,23 @@ namespace learnta {
       value.row(x).fill(Bounds(std::numeric_limits<double>::max(), false));
     }
 
-    //! @brief Assign the strongest post-condition of the delay
+    /*!
+     * @brief Assign the strongest post-condition of the delay
+     *
+     * @note We allow time elapse of duration zero
+     */
     void elapse() {
-      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::max(), false);
       value.col(0).fill(Bounds(infinity));
-      for (int i = 0; i < value.row(0).size(); ++i) {
-        value.row(0)[i].second = false;
-      }
     }
 
-    //! @brief Assign the weakest pre-condition of the delay
+    /*!
+     * @brief Assign the weakest pre-condition of the delay
+     *
+     * @note We allow time elapse of duration zero
+     */
     void reverseElapse() {
-      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
-      value.row(0).fill(Bounds(infinity));
-      for (int i = 0; i < value.col(0).size(); ++i) {
-        value.col(0)[i].second = false;
-      }
+      value.row(0).fill(Bounds(0, true));
     }
 
     /*!
@@ -287,7 +288,7 @@ namespace learnta {
       @brief truncate the constraints compared with a constant greater than or equal to M
     */
     void abstractize() {
-      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::infinity(), false);
+      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::max(), false);
       for (auto it = value.data(); it < value.data() + value.size(); it++) {
         if (*it > Bounds{M.first, true}) {
           *it = Bounds(infinity);
@@ -315,7 +316,9 @@ namespace learnta {
 
     //! @brief Check the equivalence of two zones
     bool operator==(Zone z) const {
-      z.value(0, 0) = value(0, 0);
+      for (int i = 0; i < z.value.cols(); ++i) {
+        z.value(i, i) = value(i, i);
+      }
       return value == z.value;
     }
   };
@@ -327,6 +330,7 @@ namespace learnta {
         print(os, zone.value(i, j));
         os << " ";
       }
+      os << "\n";
     }
 
     return os;

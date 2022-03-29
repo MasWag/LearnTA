@@ -19,6 +19,7 @@ namespace learnta {
   private:
     TimedAutomaton target;
     TimedAutomaton complement;
+    std::vector<Alphabet> alphabet;
 
     [[nodiscard]] std::optional<TimedWord> subset(const TimedAutomaton &hypothesis) const {
       TimedAutomaton intersection;
@@ -33,18 +34,21 @@ namespace learnta {
     [[nodiscard]] std::optional<TimedWord> supset(const TimedAutomaton &hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
-      intersectionTA(target, hypothesis.complement(), intersection, toIState);
+      intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);
       ZoneAutomaton zoneAutomaton;
       ta2za(intersection, zoneAutomaton);
 
       return zoneAutomaton.sample();
     }
-      public:
+
+  public:
     /*!
      * @param[in] complement A timed automaton recognizing the complement of the target language
      */
-    ComplementTimedAutomataEquivalenceOracle(TimedAutomaton target, TimedAutomaton complement) :
-            target(std::move(target)), complement(std::move(complement)) {}
+    ComplementTimedAutomataEquivalenceOracle(TimedAutomaton target, TimedAutomaton complement,
+                                             std::vector<Alphabet> alphabet) : target(std::move(target)),
+                                                                               complement(std::move(complement)),
+                                                                               alphabet(std::move(alphabet)) {}
 
     /*!
      * @brief Make an equivalence query
