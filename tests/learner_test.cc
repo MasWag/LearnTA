@@ -108,6 +108,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
     const auto result = learner.run();
     learner.printStatistics(std::cout);
+    std::cout << result << std::endl;
     BOOST_CHECK_EQUAL(6, result.stateSize());
 
     // Manually test the equivalence

@@ -485,7 +485,7 @@ namespace learnta {
     }
 
     bool operator==(const TimedCondition &condition) const {
-      return this->zone == condition.zone;
+      return this->zone.strictEqual(condition.zone);
     }
 
     /*!
