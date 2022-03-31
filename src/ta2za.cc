@@ -85,7 +85,9 @@ namespace learnta {
             }
             nextZone.value.diagonal().fill(Bounds{0, true});
 
-            const auto targetStateInZA = zaMap.find(std::make_pair(nextState, nextZone));
+            const auto targetStateInZA = std::find_if(zaMap.begin(), zaMap.end(), [&] (const auto &pair) {
+              return pair.first.first == nextState && pair.first.second.includes(nextZone);
+            });
 
             // targetStateInZA is already added
             if (targetStateInZA != zaMap.end()) {

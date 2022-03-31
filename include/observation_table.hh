@@ -459,11 +459,6 @@ namespace learnta {
                 indexToState[*it] = state;
                 stateToIndices[state].push_back(*it);
                 refreshTmpPrefixes(*std::prev(it));
-              } else {
-                // This should not happen thanks to exterior-consistency
-                BOOST_LOG_TRIVIAL(error)
-                  << "Something wrong happened. This should not happen thanks to exterior-consistency";
-                //abort();
               }
 
               continue;

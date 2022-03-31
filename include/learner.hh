@@ -35,12 +35,12 @@ namespace learnta {
           notUpdated = notUpdated && observationTable.exteriorConsistent();
         } while (!notUpdated);
         auto hypothesis = observationTable.generateHypothesis();
-        BOOST_LOG_TRIVIAL(debug) << "The learner generated a hypothesis\n" << hypothesis;
+        BOOST_LOG_TRIVIAL(info) << "The learner generated a hypothesis\n" << hypothesis;
         const auto counterExample = eqOracle->findCounterExample(hypothesis);
         eqQueryCount++;
 
         if (counterExample) {
-          BOOST_LOG_TRIVIAL(debug) << "Equivalence oracle returned a counter example: " << counterExample.value();
+          BOOST_LOG_TRIVIAL(info) << "Equivalence oracle returned a counter example: " << counterExample.value();
           observationTable.addCounterExample(ForwardRegionalElementaryLanguage::fromTimedWord(counterExample.value()));
         } else {
           return hypothesis.removeUselessTransitions();
