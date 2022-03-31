@@ -1,7 +1,7 @@
 LearnTA
 =======
 
-[![Boost.Test](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml/badge.svg?branch=master)](https://github.com/MasWag/monaa/actions/workflows/boosttest.yml)
+[![Boost.Test](https://github.com/MasWag/LearnTA/actions/workflows/boosttest.yml/badge.svg?branch=master)](https://github.com/MasWag/LearnTA/actions/workflows/boosttest.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Doxygen](https://img.shields.io/badge/docs-Doxygen-deepgreen.svg)](https://maswag.github.io/LearnTA/doxygen/index.html)
 
