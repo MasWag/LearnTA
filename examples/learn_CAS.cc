@@ -28,6 +28,7 @@
 #include "timed_automaton_runner.hh"
 #include "equivalance_oracle_chain.hh"
 #include "equivalence_oracle_by_test.hh"
+#include "equivalence_oracle_by_random_test.hh"
 
 void run() {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
@@ -195,8 +196,8 @@ void run() {
   complementTargetAutomaton.states.at(13)->next['u'].back().target = complementTargetAutomaton.states.at(0).get();
 
   // If the transition is empty, we make a transition to the sink state
-  for (auto& state: complementTargetAutomaton.states) {
-    for (const auto& action: alphabet) {
+  for (auto &state: complementTargetAutomaton.states) {
+    for (const auto &action: alphabet) {
       if (state->next.find(action) == state->next.end()) {
         state->next[action].emplace_back();
         state->next.at(action).back().target = complementTargetAutomaton.states.at(14).get();
@@ -217,11 +218,15 @@ void run() {
   eqOracleByTest->push_back(learnta::TimedWord{"lcaobfstgu", {0, 0, 2, 0, 0, 0, 0, 3, 27, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
+  auto eqOracleByRandomTest = std::make_unique<learnta::EquivalenceOracleByRandomTest>(alphabet,
+                                                                                       targetAutomaton, 500,
+                                                                                       20, 30);
 
   eqOracle->push_back(std::move(eqOracleByTest));
+  eqOracle->push_back(std::move(eqOracleByRandomTest));
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
-          targetAutomaton, complementTargetAutomaton, alphabet));
+                  targetAutomaton, complementTargetAutomaton, alphabet));
   learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
 
   // Run the learning
