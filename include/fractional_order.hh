@@ -8,6 +8,10 @@
 #include <list>
 #include <unordered_set>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+
 #include "common_types.hh"
 
 namespace learnta {
@@ -83,10 +87,14 @@ namespace learnta {
      * @brief Return the variable to backward-elapse
      */
     [[nodiscard]] std::list<ClockVariables> predecessorVariables() const {
+      if (order.empty()) {
+        BOOST_LOG_TRIVIAL(error) << "Something wrong happened in the predecessorVariables. order is empty";
+      }
       if (order.front().empty()) {
-        auto it = order.begin();
-        it++;
-        return *(it);
+        if (order.size() <= 1) {
+          BOOST_LOG_TRIVIAL(error) << "Something wrong happened in the predecessorVariables. No variable exists";
+        }
+        return *(std::next(order.begin()));
       } else {
         return order.front();
       }
@@ -126,6 +134,7 @@ namespace learnta {
     [[nodiscard]] FractionalOrder removeN() const {
       FractionalOrder result = *this;
       assert(result.order.front().back() + 1 == this->size);
+      assert(result.size > 0);
       result.order.front().pop_back();
       result.size--;
       return result;
