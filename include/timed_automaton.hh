@@ -162,7 +162,7 @@ namespace learnta {
     void removeDeadLoop() {
       std::deque<std::shared_ptr<TAState>> nonAccepting;
       std::copy_if(this->states.begin(), this->states.end(), std::back_inserter(nonAccepting),
-                   [](const std::shared_ptr<TAState>& state) {
+                   [](const std::shared_ptr<TAState> &state) {
                      return !state->isMatch;
                    });
       while (!nonAccepting.empty()) {
@@ -173,16 +173,41 @@ namespace learnta {
           continue;
         }
         if (std::all_of(current->next.begin(), current->next.end(), [&](const auto &pair) {
-          return std::all_of(pair.second.begin(), pair.second.end(), [&] (const auto &transition) {
+          return std::all_of(pair.second.begin(), pair.second.end(), [&](const auto &transition) {
+            return transition.target == current.get();
+          });
+        })) {
+          // We remove only the transitions for the totality
+          current->next.clear();
+        }
+      }
+    }
+
+    //! @brief Remove self loop of non-accepting locations
+    TimedAutomaton removeUselessTransitions() {
+      std::deque<std::shared_ptr<TAState>> nonAccepting;
+      std::copy_if(this->states.begin(), this->states.end(), std::back_inserter(nonAccepting),
+                   [](const std::shared_ptr<TAState> &state) {
+                     return !state->isMatch;
+                   });
+      while (!nonAccepting.empty()) {
+        std::shared_ptr<TAState> current = nonAccepting.front();
+        nonAccepting.pop_front();
+        // We do not remove the initial states
+        if (std::find(this->initialStates.begin(), this->initialStates.end(), current) != this->initialStates.end()) {
+          continue;
+        }
+        if (current->next.empty() || std::all_of(current->next.begin(), current->next.end(), [&](const auto &pair) {
+          return std::all_of(pair.second.begin(), pair.second.end(), [&](const auto &transition) {
             return transition.target == current.get();
           });
         })) {
           this->states.erase(std::remove(this->states.begin(), this->states.end(), current), this->states.end());
           // Remove the transition to the removed location
           for (auto &state: this->states) {
-            for (auto it = state->next.begin(); it != state->next.end(); ) {
-             auto &[action, transitions] = *it;
-              transitions.erase(std::remove_if(transitions.begin(), transitions.end(), [&] (const auto &transition){
+            for (auto it = state->next.begin(); it != state->next.end();) {
+              auto &[action, transitions] = *it;
+              transitions.erase(std::remove_if(transitions.begin(), transitions.end(), [&](const auto &transition) {
                 return transition.target == current.get();
               }), transitions.end());
 
@@ -195,6 +220,8 @@ namespace learnta {
           }
         }
       }
+
+      return *this;
     }
 
     //! @brief Simplify the timed automaton
