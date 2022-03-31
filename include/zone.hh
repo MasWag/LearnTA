@@ -314,11 +314,32 @@ namespace learnta {
       return this->value.cwiseMax(zone.value) == this->value;
     };
 
-    //! @brief Check the equivalence of two zones
-    bool operator==(Zone z) const {
-      for (int i = 0; i < z.value.cols(); ++i) {
-        z.value(i, i) = value(i, i);
-      }
+    /*!
+     * @brief Check the equivalence of two zones
+     *
+     * @note We assume that the diagonal elements are equal.
+     */
+    bool operator==(const Zone &z) const {
+      return value == z.value;
+    }
+
+    /*!
+      * @brief Check the equivalence of two zones
+      *
+      * @note We do not assume that the diagonal elements are equal.
+      */
+    bool equalIgnoreZero(Zone z) const {
+      z.value(0, 0) = value(0, 0);
+      return value == z.value;
+    }
+
+    /*!
+     * @brief Check the equivalence of two zones
+     *
+     * @note We do not assume that the diagonal elements are equal.
+     */
+    bool strictEqual(Zone z) const {
+      z.value.diagonal() = value.diagonal();
       return value == z.value;
     }
   };
@@ -338,5 +359,22 @@ namespace learnta {
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::Zone &zone) {
     return learnta::print(os, zone);
+  }
+
+  inline std::size_t hash_value(learnta::Zone const &zone) {
+    std::size_t seed = zone.value.array().size();
+    const auto asVector = zone.value.array();
+
+    union DI {
+      double asD;
+      uint64_t asI;
+    };
+
+    for (auto it = asVector.data(); it != asVector.data() + asVector.size(); it++) {
+      DI value{};
+      value.asD = it->first;
+      seed ^= it->second + value.asI + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
   }
 }

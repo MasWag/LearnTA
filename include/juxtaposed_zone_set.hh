@@ -72,7 +72,7 @@ namespace learnta {
       return this->zones.size() == another.zones.size() &&
              std::all_of(this->zones.begin(), this->zones.end(), [&](const JuxtaposedZone &zone) {
                return std::any_of(another.zones.begin(), another.zones.end(), [&](const JuxtaposedZone &anotherZone) {
-                 return zone == anotherZone;
+                 return zone.strictEqual(anotherZone);
                });
              });
     }
