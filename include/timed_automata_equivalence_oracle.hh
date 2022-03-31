@@ -14,6 +14,8 @@
 namespace learnta {
   /*!
    * @brief Equivalence oracle with a timed automaton recognizing the complement of the target language
+   *
+   * @note This is not perfectly reliable because this does not work when the transition of the constructed DTA is not total
    */
   class ComplementTimedAutomataEquivalenceOracle : public EquivalenceOracle {
   private:

@@ -9,6 +9,7 @@
 #include <valarray>
 #include <vector>
 #include <queue>
+#include <optional>
 
 #include "common_types.hh"
 #include "constraint.hh"

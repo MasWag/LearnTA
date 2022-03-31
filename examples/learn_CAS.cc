@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <memory>
+#include <chrono>
 
 #include "timed_automaton.hh"
 #include "learner.hh"
@@ -215,6 +216,7 @@ void run() {
   eqOracleByTest->push_back(learnta::TimedWord{"lcaobfsutg", {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"lcaobfstgu", {0, 0, 2, 0, 0, 0, 0, 3, 27, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
 
   eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(
