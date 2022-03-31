@@ -363,6 +363,27 @@ namespace learnta {
       std::vector<std::shared_ptr<TAState>> states;
       // We have a temporary vector of prefixes because we can modify it to handle the exteriors
       auto tmpPrefixes = prefixes;
+      auto refreshTmpPrefixes = [&](std::size_t root) {
+        std::queue<std::size_t> currentQueue;
+        currentQueue.push(root);
+        while (!currentQueue.empty()) {
+          const auto currentIndex = currentQueue.front();
+          currentQueue.pop();
+          if (this->continuousSuccessors.find(currentIndex) != this->continuousSuccessors.end()) {
+            const auto continuousIndex = this->continuousSuccessors.at(currentIndex);
+            tmpPrefixes.at(continuousIndex) = tmpPrefixes.at(currentIndex).successor();
+            currentQueue.push(continuousIndex);
+          }
+          for (const auto a: this->alphabet) {
+            if (this->discreteSuccessors.find({currentIndex, a}) != this->discreteSuccessors.end()) {
+              const auto discreteIndex = this->discreteSuccessors.at({currentIndex, a});
+              tmpPrefixes.at(discreteIndex) = tmpPrefixes.at(currentIndex).successor(a);
+              currentQueue.push(discreteIndex);
+            }
+          }
+        }
+      };
+
       auto addState = [&](std::size_t index) {
         auto state = std::make_shared<TAState>(this->isMatch(index));
         indexToState[index] = state;
@@ -434,25 +455,15 @@ namespace learnta {
                 sourceMap[indexToState.at(discrete)].removeEqualityUpperBoundAssign();
                 // Refresh the entries
                 tmpPrefixes.at(*std::prev(it)).removeEqualityUpperBoundAssign();
-                tmpPrefixes.at(discrete) = tmpPrefixes.at(*std::prev(it)).successor(action);
-                std::queue<std::size_t> currentQueue;
-                currentQueue.push(discrete);
-                while (!currentQueue.empty()) {
-                  const auto currentIndex = currentQueue.front();
-                  currentQueue.pop();
-                  if (this->continuousSuccessors.find(currentIndex) != this->continuousSuccessors.end()) {
-                    const auto continuousIndex = this->continuousSuccessors.at(currentIndex);
-                    tmpPrefixes.at(continuousIndex) = tmpPrefixes.at(currentIndex).successor();
-                    currentQueue.push(continuousIndex);
-                  }
-                  for (const auto a: this->alphabet) {
-                    if (this->discreteSuccessors.find({currentIndex, a}) != this->discreteSuccessors.end()) {
-                      const auto discreteIndex = this->discreteSuccessors.at({currentIndex, a});
-                      tmpPrefixes.at(discreteIndex) = tmpPrefixes.at(currentIndex).successor(a);
-                      currentQueue.push(discreteIndex);
-                    }
-                  }
-                }
+                auto state = indexToState[*std::prev(it)];
+                indexToState[*it] = state;
+                stateToIndices[state].push_back(*it);
+                refreshTmpPrefixes(*std::prev(it));
+              } else {
+                // This should not happen thanks to exterior-consistency
+                BOOST_LOG_TRIVIAL(error)
+                  << "Something wrong happened. This should not happen thanks to exterior-consistency";
+                //abort();
               }
 
               continue;
@@ -540,9 +551,12 @@ namespace learnta {
           } else {
             jumpedTargetIndex = targetIndex;
           }
+          auto jumpedState = indexToState.at(jumpedTargetIndex);
           transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition());
+          indexToState[targetIndex] = jumpedState;
+          stateToIndices.at(jumpedState).push_back(targetIndex);
         }
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
@@ -576,6 +590,8 @@ namespace learnta {
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition(),
                               tmpPrefixes.at(sourceIndex).immediatePrefix()->getTimedCondition());
+          indexToState[targetIndex] = jumpedState;
+          stateToIndices.at(jumpedState).push_back(targetIndex);
         }
         auto newTransitions = transitionMaker.make();
         indexToState[originalSourceIndex]->next[action].insert(indexToState[originalSourceIndex]->next[action].end(),
@@ -583,6 +599,29 @@ namespace learnta {
       }
 
       //! @todo We need to implement transitions by continuous immediate exteriors to support unobservable transitions
+
+      // Assert the totality of the constructed DTA
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {
+        return indexToState.find(pIndex) != indexToState.end();
+      }));
+      assert(std::all_of(this->discreteSuccessors.begin(), this->discreteSuccessors.end(), [&](const auto &pair) {
+        auto sourceStateIndex = pair.first.first;
+        auto action = pair.first.second;
+        auto targetStateIndex = pair.second;
+        auto targetState = indexToState.at(targetStateIndex);
+        return indexToState.at(sourceStateIndex)->next[action].end() !=
+               std::find_if(indexToState.at(sourceStateIndex)->next[action].begin(),
+                            indexToState.at(sourceStateIndex)->next[action].end(),
+                            [&](const TATransition &transition) {
+                              return transition.target == targetState.get();
+                            });
+      }));
+      for (std::size_t index = 0; index < this->prefixes.size(); index++) {
+        if (indexToState.end() == indexToState.find(index)) {
+          BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
+          // abort();
+        }
+      }
 
       // Construct the max constants
       std::vector<int> maxConstants;
