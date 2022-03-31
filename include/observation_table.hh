@@ -188,7 +188,9 @@ namespace learnta {
         }
         if (!found) {
           // The observation table is not closed
+#ifndef NDEBUG
           const auto prePSize = this->pIndices.size();
+#endif
           this->moveToP(i);
           assert(prePSize < this->pIndices.size());
           BOOST_LOG_TRIVIAL(debug) << "Observation table is not closed because of " << this->prefixes.at(i);
@@ -340,6 +342,8 @@ namespace learnta {
             stateToIndices[state].push_back(nextIndex);
           } else {
             // We have not implemented such a case that an unobservable transition is necessary
+            BOOST_LOG_TRIVIAL(error)
+              << "We have not implemented such a case that an unobservable transition is necessary";
             abort();
           }
           sourceIndex = nextIndex;
@@ -348,9 +352,15 @@ namespace learnta {
 
         // Our optimization to merge the continuous exterior
         if (equivalentWithMemo(nextIndex, sourceIndex)) {
+          //if (isMatch(nextIndex) == isMatch(sourceIndex)) {
           auto state = indexToState[sourceIndex];
           indexToState[nextIndex] = state;
           stateToIndices[state].push_back(nextIndex);
+        } else {
+          // We have not implemented such a case that an unobservable transition is necessary
+          BOOST_LOG_TRIVIAL(error)
+            << "We have not implemented such a case that an unobservable transition is necessary";
+          // abort();
         }
       };
       handleInternalContinuousSuccessors(0);
@@ -508,11 +518,14 @@ namespace learnta {
                                  this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
                     return this->inP(rel.first);
                   });
+          // There is a jumped target index because the observation table is closed.
+          assert(it != this->closedRelation.at(targetIndex).end());
           jumpedTargetIndex = it->first;
           assert(this->inP(jumpedTargetIndex));
           renamingRelation = it->second;
+          auto jumpedState = indexToState.at(jumpedTargetIndex);
 
-          transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
+          transitionMaker.add(jumpedState, renamingRelation,
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition(),
                               tmpPrefixes.at(sourceIndex).immediatePrefix()->getTimedCondition());
