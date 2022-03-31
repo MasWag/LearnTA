@@ -1,3 +1,5 @@
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+
 include_directories(
   ../include/
   ${PROJECT_BINARY_DIR}
@@ -19,6 +21,16 @@ add_executable(learn_light EXCLUDE_FROM_ALL
   )
 
 target_link_libraries(learn_light
+  ${Boost_LOG_LIBRARY}
+  "-pthread"
+  learnta
+  )
+
+add_executable(learn_CAS EXCLUDE_FROM_ALL
+  learn_CAS.cc
+  )
+
+target_link_libraries(learn_CAS
   ${Boost_LOG_LIBRARY}
   "-pthread"
   learnta
