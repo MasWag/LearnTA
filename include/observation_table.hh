@@ -539,6 +539,8 @@ namespace learnta {
         auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
         unsigned long jumpedTargetIndex;
         RenamingRelation renamingRelation;
+
+        bool skipped = false;
         {
           if (this->pIndices.find(targetIndex) == this->pIndices.end()) {
             // Find a successor in P
@@ -566,12 +568,19 @@ namespace learnta {
             auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
             if (it == this->discreteSuccessors.end()) {
               // Include immediate exterior
-              transitionMaker.includeImmediateExterior(indexToState.at(jumpedTargetIndex), renamingRelation);
+              if (!skipped) {
+                transitionMaker.includeImmediateExterior(indexToState.at(jumpedTargetIndex), renamingRelation);
+              }
               continue;
             }
             targetIndex = it->second;
-            if (this->pIndices.find(targetIndex) != this->pIndices.end()) {
-              break;
+            // We do not add new state if the state is already constructed
+            if (indexToState.find(targetIndex) != indexToState.end() ||
+                this->pIndices.find(targetIndex) != this->pIndices.end()) {
+              skipped = true;
+              continue;
+            } else {
+              skipped = false;
             }
           }
           // Find a successor in P
