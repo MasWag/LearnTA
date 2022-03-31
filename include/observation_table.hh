@@ -119,6 +119,21 @@ namespace learnta {
                                     newSuffixes).has_value();
     }
 
+    [[nodiscard]] bool
+    equivalent(std::size_t i, std::size_t j, const std::list<BackwardRegionalElementaryLanguage> &newSuffixes) const {
+      auto leftRow = this->table.at(i);
+      auto rightRow = this->table.at(j);
+      auto tmpSuffixes = this->suffixes;
+      for (const auto &newSuffix: newSuffixes) {
+        leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
+        rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
+        tmpSuffixes.push_back(newSuffix);
+      }
+
+      return findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
+                                    tmpSuffixes).has_value();
+    }
+
     /*!
      * @brief Returns if row[i] is accepting or not
      */
@@ -243,7 +258,39 @@ namespace learnta {
                 return !equivalent(i, j, suffix.predecessor());
               });
               // we assume that we have such a suffix
-              suffixes.push_back(it->predecessor());
+              if (it != suffixes.end()) {
+                suffixes.push_back(it->predecessor());
+              } else {
+                // We find a set of suffixes to add
+                std::list<BackwardRegionalElementaryLanguage> allPredecessors;
+                allPredecessors.resize(suffixes.size());
+                std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
+                  return suffix.predecessor();
+                });
+                assert(!equivalent(i, j, allPredecessors));
+                auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
+                  auto examinedPredecessor = allPredecessors;
+                  auto kt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
+                  examinedPredecessor.erase(kt);
+                  return equivalent(i, j, examinedPredecessor);
+                });
+                while (jt != allPredecessors.end()) {
+                  allPredecessors.erase(jt);
+                  if (allPredecessors.empty()) {
+                    break;
+                  }
+                  jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
+                    auto examinedPredecessor = allPredecessors;
+                    auto jt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
+                    examinedPredecessor.erase(jt);
+                    return equivalent(i, j, examinedPredecessor);
+                  });
+                }
+
+                for (const auto &suffix: allPredecessors) {
+                  suffixes.push_back(suffix);
+                }
+              }
               this->refreshTable();
 
               return false;
