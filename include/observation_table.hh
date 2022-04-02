@@ -267,7 +267,25 @@ namespace learnta {
                 std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
                   return suffix.predecessor();
                 });
-                assert(!equivalent(i, j, allPredecessors));
+                if (!equivalent(i, j, allPredecessors)) {
+                  auto preAllPredecessors = allPredecessors;
+                  while (!equivalent(i, j, allPredecessors)) {
+                    std::list<BackwardRegionalElementaryLanguage> newAllPredecessors;
+                    for (const auto &suffix: preAllPredecessors) {
+                      try {
+                        newAllPredecessors.push_back(suffix.predecessor());
+                      } catch (...) {
+                      }
+                    }
+                    if (newAllPredecessors.empty()) {
+                      BOOST_LOG_TRIVIAL(fatal) << "Something is wrong in resolving continuous inconsistency";
+                      abort();
+                    }
+                    preAllPredecessors = newAllPredecessors;
+                    std::copy(preAllPredecessors.begin(), preAllPredecessors.end(),
+                              std::back_inserter(allPredecessors));
+                  }
+                }
                 auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
                   auto examinedPredecessor = allPredecessors;
                   auto kt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
