@@ -218,11 +218,7 @@ void run() {
   eqOracleByTest->push_back(learnta::TimedWord{"lcaobfstgu", {0, 0, 2, 0, 0, 0, 0, 3, 27, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
-  auto eqOracleByRandomTest = std::make_unique<learnta::EquivalenceOracleByRandomTest>(alphabet,
-                                                                                       targetAutomaton, 500,
-                                                                                       20, 30);
 
-  eqOracle->push_back(std::move(eqOracleByRandomTest));
   eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
