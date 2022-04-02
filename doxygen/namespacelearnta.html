@@ -98,6 +98,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html">EquivalenceOracle</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface of the equivalence oracle.  <a href="classlearnta_1_1EquivalenceOracle.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracleByRandomTest.html">EquivalenceOracleByRandomTest</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The equivalence oracle by random test.  <a href="classlearnta_1_1EquivalenceOracleByRandomTest.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracleByTest.html">EquivalenceOracleByTest</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface of the equivalence oracle.  <a href="classlearnta_1_1EquivalenceOracleByTest.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracleChain.html">EquivalenceOracleChain</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A chain of the equivalence oracles.  <a href="classlearnta_1_1EquivalenceOracleChain.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ExternalTransitionMaker.html">ExternalTransitionMaker</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class to make a transition from P to ext(P)  <a href="classlearnta_1_1ExternalTransitionMaker.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -114,6 +123,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1Learner.html">Learner</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The deterministic timed automata learner.  <a href="classlearnta_1_1Learner.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1ManualEqTester.html">ManualEqTester</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html">ObservationTable</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timed observation table.  <a href="classlearnta_1_1ObservationTable.html#details">More...</a><br /></td></tr>
@@ -224,9 +235,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>intersectionSignalTA<
 <tr class="memitem:aa2cfe70fb0744c04ea6dcfb66fe700f9"><td class="memItemLeft" align="right" valign="top"><a id="aa2cfe70fb0744c04ea6dcfb66fe700f9"></a>
 static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classlearnta_1_1SymbolicRun.html">learnta::SymbolicRun</a> &amp;run)</td></tr>
 <tr class="separator:aa2cfe70fb0744c04ea6dcfb66fe700f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad47393820ddbdae86390e7efdbfd70d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#aad47393820ddbdae86390e7efdbfd70d">ta2za</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;TA, <a class="el" href="structlearnta_1_1ZoneAutomaton.html">ZoneAutomaton</a> &amp;ZA, <a class="el" href="structlearnta_1_1Zone.html">Zone</a> initialZone=<a class="el" href="structlearnta_1_1Zone.html#a1be4745c52a6af64c050aff66b60a004">Zone::zero</a>(0))</td></tr>
-<tr class="memdesc:aad47393820ddbdae86390e7efdbfd70d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a zone automaton from a timed automaton.  <a href="namespacelearnta.html#aad47393820ddbdae86390e7efdbfd70d">More...</a><br /></td></tr>
-<tr class="separator:aad47393820ddbdae86390e7efdbfd70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad94310f2055886552d35154dc4756b7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacelearnta.html#aad94310f2055886552d35154dc4756b7">ta2za</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;TA, <a class="el" href="structlearnta_1_1ZoneAutomaton.html">ZoneAutomaton</a> &amp;ZA)</td></tr>
+<tr class="memdesc:aad94310f2055886552d35154dc4756b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a zone automaton from a timed automaton.  <a href="namespacelearnta.html#aad94310f2055886552d35154dc4756b7">More...</a><br /></td></tr>
+<tr class="separator:aad94310f2055886552d35154dc4756b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a78514fbefc7f979a6122fd32e9bc5fea"><td class="memItemLeft" align="right" valign="top"><a id="a78514fbefc7f979a6122fd32e9bc5fea"></a>
 static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;TA)</td></tr>
 <tr class="separator:a78514fbefc7f979a6122fd32e9bc5fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -255,6 +266,9 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a 
 <tr class="memitem:a6ee40ac5b097d4249c2d53ca6344774a"><td class="memItemLeft" align="right" valign="top"><a id="a6ee40ac5b097d4249c2d53ca6344774a"></a>
 static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a> &amp;zone)</td></tr>
 <tr class="separator:a6ee40ac5b097d4249c2d53ca6344774a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5fca5a66505f9c3ea6896944ae7b0d2"><td class="memItemLeft" align="right" valign="top"><a id="ac5fca5a66505f9c3ea6896944ae7b0d2"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>hash_value</b> (<a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a> const &amp;zone)</td></tr>
+<tr class="separator:ac5fca5a66505f9c3ea6896944ae7b0d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
@@ -263,6 +277,8 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <dl class="section date"><dt>Date</dt><dd>2022/03/06.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/04.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/31.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/15.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
@@ -274,7 +290,9 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2022/03/20.</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2022/03/21. </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/03/21.</dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Masaki Waga </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2022/04/02. </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="ab09b0ca2ddff9426799262001f300cce"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab09b0ca2ddff9426799262001f300cce">&#9670;&nbsp;</a></span>equivalence()</h2>
@@ -405,12 +423,11 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>
 <dl class="section pre"><dt>Precondition</dt><dd>leftRow.size() == rightRow.size() == suffixes.size() </dd>
 <dd>
 left and right are simple </dd></dl>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>Write the test </dd></dl>
 
 </div>
 </div>
-<a id="aad47393820ddbdae86390e7efdbfd70d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aad47393820ddbdae86390e7efdbfd70d">&#9670;&nbsp;</a></span>ta2za()</h2>
+<a id="aad94310f2055886552d35154dc4756b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad94310f2055886552d35154dc4756b7">&#9670;&nbsp;</a></span>ta2za()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -425,13 +442,7 @@ left and right are simple </dd></dl>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structlearnta_1_1ZoneAutomaton.html">ZoneAutomaton</a> &amp;&#160;</td>
-          <td class="paramname"><em>ZA</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td>
-          <td class="paramname"><em>initialZone</em> = <code><a class="el" href="structlearnta_1_1Zone.html#a1be4745c52a6af64c050aff66b60a004">Zone::zero</a>(0)</code>&#160;</td>
+          <td class="paramname"><em>ZA</em>&#160;</td>
         </tr>
         <tr>
           <td></td>

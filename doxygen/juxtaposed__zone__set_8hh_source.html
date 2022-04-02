@@ -129,7 +129,7 @@ $(function() {
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      <span class="keywordflow">return</span> this-&gt;zones.size() == another.zones.size() &amp;&amp;</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;             std::all_of(this-&gt;zones.begin(), this-&gt;zones.end(), [&amp;](<span class="keyword">const</span> <a class="code" href="classlearnta_1_1JuxtaposedZone.html">JuxtaposedZone</a> &amp;zone) {</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;               return std::any_of(another.zones.begin(), another.zones.end(), [&amp;](const JuxtaposedZone &amp;anotherZone) {</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                 return zone == anotherZone;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;                 return zone.strictEqual(anotherZone);</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;               });</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;             });</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    }</div>

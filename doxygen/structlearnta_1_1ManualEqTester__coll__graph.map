@@ -1,5 +1,5 @@
-<map id="ManualEqTester" name="ManualEqTester">
-<area shape="rect" id="node1" title=" " alt="" coords="60,185,185,212"/>
+<map id="learnta::ManualEqTester" name="learnta::ManualEqTester">
+<area shape="rect" id="node1" title=" " alt="" coords="33,185,212,212"/>
 <area shape="rect" id="node2" href="$classlearnta_1_1TimedAutomatonRunner.html" title="Class to execute a timed automaton." alt="" coords="5,81,240,108"/>
 <area shape="rect" id="node3" href="$classlearnta_1_1SUL.html" title="Interface of the system under learning." alt="" coords="72,5,173,32"/>
 </map>

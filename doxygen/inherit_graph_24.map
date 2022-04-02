@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structManualEqTester.html" title=" " alt="" coords="5,5,131,32"/>
+<area shape="rect" id="node1" href="$structLightAutomatonFixture.html" title="Fixture of the Light DTA in [APT&#39;20]." alt="" coords="5,5,176,32"/>
+<area shape="rect" id="node2" href="$structLightAutomatonOracleFixture.html" title=" " alt="" coords="224,5,437,32"/>
 </map>
