@@ -8,7 +8,6 @@
 
 #include "../include/learner.hh"
 #include "../include/timed_automaton_runner.hh"
-#include "../include/sul.hh"
 #include "../include/timed_automata_equivalence_oracle.hh"
 
 #include "simple_automaton_fixture.hh"
@@ -109,7 +108,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     learner.printStatistics(std::cout);
     std::cout << result << std::endl;
     BOOST_CHECK_EQUAL(5, learner.numEqQueries());
-    BOOST_CHECK_EQUAL(6, result.stateSize());
+    BOOST_CHECK_EQUAL(5, result.stateSize());
 
     // Manually test the equivalence
     auto correctRunner = TimedAutomatonRunner{fixture.targetAutomaton};
