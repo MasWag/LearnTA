@@ -219,10 +219,10 @@ void run() {
   eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
   eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
 
-  eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                   targetAutomaton, complementTargetAutomaton, alphabet));
+  eqOracle->push_back(std::move(eqOracleByTest));
   learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
 
   // Run the learning
