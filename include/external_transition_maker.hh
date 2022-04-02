@@ -37,8 +37,8 @@ namespace learnta {
      *     - \f$\Lambda\f$ is targetCondition, and
      *     - \f$\R\f$ is renamingRelation,
      */
-    void add(const std::shared_ptr<TAState>& targetState, const RenamingRelation& renamingRelation,
-             const TimedCondition& sourceCondition, const TimedCondition& targetCondition,
+    void add(const std::shared_ptr<TAState> &targetState, const RenamingRelation &renamingRelation,
+             const TimedCondition &sourceCondition, const TimedCondition &targetCondition,
              const std::optional<TimedCondition> &prefixSourceCondition = std::nullopt) {
       auto it = sourceMap.find(std::make_pair(targetState, renamingRelation));
       if (it == sourceMap.end()) {
@@ -54,11 +54,12 @@ namespace learnta {
         }
       }
     }
+
     /*!
      * @brief Include the transition of the immediate exterior of the current conditions
      */
-    void includeImmediateExterior(const std::shared_ptr<TAState>& targetState,
-                                  const RenamingRelation& renamingRelation) {
+    void includeImmediateExterior(const std::shared_ptr<TAState> &targetState,
+                                  const RenamingRelation &renamingRelation) {
       sourceMap[std::make_pair(targetState, renamingRelation)].removeEqualityUpperBoundAssign();
     }
 
@@ -76,7 +77,7 @@ namespace learnta {
         for (int i = 0; i < sourceConditions.size(); ++i) {
           const auto sourceCondition = sourceConditions.getConditions().at(i);
           const auto targetCondition = targetConditions.getConditions().at(i);
-          BOOST_LOG_TRIVIAL(debug) << "Constructing a transition with " << sourceCondition << " and "
+          BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
 
           result.emplace_back(target.get(),

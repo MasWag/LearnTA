@@ -41,7 +41,7 @@ namespace learnta {
  */
   struct TATransition {
     //! @brief The pointer to the target state.
-    TAState *target;
+    TAState *target{};
     /*!
      * @brief The clock variables reset after this transition.
      *
@@ -115,6 +115,7 @@ namespace learnta {
       std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new;
       deepCopy(result, old2new);
       result.makeComplete(alphabet);
+      assert(this->stateSize() + 1 == result.stateSize());
       for (auto &state: result.states) {
         state->isMatch = !state->isMatch;
       }
@@ -130,7 +131,7 @@ namespace learnta {
       // If the transition is empty, we make a transition to the sink state
       for (auto &state: this->states) {
         for (const auto &action: alphabet) {
-          if (state->next.find(action) == state->next.end()) {
+          if (state->next.find(action) == state->next.end() || state->next.at(action).empty()) {
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
           }
@@ -245,7 +246,7 @@ namespace learnta {
               std::find(TA.initialStates.begin(), TA.initialStates.end(),
                         TA.states.at(i)) != TA.initialStates.end();
       // Assign a number for each state
-      stateNumber[TA.states.at(i).get()] = i + 1;
+      stateNumber[TA.states.at(i).get()] = i;
     }
     os << "digraph G {\n";
 
@@ -256,7 +257,7 @@ namespace learnta {
     }
 
     for (const std::shared_ptr<TAState> &source: TA.states) {
-      for (auto edges: source->next) {
+      for (const auto& edges: source->next) {
         for (const TATransition &edge: edges.second) {
           TAState *target = edge.target;
           os << "        loc" << stateNumber.at(source.get()) << "->loc"

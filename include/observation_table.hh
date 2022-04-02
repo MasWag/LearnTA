@@ -513,12 +513,14 @@ namespace learnta {
             }
           }
 
-          newState->next[action].reserve(sourceMap.size());
-          for (const auto&[target, timedCondition]: sourceMap) {
-            newState->next[action].emplace_back(target.get(),
-                                                std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{
-                                                        std::make_pair(timedCondition.size(), std::nullopt)},
-                                                timedCondition.toGuard());
+          if (!sourceMap.empty()) {
+            newState->next[action].reserve(sourceMap.size());
+            for (const auto&[target, timedCondition]: sourceMap) {
+              newState->next[action].emplace_back(target.get(),
+                                                  std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{
+                                                          std::make_pair(timedCondition.size(), std::nullopt)},
+                                                  timedCondition.toGuard());
+            }
           }
         }
       }
@@ -558,7 +560,7 @@ namespace learnta {
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
           sourceIndex = this->continuousSuccessors.at(sourceIndex);
-          BOOST_LOG_TRIVIAL(debug) << "Constructing a transition from " << tmpPrefixes.at(sourceIndex);
+          BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from " << tmpPrefixes.at(sourceIndex);
           {
             auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
             if (it == this->discreteSuccessors.end()) {
@@ -598,8 +600,10 @@ namespace learnta {
           stateToIndices.at(jumpedState).push_back(targetIndex);
         }
         auto newTransitions = transitionMaker.make();
-        indexToState[originalSourceIndex]->next[action].insert(indexToState[originalSourceIndex]->next[action].end(),
-                                                               newTransitions.begin(), newTransitions.end());
+        if (!newTransitions.empty()) {
+          indexToState[originalSourceIndex]->next[action].insert(indexToState[originalSourceIndex]->next[action].end(),
+                                                                 newTransitions.begin(), newTransitions.end());
+        }
       }
 
       //! @todo We need to implement transitions by continuous immediate exteriors to support unobservable transitions

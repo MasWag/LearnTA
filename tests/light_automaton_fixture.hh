@@ -18,9 +18,9 @@
 struct LightAutomatonFixture {
   const std::vector<Alphabet> alphabet = {'p', 'r', 's', 'e', 't'};
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
-  const int scale = 5;
+  const int scale;
 
-  LightAutomatonFixture() {
+  explicit LightAutomatonFixture(int scale = 5) : scale(scale) {
     // Generate the target DTA
     targetAutomaton.states.resize(6);
     for (int i = 0; i < 5; ++i) {

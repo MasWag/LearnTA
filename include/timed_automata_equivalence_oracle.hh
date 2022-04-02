@@ -33,7 +33,7 @@ namespace learnta {
       return zoneAutomaton.sample();
     }
 
-    [[nodiscard]] std::optional<TimedWord> supset(const TimedAutomaton &hypothesis) const {
+    [[nodiscard]] std::optional<TimedWord> supset(const TimedAutomaton& hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);

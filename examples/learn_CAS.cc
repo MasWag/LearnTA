@@ -243,7 +243,7 @@ void run() {
 }
 
 int main(int argc, const char *argv[]) {
-#ifdef aNDEBUG
+#ifdef NDEBUG
   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 #endif
 

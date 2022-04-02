@@ -69,10 +69,12 @@ namespace learnta {
             const auto nextZoneBeforeReset = nextZone;
             for (const auto &[resetVariable, updatedVariable]: edge.resetVars) {
               if (updatedVariable && resetVariable != *updatedVariable) {
-                nextZone.value.col(resetVariable + 1) = nextZoneBeforeReset.value.col(*updatedVariable + 1);
-                nextZone.value.row(resetVariable + 1) = nextZoneBeforeReset.value.row(*updatedVariable + 1);
+                nextZone.unconstrain(resetVariable);
+                nextZone.value(resetVariable + 1, *updatedVariable + 1) = Bounds{0.0, true};
+                nextZone.value(*updatedVariable + 1, resetVariable + 1) = Bounds{0.0, true};
               }
             }
+            nextZone.canonize();
             for (const auto &[resetVariable, updatedVariable]: edge.resetVars) {
               if (!updatedVariable) {
                 nextZone.reset(resetVariable);
