@@ -12,9 +12,9 @@ add_executable(learn_simple_dta EXCLUDE_FROM_ALL
 
 target_link_libraries(learn_simple_dta
   ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   "-pthread"
   learnta
-  TBB::tbb
   )
 
 add_executable(learn_light EXCLUDE_FROM_ALL
@@ -23,6 +23,7 @@ add_executable(learn_light EXCLUDE_FROM_ALL
 
 target_link_libraries(learn_light
   ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   "-pthread"
   learnta
   )
@@ -33,7 +34,7 @@ add_executable(learn_CAS EXCLUDE_FROM_ALL
 
 target_link_libraries(learn_CAS
   ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   "-pthread"
-  TBB::tbb
   learnta
   )

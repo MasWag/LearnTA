@@ -267,10 +267,10 @@ namespace learnta {
                 std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
                   return suffix.predecessor();
                 });
-                if (!equivalent(i, j, allPredecessors)) {
+                if (equivalent(i, j, allPredecessors)) {
                   BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
                   auto preAllPredecessors = allPredecessors;
-                  while (!equivalent(i, j, allPredecessors)) {
+                  while (equivalent(i, j, allPredecessors)) {
                     std::list<BackwardRegionalElementaryLanguage> newAllPredecessors;
                     for (const auto &suffix: preAllPredecessors) {
                       try {

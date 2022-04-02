@@ -29,7 +29,7 @@ find_package(Boost REQUIRED COMPONENTS
   system
   log)
 find_package(Eigen3 REQUIRED)
-find_package(TBB REQUIRED)
+# find_package(TBB REQUIRED)
 
 include_directories(
   include/
@@ -69,7 +69,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
   ${Boost_LOG_LIBRARY}
-  TBB::tbb
+  ${Boost_SYSTEM_LIBRARY}
   "-pthread"
   )
 

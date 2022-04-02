@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <numeric>
 #include <utility>
-#include <execution>
 
 #include "../include/ta2za.hh"
 
