@@ -83,12 +83,14 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
   }
 
   BOOST_FIXTURE_TEST_CASE(light, LightAutomatonOracleFixture) {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
     const auto result = learner.run();
     learner.printStatistics(std::cout);
     std::cout << result << std::endl;
     BOOST_CHECK_EQUAL(5, learner.numEqQueries());
-    BOOST_CHECK_EQUAL(6, result.stateSize());
+    BOOST_CHECK_EQUAL(5, result.stateSize());
 
     // Manually test the equivalence
     auto correctRunner = TimedAutomatonRunner{this->targetAutomaton};

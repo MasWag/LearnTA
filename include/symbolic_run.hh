@@ -77,17 +77,7 @@ namespace learnta {
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto transition = this->edgeAt(i);
         for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
-          if (!updatedVariable) {
-            zoneBeforeJump.unconstrain(resetVariable);
-          }
-        }
-        const auto originalZoneBeforeJump = zoneBeforeJump;
-        for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
-          if (updatedVariable) {
-            zoneBeforeJump.value.col(*updatedVariable + 1) = originalZoneBeforeJump.value.col(resetVariable + 1);
-            zoneBeforeJump.value.row(*updatedVariable + 1) = originalZoneBeforeJump.value.row(resetVariable + 1);
-            zoneBeforeJump.unconstrain(resetVariable);
-          }
+          zoneBeforeJump.unconstrain(resetVariable);
         }
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         for (const auto guard: transition.guard) {

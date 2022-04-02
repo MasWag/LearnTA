@@ -287,9 +287,8 @@ namespace learnta {
                   });
                 }
 
-                for (const auto &suffix: allPredecessors) {
-                  suffixes.push_back(suffix);
-                }
+                suffixes.reserve(suffixes.size() + allPredecessors.size());
+                std::move(allPredecessors.begin(), allPredecessors.end(), std::back_inserter(suffixes));
               }
               this->refreshTable();
 
