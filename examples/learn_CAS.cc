@@ -214,15 +214,29 @@ void run() {
   auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
   auto eqOracle = std::make_unique<learnta::EquivalenceOracleChain>();
   auto eqOracleByTest = std::make_unique<learnta::EquivalenceOracleByTest>(targetAutomaton);
-  eqOracleByTest->push_back(learnta::TimedWord{"lcaobfsutg", {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0}});
-  eqOracleByTest->push_back(learnta::TimedWord{"lcaobfstgu", {0, 0, 2, 0, 0, 0, 0, 3, 27, 0, 0}});
-  eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
-  eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
+  // Equivalence query by static string to make the evaluation stable
+  // These strings are generated in macOS but the equivalence query returns a different set of counter examples.
+  // This deviation is probably because of the difference in the address handling, which is used in sorting.
+  eqOracleByTest->push_back(learnta::TimedWord{"cc", {0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"ll", {0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"cla", {0, 0, 2, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"lca", {2, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"lca", {0, 2, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"clauu", {0, 0, 2, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobl", {0, 0, 2, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobff", {0, 0, 2, 0, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobfsc", {0, 0, 2, 0, 0, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobfsus", {0, 0, 2, 0, 0, 0, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobfsutt", {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobfst", {0, 0, 2, 0, 0, 0, 0, 3, 0}});
+  eqOracleByTest->push_back(learnta::TimedWord{"claobfstg", {0, 0, 2, 0, 0, 0, 0, 3, 27, 0}});
+  // eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
+  // eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
 
+  eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                   targetAutomaton, complementTargetAutomaton, alphabet));
-  eqOracle->push_back(std::move(eqOracleByTest));
   learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
 
   // Run the learning
