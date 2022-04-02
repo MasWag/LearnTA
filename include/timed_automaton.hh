@@ -10,6 +10,7 @@
 #include <vector>
 #include <queue>
 #include <optional>
+#include <cassert>
 
 #include "common_types.hh"
 #include "constraint.hh"
