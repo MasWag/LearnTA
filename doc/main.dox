@@ -1,0 +1,23 @@
+/*!
+  @mainpage LearnTA Documentation
+
+  This is the documentation for LearnTA --- A C++ library for active learning of deterministic timed automata.
+
+  @section Installation
+
+  LearnTA is tested on Ubuntu (18.04 and 20.04) and macOS 10.15 Catalina.
+
+  @subsection Requirements
+  
+  - C++ compiler supporting C++17 and the corresponding libraries.
+  - Boost (>= 1.59)
+  - Eigen
+  - CMake
+
+  @subsection Instructions
+
+  @code
+  mkdir build
+  cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
+  @endcode
+ */
