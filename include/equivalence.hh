@@ -207,11 +207,7 @@ namespace learnta {
     }
 
     // 4. Check candidate renaming
-    auto it = std::find_if(
-#ifdef __PSTL_EXECUTION_POLICIES_DEFINED
-            std::execution::par_unseq,
-#endif
-                    candidates.begin(), candidates.end(), [&](const auto &candidate) {
+    auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
       return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
     });
     if (it == candidates.end()) {
