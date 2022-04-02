@@ -268,6 +268,7 @@ namespace learnta {
                   return suffix.predecessor();
                 });
                 if (!equivalent(i, j, allPredecessors)) {
+                  BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
                   auto preAllPredecessors = allPredecessors;
                   while (!equivalent(i, j, allPredecessors)) {
                     std::list<BackwardRegionalElementaryLanguage> newAllPredecessors;
