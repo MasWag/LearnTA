@@ -75,7 +75,6 @@ namespace learnta {
    *
    * @pre leftRow.size() == rightRow.size() == suffixes.size()
    * @pre left and right are simple
-   * @todo Write the test
    */
   static std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
                                                                 const std::vector<TimedConditionSet> &leftRow,
@@ -130,7 +129,7 @@ namespace learnta {
     for (int i = 0; i < leftRow.size(); ++i) {
       const auto leftConcatenation = left + suffixes.at(i);
       const auto rightConcatenation = right + suffixes.at(i);
-      // 2-1. We quickly check if they are clearly inequivalent.
+      // 2-1. We quickly check if they are clearly not equivalent.
       if ((leftRow.at(i).empty() && !rightRow.at(i).empty()) || (!leftRow.at(i).empty() && rightRow.at(i).empty())) {
         // One of them is bottom but another is not
         return std::nullopt;
@@ -208,7 +207,11 @@ namespace learnta {
     }
 
     // 4. Check candidate renaming
-    auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
+    auto it = std::find_if(
+#ifdef __PSTL_EXECUTION_POLICIES_DEFINED
+            std::execution::par_unseq,
+#endif
+                    candidates.begin(), candidates.end(), [&](const auto &candidate) {
       return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
     });
     if (it == candidates.end()) {

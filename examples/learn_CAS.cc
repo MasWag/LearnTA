@@ -222,8 +222,8 @@ void run() {
                                                                                        targetAutomaton, 500,
                                                                                        20, 30);
 
-  eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(std::move(eqOracleByRandomTest));
+  eqOracle->push_back(std::move(eqOracleByTest));
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                   targetAutomaton, complementTargetAutomaton, alphabet));
