@@ -38,3 +38,14 @@ target_link_libraries(learn_CAS
   "-pthread"
   learnta
   )
+
+add_executable(learn_PC EXCLUDE_FROM_ALL
+  learn_PC.cc
+  )
+
+target_link_libraries(learn_PC
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )
