@@ -93,18 +93,23 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>SymbolicRun</b> (const std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt; &amp;initialState)</td></tr>
 <tr class="separator:adbf43f482c97cd2adaaea2cbec00eb71"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b7baee10ed4024cbbc26a1017ac7454"><td class="memItemLeft" align="right" valign="top"><a id="a6b7baee10ed4024cbbc26a1017ac7454"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>push_back</b> (const <a class="el" href="structlearnta_1_1TATransition.html">learnta::TATransition</a> &amp;transition, char action, const std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt; &amp;state)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SymbolicRun.html#a6b7baee10ed4024cbbc26a1017ac7454">push_back</a> (const <a class="el" href="structlearnta_1_1TATransition.html">learnta::TATransition</a> &amp;transition, char action, const std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt; &amp;state)</td></tr>
+<tr class="memdesc:a6b7baee10ed4024cbbc26a1017ac7454"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push a new edge and state in the end of the run. <br /></td></tr>
 <tr class="separator:a6b7baee10ed4024cbbc26a1017ac7454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f368e5289305e6ded15698c16b969dc"><td class="memItemLeft" align="right" valign="top"><a id="a1f368e5289305e6ded15698c16b969dc"></a>
-std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>stateAt</b> (int i) const</td></tr>
+std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SymbolicRun.html#a1f368e5289305e6ded15698c16b969dc">stateAt</a> (int i) const</td></tr>
+<tr class="memdesc:a1f368e5289305e6ded15698c16b969dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the i-th state in the symbolic run. <br /></td></tr>
 <tr class="separator:a1f368e5289305e6ded15698c16b969dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93f9c255ea507102ab2083b84ea54efe"><td class="memItemLeft" align="right" valign="top"><a id="a93f9c255ea507102ab2083b84ea54efe"></a>
-<a class="el" href="structlearnta_1_1TATransition.html">learnta::TATransition</a>&#160;</td><td class="memItemRight" valign="bottom"><b>edgeAt</b> (int i) const</td></tr>
+<a class="el" href="structlearnta_1_1TATransition.html">learnta::TATransition</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SymbolicRun.html#a93f9c255ea507102ab2083b84ea54efe">edgeAt</a> (int i) const</td></tr>
+<tr class="memdesc:a93f9c255ea507102ab2083b84ea54efe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the i-th edge in the symbolic run. <br /></td></tr>
 <tr class="separator:a93f9c255ea507102ab2083b84ea54efe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a477353117208e15f9af8122e936e0e46"><td class="memItemLeft" align="right" valign="top"><a id="a477353117208e15f9af8122e936e0e46"></a>
-std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>back</b> () const</td></tr>
+std::shared_ptr&lt; <a class="el" href="structlearnta_1_1ZAState.html">ZAState</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SymbolicRun.html#a477353117208e15f9af8122e936e0e46">back</a> () const</td></tr>
+<tr class="memdesc:a477353117208e15f9af8122e936e0e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the last state in the symbolic run. <br /></td></tr>
 <tr class="separator:a477353117208e15f9af8122e936e0e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fd962629dc34bc1c95c747e3c67e6e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classlearnta_1_1TimedWord.html">TimedWord</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1SymbolicRun.html#a4fd962629dc34bc1c95c747e3c67e6e4">reconstructWord</a> () const</td></tr>
+<tr class="memdesc:a4fd962629dc34bc1c95c747e3c67e6e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reconstruct a timed word from a symbolic run.  <a href="classlearnta_1_1SymbolicRun.html#a4fd962629dc34bc1c95c747e3c67e6e4">More...</a><br /></td></tr>
 <tr class="separator:a4fd962629dc34bc1c95c747e3c67e6e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
@@ -140,8 +145,9 @@ static std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>@breif Reconstruct a timed word from a symbolic run</p>
-<p>We use the reconstruction algorithm in [Andre+, NFM'22] We note that our zone construction is state &ndash;time_elapse--&gt; intermediate &ndash;discrete_jump--&gt; next_state. </p>
+
+<p>Reconstruct a timed word from a symbolic run. </p>
+<p>We use the reconstruction algorithm in [Andre+, NFM'22]. We note that our zone construction is state &ndash;time_elapse--&gt; intermediate &ndash;discrete_jump--&gt; next_state. </p>
 
 </div>
 </div>
