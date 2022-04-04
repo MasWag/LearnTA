@@ -32,28 +32,32 @@ namespace learnta {
   public:
     explicit SymbolicRun(const std::shared_ptr<ZAState> &initialState) : states({initialState}), edges() {}
 
+    //! @brief Push a new edge and state in the end of the run
     void push_back(const learnta::TATransition &transition, char action, const std::shared_ptr<ZAState> &state) {
       this->states.push_back(state);
       word.push_back(action);
       this->edges.push_back(transition);
     }
 
+    //! @brief Returns the i-th state in the symbolic run
     [[nodiscard]] std::shared_ptr<ZAState> stateAt(int i) const {
       return this->states.at(i);
     }
 
+    //! @brief Returns the i-th edge in the symbolic run
     [[nodiscard]] learnta::TATransition edgeAt(int i) const {
       return this->edges.at(i);
     }
 
+    //! @brief Returns the last state in the symbolic run
     [[nodiscard]] std::shared_ptr<ZAState> back() const {
       return this->states.back();
     }
 
     /*!
-     * @breif Reconstruct a timed word from a symbolic run
+     * @brief Reconstruct a timed word from a symbolic run
      *
-     * We use the reconstruction algorithm in [Andre+, NFM'22]
+     * We use the reconstruction algorithm in [Andre+, NFM'22].
      * We note that our zone construction is state --time_elapse--> intermediate --discrete_jump--> next_state.
      */
     [[nodiscard]] TimedWord reconstructWord() const {
@@ -139,6 +143,7 @@ namespace learnta {
     }
   };
 
+  //! @brief Print the symbolic run
   static inline std::ostream &operator<<(std::ostream &os, const learnta::SymbolicRun &run) {
     return learnta::SymbolicRun::print(os, run);
   }
