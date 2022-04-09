@@ -75,5 +75,9 @@ namespace learnta {
         }
       }
     }
+
+    [[nodiscard]] std::size_t count() const {
+      return this->sul->count();
+    }
   };
 }

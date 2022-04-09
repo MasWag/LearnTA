@@ -28,9 +28,8 @@
 #include "timed_automaton_runner.hh"
 #include "equivalance_oracle_chain.hh"
 #include "equivalence_oracle_by_test.hh"
-#include "equivalence_oracle_by_random_test.hh"
 
-void run() {
+void run(bool useStaticTests = false) {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
   const std::vector<Alphabet> alphabet = {'l', 'u', 'o', 'c', 'a', 'b', 'f', 'g', 's', 't'};
 
@@ -42,10 +41,10 @@ void run() {
   targetAutomaton.states.at(14) = std::make_shared<learnta::TAState>(false);
 
   // Transitions
-  targetAutomaton.states.at(0)->next['l'].emplace_back();
-  targetAutomaton.states.at(0)->next['l'].back().target = targetAutomaton.states.at(1).get();
   targetAutomaton.states.at(0)->next['c'].emplace_back();
   targetAutomaton.states.at(0)->next['c'].back().target = targetAutomaton.states.at(2).get();
+  targetAutomaton.states.at(0)->next['l'].emplace_back();
+  targetAutomaton.states.at(0)->next['l'].back().target = targetAutomaton.states.at(1).get();
 
   targetAutomaton.states.at(1)->next['u'].emplace_back();
   targetAutomaton.states.at(1)->next['u'].back().target = targetAutomaton.states.at(0).get();
@@ -233,7 +232,10 @@ void run() {
   // eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
   // eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
 
-  eqOracle->push_back(std::move(eqOracleByTest));
+  if (useStaticTests) {
+    std::cout << "Use static test set in the equivalence query for stability" << std::endl;
+    eqOracle->push_back(std::move(eqOracleByTest));
+  }
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                   targetAutomaton, complementTargetAutomaton, alphabet));
@@ -256,8 +258,7 @@ int main(int argc, const char *argv[]) {
 #ifdef NDEBUG
   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
 #endif
-
-  run();
+  run(argc > 1);
 
   return 0;
 }

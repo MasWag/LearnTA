@@ -23,11 +23,13 @@ namespace learnta {
     TimedAutomaton automaton;
     TAState* state;
     std::vector<double> clockValuation;
+    std::size_t numQueries;
   public:
     explicit TimedAutomatonRunner(TimedAutomaton automaton) : automaton(std::move(automaton)) {
       assert(this->automaton.initialStates.size() == 1);
       this->state = this->automaton.initialStates.at(0).get();
       this->clockValuation.resize(this->automaton.maxConstraints.size());
+      numQueries = 0;
     }
 
     //! @brief Reset the configuration
@@ -36,6 +38,7 @@ namespace learnta {
       assert(this->clockValuation.size() == this->automaton.maxConstraints.size());
       this->state = this->automaton.initialStates.at(0).get();
       std::fill(this->clockValuation.begin(), this->clockValuation.end(), 0);
+      numQueries++;
     }
 
     void post() override {
@@ -84,6 +87,9 @@ namespace learnta {
       });
 
       return this->state->isMatch;
+    }
+    [[nodiscard]] std::size_t count() const override {
+      return numQueries;
     }
   };
 }

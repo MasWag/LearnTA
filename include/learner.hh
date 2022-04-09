@@ -50,7 +50,6 @@ namespace learnta {
 
     std::ostream &printStatistics(std::ostream &stream) const {
       this->observationTable.printStatistics(stream);
-
       stream << "Number of equivalence queries: " << this->eqQueryCount << "\n";
 
       return stream;

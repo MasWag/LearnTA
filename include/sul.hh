@@ -28,5 +28,9 @@ namespace learnta {
      * @brief Feed time elapse
      */
     virtual bool step(double duration) = 0;
+    /*!
+     * @brief Returns the number of queries
+     */
+    [[nodiscard]] virtual std::size_t count() const = 0;
   };
 }

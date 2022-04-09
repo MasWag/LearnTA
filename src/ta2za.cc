@@ -52,9 +52,8 @@ namespace learnta {
       TAState *taState = zaState->taState;
       Zone nowZone = zaState->zone;
       nowZone.elapse();
-      for (auto &it: taState->next) {
-        const Alphabet c = it.first;
-        for (const auto &edge: it.second) {
+      for (const auto &[c, edges]: taState->next) {
+        for (const auto &edge: edges) {
           Zone nextZone = nowZone;
           auto nextState = edge.target;
           if (!nextState) {
