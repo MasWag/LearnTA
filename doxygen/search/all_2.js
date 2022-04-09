@@ -11,5 +11,6 @@ var searchData=
   ['constraint_17',['Constraint',['../structlearnta_1_1Constraint.html',1,'learnta']]],
   ['constraintmaker_18',['ConstraintMaker',['../classlearnta_1_1ConstraintMaker.html',1,'learnta']]],
   ['convexhull_19',['convexHull',['../classlearnta_1_1ElementaryLanguage.html#a96a7fc756709cce8d0ced34fc6ea75a6',1,'learnta::ElementaryLanguage::convexHull()'],['../classlearnta_1_1TimedCondition.html#ae150e3bb980a10b8fda4a50f730e9964',1,'learnta::TimedCondition::convexHull()']]],
-  ['convexhullassign_20',['convexHullAssign',['../classlearnta_1_1TimedCondition.html#aefc4f5c388a269721ea15a619da8005c',1,'learnta::TimedCondition']]]
+  ['convexhullassign_20',['convexHullAssign',['../classlearnta_1_1TimedCondition.html#aefc4f5c388a269721ea15a619da8005c',1,'learnta::TimedCondition']]],
+  ['count_21',['count',['../classlearnta_1_1SUL.html#a77552fd1d6e6499bb92518f09bf0d534',1,'learnta::SUL::count()'],['../classlearnta_1_1TimedAutomatonRunner.html#a6025a15d409efc80bc79b203df5438b5',1,'learnta::TimedAutomatonRunner::count()']]]
 ];

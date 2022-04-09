@@ -92,85 +92,92 @@ $(function() {
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> automaton;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="structlearnta_1_1TAState.html">TAState</a>* state;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    std::vector&lt;double&gt; clockValuation;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a>(<a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> automaton) : automaton(std::move(automaton)) {</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      assert(this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.size() == 1);</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      this-&gt;state = this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.at(0).get();</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      this-&gt;clockValuation.resize(this-&gt;automaton.<a class="code" href="structlearnta_1_1TimedAutomaton.html#a53ca7f0fa2e0cfd6d91d17c303aa7047">maxConstraints</a>.size());</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    }</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">   34</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      <span class="comment">// We assume that the given timed automaton is deterministic</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      this-&gt;state = this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.at(0).get();</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      std::fill(this-&gt;clockValuation.begin(), this-&gt;clockValuation.end(), 0);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
-<div class="line"><a name="l00041"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">   41</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>()<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    }</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">   45</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(<span class="keywordtype">char</span> action)<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="comment">// Skip the operation if we are at the sink state</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordflow">if</span> (this-&gt;state == <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      }</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <a class="code" href="structlearnta_1_1TATransition.html">TATransition</a> &amp;transition: this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#a512c5bc75b5b2870b714cef441df39b5">next</a>[action]) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="comment">// Check if the guard is satisfied</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">if</span> (std::all_of(transition.guard.begin(), transition.guard.end(), [&amp;] (<span class="keyword">const</span> <a class="code" href="structlearnta_1_1Constraint.html">Constraint</a> &amp;guard) {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;          return guard.satisfy(this-&gt;clockValuation.at(guard.x));</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        })) {</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          <span class="comment">// Reset the clock variables</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;          <span class="keyword">const</span> <span class="keyword">auto</span> oldValuation = this-&gt;clockValuation;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;          <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [resetVariable, targetVariable]: transition.resetVars) {</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;            <span class="keywordflow">if</span> (targetVariable) {</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;              this-&gt;clockValuation.at(resetVariable) = oldValuation.at(*targetVariable);</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;            } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;              this-&gt;clockValuation.at(resetVariable) = 0;</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            }</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          this-&gt;state = transition.target;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; </div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;          <span class="keywordflow">return</span> this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36">isMatch</a>;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;      }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160; </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      <span class="comment">// If there is no outgoing transition, we go to the sink state</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      state = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">   76</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">step</a>(<span class="keywordtype">double</span> duration)<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      <span class="comment">// Skip the operation if we are at the sink state</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      <span class="keywordflow">if</span> (this-&gt;state == <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      }</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      std::transform(this-&gt;clockValuation.begin(), this-&gt;clockValuation.end(), this-&gt;clockValuation.begin(), [&amp;] (<span class="keywordtype">double</span> value) {</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        return value + duration;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      });</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;      <span class="keywordflow">return</span> this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36">isMatch</a>;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  };</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;}</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    std::size_t numQueries;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a>(<a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> automaton) : automaton(std::move(automaton)) {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      assert(this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.size() == 1);</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      this-&gt;state = this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.at(0).get();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      this-&gt;clockValuation.resize(this-&gt;automaton.<a class="code" href="structlearnta_1_1TimedAutomaton.html#a53ca7f0fa2e0cfd6d91d17c303aa7047">maxConstraints</a>.size());</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      numQueries = 0;</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    }</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">   36</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;      <span class="comment">// We assume that the given timed automaton is deterministic</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      this-&gt;state = this-&gt;automaton.<a class="code" href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">initialStates</a>.at(0).get();</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      std::fill(this-&gt;clockValuation.begin(), this-&gt;clockValuation.end(), 0);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      numQueries++;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    }</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">   44</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>()<span class="keyword"> override </span>{</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    }</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">   48</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(<span class="keywordtype">char</span> action)<span class="keyword"> override </span>{</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      <span class="comment">// Skip the operation if we are at the sink state</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordflow">if</span> (this-&gt;state == <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      }</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <a class="code" href="structlearnta_1_1TATransition.html">TATransition</a> &amp;transition: this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#a512c5bc75b5b2870b714cef441df39b5">next</a>[action]) {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="comment">// Check if the guard is satisfied</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;        <span class="keywordflow">if</span> (std::all_of(transition.guard.begin(), transition.guard.end(), [&amp;] (<span class="keyword">const</span> <a class="code" href="structlearnta_1_1Constraint.html">Constraint</a> &amp;guard) {</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;          return guard.satisfy(this-&gt;clockValuation.at(guard.x));</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        })) {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;          <span class="comment">// Reset the clock variables</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;          <span class="keyword">const</span> <span class="keyword">auto</span> oldValuation = this-&gt;clockValuation;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; [resetVariable, targetVariable]: transition.resetVars) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            <span class="keywordflow">if</span> (targetVariable) {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;              this-&gt;clockValuation.at(resetVariable) = oldValuation.at(*targetVariable);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;            } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;              this-&gt;clockValuation.at(resetVariable) = 0;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;            }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;          }</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;          this-&gt;state = transition.target;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;          <span class="keywordflow">return</span> this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36">isMatch</a>;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;      }</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160; </div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      <span class="comment">// If there is no outgoing transition, we go to the sink state</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      state = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    }</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">   79</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">step</a>(<span class="keywordtype">double</span> duration)<span class="keyword"> override </span>{</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;      assert(this-&gt;clockValuation.size() == this-&gt;automaton.maxConstraints.size());</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;      <span class="comment">// Skip the operation if we are at the sink state</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;      <span class="keywordflow">if</span> (this-&gt;state == <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;      }</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;      std::transform(this-&gt;clockValuation.begin(), this-&gt;clockValuation.end(), this-&gt;clockValuation.begin(), [&amp;] (<span class="keywordtype">double</span> value) {</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;        return value + duration;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      });</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;      <span class="keywordflow">return</span> this-&gt;state-&gt;<a class="code" href="structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36">isMatch</a>;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    }</div>
+<div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classlearnta_1_1TimedAutomatonRunner.html#a6025a15d409efc80bc79b203df5438b5">   91</a></span>&#160;    [[nodiscard]] std::size_t <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a6025a15d409efc80bc79b203df5438b5">count</a>()<span class="keyword"> const override </span>{</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;      <span class="keywordflow">return</span> numQueries;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  };</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;}</div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html">learnta::TimedAutomatonRunner</a></div><div class="ttdoc">Class to execute a timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:21</div></div>
 <div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:66</div></div>
 <div class="ttc" id="astructlearnta_1_1TAState_html_af03881575eb601e62436f5594892ac36"><div class="ttname"><a href="structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36">learnta::TAState::isMatch</a></div><div class="ttdeci">bool isMatch</div><div class="ttdoc">The value is true if and only if the state is an accepting state.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:26</div></div>
 <div class="ttc" id="astructlearnta_1_1TAState_html_a512c5bc75b5b2870b714cef441df39b5"><div class="ttname"><a href="structlearnta_1_1TAState.html#a512c5bc75b5b2870b714cef441df39b5">learnta::TAState::next</a></div><div class="ttdeci">std::unordered_map&lt; Alphabet, std::vector&lt; TATransition &gt; &gt; next</div><div class="ttdoc">A mapping of a character to the transitions.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:31</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad89720c8b41899a4ac9fc86c012bd559"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">learnta::TimedAutomatonRunner::pre</a></div><div class="ttdeci">void pre() override</div><div class="ttdoc">Reset the configuration.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:34</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad89720c8b41899a4ac9fc86c012bd559"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">learnta::TimedAutomatonRunner::pre</a></div><div class="ttdeci">void pre() override</div><div class="ttdoc">Reset the configuration.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:36</div></div>
 <div class="ttc" id="astructlearnta_1_1TimedAutomaton_html_a53ca7f0fa2e0cfd6d91d17c303aa7047"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html#a53ca7f0fa2e0cfd6d91d17c303aa7047">learnta::TimedAutomaton::maxConstraints</a></div><div class="ttdeci">std::vector&lt; int &gt; maxConstraints</div><div class="ttdoc">The maximum constraints for each clock variables.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:68</div></div>
 <div class="ttc" id="aclasslearnta_1_1SUL_html"><div class="ttname"><a href="classlearnta_1_1SUL.html">learnta::SUL</a></div><div class="ttdoc">Interface of the system under learning.</div><div class="ttdef"><b>Definition:</b> sul.hh:12</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ab3ca95a6a6dd0e201bfdd50e18301df2"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(double duration) override</div><div class="ttdoc">Feed time elapse.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:76</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad2d0b6c8280a8d667f12b98adf3f8331"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">learnta::TimedAutomatonRunner::post</a></div><div class="ttdeci">void post() override</div><div class="ttdoc">The function should be called after feeding each timed word.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:41</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ab3ca95a6a6dd0e201bfdd50e18301df2"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ab3ca95a6a6dd0e201bfdd50e18301df2">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(double duration) override</div><div class="ttdoc">Feed time elapse.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:79</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad2d0b6c8280a8d667f12b98adf3f8331"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">learnta::TimedAutomatonRunner::post</a></div><div class="ttdeci">void post() override</div><div class="ttdoc">The function should be called after feeding each timed word.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:44</div></div>
 <div class="ttc" id="astructlearnta_1_1TATransition_html"><div class="ttname"><a href="structlearnta_1_1TATransition.html">learnta::TATransition</a></div><div class="ttdoc">A state of timed automata.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:43</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> backward_regional_elementary_language.hh:14</div></div>
 <div class="ttc" id="astructAutomaton_html_af406316ef2cae93494a9e729b94b2caa"><div class="ttname"><a href="structAutomaton.html#af406316ef2cae93494a9e729b94b2caa">Automaton::initialStates</a></div><div class="ttdeci">std::vector&lt; std::shared_ptr&lt; State &gt; &gt; initialStates</div><div class="ttdoc">The initial states of this automaton.</div><div class="ttdef"><b>Definition:</b> common_types.hh:20</div></div>
 <div class="ttc" id="astructlearnta_1_1Constraint_html"><div class="ttname"><a href="structlearnta_1_1Constraint.html">learnta::Constraint</a></div><div class="ttdoc">A constraint in a guard of transitions.</div><div class="ttdef"><b>Definition:</b> constraint.hh:21</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:45</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:48</div></div>
 <div class="ttc" id="astructlearnta_1_1TAState_html"><div class="ttname"><a href="structlearnta_1_1TAState.html">learnta::TAState</a></div><div class="ttdoc">A state of timed automata.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:24</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a6025a15d409efc80bc79b203df5438b5"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a6025a15d409efc80bc79b203df5438b5">learnta::TimedAutomatonRunner::count</a></div><div class="ttdeci">std::size_t count() const override</div><div class="ttdoc">Returns the number of queries.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:91</div></div>
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">
