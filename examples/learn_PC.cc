@@ -1,5 +1,5 @@
 /**
- * @brief An example to learn the PC DTA in [APT'20]
+ * @brief An example to learn the particle controller (PC) DTA in [APT'20]
  * @author Masaki Waga
  * @date 2022/04/04.
  *

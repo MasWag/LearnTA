@@ -168,12 +168,9 @@ namespace learnta {
      */
     bool close() {
       for (std::size_t i = 0; i < this->prefixes.size(); i++) {
-        {
-          // Check if this prefix is in P
-          auto it = this->pIndices.find(i);
-          if (it != this->pIndices.end()) {
-            continue;
-          }
+        // Check if this prefix is in P
+        if (this->pIndices.find(i) != this->pIndices.end()) {
+          continue;
         }
         auto prefix = this->prefixes.at(i);
         auto prefixRow = this->table.at(i);
@@ -241,6 +238,9 @@ namespace learnta {
                   return !equivalent(i, j, suffix.predecessor(action));
                 });
                 // we assume that we have such a suffix
+                if (it == suffixes.end()) {
+                  abort();
+                }
                 const auto newSuffix = it->predecessor(action);
                 suffixes.push_back(newSuffix);
                 BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";

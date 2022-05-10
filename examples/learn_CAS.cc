@@ -1,5 +1,5 @@
 /**
- * @brief An example to learn the CAS DTA in [APT'20]
+ * @brief An example to learn the car alarm system (CAS) DTA in [APT'20]
  * @author Masaki Waga
  * @date 2022/03/29.
  *

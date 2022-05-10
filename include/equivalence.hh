@@ -162,6 +162,7 @@ namespace learnta {
         // 3-1. We check if we cannot include these vertices
         if (v1Edges.at(v1).empty()) {
           v1Index++;
+          // We cannot conclude that they are not equivalent because this non-trivial constraint can be realized from other non-trivial constraints.
           continue;
         }
         if (v2Edges.at(v2).empty()) {
