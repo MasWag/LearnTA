@@ -35,7 +35,7 @@ namespace learnta {
      * The transition corresponds to a morphism \f$(u, \Lambda, u', \Lambda', R)\f$, where
      *     - \f$\Lambda\f$ is sourceCondition,
      *     - \f$\Lambda\f$ is targetCondition, and
-     *     - \f$\R\f$ is renamingRelation,
+     *     - \f$R\f$ is renamingRelation,
      */
     void add(const std::shared_ptr<TAState> &targetState, const RenamingRelation &renamingRelation,
              const TimedCondition &sourceCondition, const TimedCondition &targetCondition,

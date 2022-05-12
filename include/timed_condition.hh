@@ -489,7 +489,7 @@ namespace learnta {
     }
 
     /*!
-     * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mattbb{T}_{i,N}\f$.
+     * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mathbb{T}_{i,N}\f$.
      */
     [[nodiscard]] std::vector<Constraint> toGuard() const {
       std::vector<Constraint> result;
