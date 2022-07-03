@@ -17,6 +17,17 @@ target_link_libraries(learn_simple_dta
   learnta
   )
 
+add_executable(learn_unbalanced EXCLUDE_FROM_ALL
+  learn_unbalanced.cc
+  )
+
+target_link_libraries(learn_unbalanced
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )
+
 add_executable(learn_light EXCLUDE_FROM_ALL
   learn_light.cc
   )

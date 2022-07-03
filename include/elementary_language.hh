@@ -93,6 +93,16 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make a vector of simple elementary languages in this elementary language
+     */
+    [[nodiscard]] std::vector<ElementaryLanguage> enumerate() const {
+      std::vector<ElementaryLanguage> result;
+      this->enumerate(result);
+
+      return result;
+    }
+
+    /*!
      * @brief Return a timed word in this elementary language
      */
     [[nodiscard]] TimedWord sample() const {

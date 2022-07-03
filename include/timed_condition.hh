@@ -323,6 +323,24 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make a vector of simple timed conditions in this timed condition
+     *
+     * The construction is as follows.
+     * - For each \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$, we restrict the constraints to be a point or a unit open interval.
+     *   - This can be unnecessary. In that case, we remain the timed condition as it is.
+     * - If the restricted timed condition is simple, we add it the resulting vector.
+     * - Otherwise, we keep refining it.
+     *
+     * @pre zone is canonical
+     */
+    [[nodiscard]] std::vector<TimedCondition> enumerate() const {
+      std::vector<TimedCondition> simpleConditions;
+      this->enumerate(simpleConditions);
+
+      return simpleConditions;
+    }
+
+    /*!
      * @brief Make a continuous successor by elapsing variables
      */
     [[nodiscard]] TimedCondition successor(const std::list<ClockVariables> &variables) const {
@@ -478,7 +496,7 @@ namespace learnta {
       for (int i = 1; i <= examinedVariableSize; ++i) {
         if (this->zone.value.col(i) != originalCondition.zone.value.col(i) ||
             this->zone.value.row(i) != originalCondition.zone.value.row(i)) {
-          result.push_back(i-1);
+          result.push_back(i - 1);
         }
       }
       return result;
@@ -530,7 +548,7 @@ namespace learnta {
     /*!
      * @brief Return if this timed condition includes the given timed condition
      */
-    [[nodiscard]] bool includes(const TimedCondition& condition) const {
+    [[nodiscard]] bool includes(const TimedCondition &condition) const {
       return this->zone.includes(condition.zone);
     };
   };

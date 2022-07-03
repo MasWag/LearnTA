@@ -63,9 +63,7 @@ namespace learnta {
         for (auto it2 = std::next(it); it2 != timedConditionsWithSize.end(); it2++) {
           // Check if the convex hull is the exact union
           auto convexHull = timedCondition.convexHull(it2->first);
-          std::vector<TimedCondition> enumerated;
-          convexHull.enumerate(enumerated);
-          if (enumerated.size() == it->second + it2->second) {
+          if (convexHull.enumerate().size() == it->second + it2->second) {
             it->first = std::move(convexHull);
             it->second += it2->second;
             timedConditionsWithSize.erase(it2);

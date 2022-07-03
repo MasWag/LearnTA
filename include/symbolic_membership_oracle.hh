@@ -46,10 +46,8 @@ namespace learnta {
     TimedConditionSet query(const ElementaryLanguage &elementary) {
       std::list<ElementaryLanguage> includedLanguages;
       bool allIncluded = true;
-      std::vector<ElementaryLanguage> simpleVec;
-      elementary.enumerate(simpleVec);
       // Check if each of the simple elementary language is in the target language
-      for (const auto &simple: simpleVec) {
+      for (const auto &simple: elementary.enumerate()) {
         if (this->included(simple)) {
           includedLanguages.push_back(simple);
         } else {
@@ -57,6 +55,7 @@ namespace learnta {
         }
       }
 
+      // Simplify the result
       if (includedLanguages.empty()) {
         return TimedConditionSet::bottom();
       } else if (allIncluded) {
@@ -64,9 +63,7 @@ namespace learnta {
       } else {
         auto convexHull = ElementaryLanguage::convexHull(includedLanguages);
         // Check if the convex hull is the exact union.
-        std::vector<ElementaryLanguage> result;
-        convexHull.enumerate(result);
-        if (result.size() == includedLanguages.size()) {
+        if (convexHull.enumerate().size() == includedLanguages.size()) {
           // When the convex hull is the exact union
           return TimedConditionSet{convexHull.getTimedCondition()};
         } else {

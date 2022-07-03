@@ -1,6 +1,7 @@
 /**
  * @author Masaki Waga
- * @date 2022/03/27.
+ * @date 2022/06/26.
+ * @brief Implements the "Unbalanced" benchmark, which is inspired by the unbalanced TRE in [ACM'02]
  */
 
 #include <iostream>
@@ -14,51 +15,76 @@ void run(int scale) {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
 
   // Generate the target DTA
-  targetAutomaton.states.resize(2);
-  targetAutomaton.states.at(0) = std::make_shared<learnta::TAState>(true);
-  targetAutomaton.states.at(0)->next['a'].resize(2);
+  targetAutomaton.states.resize(5);
+  // The initial state
+  targetAutomaton.states.at(0) = std::make_shared<learnta::TAState>(false);
+  targetAutomaton.states.at(0)->next['a'].resize(1);
+  targetAutomaton.states.at(0)->next['b'].resize(1);
+  targetAutomaton.states.at(0)->next['c'].resize(1);
+  // The state waiting for b
   targetAutomaton.states.at(1) = std::make_shared<learnta::TAState>(false);
-  targetAutomaton.states.at(1)->next['a'].resize(2);
+  targetAutomaton.states.at(1)->next['a'].resize(1);
+  targetAutomaton.states.at(1)->next['b'].resize(3);
+  targetAutomaton.states.at(1)->next['c'].resize(1);
+  // The state waiting for c
+  targetAutomaton.states.at(2) = std::make_shared<learnta::TAState>(false);
+  targetAutomaton.states.at(2)->next['a'].resize(1);
+  targetAutomaton.states.at(2)->next['b'].resize(1);
+  targetAutomaton.states.at(2)->next['c'].resize(3);
+  // The accepting state
+  targetAutomaton.states.at(3) = std::make_shared<learnta::TAState>(true);
+  targetAutomaton.states.at(3)->next['a'].resize(1);
+  targetAutomaton.states.at(3)->next['b'].resize(1);
+  targetAutomaton.states.at(3)->next['c'].resize(1);
+  // The sink state
+  targetAutomaton.states.at(4) = std::make_shared<learnta::TAState>(false);
+  targetAutomaton.states.at(4)->next['a'].resize(1);
+  targetAutomaton.states.at(4)->next['b'].resize(1);
+  targetAutomaton.states.at(4)->next['c'].resize(1);
   // Transitions from loc0
-  targetAutomaton.states.at(0)->next['a'].at(0).target = targetAutomaton.states.at(0).get();
-  targetAutomaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < scale};
-  targetAutomaton.states.at(0)->next['a'].at(1).target = targetAutomaton.states.at(1).get();
-  targetAutomaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= scale};
-  targetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
+  targetAutomaton.states.at(0)->next['a'].at(0).target = targetAutomaton.states.at(1).get();
+  targetAutomaton.states.at(0)->next['a'].at(0).resetVars = {{1, std::nullopt}};
+  targetAutomaton.states.at(0)->next['b'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(0)->next['c'].at(0).target = targetAutomaton.states.at(4).get();
   // Transitions from loc1
-  targetAutomaton.states.at(1)->next['a'].at(0).target = targetAutomaton.states.at(0).get();
-  targetAutomaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= scale};
-  targetAutomaton.states.at(1)->next['a'].at(1).target = targetAutomaton.states.at(1).get();
-  targetAutomaton.states.at(1)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) > scale};
+  targetAutomaton.states.at(1)->next['a'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(1)->next['b'].at(0).target = targetAutomaton.states.at(2).get();
+  targetAutomaton.states.at(1)->next['b'].at(0).guard = {learnta::ConstraintMaker(0) >= scale,
+                                                         learnta::ConstraintMaker(0) <= scale};
+  targetAutomaton.states.at(1)->next['b'].at(1).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(1)->next['b'].at(1).guard = {learnta::ConstraintMaker(0) > scale};
+  targetAutomaton.states.at(1)->next['b'].at(2).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(1)->next['b'].at(2).guard = {learnta::ConstraintMaker(0) < scale};
+  targetAutomaton.states.at(1)->next['c'].at(0).target = targetAutomaton.states.at(4).get();
+  // Transitions from loc2
+  targetAutomaton.states.at(2)->next['a'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(2)->next['b'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(2)->next['c'].at(0).target = targetAutomaton.states.at(3).get();
+  targetAutomaton.states.at(2)->next['c'].at(0).guard = {learnta::ConstraintMaker(1) >= scale,
+                                                         learnta::ConstraintMaker(1) <= scale};
+  targetAutomaton.states.at(2)->next['c'].at(1).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(2)->next['c'].at(1).guard = {learnta::ConstraintMaker(1) > scale};
+  targetAutomaton.states.at(2)->next['c'].at(2).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(2)->next['c'].at(2).guard = {learnta::ConstraintMaker(1) < scale};
+  // Transitions from the accepting state
+  targetAutomaton.states.at(3)->next['a'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(3)->next['b'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(3)->next['c'].at(0).target = targetAutomaton.states.at(4).get();
+  // Transitions from the sink state
+  targetAutomaton.states.at(4)->next['a'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(4)->next['b'].at(0).target = targetAutomaton.states.at(4).get();
+  targetAutomaton.states.at(4)->next['c'].at(0).target = targetAutomaton.states.at(4).get();
 
   targetAutomaton.initialStates.push_back(targetAutomaton.states.at(0));
-  targetAutomaton.maxConstraints.resize(1);
+  targetAutomaton.maxConstraints.resize(2);
   targetAutomaton.maxConstraints[0] = scale;
+  targetAutomaton.maxConstraints[1] = scale;
 
-  // Generate the complement of the target DTA
-  complementTargetAutomaton.states.resize(2);
-  complementTargetAutomaton.states.at(0) = std::make_shared<learnta::TAState>(false);
-  complementTargetAutomaton.states.at(0)->next['a'].resize(2);
-  complementTargetAutomaton.states.at(1) = std::make_shared<learnta::TAState>(true);
-  complementTargetAutomaton.states.at(1)->next['a'].resize(2);
-  // Transitions from loc0
-  complementTargetAutomaton.states.at(0)->next['a'].at(0).target = complementTargetAutomaton.states.at(0).get();
-  complementTargetAutomaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < scale};
-  complementTargetAutomaton.states.at(0)->next['a'].at(1).target = complementTargetAutomaton.states.at(1).get();
-  complementTargetAutomaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= scale};
-  complementTargetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
-  // Transitions from loc1
-  complementTargetAutomaton.states.at(1)->next['a'].at(0).target = complementTargetAutomaton.states.at(0).get();
-  complementTargetAutomaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= scale};
-  complementTargetAutomaton.states.at(1)->next['a'].at(1).target = complementTargetAutomaton.states.at(1).get();
-  complementTargetAutomaton.states.at(1)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) > scale};
-
-  complementTargetAutomaton.initialStates.push_back(complementTargetAutomaton.states.at(0));
-  complementTargetAutomaton.maxConstraints.resize(1);
-  complementTargetAutomaton.maxConstraints[0] = scale;
+  // Generate the target DTA
+  complementTargetAutomaton = targetAutomaton.complement({'a', 'b', 'c'});
 
   // Construct the learner
-  const std::vector<Alphabet> alphabet = {'a'};
+  const std::vector<Alphabet> alphabet = {'a', 'b', 'c'};
   auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
   auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
   auto eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
