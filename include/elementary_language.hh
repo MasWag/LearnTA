@@ -26,7 +26,9 @@ namespace learnta {
     ElementaryLanguage() = default;
 
     ElementaryLanguage(std::string word, TimedCondition timedCondition) :
-            word(std::move(word)), timedCondition(std::move(timedCondition)) {}
+            word(std::move(word)), timedCondition(std::move(timedCondition)) {
+      assert(this->word.size() + 1 == this->timedCondition.size());
+    }
 
     /*!
      * @brief Construct the empty elementary language containing only 0.
@@ -35,11 +37,14 @@ namespace learnta {
       ElementaryLanguage elementary;
       elementary.word = "";
       elementary.timedCondition = TimedCondition::empty();
+      assert(elementary.word.size() + 1 == elementary.timedCondition.size());
       return elementary;
     }
 
     /*!
      * @brief Construct a convex-hull of the given timed conditions
+     *
+     * @pre For all elementary in elementaryLanguages, elementary.word == result.word
      */
     static ElementaryLanguage convexHull(const std::list<ElementaryLanguage>& elementaryLanguages) {
       if (elementaryLanguages.empty()) {
@@ -50,6 +55,7 @@ namespace learnta {
         assert(elementary.word == result.word);
         result.timedCondition.convexHullAssign(elementary.timedCondition);
       }
+      assert(result.word.size() + 1 == result.timedCondition.size());
 
       return result;
     }
@@ -135,6 +141,7 @@ namespace learnta {
     }
 
     void removeEqualityUpperBoundAssign() {
+      assert(word.size() + 1 == timedCondition.size());
       timedCondition.removeEqualityUpperBoundAssign();
     };
 

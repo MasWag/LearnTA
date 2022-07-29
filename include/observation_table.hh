@@ -45,7 +45,11 @@ namespace learnta {
     // The pair of prefixes such that we know that they are distinguished
     boost::unordered_set<std::pair<std::size_t, std::size_t>> distinguishedPrefix;
 
-    // Fill the observation table
+    /*!
+     * @brief Fill the observation table
+     *
+     * @post The observation table is filled
+     */
     void refreshTable() {
       table.resize(prefixes.size());
       for (int prefixIndex = 0; prefixIndex < prefixes.size(); ++prefixIndex) {
@@ -58,9 +62,22 @@ namespace learnta {
       }
     }
 
-    void moveToP(std::size_t index) {
+    /*!
+     * @brief Move an index pointing ext(P) to P
+     *
+     * @param index An index pointing a row in ext(P)
+     *
+     * @pre index should not point P
+     * @pre index should point ext(P)
+     * @invariant The observation table is filled
+     * @post index should point P
+     * @post The discrete and continuous successors of prefixes.at(index) should be in ext(P)
+     */
+    void moveToP(const std::size_t index) {
       // index should not be in P yet
       assert(pIndices.find(index) == pIndices.end());
+      // The index should be in a valid range
+      assert(0 <= index && index < prefixes.size());
       pIndices.insert(index);
       // Add successors to the prefixes
       prefixes.reserve(prefixes.size() + alphabet.size() + 1);
@@ -72,6 +89,20 @@ namespace learnta {
       prefixes.push_back(prefixes.at(index).successor());
       // fill the observation table
       refreshTable();
+      // index should point P
+      assert(pIndices.find(index) != pIndices.end());
+      // the discrete successors of prefixes.at(index) should be in ext(P)
+      assert(std::all_of(alphabet.begin(), alphabet.end(), [&](Alphabet c) {
+        return 0 <= discreteSuccessors.at(std::make_pair(index, c)) &&
+          discreteSuccessors.at(std::make_pair(index, c)) < prefixes.size();
+      }));
+      assert(std::all_of(alphabet.begin(), alphabet.end(), [&](Alphabet c) {
+        return pIndices.find(discreteSuccessors.at(std::make_pair(index, c))) == pIndices.end();
+      }));
+      assert(pIndices.find(index) != pIndices.end());
+      // the continuous successor of prefixes.at(index) should be in ext(P)
+      assert(0 <= continuousSuccessors.at(index) && continuousSuccessors.at(index) < prefixes.size());
+      assert(pIndices.find(continuousSuccessors.at(index)) == pIndices.end());
     }
 
     bool equivalent(std::size_t i, std::size_t j) {
@@ -164,16 +195,20 @@ namespace learnta {
     /*!
      * @brief Close the observation table
      *
+     * The observation table is closed if for any row in ext(P), there is an equivalent row in P.
+     *
      * @returns returns true if the observation table is already closed
      */
     bool close() {
       for (std::size_t i = 0; i < this->prefixes.size(); i++) {
-        // Check if this prefix is in P
+        // Skip if this prefix is in P
         if (this->pIndices.find(i) != this->pIndices.end()) {
           continue;
         }
         auto prefix = this->prefixes.at(i);
         auto prefixRow = this->table.at(i);
+
+        // Use the memoized information for efficiency
         bool found = false;
         {
           auto it = this->closedRelation.find(i);
@@ -182,8 +217,8 @@ namespace learnta {
             for (auto targetIt = it->second.begin(); targetIt != it->second.end();) {
               auto renamingRelation = targetIt->second;
               if (equivalence(prefix, prefixRow,
-                              this->prefixes.at(targetIt->first), this->table.at(targetIt->first), this->suffixes,
-                              renamingRelation)) {
+                              this->prefixes.at(targetIt->first), this->table.at(targetIt->first),
+                              this->suffixes, renamingRelation)) {
                 found = true;
                 break;
               } else {
@@ -192,6 +227,7 @@ namespace learnta {
             }
           }
         }
+
         // We have no idea of the target prefix, and we find an equivalent row
         if (!found) {
           found = std::any_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto j) {
@@ -213,10 +249,100 @@ namespace learnta {
       return true;
     }
 
+  private:
+    /*!
+     * @brief Resolve an inconsistency due to discrete successors
+     *
+     * @pre equivalent(i, j)
+     * @pre !equivalent(discreteSuccessors(i, action), discreteSuccessors(j, action))
+     * @post !equivalent(i, j)
+     */
+    void resolveDiscreteInconsistency(std::size_t i, std::size_t j, Alphabet action) {
+      // Find a single witness of the inconsistency
+      auto it = std::find_if_not(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
+        return equivalent(i, j, suffix.predecessor(action));
+      });
+      // we assume that we have such a suffix
+      if (it == suffixes.end()) {
+        abort();
+      }
+      const auto newSuffix = it->predecessor(action);
+      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      suffixes.push_back(newSuffix);
+
+      this->refreshTable();
+      // i and j should not be equivalent after adding the new suffix
+      assert(!this->equivalentWithMemo(i, j));
+    }
+
+    /*!
+     * @brief Resolve an inconsistency due to continuous successors
+     *
+     * @pre equivalent(i, j)
+     * @pre !equivalent(continuousSuccessors(i), continuousSuccessors(j))
+     * @post !equivalent(i, j)
+     */
+    void resolveContinuousInconsistency(const std::size_t i, const std::size_t j) {
+      // Find a single witness of the inconsistency
+      auto it = std::find_if_not(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
+        return equivalent(i, j, suffix.predecessor());
+      });
+      if (it != suffixes.end()) {
+        const auto newSuffix = it->predecessor();
+        BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+        suffixes.push_back(newSuffix);
+      } else {
+        // We find a set of suffixes to add
+        std::list<BackwardRegionalElementaryLanguage> allPredecessors;
+        allPredecessors.resize(suffixes.size());
+        std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
+          return suffix.predecessor();
+        });
+        if (equivalent(i, j, allPredecessors)) {
+          BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
+          auto preAllPredecessors = allPredecessors;
+          do {
+            decltype(allPredecessors) newAllPredecessors;
+            for (const auto &suffix: preAllPredecessors) {
+              try {
+                newAllPredecessors.push_back(suffix.predecessor());
+              } catch (...) {
+              }
+            }
+            if (newAllPredecessors.empty()) {
+              BOOST_LOG_TRIVIAL(fatal) << "Something is wrong in resolving continuous inconsistency";
+              abort();
+            }
+            preAllPredecessors = std::move(newAllPredecessors);
+            std::copy(preAllPredecessors.begin(), preAllPredecessors.end(), std::back_inserter(allPredecessors));
+          } while (equivalent(i, j, allPredecessors));
+        }
+        while (!allPredecessors.empty()) {
+          auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
+            auto examinedPredecessor = allPredecessors;
+            auto kt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
+            examinedPredecessor.erase(kt);
+            return equivalent(i, j, examinedPredecessor);
+          });
+          if (jt == allPredecessors.end()) {
+            break;
+          }
+          allPredecessors.erase(jt);
+        }
+
+        suffixes.reserve(suffixes.size() + allPredecessors.size());
+        std::move(allPredecessors.begin(), allPredecessors.end(), std::back_inserter(suffixes));
+      }
+
+      this->refreshTable();
+      // i and j should not be equivalent after adding the new suffix
+      assert(!this->equivalentWithMemo(i, j));
+    }
+  public:
     /*!
      * @brief Make the observation table consistent
      *
-     * @returns This return true if the observation table is already consistent
+     * @returns true if the observation table is already consistent
      */
     bool consistent() {
       for (const auto i: pIndices) {
@@ -225,91 +351,22 @@ namespace learnta {
             continue;
           }
           if (this->equivalentWithMemo(i, j)) {
-            // confirm the consistency
+            // Check the consistency
             for (const auto action: this->alphabet) {
               if (!this->equivalentWithMemo(this->discreteSuccessors.at({i, action}),
                                             this->discreteSuccessors.at({j, action}))) {
-                BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of discrete successor of "
+                BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the discrete successors of "
                                          << this->prefixes.at(i) << " and " << this->prefixes.at(j)
                                          << " with action " << action;
-
-                // The observation table is inconsistent due to a discrete successor
-                auto it = std::find_if(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
-                  return !equivalent(i, j, suffix.predecessor(action));
-                });
-                // we assume that we have such a suffix
-                if (it == suffixes.end()) {
-                  abort();
-                }
-                const auto newSuffix = it->predecessor(action);
-                suffixes.push_back(newSuffix);
-                BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
-
-                this->refreshTable();
-                // i and j should not be equivalent after adding the new suffix
-                assert(!this->equivalentWithMemo(i, j));
-
+                resolveDiscreteInconsistency(i, j, action);
                 return false;
               }
             }
             if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))) {
               // The observation table is inconsistent due to a continuous successor
-              auto it = std::find_if(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
-                return !equivalent(i, j, suffix.predecessor());
-              });
-              // we assume that we have such a suffix
-              if (it != suffixes.end()) {
-                suffixes.push_back(it->predecessor());
-              } else {
-                // We find a set of suffixes to add
-                std::list<BackwardRegionalElementaryLanguage> allPredecessors;
-                allPredecessors.resize(suffixes.size());
-                std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
-                  return suffix.predecessor();
-                });
-                if (equivalent(i, j, allPredecessors)) {
-                  BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
-                  auto preAllPredecessors = allPredecessors;
-                  while (equivalent(i, j, allPredecessors)) {
-                    std::list<BackwardRegionalElementaryLanguage> newAllPredecessors;
-                    for (const auto &suffix: preAllPredecessors) {
-                      try {
-                        newAllPredecessors.push_back(suffix.predecessor());
-                      } catch (...) {
-                      }
-                    }
-                    if (newAllPredecessors.empty()) {
-                      BOOST_LOG_TRIVIAL(fatal) << "Something is wrong in resolving continuous inconsistency";
-                      abort();
-                    }
-                    preAllPredecessors = newAllPredecessors;
-                    std::copy(preAllPredecessors.begin(), preAllPredecessors.end(),
-                              std::back_inserter(allPredecessors));
-                  }
-                }
-                auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
-                  auto examinedPredecessor = allPredecessors;
-                  auto kt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
-                  examinedPredecessor.erase(kt);
-                  return equivalent(i, j, examinedPredecessor);
-                });
-                while (jt != allPredecessors.end()) {
-                  allPredecessors.erase(jt);
-                  if (allPredecessors.empty()) {
-                    break;
-                  }
-                  jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
-                    auto examinedPredecessor = allPredecessors;
-                    auto jt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
-                    examinedPredecessor.erase(jt);
-                    return equivalent(i, j, examinedPredecessor);
-                  });
-                }
-
-                suffixes.reserve(suffixes.size() + allPredecessors.size());
-                std::move(allPredecessors.begin(), allPredecessors.end(), std::back_inserter(suffixes));
-              }
-              this->refreshTable();
+              BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the continuous successors of "
+                                       << this->prefixes.at(i) << " and " << this->prefixes.at(j);
+              resolveContinuousInconsistency(i, j);
 
               return false;
             }
@@ -329,11 +386,11 @@ namespace learnta {
       newP.reserve(pIndices.size());
       for (const std::size_t pIndex: pIndices) {
         const auto successorIndex = continuousSuccessors.at(pIndex);
-        // Check if p is the boundary
+        // Skip if p is not a boundary
         if (this->inP(successorIndex)) {
           continue;
         }
-        // Check if p has equality constraints in \f$\mathbb{T}_{i,N}\f$.
+        // Skip if p has equality constraints in \f$\mathbb{T}_{i,N}\f$.
         if (prefixes.at(pIndex).hasEqualityN()) {
           continue;
         }
@@ -374,8 +431,10 @@ namespace learnta {
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
      * @todo We currently construct only the DTAs without unobservable transitions.
+     * @todo This function is too complex. We need a refactoring.
      */
     TimedAutomaton generateHypothesis() {
+      // map from the index in this->prefix to the corresponding state
       std::unordered_map<std::size_t, std::shared_ptr<TAState>> indexToState;
       std::unordered_map<std::shared_ptr<TAState>, std::vector<std::size_t>> stateToIndices;
       std::vector<std::shared_ptr<TAState>> states;
@@ -437,8 +496,9 @@ namespace learnta {
         }
 
         // Our optimization to merge the continuous exterior
-        if (equivalentWithMemo(nextIndex, sourceIndex)) {
-          //if (isMatch(nextIndex) == isMatch(sourceIndex)) {
+//        if (equivalentWithMemo(nextIndex, sourceIndex)) {
+        if (isMatch(sourceIndex) == isMatch(nextIndex)) {
+            //if (isMatch(nextIndex) == isMatch(sourceIndex)) {
           auto state = indexToState[sourceIndex];
           indexToState[nextIndex] = state;
           stateToIndices[state].push_back(nextIndex);
@@ -446,7 +506,7 @@ namespace learnta {
           // We have not implemented such a case that an unobservable transition is necessary
           BOOST_LOG_TRIVIAL(error)
             << "We have not implemented such a case that an unobservable transition is necessary";
-          // abort();
+          abort();
         }
       };
       handleInternalContinuousSuccessors(0);
@@ -508,18 +568,20 @@ namespace learnta {
               const auto discreteAfterContinuous =
                       this->discreteSuccessors[std::make_pair(*it, action)];
               // q' in the above diagram
-              const auto discrete = this->discreteSuccessors[std::make_pair(*std::prev(it), action)];
+              const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
               // q'' in the above diagram
               const auto continuousAfterDiscrete = this->continuousSuccessors[discrete];
 
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
                 // merge q and q'' in the above diagram
-                indexToState.at(discreteAfterContinuous) = indexToState.at(discrete);
+                indexToState[discreteAfterContinuous] = indexToState.at(discrete);
                 stateToIndices[indexToState.at(discrete)].push_back(discreteAfterContinuous);
 
                 // We use the convexity of the timed conditions of this and its continuous successor
-                sourceMap[indexToState.at(discrete)] = sourceMap[indexToState.at(discrete)].convexHull(
-                        tmpPrefixes.at(*it).getTimedCondition());
+                if (sourceMap[indexToState.at(discrete)].size() == tmpPrefixes.at(discreteAfterContinuous).getTimedCondition().size()) {
+                  sourceMap[indexToState.at(discrete)] = sourceMap[indexToState.at(discrete)].convexHull(
+                          tmpPrefixes.at(discreteAfterContinuous).getTimedCondition());
+                }
               } else {
                 // Otherwise, we create a new state
                 const auto successor = addState(discreteAfterContinuous);

@@ -261,7 +261,7 @@ namespace learnta {
      */
     [[nodiscard]] TimedCondition convexHull(const TimedCondition &condition) const {
       Zone result = this->zone;
-      result.value.array().max(condition.zone.value.array());
+      result.value.cwiseMax(condition.zone.value);
       return TimedCondition{result};
     }
 

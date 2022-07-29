@@ -75,10 +75,14 @@ namespace learnta {
                 right.value.block(commonBeginInRightIndex, 0, L, 1));
       }
 
+      this->canonize();
+
       // Copy the constraints in the right
       this->value.block(rightBeginIndex, rightBeginIndex, N - L, N - L) = right.value.block(1, 1, N - L, N - L);
       this->value.block(0, rightBeginIndex, 1, N - L) = right.value.block(0, 1, 1, N - L);
       this->value.block(rightBeginIndex, 0, N - L, 1) = right.value.block(1, 0, N - L, 1);
+
+      this->canonize();
 
       // Take the conjunction with the constraints between the common and the unique parts of right
       if (L > 0) {
