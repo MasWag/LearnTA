@@ -514,6 +514,9 @@ namespace learnta {
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           indexToState[nextIndex] = state;
           stateToIndices[state].push_back(nextIndex);
+          // TODO: Understand what the following does
+          tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
+          refreshTmpPrefixes(sourceIndex);
         } else {
           BOOST_LOG_TRIVIAL(error)
             << "We have not implemented such a case that an unobservable transition is necessary";
@@ -536,34 +539,25 @@ namespace learnta {
         auto newStateIndices = stateToIndices.at(newState);
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
+          // This is used when making guards
           std::unordered_map<std::shared_ptr<TAState>, TimedCondition> sourceMap;
           for (auto it = newStateIndices.begin(); it != newStateIndices.end(); ++it) {
+            // Skip if there is no discrete successors in the observation table
             if (this->discreteSuccessors.find(std::make_pair(*it, action)) == this->discreteSuccessors.end()) {
-              // if `it` is not in P
-              // q' in the diagram below.
-              const auto discrete = this->discreteSuccessors[std::make_pair(*std::prev(it), action)];
-              // let the discrete successor of *it to q' if it and std::prev(it) are equivalent
-              if (this->inP(discrete) && this->equivalentWithMemo(*it, *std::prev(it))) {
-                sourceMap[indexToState.at(discrete)].removeEqualityUpperBoundAssign();
-                // Refresh the entries
-                tmpPrefixes.at(*std::prev(it)).removeEqualityUpperBoundAssign();
-                auto state = indexToState[*std::prev(it)];
-                indexToState[*it] = state;
-                stateToIndices[state].push_back(*it);
-                refreshTmpPrefixes(*std::prev(it));
-              }
-
               continue;
             }
-            const auto discreteSuccessorIndex = this->discreteSuccessors.at(std::make_pair(*it, action));
+            // q in the following diagram
+            const auto discreteAfterContinuous = this->discreteSuccessors.at(std::make_pair(*it, action));
+            // q' in the following diagram
+            const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
             // Add states only if the successor is also in P
-            if (!this->inP(discreteSuccessorIndex)) {
+            if (!this->inP(discreteAfterContinuous)) {
               discreteBoundaries.emplace_back(*it, action);
               continue;
             }
             /*
              * Check if the following q and q'' are similar. If yes, we merge q with q'
-             *          std::prev(it) ---cont--> it
+             *          *std::prev(it) ---cont--> *it
              *           |                        |
              *         action                   action
              *           |                        |
@@ -571,18 +565,12 @@ namespace learnta {
              *           q'--------cont--> q'' ~~ q
              */
             // we just add a new state if std::prev(it) does not exist or q' in the above diagram is not in P
-            if (it == newStateIndices.begin() ||
-                !this->inP(this->discreteSuccessors[std::make_pair(*std::prev(it), action)])) {
-              auto successor = addState(discreteSuccessorIndex);
+            if (it == newStateIndices.begin() || !this->inP(discrete)) {
+              auto successor = addState(discreteAfterContinuous);
               newStates.push(successor);
-              mergeContinuousSuccessors(discreteSuccessorIndex);
+              mergeContinuousSuccessors(discreteAfterContinuous);
               sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
             } else {
-              // q in the above diagram
-              const auto discreteAfterContinuous =
-                      this->discreteSuccessors[std::make_pair(*it, action)];
-              // q' in the above diagram
-              const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
               // q'' in the above diagram
               const auto continuousAfterDiscrete = this->continuousSuccessors[discrete];
 
