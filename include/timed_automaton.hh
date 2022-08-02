@@ -234,6 +234,35 @@ namespace learnta {
 
       return *this;
     }
+
+    /*!
+     * @brief Make a vector showing maximum constants for each variable from a set of states
+     */
+    static std::vector<int> makeMaxConstants(const std::vector<std::shared_ptr<TAState>> &states) {
+      std::vector<int> maxConstants;
+      for (const auto &state: states) {
+        for (const auto &[action, transitions]: state->next) {
+          for (const auto &transition: transitions) {
+            for (const auto &guard: transition.guard) {
+              if (guard.x >= maxConstants.size()) {
+                maxConstants.resize(guard.x + 1);
+              }
+              maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);
+            }
+            for (const auto &[resetVar, updatedVarOpt]: transition.resetVars) {
+              if (resetVar >= maxConstants.size()) {
+                maxConstants.resize(resetVar + 1);
+              }
+              if (updatedVarOpt && *updatedVarOpt >= maxConstants.size()) {
+                maxConstants.resize(*updatedVarOpt + 1);
+              }
+            }
+          }
+        }
+      }
+
+      return maxConstants;
+    }
   };
 
   static inline std::ostream &operator<<(std::ostream &os,

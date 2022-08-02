@@ -440,6 +440,7 @@ namespace learnta {
       std::vector<std::shared_ptr<TAState>> states;
       // We have a temporary vector of prefixes because we can modify it to handle the exteriors
       auto tmpPrefixes = prefixes;
+      // TODO: Write what this is for
       auto refreshTmpPrefixes = [&](std::size_t root) {
         std::queue<std::size_t> currentQueue;
         currentQueue.push(root);
@@ -461,6 +462,12 @@ namespace learnta {
         }
       };
 
+      /*!
+       * @brief Make a state corresponding to the given index
+       *
+       * @pre indexToState[index] should not be set
+       * @post states, indexToState and stateToIndex are appropriately updated
+       */
       auto addState = [&](std::size_t index) {
         auto state = std::make_shared<TAState>(this->isMatch(index));
         indexToState[index] = state;
@@ -468,6 +475,10 @@ namespace learnta {
         if (it == stateToIndices.end()) {
           stateToIndices[state] = {index};
         } else {
+          // This should not happen.
+          BOOST_LOG_TRIVIAL(error)
+            << "Something wrong happened";
+          abort();
           it->second.push_back(index);
         }
         states.push_back(state);
@@ -475,18 +486,22 @@ namespace learnta {
         return state;
       };
 
-      auto initialState = addState(0);
-      // construct the initial state
-      const auto handleInternalContinuousSuccessors = [&](const std::size_t initialIndex) {
-        auto sourceIndex = initialIndex;
-        auto nextIndex = this->continuousSuccessors[initialIndex];
+      /*!
+       * @brief Merge continuous successors to the state corresponding to the given index
+       *
+       * @pre There is a state corresponding to initialSourceIndex
+       * @post All the continuous successors corresponds to the same state as initialSourceIndex
+       */
+      const auto mergeContinuousSuccessors = [&](const std::size_t initialSourceIndex) {
+        auto sourceIndex = initialSourceIndex;
+        const auto state = indexToState[initialSourceIndex];
+        auto nextIndex = this->continuousSuccessors[sourceIndex];
+        // Include all the continuous successors to the state
         while (this->inP(nextIndex)) {
           if (isMatch(sourceIndex) == isMatch(nextIndex)) {
-            auto state = indexToState[sourceIndex];
             indexToState[nextIndex] = state;
             stateToIndices[state].push_back(nextIndex);
           } else {
-            // We have not implemented such a case that an unobservable transition is necessary
             BOOST_LOG_TRIVIAL(error)
               << "We have not implemented such a case that an unobservable transition is necessary";
             abort();
@@ -496,21 +511,20 @@ namespace learnta {
         }
 
         // Our optimization to merge the continuous exterior
-//        if (equivalentWithMemo(nextIndex, sourceIndex)) {
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
-            //if (isMatch(nextIndex) == isMatch(sourceIndex)) {
-          auto state = indexToState[sourceIndex];
           indexToState[nextIndex] = state;
           stateToIndices[state].push_back(nextIndex);
         } else {
-          // We have not implemented such a case that an unobservable transition is necessary
           BOOST_LOG_TRIVIAL(error)
             << "We have not implemented such a case that an unobservable transition is necessary";
           abort();
         }
       };
-      handleInternalContinuousSuccessors(0);
 
+      auto initialState = addState(0);
+      // construct the initial state
+      mergeContinuousSuccessors(0);
+      // vector of states and actions such that the discrete successor is not in P
       std::vector<std::pair<std::size_t, Alphabet>> discreteBoundaries;
 
       // explore new states
@@ -561,7 +575,7 @@ namespace learnta {
                 !this->inP(this->discreteSuccessors[std::make_pair(*std::prev(it), action)])) {
               auto successor = addState(discreteSuccessorIndex);
               newStates.push(successor);
-              handleInternalContinuousSuccessors(discreteSuccessorIndex);
+              mergeContinuousSuccessors(discreteSuccessorIndex);
               sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
             } else {
               // q in the above diagram
@@ -589,7 +603,7 @@ namespace learnta {
                 sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
               }
 
-              handleInternalContinuousSuccessors(discreteAfterContinuous);
+              mergeContinuousSuccessors(discreteAfterContinuous);
             }
           }
 
@@ -711,30 +725,7 @@ namespace learnta {
         }
       }
 
-      // Construct the max constants
-      std::vector<int> maxConstants;
-      for (const auto &state: states) {
-        for (const auto &[action, transitions]: state->next) {
-          for (const auto &transition: transitions) {
-            for (const auto &guard: transition.guard) {
-              if (guard.x >= maxConstants.size()) {
-                maxConstants.resize(guard.x + 1);
-              }
-              maxConstants[guard.x] = std::max(maxConstants[guard.x], guard.c);
-            }
-            for (const auto &[resetVar, updatedVarOpt]: transition.resetVars) {
-              if (resetVar >= maxConstants.size()) {
-                maxConstants.resize(resetVar + 1);
-              }
-              if (updatedVarOpt && *updatedVarOpt >= maxConstants.size()) {
-                maxConstants.resize(*updatedVarOpt + 1);
-              }
-            }
-          }
-        }
-      }
-
-      return TimedAutomaton{{states, {initialState}}, maxConstants}.simplify();
+      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
     }
 
     std::ostream &printDetail(std::ostream &stream) const {
