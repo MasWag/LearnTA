@@ -427,6 +427,39 @@ namespace learnta {
     }
 
     /*!
+     * @brief The class to manage the correspondence between states and indices.
+     */
+    class StateManager {
+      // map from the index in this->prefix to the corresponding state
+      std::unordered_map<std::size_t, std::shared_ptr<TAState>> indexToState;
+      std::unordered_map<std::shared_ptr<TAState>, std::vector<std::size_t>> stateToIndices;
+    public:
+      [[nodiscard]] std::shared_ptr<TAState> toState(const std::size_t index) const {
+        return indexToState.at(index);
+      }
+      std::vector<std::size_t> toIndices(const std::shared_ptr<TAState> state) const {
+        return stateToIndices.at(state);
+      }
+      bool isNew(std::shared_ptr<TAState> state) const {
+        auto it = stateToIndices.find(state);
+        return it == stateToIndices.end();
+      }
+      bool isNew(std::size_t index) const {
+        auto it = indexToState.find(index);
+        return it == indexToState.end();
+      }
+      void add(const std::shared_ptr<TAState> state, const std::size_t index) {
+        indexToState[index] = state;
+        auto it = stateToIndices.find(state);
+        if (it == stateToIndices.end()) {
+          stateToIndices[state] = {index};
+        } else {
+          it->second.push_back(index);
+        }
+      }
+    };
+
+    /*!
      * @brief Construct a hypothesis DTA from the current timed observation table
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
@@ -434,11 +467,9 @@ namespace learnta {
      * @todo This function is too complex. We need a refactoring.
      */
     TimedAutomaton generateHypothesis() {
-      // map from the index in this->prefix to the corresponding state
-      std::unordered_map<std::size_t, std::shared_ptr<TAState>> indexToState;
-      std::unordered_map<std::shared_ptr<TAState>, std::vector<std::size_t>> stateToIndices;
+      StateManager stateManager;
       std::vector<std::shared_ptr<TAState>> states;
-      // We have a temporary vector of prefixes because we can modify it to handle the exteriors
+      // We have a temporary vector of prefixes because we can modify it when merging states
       auto tmpPrefixes = prefixes;
       // TODO: Write what this is for
       auto refreshTmpPrefixes = [&](std::size_t root) {
@@ -470,17 +501,8 @@ namespace learnta {
        */
       auto addState = [&](std::size_t index) {
         auto state = std::make_shared<TAState>(this->isMatch(index));
-        indexToState[index] = state;
-        auto it = stateToIndices.find(state);
-        if (it == stateToIndices.end()) {
-          stateToIndices[state] = {index};
-        } else {
-          // This should not happen.
-          BOOST_LOG_TRIVIAL(error)
-            << "Something wrong happened";
-          abort();
-          it->second.push_back(index);
-        }
+        assert(stateManager.isNew(state));
+        stateManager.add(state, index);
         states.push_back(state);
 
         return state;
@@ -494,13 +516,12 @@ namespace learnta {
        */
       const auto mergeContinuousSuccessors = [&](const std::size_t initialSourceIndex) {
         auto sourceIndex = initialSourceIndex;
-        const auto state = indexToState[initialSourceIndex];
+        const auto state = stateManager.toState(initialSourceIndex);
         auto nextIndex = this->continuousSuccessors[sourceIndex];
         // Include all the continuous successors to the state
         while (this->inP(nextIndex)) {
           if (isMatch(sourceIndex) == isMatch(nextIndex)) {
-            indexToState[nextIndex] = state;
-            stateToIndices[state].push_back(nextIndex);
+            stateManager.add(state, nextIndex);
           } else {
             BOOST_LOG_TRIVIAL(error)
               << "We have not implemented such a case that an unobservable transition is necessary";
@@ -512,8 +533,7 @@ namespace learnta {
 
         // Our optimization to merge the continuous exterior
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
-          indexToState[nextIndex] = state;
-          stateToIndices[state].push_back(nextIndex);
+          stateManager.add(state, nextIndex);
           // TODO: Understand what the following does
           tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
           refreshTmpPrefixes(sourceIndex);
@@ -536,7 +556,7 @@ namespace learnta {
       while (!newStates.empty()) {
         auto newState = newStates.front();
         newStates.pop();
-        auto newStateIndices = stateToIndices.at(newState);
+        auto newStateIndices = stateManager.toIndices(newState);
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
           // This is used when making guards
@@ -548,8 +568,7 @@ namespace learnta {
             }
             // q in the following diagram
             const auto discreteAfterContinuous = this->discreteSuccessors.at(std::make_pair(*it, action));
-            // q' in the following diagram
-            const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
+            // TODO: The use of prev here is not always correct because stateToIndices may contain discrete successors
             // Add states only if the successor is also in P
             if (!this->inP(discreteAfterContinuous)) {
               discreteBoundaries.emplace_back(*it, action);
@@ -565,23 +584,25 @@ namespace learnta {
              *           q'--------cont--> q'' ~~ q
              */
             // we just add a new state if std::prev(it) does not exist or q' in the above diagram is not in P
-            if (it == newStateIndices.begin() || !this->inP(discrete)) {
+            if (it == newStateIndices.begin() ||
+                !this->inP(this->discreteSuccessors.at(std::make_pair(*std::prev(it), action)))) {
               auto successor = addState(discreteAfterContinuous);
               newStates.push(successor);
               mergeContinuousSuccessors(discreteAfterContinuous);
               sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
             } else {
+              // q' in the following diagram
+              const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
               // q'' in the above diagram
-              const auto continuousAfterDiscrete = this->continuousSuccessors[discrete];
+              const auto continuousAfterDiscrete = this->continuousSuccessors.at(discrete);
 
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
                 // merge q and q'' in the above diagram
-                indexToState[discreteAfterContinuous] = indexToState.at(discrete);
-                stateToIndices[indexToState.at(discrete)].push_back(discreteAfterContinuous);
+                stateManager.add(stateManager.toState(discrete), discreteAfterContinuous);
 
                 // We use the convexity of the timed conditions of this and its continuous successor
-                if (sourceMap[indexToState.at(discrete)].size() == tmpPrefixes.at(discreteAfterContinuous).getTimedCondition().size()) {
-                  sourceMap[indexToState.at(discrete)] = sourceMap[indexToState.at(discrete)].convexHull(
+                if (sourceMap[stateManager.toState(discrete)].size() == tmpPrefixes.at(discreteAfterContinuous).getTimedCondition().size()) {
+                  sourceMap[stateManager.toState(discrete)] = sourceMap[stateManager.toState(discrete)].convexHull(
                           tmpPrefixes.at(discreteAfterContinuous).getTimedCondition());
                 }
               } else {
@@ -595,6 +616,7 @@ namespace learnta {
             }
           }
 
+          // Make transitions
           if (!sourceMap.empty()) {
             newState->next[action].reserve(sourceMap.size());
             for (const auto&[target, timedCondition]: sourceMap) {
@@ -621,7 +643,7 @@ namespace learnta {
 
         bool skipped = false;
         {
-          if (this->pIndices.find(targetIndex) == this->pIndices.end()) {
+          if (!this->inP(targetIndex)) {
             // Find a successor in P
             auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
                                    this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
@@ -632,12 +654,11 @@ namespace learnta {
           } else {
             jumpedTargetIndex = targetIndex;
           }
-          auto jumpedState = indexToState.at(jumpedTargetIndex);
-          transitionMaker.add(indexToState.at(jumpedTargetIndex), renamingRelation,
+          auto jumpedState = stateManager.toState(jumpedTargetIndex);
+          transitionMaker.add(jumpedState, renamingRelation,
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition());
-          indexToState[targetIndex] = jumpedState;
-          stateToIndices.at(jumpedState).push_back(targetIndex);
+          stateManager.add(jumpedState, targetIndex);
         }
 
         while (this->continuousSuccessors.find(sourceIndex) != this->continuousSuccessors.end()) {
@@ -648,14 +669,13 @@ namespace learnta {
             if (it == this->discreteSuccessors.end()) {
               // Include immediate exterior
               if (!skipped) {
-                transitionMaker.includeImmediateExterior(indexToState.at(jumpedTargetIndex), renamingRelation);
+                transitionMaker.includeImmediateExterior(stateManager.toState(jumpedTargetIndex), renamingRelation);
               }
               continue;
             }
             targetIndex = it->second;
             // We do not add new state if the state is already constructed
-            if (indexToState.find(targetIndex) != indexToState.end() ||
-                this->pIndices.find(targetIndex) != this->pIndices.end()) {
+            if (!stateManager.isNew(targetIndex) || this->inP(targetIndex)) {
               skipped = true;
               continue;
             } else {
@@ -672,19 +692,19 @@ namespace learnta {
           jumpedTargetIndex = it->first;
           assert(this->inP(jumpedTargetIndex));
           renamingRelation = it->second;
-          auto jumpedState = indexToState.at(jumpedTargetIndex);
+          auto jumpedState = stateManager.toState(jumpedTargetIndex);
 
           transitionMaker.add(jumpedState, renamingRelation,
                               tmpPrefixes.at(sourceIndex).getTimedCondition(),
                               tmpPrefixes.at(jumpedTargetIndex).getTimedCondition(),
                               tmpPrefixes.at(sourceIndex).immediatePrefix()->getTimedCondition());
-          indexToState[targetIndex] = jumpedState;
-          stateToIndices.at(jumpedState).push_back(targetIndex);
+          stateManager.add(jumpedState, targetIndex);
         }
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
-          indexToState[originalSourceIndex]->next[action].insert(indexToState[originalSourceIndex]->next[action].end(),
-                                                                 newTransitions.begin(), newTransitions.end());
+          stateManager.toState(originalSourceIndex)->next[action].insert(
+                  stateManager.toState(originalSourceIndex)->next[action].end(),
+                  newTransitions.begin(), newTransitions.end());
         }
       }
 
@@ -692,22 +712,22 @@ namespace learnta {
 
       // Assert the totality of the constructed DTA
       assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {
-        return indexToState.find(pIndex) != indexToState.end();
+        return !stateManager.isNew(pIndex);
       }));
       assert(std::all_of(this->discreteSuccessors.begin(), this->discreteSuccessors.end(), [&](const auto &pair) {
         auto sourceStateIndex = pair.first.first;
         auto action = pair.first.second;
         auto targetStateIndex = pair.second;
-        auto targetState = indexToState.at(targetStateIndex);
-        return indexToState.at(sourceStateIndex)->next[action].end() !=
-               std::find_if(indexToState.at(sourceStateIndex)->next[action].begin(),
-                            indexToState.at(sourceStateIndex)->next[action].end(),
+        auto targetState = stateManager.toState(targetStateIndex);
+        return stateManager.toState(sourceStateIndex)->next[action].end() !=
+               std::find_if(stateManager.toState(sourceStateIndex)->next[action].begin(),
+                            stateManager.toState(sourceStateIndex)->next[action].end(),
                             [&](const TATransition &transition) {
                               return transition.target == targetState.get();
                             });
       }));
       for (std::size_t index = 0; index < this->prefixes.size(); index++) {
-        if (indexToState.end() == indexToState.find(index)) {
+        if (stateManager.isNew(index)) {
           BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
           // abort();
         }
