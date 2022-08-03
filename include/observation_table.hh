@@ -180,6 +180,13 @@ namespace learnta {
     }
 
     /*!
+     * @brief Returns if prefixes[i] has a discrete successor in the observation table
+     */
+    [[nodiscard]] bool hasDiscreteSuccessor(std::size_t i, Alphabet c) const {
+      return this->discreteSuccessors.find(std::make_pair(i, c)) != this->discreteSuccessors.end();
+    }
+
+    /*!
      * @brief Returns if prefixes[i] has a continuous successor in the observation table
      */
     [[nodiscard]] bool hasContinuousSuccessor(std::size_t i) const {
@@ -490,13 +497,13 @@ namespace learnta {
         while (!currentQueue.empty()) {
           const auto currentIndex = currentQueue.front();
           currentQueue.pop();
-          if (this->continuousSuccessors.find(currentIndex) != this->continuousSuccessors.end()) {
+          if (this->hasContinuousSuccessor(currentIndex)) {
             const auto continuousIndex = this->continuousSuccessors.at(currentIndex);
             tmpPrefixes.at(continuousIndex) = tmpPrefixes.at(currentIndex).successor();
             currentQueue.push(continuousIndex);
           }
           for (const auto a: this->alphabet) {
-            if (this->discreteSuccessors.find({currentIndex, a}) != this->discreteSuccessors.end()) {
+            if (this->hasDiscreteSuccessor(currentIndex, a)) {
               const auto discreteIndex = this->discreteSuccessors.at({currentIndex, a});
               tmpPrefixes.at(discreteIndex) = tmpPrefixes.at(currentIndex).successor(a);
               currentQueue.push(discreteIndex);
@@ -529,7 +536,7 @@ namespace learnta {
       const auto mergeContinuousSuccessors = [&](const std::size_t initialSourceIndex) {
         auto sourceIndex = initialSourceIndex;
         const auto state = stateManager.toState(initialSourceIndex);
-        auto nextIndex = this->continuousSuccessors[sourceIndex];
+        auto nextIndex = this->continuousSuccessors.at(sourceIndex);
         // Include all the continuous successors to the state
         while (this->inP(nextIndex)) {
           if (isMatch(sourceIndex) == isMatch(nextIndex)) {
@@ -540,7 +547,7 @@ namespace learnta {
             abort();
           }
           sourceIndex = nextIndex;
-          nextIndex = this->continuousSuccessors[nextIndex];
+          nextIndex = this->continuousSuccessors.at(nextIndex);
         }
 
         // Our optimization to merge the continuous exterior
@@ -573,44 +580,48 @@ namespace learnta {
           // TargetState -> the timed condition to reach that state
           // This is used when making guards
           std::unordered_map < std::shared_ptr<TAState>, TimedCondition > sourceMap;
-          for (auto it = newStateIndices.begin(); it != newStateIndices.end(); ++it) {
-            // Skip if there is no discrete successors in the observation table
-            if (this->discreteSuccessors.find(std::make_pair(*it, action)) == this->discreteSuccessors.end()) {
+          for (const auto &newStateIndex: newStateIndices) {
+            // Skip if there is no discrete nor continuous successors in the observation table
+            if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
               continue;
             }
-            // q in the following diagram
-            const auto discreteAfterContinuous = this->discreteSuccessors.at(std::make_pair(*it, action));
-            // TODO: The use of prev here is not always correct because stateToIndices may contain discrete successors
+            // q' in the following diagram
+            const auto discrete = this->discreteSuccessors.at(std::make_pair(newStateIndex, action));
             // Add states only if the successor is also in P
-            if (!this->inP(discreteAfterContinuous)) {
-              discreteBoundaries.emplace_back(*it, action);
-              continue;
-            }
-            /*
-             * Check if the following q and q'' are similar. If yes, we merge q with q'
-             *          *std::prev(it) ---cont--> *it
-             *           |                        |
-             *         action                   action
-             *           |                        |
-             *           v                        v
-             *           q'--------cont--> q'' ~~ q
-             */
-            // we just add a new state if std::prev(it) does not exist or q' in the above diagram is not in P
-            if (it == newStateIndices.begin() ||
-                !this->inP(this->discreteSuccessors.at(std::make_pair(*std::prev(it), action)))) {
-              auto successor = addState(discreteAfterContinuous);
-              newStates.push(successor);
-              mergeContinuousSuccessors(discreteAfterContinuous);
-              sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
+            if (!this->inP(discrete)) {
+              discreteBoundaries.emplace_back(newStateIndex, action);
             } else {
-              // q' in the following diagram
-              const auto discrete = this->discreteSuccessors.at(std::make_pair(*std::prev(it), action));
-              // q'' in the above diagram
+              const auto successor = addState(discrete);
+              newStates.push(successor);
+              if (this->hasContinuousSuccessor(discrete)) {
+                mergeContinuousSuccessors(discrete);
+              }
+              sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
+            }
+            if (this->hasContinuousSuccessor(newStateIndex)) {
+              // Try to merge q'' and q_a in the following diagram
+              // q in the following diagram
+              const auto continuous = this->continuousSuccessors.at(newStateIndex);
+              if (!this->hasDiscreteSuccessor(continuous, action) || !this->hasContinuousSuccessor(discrete)) {
+                continue;
+              }
+              // q_a in the following diagram
+              const auto discreteAfterContinuous = this->discreteSuccessors.at(std::make_pair(continuous, action));
+              // q'' in the following diagram
               const auto continuousAfterDiscrete = this->continuousSuccessors.at(discrete);
+              /*
+               * Check if the following q_a and q'' are similar. If yes, we merge q_a with q'
+               *      newStateIndex--cont-------->  q
+               *           |                        |
+               *         action                   action
+               *           |                        |
+               *           v                        v
+               *           q'--------cont--> q'' ~~ q_a
+               */
 
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
-                // merge q and q'' in the above diagram
-                stateManager.add(stateManager.toState(discrete), discreteAfterContinuous);
+                // merge q_a and q'' in the above diagram
+                stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
 
                 // We use the convexity of the timed conditions of this and its continuous successor
                 if (sourceMap[stateManager.toState(discrete)].size() ==
@@ -618,14 +629,13 @@ namespace learnta {
                   sourceMap[stateManager.toState(discrete)] = sourceMap[stateManager.toState(discrete)].convexHull(
                           tmpPrefixes.at(discreteAfterContinuous).getTimedCondition());
                 }
-              } else {
+              } else if (stateManager.isNew(discreteAfterContinuous)) {
                 // Otherwise, we create a new state
                 const auto successor = addState(discreteAfterContinuous);
                 newStates.push(successor);
-                sourceMap[successor] = tmpPrefixes.at(*it).getTimedCondition();
+                mergeContinuousSuccessors(discreteAfterContinuous);
+                sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
               }
-
-              mergeContinuousSuccessors(discreteAfterContinuous);
             }
           }
 
@@ -647,7 +657,8 @@ namespace learnta {
         const auto originalSourceIndex = sourceIndex;
 
         ExternalTransitionMaker transitionMaker;
-        const auto addNewTransition = [&](std::size_t source, std::size_t jumpedTarget,  std::size_t target, const auto &renamingRelation) {
+        const auto addNewTransition = [&](std::size_t source, std::size_t jumpedTarget, std::size_t target,
+                                          const auto &renamingRelation) {
           auto jumpedState = stateManager.toState(jumpedTarget);
           transitionMaker.add(jumpedState, renamingRelation,
                               tmpPrefixes.at(source).getTimedCondition(),
@@ -740,28 +751,47 @@ namespace learnta {
                               return transition.target == targetState.get();
                             });
       }));
-      for (std::size_t index = 0; index < this->prefixes.size(); index++) {
+      for (
+              std::size_t index = 0;
+              index < this->prefixes.
+
+                      size();
+
+              index++) {
         if (stateManager.isNew(index)) {
           BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
           // abort();
         }
       }
 
-      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.
+
+              simplify();
     }
 
-    std::ostream &printDetail(std::ostream &stream) const {
+    std::ostream
+
+    &
+    printDetail(std::ostream
+                &stream) const {
       printStatistics(stream);
       stream << "P is as follows\n";
-      for (const auto &pIndex: this->pIndices) {
-        stream << this->prefixes.at(pIndex) << "\n";
+      for (
+        const auto &pIndex
+              : this->pIndices) {
+        stream << this->prefixes.
+                at(pIndex)
+               << "\n";
       }
       stream << "S is as follows\n";
-      for (const auto &suffix: this->suffixes) {
+      for (
+        const auto &suffix
+              : this->suffixes) {
         stream << suffix << "\n";
       }
 
-      return stream;
+      return
+              stream;
     }
 
     std::ostream &printStatistics(std::ostream &stream) const {
@@ -773,5 +803,6 @@ namespace learnta {
 
       return stream;
     }
+
   };
 }
