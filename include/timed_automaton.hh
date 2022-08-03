@@ -52,12 +52,17 @@ namespace learnta {
     //! @brief The guard for this transition.
     std::vector<Constraint> guard;
 
-    TATransition() {}
+    TATransition() = default;
 
     TATransition(TAState *target,
                  std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> resetVars,
                  std::vector<Constraint> guard)
             : target(target), resetVars(std::move(resetVars)), guard(std::move(guard)) {}
+
+    TATransition(TAState *target, ClockVariables resetVar, std::vector<Constraint> guard) :
+            target(target), guard(std::move(guard)) {
+      resetVars.emplace_back(resetVar, std::nullopt);
+    }
   };
 
   /*!
@@ -144,7 +149,7 @@ namespace learnta {
     void simplifyTransitions() {
       for (auto &state: this->states) {
         std::unordered_map<Alphabet, std::vector<learnta::TATransition>> newNext;
-        for (auto&[action, transitions]: state->next) {
+        for (auto &[action, transitions]: state->next) {
           std::vector<learnta::TATransition> reducedTransitions;
           for (const auto &transition: transitions) {
             auto it = std::find_if(reducedTransitions.begin(), reducedTransitions.end(), [&](const auto &another) {
@@ -287,7 +292,7 @@ namespace learnta {
     }
 
     for (const std::shared_ptr<TAState> &source: TA.states) {
-      for (const auto& edges: source->next) {
+      for (const auto &edges: source->next) {
         for (const TATransition &edge: edges.second) {
           TAState *target = edge.target;
           os << "        loc" << stateNumber.at(source.get()) << "->loc"
@@ -307,7 +312,7 @@ namespace learnta {
           if (!edge.resetVars.empty()) {
             os << ", reset=\"{";
             bool isFirst = true;
-            for (const auto&[resetVar, newVar]: edge.resetVars) {
+            for (const auto &[resetVar, newVar]: edge.resetVars) {
               if (!isFirst) {
                 os << ", ";
               }
