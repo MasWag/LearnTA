@@ -453,21 +453,21 @@ namespace learnta {
         return indexToState.at(index);
       }
 
-      std::vector<std::size_t> toIndices(const std::shared_ptr<TAState> state) const {
+      [[nodiscard]] std::vector<std::size_t> toIndices(const std::shared_ptr<TAState>& state) const {
         return stateToIndices.at(state);
       }
 
-      bool isNew(std::shared_ptr<TAState> state) const {
+      [[nodiscard]] bool isNew(const std::shared_ptr<TAState>& state) const {
         auto it = stateToIndices.find(state);
         return it == stateToIndices.end();
       }
 
-      bool isNew(std::size_t index) const {
+      [[nodiscard]] bool isNew(std::size_t index) const {
         auto it = indexToState.find(index);
         return it == indexToState.end();
       }
 
-      void add(const std::shared_ptr<TAState> state, const std::size_t index) {
+      void add(const std::shared_ptr<TAState>& state, const std::size_t index) {
         indexToState[index] = state;
         auto it = stateToIndices.find(state);
         if (it == stateToIndices.end()) {
@@ -483,14 +483,18 @@ namespace learnta {
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
      * @todo We currently construct only the DTAs without unobservable transitions.
-     * @todo This function is too complex. We need a refactoring.
      */
     TimedAutomaton generateHypothesis() {
       StateManager stateManager;
       std::vector<std::shared_ptr<TAState>> states;
       // We have a temporary vector of prefixes because we can modify it when merging states
       auto tmpPrefixes = prefixes;
-      // TODO: Write what this is for
+      /*!
+       * @berief Propagate the update in tmpPrefixes to the successors
+       *
+       * @param[in] root The root of the modification. The updated row index should be given.
+       * This function should be called after updating tmpPrefixes.
+       */
       auto refreshTmpPrefixes = [&](std::size_t root) {
         std::queue<std::size_t> currentQueue;
         currentQueue.push(root);
@@ -553,7 +557,7 @@ namespace learnta {
         // Our optimization to merge the continuous exterior
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           stateManager.add(state, nextIndex);
-          // TODO: Understand what the following does
+          // Include the exterior
           tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
           refreshTmpPrefixes(sourceIndex);
         } else {
@@ -563,7 +567,7 @@ namespace learnta {
         }
       };
 
-      auto initialState = addState(0);
+      const auto initialState = addState(0);
       // construct the initial state
       mergeContinuousSuccessors(0);
       // vector of states and actions such that the discrete successor is not in P
@@ -575,7 +579,7 @@ namespace learnta {
       while (!newStates.empty()) {
         auto newState = newStates.front();
         newStates.pop();
-        auto newStateIndices = stateManager.toIndices(newState);
+        const auto newStateIndices = stateManager.toIndices(newState);
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
           // This is used when making guards
@@ -653,9 +657,7 @@ namespace learnta {
       std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
                                discreteBoundaries.end());
-      for (auto [sourceIndex, action]: discreteBoundaries) {
-        const auto originalSourceIndex = sourceIndex;
-
+      for (const auto &[sourceIndex, action]: discreteBoundaries) {
         ExternalTransitionMaker transitionMaker;
         const auto addNewTransition = [&](std::size_t source, std::size_t jumpedTarget, std::size_t target,
                                           const auto &renamingRelation) {
@@ -667,33 +669,27 @@ namespace learnta {
             stateManager.add(jumpedState, target);
           }
         };
-        // The target state of the transitions, which may be in ext(P)
-        auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
-        // The target state of the transitions after mapping to P. Thus, this must be in ext(P)
-        unsigned long jumpedTargetIndex;
+        // The target state of the transitions, which should be in ext(P)
+        const auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
+        assert(!this->inP(targetIndex));
+        // Find a successor in P
+        auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
+                               this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
+                  return this->inP(rel.first);
+                });
+        // The target state of the transitions after mapping to P.
+        const auto jumpedTargetIndex= it->first;
         // The renaming relation connecting targetIndex and jumpedTargetIndex
-        RenamingRelation renamingRelation;
+        const RenamingRelation renamingRelation = it->second;
 
-        // Decide where to jump (in P)
-        if (!this->inP(targetIndex)) {
-          // Find a successor in P
-          auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
-                                 this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
-                    return this->inP(rel.first);
-                  });
-          jumpedTargetIndex = it->first;
-          renamingRelation = it->second;
-        } else {
-          jumpedTargetIndex = targetIndex;
-        }
         addNewTransition(sourceIndex, jumpedTargetIndex, targetIndex, renamingRelation);
 
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
-          stateManager.toState(originalSourceIndex)->next[action].reserve(
-                  stateManager.toState(originalSourceIndex)->next[action].size() + newTransitions.size());
+          stateManager.toState(sourceIndex)->next[action].reserve(
+                  stateManager.toState(sourceIndex)->next[action].size() + newTransitions.size());
           std::move(newTransitions.begin(), newTransitions.end(),
-                    std::back_inserter(stateManager.toState(originalSourceIndex)->next[action]));
+                    std::back_inserter(stateManager.toState(sourceIndex)->next[action]));
         }
       }
 
@@ -715,22 +711,14 @@ namespace learnta {
                               return transition.target == targetState.get();
                             });
       }));
-      for (
-              std::size_t index = 0;
-              index < this->prefixes.
-
-                      size();
-
-              index++) {
+      for (std::size_t index = 0; index < this->prefixes.size(); index++) {
         if (stateManager.isNew(index)) {
           BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
-          // abort();
+          abort();
         }
       }
 
-      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.
-
-              simplify();
+      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
     }
 
     std::ostream
