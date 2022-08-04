@@ -688,42 +688,6 @@ namespace learnta {
         }
         addNewTransition(sourceIndex, jumpedTargetIndex, targetIndex, renamingRelation);
 
-        // TODO: Write what this is
-        bool skipped = false;
-        while (this->hasContinuousSuccessor(sourceIndex)) {
-          sourceIndex = this->continuousSuccessors.at(sourceIndex);
-          BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from " << tmpPrefixes.at(sourceIndex);
-          {
-            auto it = this->discreteSuccessors.find(std::make_pair(sourceIndex, action));
-            if (it == this->discreteSuccessors.end()) {
-              // Include immediate exterior
-              if (!skipped) {
-                transitionMaker.includeImmediateExterior(stateManager.toState(jumpedTargetIndex), renamingRelation);
-              }
-              continue;
-            }
-            targetIndex = it->second;
-            // We do not add new state if the state is already constructed
-            if (!stateManager.isNew(targetIndex) || this->inP(targetIndex)) {
-              skipped = true;
-              continue;
-            } else {
-              skipped = false;
-            }
-          }
-          // Find a successor in P
-          auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
-                                 this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
-                    return this->inP(rel.first);
-                  });
-          // There is a jumped target index because the observation table is closed.
-          assert(it != this->closedRelation.at(targetIndex).end());
-          jumpedTargetIndex = it->first;
-          assert(this->inP(jumpedTargetIndex));
-          renamingRelation = it->second;
-          addNewTransition(sourceIndex, jumpedTargetIndex, targetIndex, renamingRelation);
-        }
-
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
           stateManager.toState(originalSourceIndex)->next[action].reserve(
