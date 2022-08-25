@@ -153,8 +153,11 @@ namespace learnta {
     [[nodiscard]] bool
     equivalent(std::size_t i, std::size_t j, const std::list<BackwardRegionalElementaryLanguage> &newSuffixes) const {
       auto leftRow = this->table.at(i);
+      leftRow.reserve(leftRow.size() + newSuffixes.size());
       auto rightRow = this->table.at(j);
+      rightRow.reserve(rightRow.size() + newSuffixes.size());
       auto tmpSuffixes = this->suffixes;
+      tmpSuffixes.reserve(tmpSuffixes.size() + newSuffixes.size());
       for (const auto &newSuffix: newSuffixes) {
         leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
         rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
@@ -314,22 +317,24 @@ namespace learnta {
         });
         if (equivalent(i, j, allPredecessors)) {
           BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
-          auto preAllPredecessors = allPredecessors;
+          auto previousNewSuffixes = allPredecessors;
           do {
-            decltype(allPredecessors) newAllPredecessors;
-            for (const auto &suffix: preAllPredecessors) {
+            decltype(allPredecessors) newSuffixes;
+            for (const auto &suffix: previousNewSuffixes) {
               try {
-                newAllPredecessors.push_back(suffix.predecessor());
+                newSuffixes.push_back(suffix.predecessor());
+                BOOST_LOG_TRIVIAL(info) << suffix.predecessor();
               } catch (...) {
               }
             }
-            if (newAllPredecessors.empty()) {
+            if (newSuffixes.empty()) {
               BOOST_LOG_TRIVIAL(fatal) << "Something is wrong in resolving continuous inconsistency";
               abort();
             }
-            preAllPredecessors = std::move(newAllPredecessors);
-            std::copy(preAllPredecessors.begin(), preAllPredecessors.end(), std::back_inserter(allPredecessors));
+            previousNewSuffixes = std::move(newSuffixes);
+            std::copy(previousNewSuffixes.begin(), previousNewSuffixes.end(), std::back_inserter(allPredecessors));
           } while (equivalent(i, j, allPredecessors));
+          BOOST_LOG_TRIVIAL(info) << "Found longer predecessors.";
         }
         while (!allPredecessors.empty()) {
           auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
