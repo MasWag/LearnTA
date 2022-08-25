@@ -130,7 +130,7 @@ namespace learnta {
       const auto leftConcatenation = left + suffixes.at(i);
       const auto rightConcatenation = right + suffixes.at(i);
       // 2-1. We quickly check if they are clearly not equivalent.
-      if ((leftRow.at(i).empty() && !rightRow.at(i).empty()) || (!leftRow.at(i).empty() && rightRow.at(i).empty())) {
+      if (leftRow.at(i).empty() != rightRow.at(i).empty()) {
         // One of them is bottom but another is not
         return std::nullopt;
       }
@@ -138,8 +138,7 @@ namespace learnta {
               leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenation.getTimedCondition(), N);
       auto currentV2Constrained =
               rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenation.getTimedCondition(), M);
-      if ((currentV1Constrained.empty() && !currentV2Constrained.empty()) ||
-          (!currentV1Constrained.empty() && currentV2Constrained.empty())) {
+      if (currentV1Constrained.empty() != currentV2Constrained.empty()) {
         // One of them is trivial but another is not
         return std::nullopt;
       }
@@ -148,8 +147,16 @@ namespace learnta {
     }
     std::sort(constrainedV1.begin(), constrainedV1.end());
     constrainedV1.erase(std::unique(constrainedV1.begin(), constrainedV1.end()), constrainedV1.end());
+    constrainedV1.erase(
+            std::remove_if(constrainedV1.begin(), constrainedV1.end(), [&](const auto &v1) {
+              return v1Edges.at(v1).empty();
+            }), constrainedV1.end());
     std::sort(constrainedV2.begin(), constrainedV2.end());
     constrainedV2.erase(std::unique(constrainedV2.begin(), constrainedV2.end()), constrainedV2.end());
+    constrainedV2.erase(
+            std::remove_if(constrainedV2.begin(), constrainedV2.end(), [&](const auto &v2) {
+              return v2Edges.at(v2).empty();
+            }), constrainedV2.end());
 
     // 3. Generate candidate renaming
     std::vector<RenamingRelation> candidates;
@@ -185,16 +192,19 @@ namespace learnta {
           }
           continue;
         }
-        const auto smallestEdge = std::make_pair(v1, v2);
-        const auto largestEdge = std::make_pair(v2Edges.at(v2).back(), v1Edges.at(v1).back());
         std::vector<RenamingRelation> tmp;
-        tmp.reserve(candidates.size() * 2);
-        for (const auto &candidate: candidates) {
-          tmp.push_back(candidate);
-          tmp.back().push_back(smallestEdge);
-          tmp.push_back(candidate);
-          tmp.back().push_back(largestEdge);
+        tmp.reserve(candidates.size() * v2Edges.at(v2).size() * v1Edges.at(v1).size());
+
+        for (const auto currentV1: v2Edges.at(v2)) {
+          for (const auto currentV2: v1Edges.at(v1)) {
+            const auto currentEdge = std::make_pair(currentV1, currentV2);
+            for (const auto &candidate: candidates) {
+              tmp.push_back(candidate);
+              tmp.back().push_back(currentEdge);
+            }
+          }
         }
+
         candidates.resize(tmp.size());
         std::move(tmp.begin(), tmp.end(), candidates.begin());
         // We increment the indices until reaching the next disjoint part of the bipartite graph
@@ -212,6 +222,7 @@ namespace learnta {
       return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
     });
     if (it == candidates.end()) {
+      // TODO: We need to add other equations in this case
       return std::nullopt;
     } else {
       return std::make_optional(*it);
