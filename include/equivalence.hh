@@ -159,7 +159,7 @@ namespace learnta {
             }), constrainedV2.end());
 
     // 3. Generate candidate renaming
-    std::vector<RenamingRelation> candidates;
+    std::deque<RenamingRelation> candidates;
     candidates.emplace_back();
     {
       auto v1Index = 0, v2Index = 0;
@@ -222,7 +222,26 @@ namespace learnta {
       return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
     });
     if (it == candidates.end()) {
-      // TODO: We need to add other equations in this case
+      // We add other equations in this case
+      while (!candidates.empty()) {
+        const auto candidate = candidates.front();
+        candidates.pop_front();
+        for (const auto currentV1: constrainedV1) {
+          for (const auto currentV2: v1Edges.at(currentV1)) {
+            auto newCandidate = candidate;
+            const auto edge = std::make_pair(currentV1, currentV2);
+            auto insertIt = std::lower_bound(newCandidate.begin(), newCandidate.end(), edge);
+            if (*insertIt != edge) {
+              newCandidate.insert(insertIt, edge);
+              if (equivalence(left, leftRow, right, rightRow, suffixes, newCandidate)) {
+                return std::make_optional(newCandidate);
+              } else {
+                candidates.push_back(newCandidate);
+              }
+            }
+          }
+        }
+      }
       return std::nullopt;
     } else {
       return std::make_optional(*it);

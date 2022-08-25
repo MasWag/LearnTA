@@ -317,13 +317,19 @@ namespace learnta {
         });
         if (equivalent(i, j, allPredecessors)) {
           BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
+          BOOST_LOG_TRIVIAL(debug) << "left: " << this->prefixes.at(i);
+          BOOST_LOG_TRIVIAL(debug) << "right: " << this->prefixes.at(j);
+          BOOST_LOG_TRIVIAL(debug) << "Suffixes are as follows: ";
+          for (const auto& suffix: suffixes) {
+            BOOST_LOG_TRIVIAL(debug) << suffix;
+          }
           auto previousNewSuffixes = allPredecessors;
           do {
             decltype(allPredecessors) newSuffixes;
             for (const auto &suffix: previousNewSuffixes) {
               try {
                 newSuffixes.push_back(suffix.predecessor());
-                BOOST_LOG_TRIVIAL(info) << suffix.predecessor();
+                BOOST_LOG_TRIVIAL(info) << "New Suffix: " << suffix.predecessor();
               } catch (...) {
               }
             }
