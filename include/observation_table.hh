@@ -628,12 +628,14 @@ namespace learnta {
             if (!this->inP(discrete)) {
               discreteBoundaries.emplace_back(newStateIndex, action);
             } else {
-              const auto successor = addState(discrete);
-              newStates.push(successor);
+              if (stateManager.isNew(discrete)) {
+                const auto successor = addState(discrete);
+                newStates.push(successor);
+                sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
+              }
               if (this->hasContinuousSuccessor(discrete)) {
                 mergeContinuousSuccessors(discrete);
               }
-              sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
             }
             if (this->hasContinuousSuccessor(newStateIndex)) {
               // Try to merge q'' and q_a in the following diagram
@@ -680,6 +682,8 @@ namespace learnta {
           if (!sourceMap.empty()) {
             newState->next[action].reserve(sourceMap.size());
             for (const auto &[target, timedCondition]: sourceMap) {
+              std::cout << action << std::endl;
+              std::cout << timedCondition << std::endl;
               newState->next[action].emplace_back(target.get(), timedCondition.size(), timedCondition.toGuard());
             }
           }
@@ -754,29 +758,18 @@ namespace learnta {
       return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
     }
 
-    std::ostream
-
-    &
-    printDetail(std::ostream
-                &stream) const {
+    std::ostream& printDetail(std::ostream &stream) const {
       printStatistics(stream);
       stream << "P is as follows\n";
-      for (
-        const auto &pIndex
-              : this->pIndices) {
-        stream << this->prefixes.
-                at(pIndex)
-               << "\n";
+      for (const auto &pIndex: this->pIndices) {
+        stream << this->prefixes.at(pIndex) << "\n";
       }
       stream << "S is as follows\n";
-      for (
-        const auto &suffix
-              : this->suffixes) {
+      for (const auto &suffix: this->suffixes) {
         stream << suffix << "\n";
       }
 
-      return
-              stream;
+      return stream;
     }
 
     std::ostream &printStatistics(std::ostream &stream) const {
