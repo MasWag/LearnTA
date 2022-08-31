@@ -320,7 +320,7 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(debug) << "left: " << this->prefixes.at(i);
           BOOST_LOG_TRIVIAL(debug) << "right: " << this->prefixes.at(j);
           BOOST_LOG_TRIVIAL(debug) << "Suffixes are as follows: ";
-          for (const auto& suffix: suffixes) {
+          for (const auto &suffix: suffixes) {
             BOOST_LOG_TRIVIAL(debug) << suffix;
           }
           auto previousNewSuffixes = allPredecessors;
@@ -388,6 +388,8 @@ namespace learnta {
                 return false;
               }
             }
+// We do not use continuous consistency since it does not work in general
+#if 0
             if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))) {
               // The observation table is inconsistent due to a continuous successor
               BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the continuous successors of "
@@ -396,6 +398,7 @@ namespace learnta {
 
               return false;
             }
+#endif
           }
         }
       }
@@ -438,15 +441,34 @@ namespace learnta {
      * @brief Add each prefix of counterExample to P
      */
     void addCounterExample(const ForwardRegionalElementaryLanguage &counterExample) {
+      // Counter example should not be in the row index of the observation table
+      assert(std::find(this->prefixes.begin(), this->prefixes.end(), counterExample) == this->prefixes.end());
+      BOOST_LOG_TRIVIAL(debug) << "Handling a counter example";
+
       const auto newPrefixes = counterExample.prefixes();
       for (const auto &prefix: newPrefixes) {
-        BOOST_LOG_TRIVIAL(debug) << "Adding a prefix " << prefix << " to P";
         auto it = std::find(this->prefixes.begin(), this->prefixes.end(), prefix);
         // prefix should be in the observation table
         assert(it != this->prefixes.end());
         const auto index = it - this->prefixes.begin();
         auto pIt = this->pIndices.find(index);
         if (pIt == this->pIndices.end()) {
+          // index is not in P
+          // Construct the suffix s such that cex \in p \cdot s
+          const auto suffix = counterExample.suffix(prefix);
+          // Check if the equivalence relation is refined by adding s
+          for (const auto &jumpedIndex: this->pIndices) {
+            if (this->equivalentWithMemo(index, jumpedIndex) && !equivalent(index, jumpedIndex, suffix)) {
+              BOOST_LOG_TRIVIAL(debug) << "Adding a suffix " << suffix << " to S";
+              suffixes.push_back(suffix);
+
+              this->refreshTable();
+              return;
+            }
+          }
+
+          BOOST_LOG_TRIVIAL(debug) << "Adding a prefix " << prefix << " to P";
+
           this->moveToP(index);
         }
       }
@@ -464,11 +486,11 @@ namespace learnta {
         return indexToState.at(index);
       }
 
-      [[nodiscard]] std::vector<std::size_t> toIndices(const std::shared_ptr<TAState>& state) const {
+      [[nodiscard]] std::vector<std::size_t> toIndices(const std::shared_ptr<TAState> &state) const {
         return stateToIndices.at(state);
       }
 
-      [[nodiscard]] bool isNew(const std::shared_ptr<TAState>& state) const {
+      [[nodiscard]] bool isNew(const std::shared_ptr<TAState> &state) const {
         auto it = stateToIndices.find(state);
         return it == stateToIndices.end();
       }
@@ -478,7 +500,7 @@ namespace learnta {
         return it == indexToState.end();
       }
 
-      void add(const std::shared_ptr<TAState>& state, const std::size_t index) {
+      void add(const std::shared_ptr<TAState> &state, const std::size_t index) {
         indexToState[index] = state;
         auto it = stateToIndices.find(state);
         if (it == stateToIndices.end()) {
@@ -594,7 +616,7 @@ namespace learnta {
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
           // This is used when making guards
-          std::unordered_map < std::shared_ptr<TAState>, TimedCondition > sourceMap;
+          std::unordered_map<std::shared_ptr<TAState>, TimedCondition> sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
             // Skip if there is no discrete nor continuous successors in the observation table
             if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
@@ -689,7 +711,7 @@ namespace learnta {
                   return this->inP(rel.first);
                 });
         // The target state of the transitions after mapping to P.
-        const auto jumpedTargetIndex= it->first;
+        const auto jumpedTargetIndex = it->first;
         // The renaming relation connecting targetIndex and jumpedTargetIndex
         const RenamingRelation renamingRelation = it->second;
 

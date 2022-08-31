@@ -10,12 +10,13 @@
 
 #include "elementary_language.hh"
 #include "fractional_order.hh"
+#include "backward_regional_elementary_language.hh"
 
 namespace learnta {
   /*!
    * @brief A forward regional elementary language
    *
-   * A forward regional elementary language is an elementary langauge \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,N},\mathbb{T}_{1,N},\dots,\mathbb{T}_{N,N}\f$, where \f$\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\f$.
+   * A forward regional elementary language is an elementary language \f$(u, \Lambda)\f$ with an order over the fractional parts of \f$\mathbb{T}_{0,N},\mathbb{T}_{1,N},\dots,\mathbb{T}_{N,N}\f$, where \f$\mathbb{T}_{i,N} = \tau_{i} + \tau_{i+1} \dots \tau_{N}\f$.
    *
    * @invariant elementary.wordSize() + 1 == fractionalOrder.size()
    */
@@ -94,7 +95,7 @@ namespace learnta {
     }
 
     /*!
-     * @brief Return the prefixes
+     * @brief Return the prefixes in the shorter to the longer order
      */
     [[nodiscard]] std::vector<ForwardRegionalElementaryLanguage> prefixes() const {
       std::list<ForwardRegionalElementaryLanguage> resultList;
@@ -115,9 +116,39 @@ namespace learnta {
       return result;
     }
 
+    /*!
+     * @brief Return the suffix s such that this \subseteq p \cdot s
+     *
+     * @pre prefix is simple
+     * @pre this is simple
+     * @pre prefix is a prefix of this
+     */
+    [[nodiscard]] BackwardRegionalElementaryLanguage suffix(const ForwardRegionalElementaryLanguage &prefix) const {
+      // Check the preconditions
+      assert(prefix.isSimple());
+      assert(this->isSimple());
+      assert(this->word.compare(0, prefix.wordSize(), prefix.getWord()) == 0);
+      const auto prefixWord = prefix.sample();
+      ElementaryLanguage tmpLanguage = this->constrain(prefixWord);
+      const auto fullWord = tmpLanguage.sample();
+
+      const std::size_t suffixWordSize = this->wordSize() - prefix.wordSize();
+      // Generate the word of the suffix
+      const std::string suffixWord = this->word.substr(prefix.wordSize(), suffixWordSize);
+      auto suffixDurations = fullWord.getDurations();
+      suffixDurations.erase(suffixDurations.begin(), suffixDurations.begin() + prefix.wordSize());
+      suffixDurations.front() -= prefixWord.getDurations().back();
+      // Generate the elementary language containing the suffix
+      const auto forward = fromTimedWord(TimedWord{suffixWord, suffixDurations});
+
+      // Note: this fractional order is invalid.
+      return BackwardRegionalElementaryLanguage{ElementaryLanguage{forward.getWord(), forward.getTimedCondition()},
+                                                forward.fractionalOrder};
+    }
+
     bool operator==(const ForwardRegionalElementaryLanguage &another) const {
       return this->getWord() == another.getWord() && this->getTimedCondition() == another.getTimedCondition() &&
-      this->fractionalOrder == another.fractionalOrder;
+             this->fractionalOrder == another.fractionalOrder;
     }
 
     std::ostream &print(std::ostream &os) const {

@@ -145,6 +145,25 @@ namespace learnta {
       timedCondition.removeEqualityUpperBoundAssign();
     };
 
+    /*!
+     * @brief Constrain the valuation using a timed word
+     * @pre prefix is a prefix of this
+     */
+    [[nodiscard]] ElementaryLanguage constrain(const TimedWord& prefix) const {
+      // Check the precondition
+      assert(this->word.compare(0, prefix.wordSize(), prefix.getWord()) == 0);
+      TimedCondition resultingCondition = this->timedCondition;
+      for (int i = 0; i < prefix.wordSize(); ++i) {
+        assert(-resultingCondition.getLowerBound(i, i).first <= prefix.getDurations().at(i));
+        resultingCondition.restrictLowerBound(i, i, Bounds{-prefix.getDurations().at(i), true});
+        assert(resultingCondition.getUpperBound(i, i).first >= prefix.getDurations().at(i));
+        resultingCondition.restrictUpperBound(i, i, Bounds{prefix.getDurations().at(i), true});
+      }
+      assert(resultingCondition.getUpperBound(prefix.wordSize(), prefix.wordSize()).first >= prefix.getDurations().at(prefix.wordSize()));
+
+      return ElementaryLanguage{this->word, resultingCondition};
+    }
+
     [[nodiscard]] const std::string &getWord() const {
       return word;
     }
