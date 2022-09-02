@@ -44,7 +44,7 @@ namespace learnta {
               if (target && visited.find(target) == visited.end()) {
                 // We have not visited the state
                 auto newRun = run;
-                newRun.push_back(transition, action, target);
+                newRun.push_back(transition, static_cast<char>(action), target);
                 nextStates.push_back(newRun);
                 visited.insert(target);
               }

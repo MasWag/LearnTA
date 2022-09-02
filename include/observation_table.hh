@@ -682,8 +682,6 @@ namespace learnta {
           if (!sourceMap.empty()) {
             newState->next[action].reserve(sourceMap.size());
             for (const auto &[target, timedCondition]: sourceMap) {
-              std::cout << action << std::endl;
-              std::cout << timedCondition << std::endl;
               newState->next[action].emplace_back(target.get(), timedCondition.size(), timedCondition.toGuard());
             }
           }

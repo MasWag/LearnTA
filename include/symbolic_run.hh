@@ -96,6 +96,16 @@ namespace learnta {
           auto tmpPreZone = preZone;
           tmpPreZone.elapse();
           zoneBeforeJump &= tmpPreZone;
+#ifndef NDEBUG
+          if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
+            BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
+            BOOST_LOG_TRIVIAL(error) << "i: " << i;
+            BOOST_LOG_TRIVIAL(error) << "preZone: " << preZone;
+            BOOST_LOG_TRIVIAL(error) << "postZone: " << postZone;
+            BOOST_LOG_TRIVIAL(error) << "tmpPreZone: " << tmpPreZone;
+            BOOST_LOG_TRIVIAL(error) << "The unsatisfiable zone\n" << zoneBeforeJump;
+          }
+#endif
           assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
 
