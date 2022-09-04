@@ -28,7 +28,7 @@ namespace learnta {
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(complement, hypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
-      ta2za(intersection, zoneAutomaton);
+      ta2za(intersection.simplify(), zoneAutomaton);
 
       return zoneAutomaton.sample();
     }
@@ -38,7 +38,7 @@ namespace learnta {
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);
       ZoneAutomaton zoneAutomaton;
-      ta2za(intersection, zoneAutomaton);
+      ta2za(intersection.simplify(), zoneAutomaton);
 
       return zoneAutomaton.sample();
     }
