@@ -41,7 +41,7 @@ include_directories(
 add_library(learnta
   src/intersection.cc
   src/ta2za.cc
-  )
+  src/timed_automaton.cc)
 
 ## Config for Test
 enable_testing()
@@ -64,7 +64,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/timed_automaton_equivalence_oracle_test.cc
   tests/observation_table_test.cc
   tests/learner_test.cc
-  )
+  src/timed_automaton.cc)
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}

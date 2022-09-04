@@ -27,16 +27,28 @@ namespace learnta {
   class SymbolicRun {
   private:
     std::vector<std::shared_ptr<ZAState>> states;
+    // A sequence of the visited zones without abstraction
+    std::vector<Zone> tightZones;
     std::vector<learnta::TATransition> edges;
     std::string word;
   public:
-    explicit SymbolicRun(const std::shared_ptr<ZAState> &initialState) : states({initialState}), edges() {}
+    explicit SymbolicRun(const std::shared_ptr<ZAState> &initialState) : states({initialState}), edges() {
+      tightZones = {this->states.front()->zone};
+    }
 
     //! @brief Push a new edge and state in the end of the run
     void push_back(const learnta::TATransition &transition, char action, const std::shared_ptr<ZAState> &state) {
+      assert(this->states.size() == this->tightZones.size());
+      assert(this->states.size() - 1 == this->word.size());
+      assert(this->word.size() == this->edges.size());
       this->states.push_back(state);
       word.push_back(action);
       this->edges.push_back(transition);
+      tightZones.push_back(tightZones.back());
+      tightZones.back().elapse();
+      tightZones.back().tighten(this->edges.back().guard);
+      tightZones.back().applyResets(this->edges.back().resetVars);
+      tightZones.back().canonize();
     }
 
     //! @brief Returns the i-th state in the symbolic run
@@ -47,6 +59,10 @@ namespace learnta {
     //! @brief Returns the i-th edge in the symbolic run
     [[nodiscard]] learnta::TATransition edgeAt(int i) const {
       return this->edges.at(i);
+    }
+
+    [[nodiscard]] learnta::Zone tightZoneAt(int i) const {
+      return this->tightZones.at(i);
     }
 
     //! @brief Returns the last state in the symbolic run
@@ -64,20 +80,23 @@ namespace learnta {
     [[nodiscard]] std::optional<TimedWord> reconstructWord() const {
       // Sample the last concrete state;
       auto postZoneState = this->back();
-      auto postZone = postZoneState->zone;
+      auto postZone = this->tightZones.back();
+      if (!postZone.isSatisfiable()) {
+        return std::nullopt;
+      }
       auto postValuation = postZone.sample();
 
       const auto N = this->edges.size();
       std::list<double> durations;
 
       for (int i = N - 1; i >= 0; --i) {
-        auto preZoneState = this->stateAt(i);
-        auto preZone = preZoneState->zone;
+        auto preZone = this->tightZoneAt(i);
 
         // Construct the zone just before jump
         auto zoneBeforeJump = Zone{postValuation, postZone.M};
         if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
           BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
+          return std::nullopt;
         }
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto transition = this->edgeAt(i);
@@ -90,6 +109,7 @@ namespace learnta {
           if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
             BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
             BOOST_LOG_TRIVIAL(error) << "The unsatisfiable zone\n" << zoneBeforeJump;
+            return std::nullopt;
           }
           assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
@@ -127,7 +147,7 @@ namespace learnta {
 
     //! @brief Print the symbolic run
     static inline std::ostream &print(std::ostream &os, const learnta::SymbolicRun &run) {
-      os << run.states.front()->zone;
+      os << run.tightZones.front();
 
       for (int i = 0; i < run.word.size(); ++i) {
         os << run.word.at(i) << "\n";
@@ -141,7 +161,7 @@ namespace learnta {
             os << "x" << int(resetVar) << " := 0, ";
           }
         }
-        os << "\n" << run.states.at(i + 1)->zone;
+        os << "\n" << run.tightZoneAt(i + 1);
       }
 
       return os;

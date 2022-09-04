@@ -573,6 +573,7 @@ namespace learnta {
       const auto mergeContinuousSuccessors = [&](const std::size_t initialSourceIndex) {
         auto sourceIndex = initialSourceIndex;
         const auto state = stateManager.toState(initialSourceIndex);
+        // TODO: Check if it makes sense to assume that initialSourceIndex is in P
         auto nextIndex = this->continuousSuccessors.at(sourceIndex);
         // Include all the continuous successors to the state
         while (this->inP(nextIndex)) {
@@ -672,7 +673,9 @@ namespace learnta {
                 // Otherwise, we create a new state
                 const auto successor = addState(discreteAfterContinuous);
                 newStates.push(successor);
-                mergeContinuousSuccessors(discreteAfterContinuous);
+                if (hasContinuousSuccessor(discreteAfterContinuous)) {
+                  mergeContinuousSuccessors(discreteAfterContinuous);
+                }
                 sourceMap[successor] = tmpPrefixes.at(continuous).getTimedCondition();
               }
             }

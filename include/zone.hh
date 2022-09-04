@@ -14,15 +14,15 @@
 
 namespace learnta {
   static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
-    auto[upperConstant, upperEq] = upperBound; // i - j \le (c, s)
-    auto[lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
+    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
+    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
     lowerConstant = -lowerConstant;
     return lowerConstant == upperConstant and upperEq and lowerEq;
   }
 
   static inline bool isUnitOpen(const Bounds &upperBound, const Bounds &lowerBound) {
-    auto[upperConstant, upperEq] = upperBound; // i - j \le (c, s)
-    auto[lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
+    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
+    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
     lowerConstant = -lowerConstant;
     return lowerConstant + 1 == upperConstant and (not upperEq) and (not lowerEq);
   }
@@ -34,22 +34,27 @@ namespace learnta {
   */
   struct Zone {
     //! @brief The matrix representing the DBM
-    Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value;
+    Eigen::Matrix <Bounds, Eigen::Dynamic, Eigen::Dynamic> value;
     //! @brief The threshold for the normalization
     Bounds M;
+    //! @brief the threshold of each clock variable
+    std::vector<double> maxConstraints;
 
     Zone() = default;
 
     //! @brief Construct a zone from a matrix representing the zone
-    explicit Zone(const Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &value) :
+    explicit Zone(const Eigen::Matrix <Bounds, Eigen::Dynamic, Eigen::Dynamic> &value) :
             Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>(value)) {}
 
     //! @brief Construct a zone from a matrix representing the zone
-    explicit Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> &&value) : value(std::move(value)) {}
+    explicit Zone(Eigen::Matrix <Bounds, Eigen::Dynamic, Eigen::Dynamic> &&value) : value(std::move(value)) {}
 
     //! @brief Construct a zone from a matrix representing the zone and the bound
-    Zone(Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic> value, Bounds m) :
-            value(std::move(value)), M(std::move(m)) {}
+    Zone(Eigen::Matrix <Bounds, Eigen::Dynamic, Eigen::Dynamic> value, Bounds m) :
+            value(std::move(value)), M(std::move(m)) {
+      maxConstraints.resize(this->value.cols() - 1);
+      std::fill(maxConstraints.begin(), maxConstraints.end(), M.first);
+    }
 
     /*!
      * @brief Construct a zone containing only the given valuation
@@ -61,6 +66,8 @@ namespace learnta {
         this->tighten(i, -1, Bounds{valuation.at(i), true});
         this->tighten(-1, i, Bounds{-valuation.at(i), true});
       }
+      maxConstraints.resize(this->value.cols() - 1);
+      std::fill(maxConstraints.begin(), maxConstraints.end(), this->M.first);
     }
 
     /*!
@@ -126,6 +133,25 @@ namespace learnta {
       }
     }
 
+    //! @brief Add a set of guards of a timed automaton
+    void tighten(const std::vector<Constraint> &constraints) {
+      for (const auto &constraint: constraints) {
+        this->tighten(constraint);
+      }
+    }
+
+    void applyResets(const std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> &resets) {
+      for (const auto &[resetVariable, updatedVariable]: resets) {
+        if (updatedVariable && resetVariable != *updatedVariable) {
+          this->unconstrain(resetVariable);
+          this->value(resetVariable + 1, *updatedVariable + 1) = Bounds{0.0, true};
+          this->value(*updatedVariable + 1, resetVariable + 1) = Bounds{0.0, true};
+        } else {
+          this->reset(resetVariable);
+        }
+      }
+    }
+
     /*!
      * @brief Returns the intersection of two zones
      */
@@ -179,7 +205,7 @@ namespace learnta {
         if (isPoint(upperBound, lowerBound)) {
           valuation[i] = upperBound.first;
         } else {
-          double lower = -lowerBound.first;
+          double lower = std::max(0.0, -lowerBound.first);
           double upper = upperBound.first;
           for (int j = 0; j < i; j++) {
             Bounds tmpLowerBound = this->value(j + 1, i + 1);
@@ -299,6 +325,33 @@ namespace learnta {
     }
 
     /*!
+     * @brief Extrapolate the zone using the diagonal extrapolation based on maximum constants
+     *
+     * See [Behrmann+, TACAS'04] for the detail.
+     * @note We are currently using this simple extrapolation for simplicity. If we need more speed, we will consider using more sophisticated methods, e.g., LU extrapolation.
+    */
+    void extrapolate() {
+      static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::max(), false);
+      for (int i = 0; i < this->maxConstraints.size(); ++i) {
+        if (value(i + 1, 0).first > this->maxConstraints.at(i)) {
+          value(i + 1, 0) = infinity;
+        }
+        if (-value(0, i + 1).first > this->maxConstraints.at(i)) {
+          value(0, i + 1) = Bounds{-this->maxConstraints.at(i), false};
+        }
+        for (int j = 0; j < this->maxConstraints.size(); ++j) {
+          if (value(i + 1, j + 1).first > this->maxConstraints.at(i)) {
+            value(i + 1, j + 1) = infinity;
+          } else if (-value(0, i + 1).first > this->maxConstraints.at(i)) {
+            value(i + 1, j + 1) = infinity;
+          } else if (-value(0, j + 1).first > this->maxConstraints.at(j)) {
+            value(i + 1, j + 1) = infinity;
+          }
+        }
+      }
+    }
+
+    /*!
       @brief make the zone unsatisfiable
     */
     void makeUnsat() {
@@ -328,7 +381,7 @@ namespace learnta {
       *
       * @note We do not assume that the diagonal elements are equal.
       */
-    bool equalIgnoreZero(Zone z) const {
+    [[nodiscard]] bool equalIgnoreZero(Zone z) const {
       z.value(0, 0) = value(0, 0);
       return value == z.value;
     }

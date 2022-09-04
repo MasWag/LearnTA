@@ -12,6 +12,8 @@
 #include <queue>
 #include <optional>
 #include <cassert>
+#include <R_ext/Error.h>
+#include <boost/log/trivial.hpp>
 
 #include "common_types.hh"
 #include "constraint.hh"
@@ -64,7 +66,25 @@ namespace learnta {
             target(target), guard(std::move(guard)) {
       resetVars.emplace_back(resetVar, std::nullopt);
     }
+
+    TATransition(TATransition const &) = default;
+
+    bool operator==(const TATransition &rhs) const {
+      return target == rhs.target &&
+             resetVars == rhs.resetVars &&
+             guard == rhs.guard;
+    }
+
+    bool operator!=(const TATransition &rhs) const {
+      return !(rhs == *this);
+    }
+
+    ~TATransition() = default;
   };
+
+  inline std::size_t hash_value(const TATransition &transition) {
+    return boost::hash_value(std::make_tuple(transition.target, transition.resetVars, transition.guard));
+  }
 
   /*!
    * @brief A timed automaton
@@ -135,12 +155,35 @@ namespace learnta {
      */
     void makeComplete(const std::vector<Alphabet> &alphabet) {
       this->states.push_back(std::make_shared<TAState>(false));
+      if (this->initialStates.empty()) {
+        this->initialStates.push_back(this->states.back());
+      }
       // If the transition is empty, we make a transition to the sink state
       for (auto &state: this->states) {
         for (const auto &action: alphabet) {
           if (state->next.find(action) == state->next.end() || state->next.at(action).empty()) {
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
+          } else {
+            std::vector<std::vector<Constraint>> disjunctiveGuard;
+            disjunctiveGuard.reserve(state->next.at(action).size());
+            for (const auto &transition: state->next.at(action)) {
+              if (transition.guard.empty()) {
+                disjunctiveGuard.clear();
+                break;
+              }
+              disjunctiveGuard.push_back(transition.guard);
+            }
+            if (disjunctiveGuard.empty()) {
+              continue;
+            }
+            const auto complement = negate(disjunctiveGuard);
+            state->next.at(action).reserve(complement.size());
+            for (const auto &constraints: complement) {
+              state->next.at(action).emplace_back(this->states.back().get(),
+                                                  decltype(std::declval<learnta::TATransition>().resetVars){},
+                                                  constraints);
+            }
           }
         }
       }
@@ -167,6 +210,46 @@ namespace learnta {
       }
     }
 
+    //! @brief Remove the transitions that are unreachable from the initial states abstracting the timing constraints
+    void removeTriviallyUnreachableStates() {
+      std::unordered_set<TAState *> reachableStates;
+      std::deque<TAState *> currentQueue;
+      for (const auto &initialState: this->initialStates) {
+        reachableStates.insert(initialState.get());
+        currentQueue.push_back(initialState.get());
+      }
+
+      // Make the set of trivially reachable states
+      while (!currentQueue.empty()) {
+        const auto currentState = currentQueue.front();
+        currentQueue.pop_front();
+        for (const auto &[action, transitions]: currentState->next) {
+          for (const auto &transition: transitions) {
+            if (reachableStates.find(transition.target) == reachableStates.end()) {
+              reachableStates.insert(transition.target);
+              currentQueue.push_back(transition.target);
+            }
+          }
+        }
+      }
+
+      if (reachableStates.size() != this->stateSize()) {
+        // remove redundant states
+        BOOST_LOG_TRIVIAL(info) << "There are " << this->stateSize() - reachableStates.size() << " redundant states";
+        for (auto it = this->states.begin(); it != this->states.end();) {
+          if (reachableStates.find(it->get()) == reachableStates.end()) {
+            it = this->states.erase(it);
+          } else {
+            ++it;
+          }
+        }
+        assert(this->stateSize() == reachableStates.size());
+
+        // Update the max constraints
+        this->maxConstraints = TimedAutomaton::makeMaxConstants(this->states);
+      }
+    }
+
     //! @brief Remove self loop of non-accepting locations
     void removeDeadLoop() {
       std::deque<std::shared_ptr<TAState>> nonAccepting;
@@ -188,6 +271,72 @@ namespace learnta {
         })) {
           // We remove only the transitions for the totality
           current->next.clear();
+        }
+      }
+    }
+
+    /*!
+     * @brief Remove trivially dead states, i.e., unreachable to any of the accepting states as a graph
+     */
+    void removeTriviallyDeadStates() {
+      std::unordered_map<TAState *, std::unordered_set<TAState *>> backwardEdges;
+      for (const auto &state: this->states) {
+        for (const auto &[action, transitions]: state->next) {
+          for (const auto &transition: transitions) {
+            auto it = backwardEdges.find(transition.target);
+            if (it == backwardEdges.end()) {
+              backwardEdges[transition.target] = {state.get()};
+            } else {
+              backwardEdges.at(transition.target).insert(state.get());
+            }
+          }
+        }
+      }
+
+      // The states potentially reachable to an accepting state
+      std::unordered_set<TAState *> liveStates;
+      std::queue<TAState *> newLiveStates;
+      for (const auto &state: this->states) {
+        if (state->isMatch) {
+          liveStates.insert(state.get());
+          newLiveStates.push(state.get());
+        }
+      }
+      while (!newLiveStates.empty()) {
+        const auto newLiveState = newLiveStates.front();
+        newLiveStates.pop();
+        if (backwardEdges.find(newLiveState) != backwardEdges.end()) {
+          for (const auto &backwardState: backwardEdges.at(newLiveState)) {
+            if (liveStates.find(backwardState) == liveStates.end()) {
+              liveStates.insert(backwardState);
+              newLiveStates.push(backwardState);
+            }
+          }
+        }
+      }
+
+      if (liveStates.size() != this->stateSize()) {
+        // Remove trivially dead states if exists
+        BOOST_LOG_TRIVIAL(info) << "There are " << this->stateSize() - liveStates.size() << " dead states";
+        this->states.erase(std::remove_if(this->states.begin(), this->states.end(), [&](const auto &state) {
+          return liveStates.find(state.get()) == liveStates.end();
+        }), this->states.end());
+        this->initialStates.erase(
+                std::remove_if(this->initialStates.begin(), this->initialStates.end(), [&](const auto &state) {
+                  return liveStates.find(state.get()) == liveStates.end();
+                }), this->initialStates.end());
+        for (const auto &state: this->states) {
+          for (auto it = state->next.begin(); it != state->next.end();) {
+            auto &[action, transitions] = *it;
+            transitions.erase(std::remove_if(transitions.begin(), transitions.end(), [&](const auto &transition) {
+              return liveStates.find(transition.target) == liveStates.end();
+            }), transitions.end());
+            if (it->second.empty()) {
+              it = state->next.erase(it);
+            } else {
+              ++it;
+            }
+          }
         }
       }
     }
@@ -255,7 +404,7 @@ namespace learnta {
       }
 
       // Construct a map showing how we rename clock variables
-      std::vector<ClockVariables> usedClockVariablesVec {usedClockVariables.begin(), usedClockVariables.end()};
+      std::vector<ClockVariables> usedClockVariablesVec{usedClockVariables.begin(), usedClockVariables.end()};
       std::sort(usedClockVariablesVec.begin(), usedClockVariablesVec.end());
       // Clock variable x is renamed to clockRenaming.at(x)
       std::unordered_map<ClockVariables, ClockVariables> clockRenaming;
@@ -289,17 +438,41 @@ namespace learnta {
       for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
         this->maxConstraints.at(i) = this->maxConstraints.at(usedClockVariablesVec.at(i));
       }
-      this->maxConstraints.erase(this->maxConstraints.begin() + usedClockVariablesVec.size(), this->maxConstraints.end());
+      this->maxConstraints.erase(this->maxConstraints.begin() + usedClockVariablesVec.size(),
+                                 this->maxConstraints.end());
     }
 
     //! @brief Simplify the timed automaton
     TimedAutomaton simplify() {
       this->simplifyTransitions();
-      this->removeDeadLoop();
+      this->removeTriviallyUnreachableStates();
       this->removeUnusedClockVariables();
 
       return *this;
     }
+
+    /*!
+     * @brief Simplify the timed automaton
+     *
+     * This function may make the resulting TA incomplete.
+     */
+    TimedAutomaton simplifyStrong() {
+      this->simplifyTransitions();
+      this->removeTriviallyUnreachableStates();
+      this->removeTriviallyDeadStates();
+      this->removeDeadLoop();
+      this->removeUselessTransitions();
+      this->removeUnusedClockVariables();
+
+      return *this;
+    }
+
+    /*!
+     * @brief Simplify the timed automaton
+     *
+     * This function uses zone graph to remove useless states and transitions.
+     */
+    TimedAutomaton simplifyWithZones();
 
     /*!
      * @brief Make a vector showing maximum constants for each variable from a set of states

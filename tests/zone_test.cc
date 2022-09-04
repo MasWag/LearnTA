@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(makeGuard) {
     std::cout << zone << std::endl;
 
     zone.canonize();
-    zone.abstractize();
+    zone.extrapolate();
     zone.value.diagonal().fill(Bounds{0, true});
 
     std::cout << zone << std::endl;

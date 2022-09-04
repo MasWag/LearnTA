@@ -23,24 +23,41 @@ namespace learnta {
     TimedAutomaton complement;
     std::vector<Alphabet> alphabet;
 
-    [[nodiscard]] std::optional<TimedWord> subset(const TimedAutomaton &hypothesis) const {
+    /*!
+     * @brief Check if the language recognized by the target DTA is a subset of that of the hypothesis DTA.
+     */
+    [[nodiscard]] std::optional<TimedWord> subset(TimedAutomaton hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
+      BOOST_LOG_TRIVIAL(debug) << "subset: hypothesis\n" << hypothesis;
       intersectionTA(complement, hypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
-      ta2za(intersection.simplify(), zoneAutomaton);
+      intersection.simplifyStrong();
+      BOOST_LOG_TRIVIAL(debug) << "subset: before ta2za";
+      BOOST_LOG_TRIVIAL(debug) << "Number of states: " << intersection.stateSize();
+      BOOST_LOG_TRIVIAL(debug) << "Number of clock: " << intersection.clockSize();
+      ta2za(intersection, zoneAutomaton);
+      BOOST_LOG_TRIVIAL(debug) << "subset: after ta2za";
 
-      return zoneAutomaton.sample();
+      return zoneAutomaton.sampleWithMemo();
     }
 
-    [[nodiscard]] std::optional<TimedWord> supset(const TimedAutomaton& hypothesis) const {
+    /*!
+     * @brief Check if the language recognized by the target DTA is a superset of that of the hypothesis DTA.
+     */
+    [[nodiscard]] std::optional<TimedWord> superset(const TimedAutomaton& hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);
       ZoneAutomaton zoneAutomaton;
+      intersection.simplifyStrong();
+      BOOST_LOG_TRIVIAL(debug) << "superset: before ta2za";
+      BOOST_LOG_TRIVIAL(debug) << "Number of states: " << intersection.stateSize();
+      BOOST_LOG_TRIVIAL(debug) << "Number of clock: " << intersection.clockSize();
       ta2za(intersection.simplify(), zoneAutomaton);
+      BOOST_LOG_TRIVIAL(debug) << "superset: after ta2za";
 
-      return zoneAutomaton.sample();
+      return zoneAutomaton.sampleWithMemo();
     }
 
   public:
@@ -61,7 +78,7 @@ namespace learnta {
         return subCounterExample;
       }
 
-      return supset(hypothesis);
+      return superset(hypothesis);
     }
   };
 }

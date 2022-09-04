@@ -13,5 +13,5 @@ namespace learnta {
   TA to ZA adds states with BFS. Initial configuration is the initial states of
   ZA. The ZA contain only the states reachable from initial states.
  */
-  void ta2za(const TimedAutomaton &TA, ZoneAutomaton &ZA);
+  void ta2za(const TimedAutomaton &TA, ZoneAutomaton &ZA, bool quickReturn = true);
 }
