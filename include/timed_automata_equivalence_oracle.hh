@@ -28,10 +28,6 @@ namespace learnta {
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(complement, hypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
-      // Do not use abstraction
-      for (auto &maxConstraint: intersection.maxConstraints) {
-        maxConstraint = INT_MAX;
-      }
       ta2za(intersection, zoneAutomaton);
 
       return zoneAutomaton.sample();
@@ -42,10 +38,6 @@ namespace learnta {
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
       intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);
       ZoneAutomaton zoneAutomaton;
-      // Do not use abstraction
-      for (auto &maxConstraint: intersection.maxConstraints) {
-        maxConstraint = INT_MAX;
-      }
       ta2za(intersection, zoneAutomaton);
 
       return zoneAutomaton.sample();

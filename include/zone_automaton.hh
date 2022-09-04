@@ -34,7 +34,10 @@ namespace learnta {
         for (const auto &run: currentStates) {
           if (run.back()->isMatch) {
             // run is a positive run
-            return std::make_optional(run.reconstructWord());
+            auto wordOpt = run.reconstructWord();
+            if (wordOpt) {
+              return wordOpt;
+            }
           }
           for (int action = 0; action < CHAR_MAX; ++action) {
             const auto &edges = run.back()->next[action];

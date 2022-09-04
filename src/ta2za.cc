@@ -74,17 +74,15 @@ namespace learnta {
               }
             }
             nextZone.canonize();
-            //nextZone.abstractize();
+            nextZone.abstractize();
             if (!nextZone.isSatisfiable()) {
               continue;
             }
             nextZone.value.diagonal().fill(Bounds{0, true});
 
             const auto targetStateInZA = std::find_if(zaMap.begin(), zaMap.end(), [&] (const auto &pair) {
-              // Use inclusion
-              // return pair.first.first == nextState && pair.first.second.includes(nextZone);
-              // Use equation
-              return pair.first.first == nextState && pair.first.second == nextZone;
+              // Use inclusion for state merging
+              return pair.first.first == nextState && pair.first.second.includes(nextZone);
             });
 
             // targetStateInZA is already added

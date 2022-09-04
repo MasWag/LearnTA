@@ -673,7 +673,7 @@ namespace learnta {
                 const auto successor = addState(discreteAfterContinuous);
                 newStates.push(successor);
                 mergeContinuousSuccessors(discreteAfterContinuous);
-                sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
+                sourceMap[successor] = tmpPrefixes.at(continuous).getTimedCondition();
               }
             }
           }

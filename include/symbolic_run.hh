@@ -58,9 +58,10 @@ namespace learnta {
      * @brief Reconstruct a timed word from a symbolic run
      *
      * We use the reconstruction algorithm in [Andre+, NFM'22].
+     * Due to the state merging in the zone construction, the reconstruction may fail.
      * We note that our zone construction is state --time_elapse--> intermediate --discrete_jump--> next_state.
      */
-    [[nodiscard]] TimedWord reconstructWord() const {
+    [[nodiscard]] std::optional<TimedWord> reconstructWord() const {
       // Sample the last concrete state;
       auto postZoneState = this->back();
       auto postZone = postZoneState->zone;
@@ -96,17 +97,11 @@ namespace learnta {
           auto tmpPreZone = preZone;
           tmpPreZone.elapse();
           zoneBeforeJump &= tmpPreZone;
-#ifndef NDEBUG
           if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
-            BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
-            BOOST_LOG_TRIVIAL(error) << "i: " << i;
-            BOOST_LOG_TRIVIAL(error) << "preZone: " << preZone;
-            BOOST_LOG_TRIVIAL(error) << "postZone: " << postZone;
-            BOOST_LOG_TRIVIAL(error) << "tmpPreZone: " << tmpPreZone;
-            BOOST_LOG_TRIVIAL(error) << "The unsatisfiable zone\n" << zoneBeforeJump;
+            // The word reconstruction may fail due to state mering
+            BOOST_LOG_TRIVIAL(debug) << "Failed to reconstruct word from a symbolic run\n" << *this;
+            return std::nullopt;
           }
-#endif
-          assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
 
         // Sample the valuation just before discrete jump
@@ -127,7 +122,7 @@ namespace learnta {
       std::move(durations.begin(), durations.end(), durationsVector.begin());
       durationsVector.push_back(0);
 
-      return {word, durationsVector};
+      return std::make_optional(TimedWord{word, durationsVector});
     }
 
     //! @brief Print the symbolic run
