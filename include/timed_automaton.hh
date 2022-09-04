@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <valarray>
 #include <vector>
@@ -232,10 +233,70 @@ namespace learnta {
       return *this;
     }
 
+    /*!
+     * @brief Optimize the timed automaton by removing unused clock variables
+     */
+    void removeUnusedClockVariables() {
+      std::unordered_set<ClockVariables> usedClockVariables;
+      // Make the set of clock variables
+      for (const auto &state: this->states) {
+        for (const auto &[action, transitions]: state->next) {
+          for (const auto &transition: transitions) {
+            for (const auto &guard: transition.guard) {
+              usedClockVariables.insert(guard.x);
+            }
+            for (const auto &[assignedVar, usedVarOpt]: transition.resetVars) {
+              if (usedVarOpt) {
+                usedClockVariables.insert(*usedVarOpt);
+              }
+            }
+          }
+        }
+      }
+
+      // Construct a map showing how we rename clock variables
+      std::vector<ClockVariables> usedClockVariablesVec {usedClockVariables.begin(), usedClockVariables.end()};
+      std::sort(usedClockVariablesVec.begin(), usedClockVariablesVec.end());
+      // Clock variable x is renamed to clockRenaming.at(x)
+      std::unordered_map<ClockVariables, ClockVariables> clockRenaming;
+      for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
+        clockRenaming[usedClockVariablesVec.at(i)] = i;
+      }
+
+      // Rename the clock variables
+      for (const auto &state: this->states) {
+        for (auto &[action, transitions]: state->next) {
+          for (auto &transition: transitions) {
+            for (auto &guard: transition.guard) {
+              guard.x = clockRenaming.at(guard.x);
+            }
+            for (auto it = transition.resetVars.begin(); it != transition.resetVars.end();) {
+              if (usedClockVariables.find(it->first) == usedClockVariables.end()) {
+                it = transition.resetVars.erase(it);
+              } else {
+                it->first = clockRenaming.at(it->first);
+                if (it->second) {
+                  *it->second = clockRenaming.at(*it->second);
+                }
+                ++it;
+              }
+            }
+          }
+        }
+      }
+
+      // Rename the max constraints
+      for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
+        this->maxConstraints.at(i) = this->maxConstraints.at(usedClockVariablesVec.at(i));
+      }
+      this->maxConstraints.erase(this->maxConstraints.begin() + usedClockVariablesVec.size(), this->maxConstraints.end());
+    }
+
     //! @brief Simplify the timed automaton
     TimedAutomaton simplify() {
       this->simplifyTransitions();
       this->removeDeadLoop();
+      this->removeUnusedClockVariables();
 
       return *this;
     }
