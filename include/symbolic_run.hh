@@ -130,7 +130,11 @@ namespace learnta {
         auto backwardPreZone = Zone{valuationBeforeJump, postZone.M};
         backwardPreZone.reverseElapse();
         const auto preValuation = (preZone && backwardPreZone).sample();
-        durations.push_front(valuationBeforeJump.at(0) - preValuation.at(0));
+        if (preValuation.empty()) {
+          durations.push_front(0);
+        } else {
+          durations.push_front(valuationBeforeJump.at(0) - preValuation.at(0));
+        }
 
         // Update the variables
         postZone = std::move(preZone);
