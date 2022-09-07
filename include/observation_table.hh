@@ -661,11 +661,12 @@ namespace learnta {
 
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
                 // merge q_a and q'' in the above diagram
-                stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
+                // TODO: something is wrong around here
 
                 // We use the convexity of the timed conditions of this and its continuous successor
                 if (sourceMap[stateManager.toState(discrete)].size() ==
                     tmpPrefixes.at(discreteAfterContinuous).getTimedCondition().size()) {
+                  stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
                   sourceMap[stateManager.toState(discrete)] = sourceMap[stateManager.toState(discrete)].convexHull(
                           tmpPrefixes.at(discreteAfterContinuous).getTimedCondition());
                 }
