@@ -8,6 +8,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <iostream>
+#include <sstream>
 
 #include "simple_observation_table_keys_fixture.hh"
 
@@ -293,6 +294,28 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     juxtaposition.canonize();
 
     BOOST_CHECK(juxtaposition.isSatisfiable());
+  }
+
+  BOOST_AUTO_TEST_CASE(convexHullTest) {
+    TimedCondition left, right;
+    std::stringstream stream;
+    left.zone = Zone::top(2);
+    right.zone = Zone::top(2);
+
+    left.zone.tighten(-1, 0, {0, true}); // x0 <= 0
+    left.zone.tighten(0, -1, {0, true}); // x0 >= 0
+    stream << left;
+    BOOST_CHECK_EQUAL("-0 <= T_{0, 0}  <= 0", stream.str());
+    stream.str("");
+
+    right.zone.tighten(0, -1, {1, false}); // x0 < 1
+    right.zone.tighten(-1, 0, {0, false}); // x0 > 0
+    stream << right;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1", stream.str());
+    stream.str("");
+
+    stream << left.convexHull(right);
+    BOOST_CHECK_EQUAL("-0 <= T_{0, 0}  < 1", stream.str());
   }
 
 BOOST_AUTO_TEST_SUITE_END()

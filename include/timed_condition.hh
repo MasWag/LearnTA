@@ -260,9 +260,7 @@ namespace learnta {
      * @brief Return the convex hull of this timed condition and the given timed condition
      */
     [[nodiscard]] TimedCondition convexHull(const TimedCondition &condition) const {
-      Zone result = this->zone;
-      result.value.cwiseMax(condition.zone.value);
-      return TimedCondition{result};
+      return TimedCondition{Zone{this->zone.value.cwiseMax(condition.zone.value)}};
     }
 
     /*!
