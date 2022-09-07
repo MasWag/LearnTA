@@ -33,6 +33,30 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     }
   };
 
+  struct LessThanOneAutomatonOracleFixture {
+    std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
+    std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
+    const std::vector<Alphabet> alphabet = {'a'};
+
+    LessThanOneAutomatonOracleFixture() {
+      TimedAutomaton automaton;
+      automaton.states.reserve(2);
+      automaton.states.push_back(std::make_shared<TAState>(false));
+      automaton.states.push_back(std::make_shared<TAState>(true));
+      automaton.states.at(0)->next['a'].emplace_back(automaton.states.at(1).get(),
+                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{},
+                                                     std::vector<Constraint>{ConstraintMaker(0) < 1});
+      automaton.initialStates = {automaton.states.at(0)};
+      automaton.maxConstraints = {1};
+      const TimedAutomaton complementAutomaton = automaton.complement(alphabet);
+
+      auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{automaton});
+      this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
+      this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
+              new learnta::ComplementTimedAutomataEquivalenceOracle{automaton, complementAutomaton, alphabet});
+    }
+  };
+
   struct SmallLightAutomatonOracleFixture : public SmallLightAutomatonFixture {
     std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
     std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
@@ -60,6 +84,13 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
                                                                     alphabet});
     }
   };
+
+  BOOST_FIXTURE_TEST_CASE(lessThanOne, LessThanOneAutomatonOracleFixture) {
+    Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
+    const auto result = learner.run();
+    // learner.printStatistics(std::cout);
+    BOOST_CHECK_EQUAL(2, result.stateSize());
+  }
 
   BOOST_FIXTURE_TEST_CASE(simpleDTA, SimpleAutomatonOracleFixture) {
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};

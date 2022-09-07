@@ -601,6 +601,19 @@ namespace learnta {
         }
       };
 
+      /*!
+       * @brief Map to maintain the target state and the timed condition to invoke the transition
+       *
+       * This is used when making guards
+       */
+      class SourceMap : public std::unordered_map<std::shared_ptr<TAState>, TimedCondition> {
+      public:
+        void set(const std::shared_ptr<TAState> &target, const TimedCondition &condition) {
+          BOOST_LOG_TRIVIAL(trace) << "target: " << target.get() << " condition: " << condition.toGuard();
+          (*this)[target] = condition;
+        }
+      };
+
       const auto initialState = addState(0);
       // construct the initial state
       mergeContinuousSuccessors(0);
@@ -616,8 +629,7 @@ namespace learnta {
         const auto newStateIndices = stateManager.toIndices(newState);
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
-          // This is used when making guards
-          std::unordered_map<std::shared_ptr<TAState>, TimedCondition> sourceMap;
+          SourceMap sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
             // Skip if there is no discrete nor continuous successors in the observation table
             if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
@@ -632,7 +644,7 @@ namespace learnta {
               if (stateManager.isNew(discrete)) {
                 const auto successor = addState(discrete);
                 newStates.push(successor);
-                sourceMap[successor] = tmpPrefixes.at(newStateIndex).getTimedCondition();
+                sourceMap.set(successor, tmpPrefixes.at(newStateIndex).getTimedCondition());
               }
               if (this->hasContinuousSuccessor(discrete)) {
                 mergeContinuousSuccessors(discrete);
@@ -661,23 +673,24 @@ namespace learnta {
 
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
                 // merge q_a and q'' in the above diagram
-                // TODO: something is wrong around here
-
-                // We use the convexity of the timed conditions of this and its continuous successor
-                if (sourceMap[stateManager.toState(discrete)].size() ==
-                    tmpPrefixes.at(discreteAfterContinuous).getTimedCondition().size()) {
+                if (sourceMap[stateManager.toState(continuousAfterDiscrete)].size() == tmpPrefixes.at(continuous).getTimedCondition().size()) {
                   stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
-                  sourceMap[stateManager.toState(discrete)] = sourceMap[stateManager.toState(discrete)].convexHull(
-                          tmpPrefixes.at(discreteAfterContinuous).getTimedCondition());
+                  // We use the convexity of the timed conditions of this and its continuous successor
+                  sourceMap.set(stateManager.toState(discreteAfterContinuous),
+                                sourceMap.at(stateManager.toState(discreteAfterContinuous))
+                                .convexHull(tmpPrefixes.at(continuous).getTimedCondition()));
+                } else {
+                  BOOST_LOG_TRIVIAL(warning) << "something is wrong\n";
                 }
-              } else if (stateManager.isNew(discreteAfterContinuous)) {
+              }
+              if (stateManager.isNew(discreteAfterContinuous)) {
                 // Otherwise, we create a new state
                 const auto successor = addState(discreteAfterContinuous);
                 newStates.push(successor);
                 if (hasContinuousSuccessor(discreteAfterContinuous)) {
                   mergeContinuousSuccessors(discreteAfterContinuous);
                 }
-                sourceMap[successor] = tmpPrefixes.at(continuous).getTimedCondition();
+                sourceMap.set(successor, tmpPrefixes.at(continuous).getTimedCondition());
               }
             }
           }
