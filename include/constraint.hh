@@ -6,6 +6,9 @@
 #include <vector>
 
 #include <boost/unordered_map.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
 
 #include "common_types.hh"
 #include "bounds.hh"
@@ -18,6 +21,8 @@ namespace learnta {
   };
 
   inline bool toBool(Order odr) { return odr == Order::EQ; }
+
+  using IntBounds = std::pair<int, bool>;
 
 //! @brief A constraint in a guard of transitions
   struct Constraint {
@@ -59,41 +64,24 @@ namespace learnta {
       return this->odr == another.odr && this->c == another.c && this->x == another.x;
     }
 
+    [[nodiscard]] inline bool isUpperBound() const {
+      return this->odr == Order::le || this->odr == Order::lt;
+    }
+
+    /*!
+     * @brief Check if this constraint is weaker than the given one.
+     *
+     * @returns false if the compared variables are different
+     * @returns false if the compared constraints bound from the different order (i.e., upper vs. lower)
+     */
     [[nodiscard]] bool isWeaker(Constraint another) const {
       if (this->x != another.x) {
         return false;
       }
-      const bool thisLess = this->odr == Order::le || this->odr == Order::lt;
-      const bool anotherLess = another.odr == Order::le || another.odr == Order::lt;
-      Bounds thisBounds, anotherBounds;
-      switch (this->odr) {
-        case Order::le:
-          thisBounds = Bounds{c, true};
-          break;
-        case Order::lt:
-          thisBounds = Bounds{c, false};
-          break;
-        case Order::ge:
-          thisBounds = Bounds{-c, true};
-          break;
-        case Order::gt:
-          thisBounds = Bounds{-c, false};
-          break;
-      }
-      switch (another.odr) {
-        case Order::le:
-          anotherBounds = Bounds{another.c, true};
-          break;
-        case Order::lt:
-          anotherBounds = Bounds{another.c, false};
-          break;
-        case Order::ge:
-          anotherBounds = Bounds{-another.c, true};
-          break;
-        case Order::gt:
-          anotherBounds = Bounds{-another.c, false};
-          break;
-      }
+      const bool thisLess = this->isUpperBound();
+      const bool anotherLess = another.isUpperBound();
+      const Bounds thisBounds = this->toDBMBound();
+      const Bounds anotherBounds = another.toDBMBound();
 
       return thisLess == anotherLess && anotherBounds <= thisBounds;
     }
@@ -108,8 +96,39 @@ namespace learnta {
           return Constraint{x, learnta::Constraint::Order::le, c};
         case Order::ge:
           return Constraint{x, learnta::Constraint::Order::lt, c};
+        default:
+          throw std::range_error("Invalid order is used");
       }
     }
+
+    [[nodiscard]] IntBounds toBound() const {
+      switch (odr) {
+        case learnta::Constraint::Order::le:
+        case learnta::Constraint::Order::ge:
+          return IntBounds{c, true};
+        case learnta::Constraint::Order::lt:
+        case learnta::Constraint::Order::gt:
+          return IntBounds{c, false};
+        default:
+          throw std::range_error("Invalid order is used");
+      }
+    };
+
+
+    [[nodiscard]] Bounds toDBMBound() const {
+      switch (odr) {
+        case learnta::Constraint::Order::le:
+          return Bounds{c, true};
+        case learnta::Constraint::Order::ge:
+          return Bounds{-c, true};
+        case learnta::Constraint::Order::lt:
+          return Bounds{c, false};
+        case learnta::Constraint::Order::gt:
+          return Bounds{-c, false};
+        default:
+          throw std::range_error("Invalid order is used");
+      }
+    };
   };
 
   inline int orderToInt(learnta::Constraint::Order order) {
@@ -199,7 +218,7 @@ namespace learnta {
                 guard.end());
   }
 
-  inline std::vector<Constraint> negate(const std::vector<Constraint> &constraints) {
+  inline std::vector<Constraint> negateAll(const std::vector<Constraint> &constraints) {
     std::vector<Constraint> result;
     result.reserve(constraints.size());
     std::transform(constraints.begin(), constraints.end(), std::back_inserter(result), [&](const auto &constraint) {
@@ -210,75 +229,127 @@ namespace learnta {
   }
 
   inline bool satisfiable(const std::vector<Constraint> &constraints) {
-    std::vector<Bounds> upperBounds;
-    std::vector<Bounds> lowerBounds;
+    std::vector<IntBounds> upperBounds;
+    std::vector<IntBounds> lowerBounds;
 
-    const auto resizeBounds = [&] (const ClockVariables x) {
+    const auto resizeBounds = [&](const ClockVariables x) {
       if (x >= upperBounds.size()) {
         const auto oldSize = upperBounds.size();
         upperBounds.resize(x + 1);
         lowerBounds.resize(x + 1);
         for (auto i = oldSize; i <= x; ++i) {
-          upperBounds.at(i) = Bounds(std::numeric_limits<double>::max(), false);
-          lowerBounds.at(i) = Bounds(0, true);
+          upperBounds.at(i) = IntBounds(std::numeric_limits<int>::max(), false);
+          lowerBounds.at(i) = IntBounds(0, true);
         }
-      }
-    };
-
-    const auto toBound = [&] (const Constraint &constraint) {
-      switch (constraint.odr) {
-        case learnta::Constraint::Order::le:
-        case learnta::Constraint::Order::ge:
-          return Bounds{constraint.c, true};
-        case learnta::Constraint::Order::lt:
-        case learnta::Constraint::Order::gt:
-          return Bounds{constraint.c, false};
       }
     };
 
     for (const auto &constraint: constraints) {
       resizeBounds(constraint.x);
-      Bounds bound = toBound(constraint);
+      const auto bound = constraint.toBound();
 
-      switch (constraint.odr) {
-        case learnta::Constraint::Order::le:
-        case learnta::Constraint::Order::lt:
-          if (lowerBounds.at(constraint.x) < bound) {
-            lowerBounds.at(constraint.x) = bound;
-          }
-          break;
-        case learnta::Constraint::Order::ge:
-        case learnta::Constraint::Order::gt:
-          if (upperBounds.at(constraint.x) > bound) {
-            upperBounds.at(constraint.x) = bound;
-          }
-          break;
-      }
-    }
-
-      for (int i = 0; i < lowerBounds.size(); ++i) {
-        if (lowerBounds.at(i).first > upperBounds.at(i).first ||
-            (lowerBounds.at(i) == upperBounds.at(i) && !lowerBounds.at(i).second)) {
-          return false;
+      if (constraint.isUpperBound()) {
+        if (upperBounds.at(constraint.x) > bound) {
+          upperBounds.at(constraint.x) = bound;
+        }
+      } else {
+        if (-lowerBounds.at(constraint.x) > -bound) {
+          lowerBounds.at(constraint.x) = bound;
         }
       }
-
-      return true;
     }
 
+    for (int i = 0; i < lowerBounds.size(); ++i) {
+      if (lowerBounds.at(i).first > upperBounds.at(i).first ||
+          (lowerBounds.at(i).first == upperBounds.at(i).first && !(lowerBounds.at(i).second && upperBounds.at(i).second))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  inline std::vector<Constraint> simplify(const std::vector<Constraint> &constraints) {
+    std::vector<IntBounds> upperBounds;
+    std::vector<IntBounds> lowerBounds;
+    std::vector<Constraint> result;
+
+    const auto resizeBounds = [&](const ClockVariables x) {
+      if (x >= upperBounds.size()) {
+        const auto oldSize = upperBounds.size();
+        upperBounds.resize(x + 1);
+        lowerBounds.resize(x + 1);
+        for (auto i = oldSize; i <= x; ++i) {
+          upperBounds.at(i) = IntBounds(std::numeric_limits<int>::max(), false);
+          lowerBounds.at(i) = IntBounds(0, true);
+        }
+      }
+    };
+
+    for (const auto &constraint: constraints) {
+      resizeBounds(constraint.x);
+      const auto bound = constraint.toBound();
+
+      if (constraint.isUpperBound()) {
+        if (upperBounds.at(constraint.x) > bound) {
+          upperBounds.at(constraint.x) = bound;
+        }
+      } else {
+        if (-lowerBounds.at(constraint.x) > -bound) {
+          lowerBounds.at(constraint.x) = bound;
+        }
+      }
+    }
+
+    for (int i = 0; i < lowerBounds.size(); ++i) {
+      if (lowerBounds.at(i) != IntBounds(0, true)) {
+        if (lowerBounds.at(i).second) {
+          result.push_back(ConstraintMaker(i) >= lowerBounds.at(i).first);
+        } else {
+          result.push_back(ConstraintMaker(i) > lowerBounds.at(i).first);
+        }
+      }
+    }
+
+    for (int i = 0; i < upperBounds.size(); ++i) {
+      if (upperBounds.at(i) != IntBounds(std::numeric_limits<int>::max(), false)) {
+        if (upperBounds.at(i).second) {
+          result.push_back(ConstraintMaker(i) <= upperBounds.at(i).first);
+        } else {
+          result.push_back(ConstraintMaker(i) < upperBounds.at(i).first);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const std::vector<Constraint> &guards) {
+    bool isFirst = true;
+    for (const Constraint &guard: guards) {
+      if (!isFirst) {
+        os << ", ";
+      }
+      os << guard;
+      isFirst = false;
+    }
+
+    return os;
+  }
 
   inline std::vector<std::vector<Constraint>> negate(const std::vector<std::vector<Constraint>> &dnfConstraints) {
     std::vector<std::vector<Constraint>> cnfNegated;
     cnfNegated.reserve(dnfConstraints.size());
-    std::transform(dnfConstraints.begin(), dnfConstraints.end(), std::back_inserter(cnfNegated), [&](const auto &constraints) {
-      return negate(constraints);
-    });
+    std::transform(dnfConstraints.begin(), dnfConstraints.end(), std::back_inserter(cnfNegated), negateAll);
     std::vector<std::vector<Constraint>> dnfNegated;
     for (const auto &disjunct: cnfNegated) {
+      if (disjunct.empty()) {
+        continue;
+      }
       if (dnfNegated.empty()) {
         dnfNegated.reserve(disjunct.size());
         std::transform(disjunct.begin(), disjunct.end(), std::back_inserter(dnfNegated), [](const auto &constraint) {
-          return std::vector<Constraint> {constraint};
+          return std::vector<Constraint>{constraint};
         });
       } else {
         std::vector<std::vector<Constraint>> newDnfNegated;
@@ -286,8 +357,25 @@ namespace learnta {
           for (auto conjunct: dnfNegated) {
             conjunct.push_back(constraint);
             if (satisfiable(conjunct)) {
-              newDnfNegated.push_back(std::move(conjunct));
+              newDnfNegated.push_back(simplify(conjunct));
             }
+          }
+        }
+        for (auto it = newDnfNegated.begin(); it != newDnfNegated.end();) {
+          if (std::any_of(it + 1, newDnfNegated.end(), [&](const auto &constraints) {
+            if (isWeaker(constraints, *it)) {
+              BOOST_LOG_TRIVIAL(debug) << constraints << " is weaker than " << *it;
+            }
+            return isWeaker(constraints, *it);
+          }) || std::any_of(newDnfNegated.begin(), it, [&](const auto &constraints) {
+            if (isWeaker(constraints, *it)) {
+              BOOST_LOG_TRIVIAL(debug) << constraints << " is weaker than " << *it;
+            }
+            return isWeaker(constraints, *it);
+          })) {
+            it = newDnfNegated.erase(it);
+          } else {
+            ++it;
           }
         }
         dnfNegated = std::move(newDnfNegated);

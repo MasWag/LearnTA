@@ -48,7 +48,9 @@ namespace learnta {
     [[nodiscard]] std::optional<TimedWord> superset(const TimedAutomaton& hypothesis) const {
       TimedAutomaton intersection;
       boost::unordered_map<std::pair<TAState *, TAState *>, std::shared_ptr<TAState>> toIState;
-      intersectionTA(target, hypothesis.complement(this->alphabet), intersection, toIState);
+      const auto complementedHypothesis = hypothesis.complement(this->alphabet);
+      BOOST_LOG_TRIVIAL(debug) << "superset: complemented hypothesis\n" << complementedHypothesis;
+      intersectionTA(target, complementedHypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
       intersection.simplifyStrong();
       BOOST_LOG_TRIVIAL(debug) << "superset: before ta2za";

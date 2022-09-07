@@ -57,6 +57,13 @@ void run(int scale) {
   complementTargetAutomaton.maxConstraints.resize(1);
   complementTargetAutomaton.maxConstraints[0] = scale;
 
+  targetAutomaton.simplifyStrong();
+  targetAutomaton.simplifyWithZones();
+  BOOST_LOG_TRIVIAL(info) << "targetAutomaton:\n" << targetAutomaton;
+  complementTargetAutomaton.simplifyStrong();
+  complementTargetAutomaton.simplifyWithZones();
+  BOOST_LOG_TRIVIAL(info) << "complementTargetAutomaton:\n" << complementTargetAutomaton;
+
   // Construct the learner
   const std::vector<Alphabet> alphabet = {'a'};
   auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
