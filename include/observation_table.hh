@@ -592,7 +592,6 @@ namespace learnta {
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           stateManager.add(state, nextIndex);
           // Include the exterior
-          // TODO: It seems this part is, in general, incorrect
           tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
           refreshTmpPrefixes(sourceIndex);
         } else {
@@ -620,7 +619,6 @@ namespace learnta {
       mergeContinuousSuccessors(0);
       // vector of states and actions such that the discrete successor is not in P
       std::vector<std::pair<std::size_t, Alphabet>> discreteBoundaries;
-      std::unordered_set<std::size_t> skippedIndices;
 
       // explore new states
       std::queue<std::shared_ptr<TAState>> newStates;
@@ -633,10 +631,6 @@ namespace learnta {
           // TargetState -> the timed condition to reach that state
           SourceMap sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
-            if (skippedIndices.find(newStateIndex) != skippedIndices.end()) {
-              BOOST_LOG_TRIVIAL(trace) << "Exploration from " << this->prefixes.at(newStateIndex) << " is skipped ";
-              continue;
-            }
             BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix " << this->prefixes.at(newStateIndex) << " with action " << action;
 
             // Skip if there is no discrete nor continuous successors in the observation table
@@ -664,7 +658,7 @@ namespace learnta {
                 mergeContinuousSuccessors(discrete);
               }
             }
-            if (this->hasContinuousSuccessor(newStateIndex)) {
+            if (false && this->hasContinuousSuccessor(newStateIndex)) {
               // Try to merge q'' and q_a in the following diagram
               // q in the following diagram
               const auto continuous = this->continuousSuccessors.at(newStateIndex);
@@ -700,23 +694,6 @@ namespace learnta {
                                 .convexHull(tmpPrefixes.at(continuous).getTimedCondition()));
                   if (this->hasContinuousSuccessor(discreteAfterContinuous)) {
                     mergeContinuousSuccessors(discreteAfterContinuous);
-                  }
-                  // Mark the children of discreteAfterContinuous as already visited
-                  // TODO: This is wrong because this prevents some of the P states
-                  std::queue<std::size_t> skipped;
-                  skipped.push(discreteAfterContinuous);
-                  while(!skipped.empty()) {
-                    const auto index = skipped.front();
-                    skipped.pop();
-                    skippedIndices.insert(index);
-                    if (hasContinuousSuccessor(index)) {
-                      skipped.push(this->continuousSuccessors.at(index));
-                    }
-                    for (const auto &a: alphabet) {
-                      if (hasDiscreteSuccessor(index, a)) {
-                        skipped.push(this->discreteSuccessors.at({index, a}));
-                      }
-                    }
                   }
                   BOOST_LOG_TRIVIAL(trace) << "The merged state is reachable with " << sourceMap.at(stateManager.toState(discreteAfterContinuous));
                 } else {
@@ -808,7 +785,7 @@ namespace learnta {
         auto action = pair.first.second;
         auto targetStateIndex = pair.second;
         auto targetState = stateManager.toState(targetStateIndex);
-        return skippedIndices.find(sourceStateIndex) != skippedIndices.end() || stateManager.toState(sourceStateIndex)->next[action].end() !=
+        return stateManager.toState(sourceStateIndex)->next[action].end() !=
                std::find_if(stateManager.toState(sourceStateIndex)->next[action].begin(),
                             stateManager.toState(sourceStateIndex)->next[action].end(),
                             [&](const TATransition &transition) {

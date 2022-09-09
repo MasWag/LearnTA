@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
     const auto result = learner.run();
     // learner.printStatistics(std::cout);
-    BOOST_CHECK_EQUAL(3, result.stateSize());
+    BOOST_CHECK_EQUAL(1, result.stateSize());
   }
 
   BOOST_FIXTURE_TEST_CASE(simpleDTA, SimpleAutomatonOracleFixture) {
