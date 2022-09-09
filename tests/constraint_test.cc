@@ -72,6 +72,17 @@ BOOST_AUTO_TEST_SUITE(ConstraintTest)
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) > 2}), negated.at(5));
   }
 
+  BOOST_AUTO_TEST_CASE(negateDuplicated) {
+    std::vector<std::vector<Constraint>> dnfConstraints;
+    dnfConstraints.resize(3);
+    dnfConstraints.at(0).push_back(ConstraintMaker(0) >= 1);
+    dnfConstraints.at(1).push_back(ConstraintMaker(0) < 1);
+    dnfConstraints.at(2).push_back(ConstraintMaker(0) >= 1);
+
+    const auto negated = negate(dnfConstraints);
+    BOOST_TEST(negated.empty());
+  }
+
   BOOST_AUTO_TEST_CASE(simplifyTest) {
     std::vector<std::vector<Constraint>> inputs;
     std::vector<std::vector<Constraint>> expected;

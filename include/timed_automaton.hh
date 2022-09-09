@@ -12,7 +12,6 @@
 #include <queue>
 #include <optional>
 #include <cassert>
-#include <R_ext/Error.h>
 #include <boost/log/trivial.hpp>
 
 #include "common_types.hh"
@@ -38,6 +37,10 @@ namespace learnta {
     TAState(bool isMatch,
             std::unordered_map<Alphabet, std::vector<TATransition>> next)
             : isMatch(isMatch), next(std::move(next)) {}
+    /*!
+     * @brief Check if the transitions is deterministic.
+     */
+    [[nodiscard]] bool deterministic() const;
   };
 
 /*!
@@ -407,7 +410,7 @@ namespace learnta {
       std::vector<ClockVariables> usedClockVariablesVec{usedClockVariables.begin(), usedClockVariables.end()};
       std::sort(usedClockVariablesVec.begin(), usedClockVariablesVec.end());
       // Clock variable x is renamed to clockRenaming.at(x)
-      std::unordered_map<ClockVariables, ClockVariables> clockRenaming;
+      std::unordered_map < ClockVariables, ClockVariables > clockRenaming;
       for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
         clockRenaming[usedClockVariablesVec.at(i)] = i;
       }
@@ -501,6 +504,10 @@ namespace learnta {
       }
 
       return maxConstants;
+    }
+
+    [[nodiscard]] bool deterministic() const {
+      return std::all_of(this->states.begin(), this->states.end(), std::mem_fn(&TAState::deterministic));
     }
   };
 

@@ -79,10 +79,13 @@ namespace learnta {
           const auto targetCondition = targetConditions.getConditions().at(i);
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
-
-          result.emplace_back(target.get(),
-                              currentRenamingRelation.toReset(sourceCondition, targetCondition),
-                              sourceCondition.toGuard());
+          auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
+          if (sourceCondition.size() < targetCondition.size() && std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
+            return pair.first == targetCondition.size() - 1;
+          }) == resets.end()) {
+            resets.emplace_back(targetCondition.size() - 1, std::nullopt);
+          }
+          result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }
       }
 

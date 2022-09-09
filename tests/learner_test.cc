@@ -57,6 +57,61 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     }
   };
 
+  struct GreaterThanOne {
+    std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
+    std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
+    const std::vector<Alphabet> alphabet = {'a'};
+
+    GreaterThanOne() {
+      TimedAutomaton automaton;
+      automaton.states.reserve(3);
+      automaton.states.push_back(std::make_shared<TAState>(true));
+      automaton.states.push_back(std::make_shared<TAState>(true));
+      automaton.states.push_back(std::make_shared<TAState>(true));
+      automaton.states.at(0)->next['a'].emplace_back(automaton.states.at(1).get(),
+                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{{0, std::nullopt}},
+                                                     std::vector<Constraint>{});
+      automaton.states.at(1)->next['a'].emplace_back(automaton.states.at(2).get(),
+                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{},
+                                                     std::vector<Constraint>{ConstraintMaker(0) > 1});
+      automaton.initialStates = {automaton.states.at(0)};
+      automaton.maxConstraints = {1};
+      const TimedAutomaton complementAutomaton = automaton.complement(alphabet);
+
+      auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{automaton});
+      this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
+      this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
+              new learnta::ComplementTimedAutomataEquivalenceOracle{automaton, complementAutomaton, alphabet});
+    }
+  };
+
+  struct LoopWithTimingConstraint {
+    std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
+    std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
+    const std::vector<Alphabet> alphabet = {'a'};
+
+    LoopWithTimingConstraint() {
+      TimedAutomaton targetAutomaton;
+      targetAutomaton.states.reserve(2);
+      targetAutomaton.states.push_back(std::make_shared<TAState>(true));
+
+      // Transitions
+      targetAutomaton.states.at(0)->next['a'].emplace_back();
+      targetAutomaton.states.at(0)->next['a'].back().target = targetAutomaton.states.at(0).get();
+      targetAutomaton.states.at(0)->next['a'].back().guard = {learnta::ConstraintMaker(0) > 0};
+
+      targetAutomaton.initialStates = {targetAutomaton.states.at(0)};
+      targetAutomaton.maxConstraints = {0};
+      const TimedAutomaton complementAutomaton = targetAutomaton.complement(alphabet);
+
+      auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{targetAutomaton});
+      this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
+      this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
+              new learnta::ComplementTimedAutomataEquivalenceOracle{targetAutomaton, complementAutomaton, alphabet});
+
+    }
+  };
+
   struct SmallLightAutomatonOracleFixture : public SmallLightAutomatonFixture {
     std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
     std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
@@ -90,6 +145,20 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     const auto result = learner.run();
     // learner.printStatistics(std::cout);
     BOOST_CHECK_EQUAL(2, result.stateSize());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(greaterThanOne, GreaterThanOne) {
+    Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
+    const auto result = learner.run();
+    // learner.printStatistics(std::cout);
+    BOOST_CHECK_EQUAL(3, result.stateSize());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(loopWithTimingConstraint, LoopWithTimingConstraint) {
+    Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
+    const auto result = learner.run();
+    // learner.printStatistics(std::cout);
+    BOOST_CHECK_EQUAL(3, result.stateSize());
   }
 
   BOOST_FIXTURE_TEST_CASE(simpleDTA, SimpleAutomatonOracleFixture) {

@@ -508,6 +508,7 @@ namespace learnta {
      * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mathbb{T}_{i,N}\f$.
      */
     [[nodiscard]] std::vector<Constraint> toGuard() const {
+      BOOST_LOG_TRIVIAL(trace) << "Constraint:" << *this;
       std::vector<Constraint> result;
       const auto N = this->size();
       result.reserve(N * 2);
@@ -530,6 +531,7 @@ namespace learnta {
         }
       }
 
+      BOOST_LOG_TRIVIAL(trace) << "Guard: " << result;
       return result;
     }
 

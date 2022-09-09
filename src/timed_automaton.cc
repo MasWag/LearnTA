@@ -87,4 +87,23 @@ namespace learnta {
 
     return *this;
   }
+
+  bool TAState::deterministic() const {
+    return std::all_of(this->next.begin(), this->next.end(), [](const auto &pair) -> bool {
+      const auto &[action, transitions] = pair;
+      for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+        if (std::any_of(transitions.begin(), it, [&](const TATransition &transition) -> bool {
+          auto constraint = transition.guard;
+          constraint.reserve(constraint.size() + it->guard.size());
+          constraint.insert(constraint.end(), it->guard.begin(), it->guard.end());
+
+          return satisfiable(constraint);
+        })) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
 }

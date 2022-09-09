@@ -573,7 +573,7 @@ namespace learnta {
       const auto mergeContinuousSuccessors = [&](const std::size_t initialSourceIndex) {
         auto sourceIndex = initialSourceIndex;
         const auto state = stateManager.toState(initialSourceIndex);
-        // TODO: Check if it makes sense to assume that initialSourceIndex is in P
+
         auto nextIndex = this->continuousSuccessors.at(sourceIndex);
         // Include all the continuous successors to the state
         while (this->inP(nextIndex)) {
@@ -592,6 +592,7 @@ namespace learnta {
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           stateManager.add(state, nextIndex);
           // Include the exterior
+          // TODO: It seems this part is, in general, incorrect
           tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
           refreshTmpPrefixes(sourceIndex);
         } else {
@@ -619,6 +620,7 @@ namespace learnta {
       mergeContinuousSuccessors(0);
       // vector of states and actions such that the discrete successor is not in P
       std::vector<std::pair<std::size_t, Alphabet>> discreteBoundaries;
+      std::unordered_set<std::size_t> skippedIndices;
 
       // explore new states
       std::queue<std::shared_ptr<TAState>> newStates;
@@ -631,22 +633,34 @@ namespace learnta {
           // TargetState -> the timed condition to reach that state
           SourceMap sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
+            if (skippedIndices.find(newStateIndex) != skippedIndices.end()) {
+              BOOST_LOG_TRIVIAL(trace) << "Exploration from " << this->prefixes.at(newStateIndex) << " is skipped ";
+              continue;
+            }
+            BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix " << this->prefixes.at(newStateIndex) << " with action " << action;
+
             // Skip if there is no discrete nor continuous successors in the observation table
             if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
+              BOOST_LOG_TRIVIAL(trace) << "No discrete successor";
               continue;
             }
             // q' in the following diagram
             const auto discrete = this->discreteSuccessors.at(std::make_pair(newStateIndex, action));
             // Add states only if the successor is also in P
             if (!this->inP(discrete)) {
+              BOOST_LOG_TRIVIAL(trace) << "The discrete successor is not in P";
               discreteBoundaries.emplace_back(newStateIndex, action);
             } else {
+              BOOST_LOG_TRIVIAL(trace) << "The discrete successor is in P";
               if (stateManager.isNew(discrete)) {
+                BOOST_LOG_TRIVIAL(trace) << "The discrete successor is new";
                 const auto successor = addState(discrete);
                 newStates.push(successor);
                 sourceMap.set(successor, tmpPrefixes.at(newStateIndex).getTimedCondition());
+                BOOST_LOG_TRIVIAL(trace) << "The new state: " << successor.get();
               }
               if (this->hasContinuousSuccessor(discrete)) {
+                BOOST_LOG_TRIVIAL(trace) << "The discrete successor has continuous successors";
                 mergeContinuousSuccessors(discrete);
               }
             }
@@ -670,20 +684,46 @@ namespace learnta {
                *           v                        v
                *           q'--------cont--> q'' ~~ q_a
                */
-
+              BOOST_LOG_TRIVIAL(trace) << "continuous -> discrete: " << this->prefixes.at(discreteAfterContinuous);
+              BOOST_LOG_TRIVIAL(trace) << "discrete -> continuous: " << this->prefixes.at(continuousAfterDiscrete);
               if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
+                BOOST_LOG_TRIVIAL(trace) << "Start merging of continuous -> discrete and discrete -> continuous";
                 // merge q_a and q'' in the above diagram
                 if (sourceMap[stateManager.toState(continuousAfterDiscrete)].size() == tmpPrefixes.at(continuous).getTimedCondition().size()) {
                   stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
+                  BOOST_LOG_TRIVIAL(trace) << "Merge " << sourceMap.at(stateManager.toState(discreteAfterContinuous))
+                                           << " and " << tmpPrefixes.at(continuous).getTimedCondition();
+
                   // We use the convexity of the timed conditions of this and its continuous successor
                   sourceMap.set(stateManager.toState(discreteAfterContinuous),
                                 sourceMap.at(stateManager.toState(discreteAfterContinuous))
                                 .convexHull(tmpPrefixes.at(continuous).getTimedCondition()));
+                  if (this->hasContinuousSuccessor(discreteAfterContinuous)) {
+                    mergeContinuousSuccessors(discreteAfterContinuous);
+                  }
+                  // Mark the children of discreteAfterContinuous as already visited
+                  // TODO: This is wrong because this prevents some of the P states
+                  std::queue<std::size_t> skipped;
+                  skipped.push(discreteAfterContinuous);
+                  while(!skipped.empty()) {
+                    const auto index = skipped.front();
+                    skipped.pop();
+                    skippedIndices.insert(index);
+                    if (hasContinuousSuccessor(index)) {
+                      skipped.push(this->continuousSuccessors.at(index));
+                    }
+                    for (const auto &a: alphabet) {
+                      if (hasDiscreteSuccessor(index, a)) {
+                        skipped.push(this->discreteSuccessors.at({index, a}));
+                      }
+                    }
+                  }
+                  BOOST_LOG_TRIVIAL(trace) << "The merged state is reachable with " << sourceMap.at(stateManager.toState(discreteAfterContinuous));
                 } else {
                   BOOST_LOG_TRIVIAL(warning) << "something is wrong\n";
                 }
-              }
-              if (stateManager.isNew(discreteAfterContinuous)) {
+              } else if (stateManager.isNew(discreteAfterContinuous)) {
+                BOOST_LOG_TRIVIAL(trace) << "Create a new state for continuous -> discrete: " << this->prefixes.at(discreteAfterContinuous);
                 // Otherwise, we create a new state
                 const auto successor = addState(discreteAfterContinuous);
                 newStates.push(successor);
@@ -691,6 +731,8 @@ namespace learnta {
                   mergeContinuousSuccessors(discreteAfterContinuous);
                 }
                 sourceMap.set(successor, tmpPrefixes.at(continuous).getTimedCondition());
+              } else{
+                BOOST_LOG_TRIVIAL(warning) << "something is wrong 2\n";
               }
             }
           }
@@ -723,6 +765,10 @@ namespace learnta {
         };
         // The target state of the transitions, which should be in ext(P)
         const auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
+        if (!stateManager.isNew(targetIndex)) {
+          BOOST_LOG_TRIVIAL(trace) << "The boundary is already handled: " << this->prefixes.at(sourceIndex) << " " << action;
+          continue;
+        }
         assert(!this->inP(targetIndex));
         // Find a successor in P
         auto it = std::find_if(this->closedRelation.at(targetIndex).begin(),
@@ -738,6 +784,12 @@ namespace learnta {
 
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
+          assert(newTransitions.size() == 1);
+          BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << this->prefixes.at(sourceIndex) << " with action " << action;
+          BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(sourceIndex);
+          BOOST_LOG_TRIVIAL(trace) << "Guard: " << newTransitions.at(0).guard;
+          BOOST_LOG_TRIVIAL(trace) << "Target: " << newTransitions.at(0).target;
+
           stateManager.toState(sourceIndex)->next[action].reserve(
                   stateManager.toState(sourceIndex)->next[action].size() + newTransitions.size());
           std::move(newTransitions.begin(), newTransitions.end(),
@@ -756,7 +808,7 @@ namespace learnta {
         auto action = pair.first.second;
         auto targetStateIndex = pair.second;
         auto targetState = stateManager.toState(targetStateIndex);
-        return stateManager.toState(sourceStateIndex)->next[action].end() !=
+        return skippedIndices.find(sourceStateIndex) != skippedIndices.end() || stateManager.toState(sourceStateIndex)->next[action].end() !=
                std::find_if(stateManager.toState(sourceStateIndex)->next[action].begin(),
                             stateManager.toState(sourceStateIndex)->next[action].end(),
                             [&](const TATransition &transition) {

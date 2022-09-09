@@ -8,6 +8,7 @@
 #include "equivalence_oracle.hh"
 #include "intersection.hh"
 #include "ta2za.hh"
+#include "timed_automaton_runner.hh"
 
 #include <utility>
 
@@ -69,7 +70,10 @@ namespace learnta {
     ComplementTimedAutomataEquivalenceOracle(TimedAutomaton target, TimedAutomaton complement,
                                              std::vector<Alphabet> alphabet) : target(std::move(target)),
                                                                                complement(std::move(complement)),
-                                                                               alphabet(std::move(alphabet)) {}
+                                                                               alphabet(std::move(alphabet)) {
+      BOOST_LOG_TRIVIAL(debug) << "Target DTA: \n" << this->target;
+      BOOST_LOG_TRIVIAL(debug) << "Complemented target DTA: \n" << this->complement;
+    }
 
     /*!
      * @brief Make an equivalence query
@@ -77,10 +81,43 @@ namespace learnta {
     [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const override {
       auto subCounterExample = subset(hypothesis);
       if (subCounterExample) {
+        // Confirm that the generated counterexample is really a counterexample
+        TimedAutomatonRunner targetRunner{this->target};
+        TimedAutomatonRunner hypothesisRunner{hypothesis};
+        targetRunner.pre();
+        hypothesisRunner.pre();
+        for (int i = 0; i < subCounterExample->wordSize(); ++i) {
+          targetRunner.step(subCounterExample->getDurations().at(i));
+          hypothesisRunner.step(subCounterExample->getDurations().at(i));
+          targetRunner.step(subCounterExample->getWord().at(i));
+          hypothesisRunner.step(subCounterExample->getWord().at(i));
+
+        }
+        assert(targetRunner.step(subCounterExample->getDurations().back()) != hypothesisRunner.step(subCounterExample->getDurations().back()));
+        targetRunner.post();
+        hypothesisRunner.post();
+
         return subCounterExample;
       }
+      auto supCounterExample = superset(hypothesis);
+      if (supCounterExample) {
+        // Confirm that the generated counterexample is really a counterexample
+        TimedAutomatonRunner targetRunner{this->target};
+        TimedAutomatonRunner hypothesisRunner{hypothesis};
+        targetRunner.pre();
+        hypothesisRunner.pre();
+        for (int i = 0; i < supCounterExample->wordSize(); ++i) {
+          targetRunner.step(supCounterExample->getDurations().at(i));
+          hypothesisRunner.step(supCounterExample->getDurations().at(i));
+          targetRunner.step(supCounterExample->getWord().at(i));
+          hypothesisRunner.step(supCounterExample->getWord().at(i));
+        }
+        assert(targetRunner.step(supCounterExample->getDurations().back()) != hypothesisRunner.step(supCounterExample->getDurations().back()));
+        targetRunner.post();
+        hypothesisRunner.post();
+      }
 
-      return superset(hypothesis);
+      return supCounterExample;
     }
   };
 }

@@ -340,17 +340,21 @@ namespace learnta {
   inline std::vector<std::vector<Constraint>> negate(const std::vector<std::vector<Constraint>> &dnfConstraints) {
     std::vector<std::vector<Constraint>> cnfNegated;
     cnfNegated.reserve(dnfConstraints.size());
+    // Negation as CNF
     std::transform(dnfConstraints.begin(), dnfConstraints.end(), std::back_inserter(cnfNegated), negateAll);
     std::vector<std::vector<Constraint>> dnfNegated;
+    // Transform CNF to DNF
+    bool initial = true;
     for (const auto &disjunct: cnfNegated) {
       if (disjunct.empty()) {
         continue;
       }
-      if (dnfNegated.empty()) {
+      if (initial) {
         dnfNegated.reserve(disjunct.size());
         std::transform(disjunct.begin(), disjunct.end(), std::back_inserter(dnfNegated), [](const auto &constraint) {
           return std::vector<Constraint>{constraint};
         });
+        initial = false;
       } else {
         std::vector<std::vector<Constraint>> newDnfNegated;
         for (const auto &constraint: disjunct) {
