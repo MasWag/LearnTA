@@ -591,8 +591,8 @@ namespace learnta {
         // Our optimization to merge the continuous exterior
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           stateManager.add(state, nextIndex);
-          // Include the exterior
-          tmpPrefixes.at(sourceIndex).removeEqualityUpperBoundAssign();
+          // Include all the continuous successors
+          tmpPrefixes.at(sourceIndex).removeUpperBoundAssign();
           refreshTmpPrefixes(sourceIndex);
         } else {
           BOOST_LOG_TRIVIAL(error)

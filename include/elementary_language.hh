@@ -145,6 +145,11 @@ namespace learnta {
       timedCondition.removeEqualityUpperBoundAssign();
     };
 
+    void removeUpperBoundAssign() {
+      assert(word.size() + 1 == timedCondition.size());
+      timedCondition.removeUpperBoundAssign();
+    };
+
     /*!
      * @brief Constrain the valuation using a timed word
      * @pre prefix is a prefix of this

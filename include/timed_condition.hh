@@ -377,6 +377,16 @@ namespace learnta {
     }
 
     /*!
+     * @brief Remove the upper bounds
+     */
+    void removeUpperBoundAssign() {
+      for (auto i = 0; i < this->zone.getNumOfVar(); i++) {
+        // Bound of \f$\mathbb{T}_{i,N}
+        this->zone.value(i + 1, 0) = Bounds{std::numeric_limits<double>::max(), false};
+      }
+    }
+
+    /*!
      * @brief Make a continuous predecessor by backward-elapsing variables
      */
     [[nodiscard]] TimedCondition predecessor(const std::list<ClockVariables> &variables) const {
