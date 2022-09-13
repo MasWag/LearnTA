@@ -650,6 +650,11 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(trace) << "The discrete successor is new";
                 const auto successor = addState(discrete);
                 newStates.push(successor);
+                BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << tmpPrefixes.at(newStateIndex) << " with action " << action;
+                BOOST_LOG_TRIVIAL(trace) << "Original prefix: " << this->prefixes.at(newStateIndex);
+                BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(newStateIndex);
+                BOOST_LOG_TRIVIAL(trace) << "Guard: " << tmpPrefixes.at(newStateIndex).getTimedCondition().toGuard();
+                BOOST_LOG_TRIVIAL(trace) << "Target: " << successor;
                 sourceMap.set(successor, tmpPrefixes.at(newStateIndex).getTimedCondition());
                 BOOST_LOG_TRIVIAL(trace) << "The new state: " << successor.get();
               }
@@ -762,7 +767,8 @@ namespace learnta {
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
           assert(newTransitions.size() == 1);
-          BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << this->prefixes.at(sourceIndex) << " with action " << action;
+          BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << tmpPrefixes.at(sourceIndex) << " with action " << action;
+          BOOST_LOG_TRIVIAL(trace) << "Original prefix: " << this->prefixes.at(sourceIndex);
           BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(sourceIndex);
           BOOST_LOG_TRIVIAL(trace) << "Guard: " << newTransitions.at(0).guard;
           BOOST_LOG_TRIVIAL(trace) << "Target: " << newTransitions.at(0).target;

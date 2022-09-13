@@ -100,7 +100,7 @@ namespace learnta {
           constraint.reserve(constraint.size() + it->guard.size());
           constraint.insert(constraint.end(), it->guard.begin(), it->guard.end());
 
-          return transition.target != it->target && satisfiable(constraint);
+          return satisfiable(constraint);
         })) {
           return false;
         }
