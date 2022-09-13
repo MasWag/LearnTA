@@ -6,7 +6,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "../include/timed_automata_equivalence_oracle.hh"
-#include "../include/timed_automaton_runner.hh"
 #include "simple_automaton_fixture.hh"
 #include "light_automaton_fixture.hh"
 
@@ -56,14 +55,14 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
     // loc0->loc1 [label="p", reset="{x1 := 0}"]
     wrongAutomaton.states.at(0)->next['p'].emplace_back();
     wrongAutomaton.states.at(0)->next['p'].back().target = wrongAutomaton.states.at(1).get();
-    wrongAutomaton.states.at(0)->next['p'].back().resetVars = {{1, std::nullopt}};
+    wrongAutomaton.states.at(0)->next['p'].back().resetVars = {{1, 0.0}};
 
     // loc1->loc3 [label="s", guard="{x0 >= 38, x1 >= 38}", reset="{x2 := 0}"]
     wrongAutomaton.states.at(1)->next['s'].emplace_back();
     wrongAutomaton.states.at(1)->next['s'].back().target = wrongAutomaton.states.at(3).get();
     wrongAutomaton.states.at(1)->next['s'].back().guard = {learnta::ConstraintMaker(0) >= 38,
                                                            learnta::ConstraintMaker(1) >= 38};
-    wrongAutomaton.states.at(1)->next['s'].back().resetVars = {{2, std::nullopt}};
+    wrongAutomaton.states.at(1)->next['s'].back().resetVars = {{2, 0.0}};
 
     // Transition to the sink state for the totality
     wrongAutomaton.states.at(1)->next['s'].emplace_back();
@@ -76,7 +75,7 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
     wrongAutomaton.states.at(1)->next['r'].back().guard = {learnta::ConstraintMaker(0) >= 19,
                                                            learnta::ConstraintMaker(1) >= 19,
                                                            learnta::ConstraintMaker(1) <= 19};
-    wrongAutomaton.states.at(1)->next['r'].back().resetVars = {{2, std::nullopt}};
+    wrongAutomaton.states.at(1)->next['r'].back().resetVars = {{2, 0.0}};
 
     // loc1->loc2 [label="r", guard="{x0 > 19, x1 > 19, x1 < 20}"]
     wrongAutomaton.states.at(1)->next['r'].emplace_back();
@@ -122,7 +121,7 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
     wrongAutomaton.states.at(2)->next['t'].back().target = wrongAutomaton.states.at(0).get();
     wrongAutomaton.states.at(2)->next['t'].back().guard = {learnta::ConstraintMaker(0) >= 19,
                                                            learnta::ConstraintMaker(1) >= 19};
-    wrongAutomaton.states.at(2)->next['t'].back().resetVars = {{0, 2}};
+    wrongAutomaton.states.at(2)->next['t'].back().resetVars = {{0, static_cast<ClockVariables>(2)}};
 
     // loc3->loc2 [label="r", guard="{x0 >= 38, x1 >= 38}"]
     wrongAutomaton.states.at(3)->next['r'].emplace_back();

@@ -62,8 +62,8 @@ namespace learnta {
                     transition.resetVars.end(),
                     [&](auto &v) {
         v.first += in1.clockSize();
-        if (v.second) {
-          *(v.second) += in1.clockSize();
+        if (v.second.index() == 1) {
+          std::get<ClockVariables>(v.second) += in1.clockSize();
         }
       });
 
@@ -210,8 +210,8 @@ namespace learnta {
                     transition.resetVars.end(),
                     [&](auto &v) {
         v.first += in1.clockSize();
-        if (v.second) {
-          *(v.second) += in1.clockSize();
+        if (v.second.index() == 1) {
+          std::get<ClockVariables>(v.second) += in1.clockSize();
         }
       });
 

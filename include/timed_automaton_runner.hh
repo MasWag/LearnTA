@@ -70,10 +70,10 @@ namespace learnta {
           // Reset the clock variables
           const auto oldValuation = this->clockValuation;
           for (const auto &[resetVariable, targetVariable]: transition.resetVars) {
-            if (targetVariable) {
-              this->clockValuation.at(resetVariable) = oldValuation.at(*targetVariable);
+            if (targetVariable.index() == 1) {
+              this->clockValuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
             } else {
-              this->clockValuation.at(resetVariable) = 0;
+              this->clockValuation.at(resetVariable) = std::get<double>(targetVariable);
             }
           }
           this->state = transition.target;

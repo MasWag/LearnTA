@@ -54,20 +54,20 @@ namespace learnta {
      *
      * clock[i] is reset to 0 if resetVars[i].has_value() == false. clock[i] is reset to clock[*resetVars[i]] otherwise
      */
-    std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> resetVars;
+    std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> resetVars;
     //! @brief The guard for this transition.
     std::vector<Constraint> guard;
 
     TATransition() = default;
 
     TATransition(TAState *target,
-                 std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> resetVars,
+                 std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> resetVars,
                  std::vector<Constraint> guard)
             : target(target), resetVars(std::move(resetVars)), guard(std::move(guard)) {}
 
     TATransition(TAState *target, ClockVariables resetVar, std::vector<Constraint> guard) :
             target(target), guard(std::move(guard)) {
-      resetVars.emplace_back(resetVar, std::nullopt);
+      resetVars.emplace_back(resetVar, 0.0);
     }
 
     TATransition(TATransition const &) = default;
@@ -397,9 +397,9 @@ namespace learnta {
             for (const auto &guard: transition.guard) {
               usedClockVariables.insert(guard.x);
             }
-            for (const auto &[assignedVar, usedVarOpt]: transition.resetVars) {
-              if (usedVarOpt) {
-                usedClockVariables.insert(*usedVarOpt);
+            for (const auto &[assignedVar, newValue]: transition.resetVars) {
+              if (newValue.index() == 1) {
+                usedClockVariables.insert(std::get<ClockVariables>(newValue));
               }
             }
           }
@@ -427,8 +427,8 @@ namespace learnta {
                 it = transition.resetVars.erase(it);
               } else {
                 it->first = clockRenaming.at(it->first);
-                if (it->second) {
-                  *it->second = clockRenaming.at(*it->second);
+                if (it->second.index() == 1) {
+                  it->second = clockRenaming.at(std::get<ClockVariables>(it->second));
                 }
                 ++it;
               }
@@ -495,8 +495,8 @@ namespace learnta {
               if (resetVar >= maxConstants.size()) {
                 maxConstants.resize(resetVar + 1);
               }
-              if (updatedVarOpt && *updatedVarOpt >= maxConstants.size()) {
-                maxConstants.resize(*updatedVarOpt + 1);
+              if (updatedVarOpt.index() == 1 && std::get<ClockVariables>(updatedVarOpt) >= maxConstants.size()) {
+                maxConstants.resize(std::get<ClockVariables>(updatedVarOpt) + 1);
               }
             }
           }
@@ -510,7 +510,30 @@ namespace learnta {
       return std::all_of(this->states.begin(), this->states.end(), std::mem_fn(&TAState::deterministic));
     }
   };
+}
 
+namespace std {
+    static inline std::ostream &operator<<(std::ostream &os,
+                                           const std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> &resetVars) {
+      bool isFirst = true;
+      for (const auto &[resetVar, newVar]: resetVars) {
+        if (!isFirst) {
+          os << ", ";
+        }
+      os << "x" << int(resetVar) << " := ";
+      if (newVar.index() == 1) {
+        os << "x" << int(std::get<ClockVariables>(newVar));
+      } else {
+        os << std::get<double>(newVar);
+      }
+      isFirst = false;
+    }
+
+    return os;
+  }
+}
+
+namespace learnta {
   static inline std::ostream &operator<<(std::ostream &os,
                                          const TimedAutomaton &TA) {
     std::unordered_map<TAState *, bool> isInit;
@@ -542,21 +565,7 @@ namespace learnta {
             os << ", guard=\"{" << edge.guard << "}\"";
           }
           if (!edge.resetVars.empty()) {
-            os << ", reset=\"{";
-            bool isFirst = true;
-            for (const auto &[resetVar, newVar]: edge.resetVars) {
-              if (!isFirst) {
-                os << ", ";
-              }
-              os << "x" << int(resetVar) << " := ";
-              if (newVar) {
-                os << "x" << int(newVar.value());
-              } else {
-                os << "0";
-              }
-              isFirst = false;
-            }
-            os << "}\"";
+            os << ", reset=\"{" << edge.resetVars << "}\"";
           }
           os << "]\n";
         }

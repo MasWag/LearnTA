@@ -24,7 +24,7 @@ void run(int scale) {
   targetAutomaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < scale};
   targetAutomaton.states.at(0)->next['a'].at(1).target = targetAutomaton.states.at(1).get();
   targetAutomaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= scale};
-  targetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
+  targetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, 0.0);
   // Transitions from loc1
   targetAutomaton.states.at(1)->next['a'].at(0).target = targetAutomaton.states.at(0).get();
   targetAutomaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= scale};
@@ -46,7 +46,7 @@ void run(int scale) {
   complementTargetAutomaton.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) < scale};
   complementTargetAutomaton.states.at(0)->next['a'].at(1).target = complementTargetAutomaton.states.at(1).get();
   complementTargetAutomaton.states.at(0)->next['a'].at(1).guard = {learnta::ConstraintMaker(0) >= scale};
-  complementTargetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, std::nullopt);
+  complementTargetAutomaton.states.at(0)->next['a'].at(1).resetVars.emplace_back(0, 0.0);
   // Transitions from loc1
   complementTargetAutomaton.states.at(1)->next['a'].at(0).target = complementTargetAutomaton.states.at(0).get();
   complementTargetAutomaton.states.at(1)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= scale};

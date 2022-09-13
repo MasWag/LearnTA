@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
       automaton.states.push_back(std::make_shared<TAState>(false));
       automaton.states.push_back(std::make_shared<TAState>(true));
       automaton.states.at(0)->next['a'].emplace_back(automaton.states.at(1).get(),
-                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{},
+                                                     std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>{},
                                                      std::vector<Constraint>{ConstraintMaker(0) < 1});
       automaton.initialStates = {automaton.states.at(0)};
       automaton.maxConstraints = {1};
@@ -69,10 +69,10 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
       automaton.states.push_back(std::make_shared<TAState>(true));
       automaton.states.push_back(std::make_shared<TAState>(true));
       automaton.states.at(0)->next['a'].emplace_back(automaton.states.at(1).get(),
-                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{{0, std::nullopt}},
+                                                     std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>{{0, 0.0}},
                                                      std::vector<Constraint>{});
       automaton.states.at(1)->next['a'].emplace_back(automaton.states.at(2).get(),
-                                                     std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>{},
+                                                     std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>{},
                                                      std::vector<Constraint>{ConstraintMaker(0) > 1});
       automaton.initialStates = {automaton.states.at(0)};
       automaton.maxConstraints = {1};

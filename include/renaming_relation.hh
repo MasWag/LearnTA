@@ -13,16 +13,17 @@
 namespace learnta {
   class RenamingRelation : public std::vector<std::pair<std::size_t, std::size_t>> {
   public:
-    [[nodiscard]] std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>>
+    // TODO: Probably we will have to change this function.
+    [[nodiscard]] std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>
     toReset(const TimedCondition &sourceCondition, const TimedCondition &targetCondition) const {
       // Construct the reset from the renaming relation
-      std::vector<std::pair<ClockVariables, std::optional<ClockVariables>>> result;
+      std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> result;
       result.resize(this->size());
       std::transform(this->begin(), this->end(), result.begin(), [&](const auto &renamingPair) {
-        return std::make_pair(renamingPair.second, renamingPair.first);
+        return std::make_pair(renamingPair.second, static_cast<ClockVariables>(renamingPair.first));
       });
       result.erase(std::remove_if(result.begin(), result.end(), [](const auto &resetPair) {
-        return resetPair.first == *resetPair.second;
+        return resetPair.second.index() == 1 && resetPair.first == std::get<ClockVariables>(resetPair.second);
       }), result.end());
 
       // Construct the reset from the timed conditions
@@ -44,7 +45,7 @@ namespace learnta {
           }
         }
         if (i != j) {
-          result.emplace_back(i, j);
+          result.emplace_back(i, static_cast<ClockVariables>(j));
         }
         if (i + 1 < targetCondition.size() && targetCondition.getLowerBound(i, i + 1) != Bounds{0, true}) {
           j++;

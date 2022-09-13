@@ -50,13 +50,13 @@ void run(bool useStaticTests = false) {
   targetAutomaton.states.at(1)->next['u'].back().target = targetAutomaton.states.at(0).get();
   targetAutomaton.states.at(1)->next['c'].emplace_back();
   targetAutomaton.states.at(1)->next['c'].back().target = targetAutomaton.states.at(3).get();
-  targetAutomaton.states.at(1)->next['c'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(1)->next['c'].back().resetVars = {{0, 0.0}};
 
   targetAutomaton.states.at(2)->next['o'].emplace_back();
   targetAutomaton.states.at(2)->next['o'].back().target = targetAutomaton.states.at(0).get();
   targetAutomaton.states.at(2)->next['l'].emplace_back();
   targetAutomaton.states.at(2)->next['l'].back().target = targetAutomaton.states.at(3).get();
-  targetAutomaton.states.at(2)->next['l'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(2)->next['l'].back().resetVars = {{0, 0.0}};
 
   targetAutomaton.states.at(3)->next['o'].emplace_back();
   targetAutomaton.states.at(3)->next['o'].back().target = targetAutomaton.states.at(1).get();
@@ -82,15 +82,15 @@ void run(bool useStaticTests = false) {
 
   targetAutomaton.states.at(8)->next['s'].emplace_back();
   targetAutomaton.states.at(8)->next['s'].back().target = targetAutomaton.states.at(9).get();
-  targetAutomaton.states.at(8)->next['s'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(8)->next['s'].back().resetVars = {{0, 0.0}};
 
   targetAutomaton.states.at(9)->next['u'].emplace_back();
   targetAutomaton.states.at(9)->next['u'].back().target = targetAutomaton.states.at(10).get();
-  targetAutomaton.states.at(9)->next['u'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(9)->next['u'].back().resetVars = {{0, 0.0}};
   targetAutomaton.states.at(9)->next['t'].emplace_back();
   targetAutomaton.states.at(9)->next['t'].back().target = targetAutomaton.states.at(11).get();
   targetAutomaton.states.at(9)->next['t'].back().guard = {learnta::ConstraintMaker(0) >= 3};
-  targetAutomaton.states.at(9)->next['t'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(9)->next['t'].back().resetVars = {{0, 0.0}};
 
   targetAutomaton.states.at(10)->next['t'].emplace_back();
   targetAutomaton.states.at(10)->next['t'].back().target = targetAutomaton.states.at(12).get();
@@ -128,13 +128,13 @@ void run(bool useStaticTests = false) {
   complementTargetAutomaton.states.at(1)->next['u'].back().target = complementTargetAutomaton.states.at(0).get();
   complementTargetAutomaton.states.at(1)->next['c'].emplace_back();
   complementTargetAutomaton.states.at(1)->next['c'].back().target = complementTargetAutomaton.states.at(3).get();
-  complementTargetAutomaton.states.at(1)->next['c'].back().resetVars = {{0, std::nullopt}};
+  complementTargetAutomaton.states.at(1)->next['c'].back().resetVars = {{0, 0.0}};
 
   complementTargetAutomaton.states.at(2)->next['o'].emplace_back();
   complementTargetAutomaton.states.at(2)->next['o'].back().target = complementTargetAutomaton.states.at(0).get();
   complementTargetAutomaton.states.at(2)->next['l'].emplace_back();
   complementTargetAutomaton.states.at(2)->next['l'].back().target = complementTargetAutomaton.states.at(3).get();
-  complementTargetAutomaton.states.at(2)->next['l'].back().resetVars = {{0, std::nullopt}};
+  complementTargetAutomaton.states.at(2)->next['l'].back().resetVars = {{0, 0.0}};
 
   complementTargetAutomaton.states.at(3)->next['o'].emplace_back();
   complementTargetAutomaton.states.at(3)->next['o'].back().target = complementTargetAutomaton.states.at(1).get();
@@ -163,15 +163,15 @@ void run(bool useStaticTests = false) {
 
   complementTargetAutomaton.states.at(8)->next['s'].emplace_back();
   complementTargetAutomaton.states.at(8)->next['s'].back().target = complementTargetAutomaton.states.at(9).get();
-  complementTargetAutomaton.states.at(8)->next['s'].back().resetVars = {{0, std::nullopt}};
+  complementTargetAutomaton.states.at(8)->next['s'].back().resetVars = {{0, 0.0}};
 
   complementTargetAutomaton.states.at(9)->next['u'].emplace_back();
   complementTargetAutomaton.states.at(9)->next['u'].back().target = complementTargetAutomaton.states.at(10).get();
-  complementTargetAutomaton.states.at(9)->next['u'].back().resetVars = {{0, std::nullopt}};
+  complementTargetAutomaton.states.at(9)->next['u'].back().resetVars = {{0, 0.0}};
   complementTargetAutomaton.states.at(9)->next['t'].emplace_back();
   complementTargetAutomaton.states.at(9)->next['t'].back().target = complementTargetAutomaton.states.at(11).get();
   complementTargetAutomaton.states.at(9)->next['t'].back().guard = {learnta::ConstraintMaker(0) >= 3};
-  complementTargetAutomaton.states.at(9)->next['t'].back().resetVars = {{0, std::nullopt}};
+  complementTargetAutomaton.states.at(9)->next['t'].back().resetVars = {{0, 0.0}};
   complementTargetAutomaton.states.at(9)->next['t'].emplace_back();
   complementTargetAutomaton.states.at(9)->next['t'].back().target = complementTargetAutomaton.states.at(14).get();
   complementTargetAutomaton.states.at(9)->next['t'].back().guard = {learnta::ConstraintMaker(0) < 3};

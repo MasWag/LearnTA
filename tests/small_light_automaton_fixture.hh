@@ -31,7 +31,7 @@ struct SmallLightAutomatonFixture {
     // Transitions
     targetAutomaton.states.at(0)->next['s'].emplace_back();
     targetAutomaton.states.at(0)->next['s'].back().target = targetAutomaton.states.at(1).get();
-    targetAutomaton.states.at(0)->next['s'].back().resetVars.emplace_back(0, std::nullopt);
+    targetAutomaton.states.at(0)->next['s'].back().resetVars.emplace_back(0, 0.0);
 
     targetAutomaton.states.at(1)->next['r'].emplace_back();
     targetAutomaton.states.at(1)->next['r'].back().target = targetAutomaton.states.at(0).get();
@@ -64,7 +64,7 @@ struct SmallLightAutomatonFixture {
     // Transitions
     complementTargetAutomaton.states.at(0)->next['s'].emplace_back();
     complementTargetAutomaton.states.at(0)->next['s'].back().target = complementTargetAutomaton.states.at(1).get();
-    complementTargetAutomaton.states.at(0)->next['s'].back().resetVars.emplace_back(0, std::nullopt);
+    complementTargetAutomaton.states.at(0)->next['s'].back().resetVars.emplace_back(0, 0.0);
 
     complementTargetAutomaton.states.at(1)->next['r'].emplace_back();
     complementTargetAutomaton.states.at(1)->next['r'].back().target = complementTargetAutomaton.states.at(0).get();

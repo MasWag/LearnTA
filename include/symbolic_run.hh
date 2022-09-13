@@ -155,16 +155,7 @@ namespace learnta {
 
       for (int i = 0; i < run.word.size(); ++i) {
         os << run.word.at(i) << "\n";
-        for (const auto &guard: run.edges.at(i).guard) {
-          os << guard << ", ";
-        }
-        for (const auto &[resetVar, updatedVarOpt]: run.edges.at(i).resetVars) {
-          if (updatedVarOpt) {
-            os << "x" << int(resetVar) << " := x" << int(*updatedVarOpt) << ", ";
-          } else {
-            os << "x" << int(resetVar) << " := 0, ";
-          }
-        }
+        os << run.edges.at(i).guard << run.edges.at(i).resetVars;
         os << "\n" << run.tightZoneAt(i + 1);
       }
 

@@ -65,6 +65,8 @@ namespace learnta {
 
     /*!
      * @brief Generate transitions
+     *
+     * @todo Check if this is as expected
      */
     [[nodiscard]] std::vector<TATransition> make() const {
       std::vector<TATransition> result;
@@ -83,7 +85,7 @@ namespace learnta {
           if (sourceCondition.size() < targetCondition.size() && std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
             return pair.first == targetCondition.size() - 1;
           }) == resets.end()) {
-            resets.emplace_back(targetCondition.size() - 1, std::nullopt);
+            resets.emplace_back(targetCondition.size() - 1, 0.0);
           }
           result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }

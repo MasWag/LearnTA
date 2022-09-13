@@ -51,7 +51,7 @@ void run() {
 
   targetAutomaton.states.at(1)->next['u'].emplace_back();
   targetAutomaton.states.at(1)->next['u'].back().target = targetAutomaton.states.at(2).get();
-  targetAutomaton.states.at(1)->next['u'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(1)->next['u'].back().resetVars = {{0, 0.0}};
   targetAutomaton.states.at(1)->next['t'].emplace_back();
   targetAutomaton.states.at(1)->next['t'].back().target = targetAutomaton.states.at(3).get();
 
@@ -77,13 +77,13 @@ void run() {
 
   targetAutomaton.states.at(7)->next['u'].emplace_back();
   targetAutomaton.states.at(7)->next['u'].back().target = targetAutomaton.states.at(8).get();
-  targetAutomaton.states.at(7)->next['u'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(7)->next['u'].back().resetVars = {{0, 0.0}};
   targetAutomaton.states.at(7)->next['e'].emplace_back();
   targetAutomaton.states.at(7)->next['e'].back().target = targetAutomaton.states.at(9).get();
-  targetAutomaton.states.at(7)->next['e'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(7)->next['e'].back().resetVars = {{0, 0.0}};
   targetAutomaton.states.at(7)->next['r'].emplace_back();
   targetAutomaton.states.at(7)->next['r'].back().target = targetAutomaton.states.at(10).get();
-  targetAutomaton.states.at(7)->next['r'].back().resetVars = {{0, std::nullopt}};
+  targetAutomaton.states.at(7)->next['r'].back().resetVars = {{0, 0.0}};
   targetAutomaton.states.at(7)->next['a'].emplace_back();
   targetAutomaton.states.at(7)->next['a'].back().target = targetAutomaton.states.at(11).get();
 

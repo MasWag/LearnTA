@@ -45,7 +45,7 @@ void run(int scale) {
   targetAutomaton.states.at(4)->next['c'].resize(1);
   // Transitions from loc0
   targetAutomaton.states.at(0)->next['a'].at(0).target = targetAutomaton.states.at(1).get();
-  targetAutomaton.states.at(0)->next['a'].at(0).resetVars = {{1, std::nullopt}};
+  targetAutomaton.states.at(0)->next['a'].at(0).resetVars = {{1, 0.0}};
   targetAutomaton.states.at(0)->next['b'].at(0).target = targetAutomaton.states.at(4).get();
   targetAutomaton.states.at(0)->next['c'].at(0).target = targetAutomaton.states.at(4).get();
   // Transitions from loc1
