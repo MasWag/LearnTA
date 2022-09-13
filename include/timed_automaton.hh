@@ -539,16 +539,7 @@ namespace learnta {
           os << "        loc" << stateNumber.at(source.get()) << "->loc"
              << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
           if (!edge.guard.empty()) {
-            os << ", guard=\"{";
-            bool isFirst = true;
-            for (const Constraint guard: edge.guard) {
-              if (!isFirst) {
-                os << ", ";
-              }
-              os << guard;
-              isFirst = false;
-            }
-            os << "}\"";
+            os << ", guard=\"{" << edge.guard << "}\"";
           }
           if (!edge.resetVars.empty()) {
             os << ", reset=\"{";
