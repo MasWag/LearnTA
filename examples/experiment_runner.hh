@@ -8,8 +8,16 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
+#include <utility>
 
 #include "timed_automaton.hh"
+#include "sul.hh"
+#include "timed_automaton_runner.hh"
+#include "symbolic_membership_oracle.hh"
+#include "equivalence_oracle_by_test.hh"
+#include "timed_automata_equivalence_oracle.hh"
+#include "learner.hh"
+#include "equivalance_oracle_chain.hh"
 
 namespace learnta {
 
@@ -18,22 +26,22 @@ namespace learnta {
     const std::vector<Alphabet> alphabet;
     TimedAutomaton target;
     std::vector<TimedWord> testWords;
+  public:
 
     void pushTestWord(const TimedWord& testWord) {
       testWords.push_back(testWord);
     }
 
-  public:
-    ExperimentRunner(const std::vector<Alphabet> &alphabet, const TimedAutomaton &target) : alphabet(alphabet),
-                                                                                            target(target) {}
+    ExperimentRunner(std::vector<Alphabet> alphabet, TimedAutomaton target) : alphabet(std::move(alphabet)), target(std::move(target)) {}
 
-  private:
     /*!
      * @brief Execute the experiment
      */
     void run() const {
       BOOST_LOG_TRIVIAL(info) << "Target DTA\n" << this->target;
       TimedAutomaton complement = this->target.complement(this->alphabet);
+      complement.simplifyStrong();
+      complement.simplifyWithZones();
       BOOST_LOG_TRIVIAL(info) << "Complement of the target DTA\n" << complement;
 
       // Construct the learner
@@ -51,7 +59,7 @@ namespace learnta {
       eqOracle->push_back(std::move(eqOracleByTest));
       eqOracle->push_back(
               std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
-                      this->target, this->target, alphabet));
+                      this->target, complement, alphabet));
       learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
 
       // Run the learning
