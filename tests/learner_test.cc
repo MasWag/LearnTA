@@ -10,6 +10,8 @@
 #include "../include/timed_automaton_runner.hh"
 #include "../include/timed_automata_equivalence_oracle.hh"
 
+#include "../examples/unbalanced_fixture.hh"
+
 #include "simple_automaton_fixture.hh"
 #include "small_light_automaton_fixture.hh"
 #include "light_automaton_fixture.hh"
@@ -112,31 +114,33 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     }
   };
 
-  struct SmallLightAutomatonOracleFixture : public SmallLightAutomatonFixture {
+  template<class T>
+  struct OracleFixture : public T {
     std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
     std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
 
-    SmallLightAutomatonOracleFixture() {
+    explicit OracleFixture() : T() {
       auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{this->targetAutomaton});
       this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
       this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
-              new learnta::ComplementTimedAutomataEquivalenceOracle{targetAutomaton,
-                                                                    complementTargetAutomaton,
-                                                                    alphabet});
+              new learnta::ComplementTimedAutomataEquivalenceOracle{this->targetAutomaton,
+                                                                    this->complementTargetAutomaton,
+                                                                    this->alphabet});
     }
   };
 
-  struct LightAutomatonOracleFixture : public LightAutomatonFixture {
+  template<class T, int Scale>
+  struct ScaledOracleFixture : public T {
     std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
     std::unique_ptr<learnta::EquivalenceOracle> eqOracle;
 
-    explicit LightAutomatonOracleFixture(int scale = 5) : LightAutomatonFixture(scale) {
+    explicit ScaledOracleFixture(int scale = Scale) : T(scale) {
       auto runner = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner{this->targetAutomaton});
       this->memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(runner));
       this->eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
-              new learnta::ComplementTimedAutomataEquivalenceOracle{targetAutomaton,
-                                                                    complementTargetAutomaton,
-                                                                    alphabet});
+              new learnta::ComplementTimedAutomataEquivalenceOracle{this->targetAutomaton,
+                                                                    this->complementTargetAutomaton,
+                                                                    this->alphabet});
     }
   };
 
@@ -168,6 +172,14 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     BOOST_CHECK_EQUAL(2, result.stateSize());
   }
 
+  using UnbalancedOracleFixture = ScaledOracleFixture<UnbalancedFixture, 1>;
+  BOOST_FIXTURE_TEST_CASE(unbalanced, UnbalancedOracleFixture) {
+    Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
+    const auto result = learner.run();
+    BOOST_CHECK_EQUAL(10, result.stateSize());
+  }
+
+  using SmallLightAutomatonOracleFixture = OracleFixture<SmallLightAutomatonFixture>;
   BOOST_FIXTURE_TEST_CASE(smallLight, SmallLightAutomatonOracleFixture) {
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
     const auto result = learner.run();
@@ -182,6 +194,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     tester.run("sr", {2, this->scale + 1.0});
   }
 
+  using LightAutomatonOracleFixture = ScaledOracleFixture<LightAutomatonFixture, 5>;
   BOOST_FIXTURE_TEST_CASE(light, LightAutomatonOracleFixture) {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
 
