@@ -514,6 +514,10 @@ namespace learnta {
       return this->zone.strictEqual(condition.zone);
     }
 
+    bool operator!=(const TimedCondition &condition) const {
+      return !this->zone.strictEqual(condition.zone);
+    }
+
     /*!
      * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mathbb{T}_{i,N}\f$.
      */

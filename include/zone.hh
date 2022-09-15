@@ -142,12 +142,13 @@ namespace learnta {
 
     void applyResets(const std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> &resets) {
       for (const auto &[resetVariable, updatedVariable]: resets) {
+        this->unconstrain(resetVariable);
         if (updatedVariable.index() == 1 && resetVariable != std::get<ClockVariables>(updatedVariable)) {
-          this->unconstrain(resetVariable);
           this->value(resetVariable + 1, std::get<ClockVariables>(updatedVariable) + 1) = Bounds{0.0, true};
           this->value(std::get<ClockVariables>(updatedVariable) + 1, resetVariable + 1) = Bounds{0.0, true};
         } else {
-          this->reset(resetVariable, std::get<double>(updatedVariable));
+          this->value(0, resetVariable + 1) = Bounds(-std::get<double>(updatedVariable), true);
+          this->value(resetVariable + 1, 0) = Bounds(std::get<double>(updatedVariable), true);
         }
       }
     }
@@ -238,11 +239,11 @@ namespace learnta {
     }
 
     //! @brief Assign a constant value to the clock variable x
-    void reset(ClockVariables x, const double resetValue = 0.0) {
+    void reset(ClockVariables x) {
       // 0 is the special variable here
       x++;
-      value(0, x) = Bounds(-resetValue, true);
-      value(x, 0) = Bounds(resetValue, true);
+      value(0, x) = Bounds(-0.0, true);
+      value(x, 0) = Bounds(0.0, true);
       value.col(x).tail(value.rows() - 1) = value.col(0).tail(value.rows() - 1);
       value.row(x).tail(value.cols() - 1) = value.row(0).tail(value.cols() - 1);
     }

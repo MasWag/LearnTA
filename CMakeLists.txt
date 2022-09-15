@@ -66,7 +66,9 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/observation_table_test.cc
   tests/learner_test.cc
   tests/constraint_test.cc
-  tests/timed_automaton_test.cc)
+  tests/timed_automaton_test.cc
+  tests/internal_transition_maker_test.cc
+  )
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}

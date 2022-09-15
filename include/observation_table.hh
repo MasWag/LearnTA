@@ -22,6 +22,7 @@
 #include "timed_automaton.hh"
 #include "equivalence.hh"
 #include "renaming_relation.hh"
+#include "internal_transition_maker.hh"
 #include "external_transition_maker.hh"
 
 namespace learnta {
@@ -593,7 +594,7 @@ namespace learnta {
           stateManager.add(state, nextIndex);
           // Include all the continuous successors
           tmpPrefixes.at(sourceIndex).removeUpperBoundAssign();
-          refreshTmpPrefixes(sourceIndex);
+          // refreshTmpPrefixes(sourceIndex);
         } else {
           BOOST_LOG_TRIVIAL(error)
             << "We have not implemented such a case that an unobservable transition is necessary";
@@ -629,7 +630,7 @@ namespace learnta {
         const auto newStateIndices = stateManager.toIndices(newState);
         for (const auto action: alphabet) {
           // TargetState -> the timed condition to reach that state
-          SourceMap sourceMap;
+          InternalTransitionMaker sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
             BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix " << this->prefixes.at(newStateIndex) << " with action " << action;
 
@@ -655,7 +656,10 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(newStateIndex);
                 BOOST_LOG_TRIVIAL(trace) << "Guard: " << tmpPrefixes.at(newStateIndex).getTimedCondition().toGuard();
                 BOOST_LOG_TRIVIAL(trace) << "Target: " << successor;
-                sourceMap.set(successor, tmpPrefixes.at(newStateIndex).getTimedCondition());
+                sourceMap.add(successor, this->prefixes.at(newStateIndex).getTimedCondition(),
+                              this->inP(this->continuousSuccessors.at(newStateIndex)) ?
+                              std::nullopt :
+                              std::make_optional(tmpPrefixes.at(newStateIndex).getTimedCondition()));
                 BOOST_LOG_TRIVIAL(trace) << "The new state: " << successor.get();
               }
               if (this->hasContinuousSuccessor(discrete)) {
@@ -663,68 +667,13 @@ namespace learnta {
                 mergeContinuousSuccessors(discrete);
               }
             }
-            if (false && this->hasContinuousSuccessor(newStateIndex)) {
-              // Try to merge q'' and q_a in the following diagram
-              // q in the following diagram
-              const auto continuous = this->continuousSuccessors.at(newStateIndex);
-              if (!this->hasDiscreteSuccessor(continuous, action) || !this->hasContinuousSuccessor(discrete)) {
-                continue;
-              }
-              // q_a in the following diagram
-              const auto discreteAfterContinuous = this->discreteSuccessors.at(std::make_pair(continuous, action));
-              // q'' in the following diagram
-              const auto continuousAfterDiscrete = this->continuousSuccessors.at(discrete);
-              /*
-               * Check if the following q_a and q'' are similar. If yes, we merge q_a with q'
-               *      newStateIndex--cont-------->  q
-               *           |                        |
-               *         action                   action
-               *           |                        |
-               *           v                        v
-               *           q'--------cont--> q'' ~~ q_a
-               */
-              BOOST_LOG_TRIVIAL(trace) << "continuous -> discrete: " << this->prefixes.at(discreteAfterContinuous);
-              BOOST_LOG_TRIVIAL(trace) << "discrete -> continuous: " << this->prefixes.at(continuousAfterDiscrete);
-              if (this->equivalentWithMemo(continuousAfterDiscrete, discreteAfterContinuous)) {
-                BOOST_LOG_TRIVIAL(trace) << "Start merging of continuous -> discrete and discrete -> continuous";
-                // merge q_a and q'' in the above diagram
-                if (sourceMap[stateManager.toState(continuousAfterDiscrete)].size() == tmpPrefixes.at(continuous).getTimedCondition().size()) {
-                  stateManager.add(stateManager.toState(continuousAfterDiscrete), discreteAfterContinuous);
-                  BOOST_LOG_TRIVIAL(trace) << "Merge " << sourceMap.at(stateManager.toState(discreteAfterContinuous))
-                                           << " and " << tmpPrefixes.at(continuous).getTimedCondition();
-
-                  // We use the convexity of the timed conditions of this and its continuous successor
-                  sourceMap.set(stateManager.toState(discreteAfterContinuous),
-                                sourceMap.at(stateManager.toState(discreteAfterContinuous))
-                                .convexHull(tmpPrefixes.at(continuous).getTimedCondition()));
-                  if (this->hasContinuousSuccessor(discreteAfterContinuous)) {
-                    mergeContinuousSuccessors(discreteAfterContinuous);
-                  }
-                  BOOST_LOG_TRIVIAL(trace) << "The merged state is reachable with " << sourceMap.at(stateManager.toState(discreteAfterContinuous));
-                } else {
-                  BOOST_LOG_TRIVIAL(warning) << "something is wrong\n";
-                }
-              } else if (stateManager.isNew(discreteAfterContinuous)) {
-                BOOST_LOG_TRIVIAL(trace) << "Create a new state for continuous -> discrete: " << this->prefixes.at(discreteAfterContinuous);
-                // Otherwise, we create a new state
-                const auto successor = addState(discreteAfterContinuous);
-                newStates.push(successor);
-                if (hasContinuousSuccessor(discreteAfterContinuous)) {
-                  mergeContinuousSuccessors(discreteAfterContinuous);
-                }
-                sourceMap.set(successor, tmpPrefixes.at(continuous).getTimedCondition());
-              } else{
-                BOOST_LOG_TRIVIAL(warning) << "something is wrong 2\n";
-              }
-            }
           }
 
           // Make transitions
           if (!sourceMap.empty()) {
-            newState->next[action].reserve(sourceMap.size());
-            for (const auto &[target, timedCondition]: sourceMap) {
-              newState->next[action].emplace_back(target.get(), timedCondition.size(), timedCondition.toGuard());
-            }
+            auto newTransitions = sourceMap.make();
+            newState->next[action].reserve(newState->next[action].size() + newTransitions.size());
+            std::move(newTransitions.begin(), newTransitions.end(), std::back_inserter(newState->next[action]));
           }
         }
       }

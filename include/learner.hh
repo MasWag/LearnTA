@@ -37,6 +37,7 @@ namespace learnta {
         auto hypothesis = observationTable.generateHypothesis();
         BOOST_LOG_TRIVIAL(debug) << "Hypothesis before simplification\n" << hypothesis;
         hypothesis.simplifyStrong();
+        BOOST_LOG_TRIVIAL(debug) << "Hypothesis before zone-based simplification\n" << hypothesis;
         hypothesis.simplifyWithZones();
         BOOST_LOG_TRIVIAL(info) << "The learner generated a hypothesis\n" << hypothesis;
         assert(hypothesis.deterministic());

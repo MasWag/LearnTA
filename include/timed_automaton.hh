@@ -47,6 +47,7 @@ namespace learnta {
   @brief A state of timed automata
  */
   struct TATransition {
+    using Resets = std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>;
     //! @brief The pointer to the target state.
     TAState *target{};
     /*!

@@ -157,4 +157,4 @@ x0 >= 2 && x1 < 0 && x1 < 1 &&
     BOOST_TEST(!(ConstraintMaker(0) < 2).isWeaker(ConstraintMaker(0) <= 2));
     BOOST_TEST((ConstraintMaker(0) <= 2).isWeaker(ConstraintMaker(0) < 2));
   }
-}
+BOOST_AUTO_TEST_SUITE_END()

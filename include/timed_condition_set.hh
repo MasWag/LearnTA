@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "timed_condition.hh"
+#include "elementary_language.hh"
 
 namespace learnta {
   /*!
@@ -136,6 +137,14 @@ namespace learnta {
 
     TimedCondition& back() {
       return this->conditions.back();
+    }
+
+    decltype(conditions.begin()) begin() {
+      return this->conditions.begin();
+    }
+
+    decltype(conditions.end()) end() {
+      return this->conditions.end();
     }
   };
 }
