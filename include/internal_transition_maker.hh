@@ -35,6 +35,7 @@ namespace learnta {
      */
     static TATransition::Resets toReset(TimedCondition condition) {
       assert(condition.isSimple());
+      BOOST_LOG_TRIVIAL(trace) << "Input condition: " << condition;
       TATransition::Resets result;
       result.reserve(condition.size());
       for (int i = 0; i < condition.size(); ++i) {
@@ -45,13 +46,14 @@ namespace learnta {
           result.emplace_back(i, upperBound.first);
         } else {
           // When the bound is not a point
-          auto middlePoint = upperBound.first - lowerBound.first;
+          auto middlePoint = (upperBound.first - lowerBound.first) / 2.0;
           result.emplace_back(i, middlePoint);
           condition.restrictLowerBound(i, condition.size() - 1, Bounds{-middlePoint, true});
           condition.restrictUpperBound(i, condition.size() - 1, Bounds{middlePoint, true});
         }
       }
 
+      BOOST_LOG_TRIVIAL(trace) << "Resulting reset: " << result;
       return result;
     }
   public:

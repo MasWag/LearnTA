@@ -114,6 +114,45 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     }
   };
 
+  struct SmallPCFixture {
+    learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
+    const std::vector<Alphabet> alphabet = {'s', 'b', 'a'};
+    SmallPCFixture() {
+      // Generate the target DTA
+      targetAutomaton.states.resize(5);
+      for (auto &state: targetAutomaton.states) {
+        state = std::make_shared<learnta::TAState>(true);
+      }
+
+      // Transitions
+      targetAutomaton.states.at(0)->next['s'].emplace_back();
+      targetAutomaton.states.at(0)->next['s'].back().target = targetAutomaton.states.at(1).get();
+
+      targetAutomaton.states.at(1)->next['s'].emplace_back();
+      targetAutomaton.states.at(1)->next['s'].back().target = targetAutomaton.states.at(2).get();
+      targetAutomaton.states.at(1)->next['s'].back().resetVars = {{0, 0.0}};
+
+      targetAutomaton.states.at(2)->next['s'].emplace_back();
+      targetAutomaton.states.at(2)->next['s'].back().target = targetAutomaton.states.at(3).get();
+
+      targetAutomaton.states.at(3)->next['b'].emplace_back();
+      targetAutomaton.states.at(3)->next['b'].back().target = targetAutomaton.states.at(4).get();
+
+      targetAutomaton.states.at(4)->next['b'].emplace_back();
+      targetAutomaton.states.at(4)->next['b'].back().target = targetAutomaton.states.at(1).get();
+      targetAutomaton.states.at(4)->next['s'].emplace_back();
+      targetAutomaton.states.at(4)->next['s'].back().target = targetAutomaton.states.at(2).get();
+      targetAutomaton.states.at(4)->next['s'].back().guard = {learnta::ConstraintMaker(0) >= 2};
+
+      targetAutomaton.initialStates.push_back(targetAutomaton.states.at(0));
+      targetAutomaton.maxConstraints.resize(1);
+      targetAutomaton.maxConstraints[0] = 2;
+
+      // Generate the complement of the target DTA
+      complementTargetAutomaton = targetAutomaton.complement(alphabet);
+    }
+  };
+
   template<class T>
   struct OracleFixture : public T {
     std::unique_ptr<learnta::SymbolicMembershipOracle> memOracle;
@@ -234,4 +273,10 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
     tester.run("psrep", {2, 2.5 * fixture.scale, 0.5, 2, 2});
   }
 
+  using SmallPCOracleFixture = OracleFixture<SmallPCFixture>;
+  BOOST_FIXTURE_TEST_CASE(smallPC, SmallPCOracleFixture) {
+    Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
+    const auto result = learner.run();
+    BOOST_CHECK_EQUAL(10, result.stateSize());
+  }
 BOOST_AUTO_TEST_SUITE_END()
