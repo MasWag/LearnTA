@@ -231,7 +231,7 @@ namespace learnta {
             auto newCandidate = candidate;
             const auto edge = std::make_pair(currentV1, currentV2);
             auto insertIt = std::lower_bound(newCandidate.begin(), newCandidate.end(), edge);
-            if (*insertIt != edge) {
+            if (insertIt == newCandidate.end() || *insertIt != edge) {
               newCandidate.insert(insertIt, edge);
               if (equivalence(left, leftRow, right, rightRow, suffixes, newCandidate)) {
                 return std::make_optional(newCandidate);

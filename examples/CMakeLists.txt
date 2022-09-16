@@ -60,3 +60,14 @@ target_link_libraries(learn_PC
   "-pthread"
   learnta
   )
+
+add_executable(learn_ota_json EXCLUDE_FROM_ALL
+  learn_ota_json.cc
+  )
+
+target_link_libraries(learn_ota_json
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )
