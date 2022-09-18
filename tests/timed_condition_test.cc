@@ -106,6 +106,46 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     BOOST_CHECK_EQUAL((Bounds{-1, false}), simpleConditions[2].zone.value(0, 2));
   }
 
+  BOOST_AUTO_TEST_CASE(enumurate20220918Single) {
+    TimedCondition condition;
+    std::stringstream stream;
+    condition.zone = Zone::top(2);
+
+    condition.restrictUpperBound(0, 0, Bounds{1, true});
+    condition.restrictLowerBound(0, 0, Bounds{0, false});
+    stream << condition;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  <= 1", stream.str());
+    stream.str("");
+
+    const auto enumeratedConditions = condition.enumerate();
+    BOOST_CHECK_EQUAL(2, enumeratedConditions.size());
+    for (const auto &enumeratedCondition: enumeratedConditions) {
+      BOOST_TEST(condition.includes(enumeratedCondition));
+    }
+  }
+
+  BOOST_AUTO_TEST_CASE(enumurate20220918) {
+    TimedCondition condition;
+    std::stringstream stream;
+    condition.zone = Zone::top(3);
+
+    condition.restrictUpperBound(0, 0, Bounds{1, false});
+    condition.restrictLowerBound(0, 0, Bounds{0, false});
+    condition.restrictUpperBound(0, 1, Bounds{2, false});
+    condition.restrictLowerBound(0, 1, Bounds{-1, false});
+    condition.restrictUpperBound(1, 1, Bounds{1, true});
+    condition.restrictLowerBound(1, 1, Bounds{0, false});
+    stream << condition;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1 && 1 < T_{0, 1}  < 2 && -0 < T_{1, 1}  <= 1", stream.str());
+    stream.str("");
+
+    const auto enumeratedConditions = condition.enumerate();
+    BOOST_CHECK_EQUAL(2, enumeratedConditions.size());
+    for (const auto &enumeratedCondition: enumeratedConditions) {
+      BOOST_TEST(condition.includes(enumeratedCondition));
+    }
+  }
+
   BOOST_AUTO_TEST_CASE(succesor) {
     TimedCondition condition;
     // condition is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
@@ -317,5 +357,4 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     stream << left.convexHull(right);
     BOOST_CHECK_EQUAL("-0 <= T_{0, 0}  < 1", stream.str());
   }
-
 BOOST_AUTO_TEST_SUITE_END()

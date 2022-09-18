@@ -293,15 +293,16 @@ namespace learnta {
             if (isPoint(upperBound, lowerBound) or isUnitOpen(upperBound, lowerBound)) {
               nextConditions.push_back(timedCondition);
             } else {
-              while (-lowerBound <= upperBound) {
+              Bounds currentUpperBound = lowerBound.second ? -lowerBound : std::make_pair(-lowerBound.first + 1, false);
+              while (currentUpperBound <= upperBound) {
                 auto currentTimedCondition = timedCondition;
+                currentTimedCondition.restrictLowerBound(i, j, lowerBound);
+                currentTimedCondition.restrictUpperBound(i, j, currentUpperBound);
                 if (lowerBound.second) {
-                  currentTimedCondition.restrictLowerBound(i, j, lowerBound);
-                  currentTimedCondition.restrictUpperBound(i, j, -lowerBound);
+                  currentUpperBound = {-lowerBound.first + 1, false};
                   lowerBound.second = false;
                 } else {
-                  currentTimedCondition.restrictLowerBound(i, j, lowerBound);
-                  currentTimedCondition.restrictUpperBound(i, j, {-lowerBound.first + 1, false});
+                  currentUpperBound = std::make_pair(-lowerBound.first + 1, true);
                   lowerBound = {lowerBound.first - 1, true};
                 }
                 if (currentTimedCondition.isSimple()) {
