@@ -27,6 +27,7 @@ namespace learnta {
       }), result.end());
 
       // Construct the reset from the timed conditions
+      // TODO: I am not too sure if we need this part
       int j = 0;
       for (int i = 0; i < targetCondition.size(); ++i) {
         if (std::find_if(result.begin(), result.end(), [&](const auto p) { return p.first == i; }) != result.end()) {
@@ -38,7 +39,14 @@ namespace learnta {
         while (targetCondition.getUpperBound(i, targetCondition.size() - 1) !=
                sourceCondition.getUpperBound(j, sourceCondition.size() - 1) ||
                targetCondition.getLowerBound(i, targetCondition.size() - 1) !=
-               sourceCondition.getLowerBound(j, sourceCondition.size() - 1)) {
+               sourceCondition.getLowerBound(j, sourceCondition.size() - 1) ||
+               // The value of j should not be modified by the transition
+               (j < targetCondition.size() &&
+               targetCondition.getUpperBound(j, targetCondition.size() - 1) !=
+               sourceCondition.getUpperBound(j, sourceCondition.size() - 1)) ||
+               (j < targetCondition.size() &&
+               targetCondition.getLowerBound(j, targetCondition.size() - 1) !=
+               sourceCondition.getLowerBound(j, sourceCondition.size() - 1))) {
           j++;
           if (j >= sourceCondition.size()) {
             return result;
@@ -50,6 +58,19 @@ namespace learnta {
         if (i + 1 < targetCondition.size() && targetCondition.getLowerBound(i, i + 1) != Bounds{0, true}) {
           j++;
         }
+      }
+
+      return result;
+    }
+
+    template<class T>
+    std::vector<T> apply(const std::vector<T> &value) const {
+      std::vector<T> result = value;
+      for (const auto &[source, target]: *this) {
+        if (result.size() <= target) {
+          result.resize(target);
+        }
+        result.at(target) = result.at(source);
       }
 
       return result;

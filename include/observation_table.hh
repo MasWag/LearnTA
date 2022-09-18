@@ -688,8 +688,10 @@ namespace learnta {
                                           const auto &renamingRelation) {
           auto jumpedState = stateManager.toState(jumpedTarget);
           transitionMaker.add(jumpedState, renamingRelation,
-                              tmpPrefixes.at(source).getTimedCondition(),
-                              tmpPrefixes.at(jumpedTarget).getTimedCondition());
+                              this->prefixes.at(source).getTimedCondition(),
+                              this->prefixes.at(jumpedTarget).getTimedCondition(),
+                              this->inP(this->continuousSuccessors.at(source)) ? std::nullopt :
+                              std::make_optional(tmpPrefixes.at(source).getTimedCondition()));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
