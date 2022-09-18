@@ -82,10 +82,9 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
           auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
-          if (sourceCondition.size() < targetCondition.size() && std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
-            return pair.first == targetCondition.size() - 1;
-          }) == resets.end()) {
-            resets.emplace_back(targetCondition.size() - 1, 0.0);
+          // Initialize the new clock variables
+          for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
+            resets.emplace_back(resetVariable, 0.0);
           }
           result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }
