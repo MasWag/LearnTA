@@ -202,7 +202,7 @@ namespace learnta {
      */
     [[nodiscard]] std::optional<TimedCondition> continuousExteriorIfNotInP(std::size_t index) const {
       const auto it = this->continuousSuccessors.find(index);
-      if (it == this->continuousSuccessors.end() || this->inP(it->second)) {
+      if (true || it == this->continuousSuccessors.end() || this->inP(it->second)) {
         return std::nullopt;
       } else {
         return this->prefixes.at(it->second).removeUpperBound().getTimedCondition();
@@ -717,6 +717,39 @@ namespace learnta {
                   stateManager.toState(sourceIndex)->next[action].size() + newTransitions.size());
           std::move(newTransitions.begin(), newTransitions.end(),
                     std::back_inserter(stateManager.toState(sourceIndex)->next[action]));
+        }
+      }
+
+      //! Construct transitions by continuous immediate exteriors
+      for (const auto source: this->pIndices) {
+        const auto continuousSuccessor = this->continuousSuccessors.at(source);
+        if (this->inP(continuousSuccessor)) {
+          continue;
+        }
+        const auto sourceState = stateManager.toState(continuousSuccessor);
+        // Find a successor in P
+        auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
+                               this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
+                  return this->inP(rel.first);
+                });
+        // The continuous successor after mapping to P.
+        const auto jumpedSourceIndex = it->first;
+        const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
+        // The renaming relation connecting continuousSuccessor and jumpedSourceIndex
+        const RenamingRelation renamingRelation = it->second;
+        auto resetByContinuousExterior = renamingRelation.toReset(this->prefixes.at(continuousSuccessor).getTimedCondition(),
+                                                                  this->prefixes.at(jumpedSourceIndex).getTimedCondition());
+        for (const auto action: alphabet) {
+          const auto jumpedSourceInvariant = this->prefixes.at(jumpedSourceIndex).getTimedCondition().toGuard();
+          // Find a transition consistent with jumpedSourceInvariant
+          auto transitionIt = std::find_if(jumpedSourceState->next.at(action).begin(),
+                                        jumpedSourceState->next.at(action).end(), [&] (const TATransition &transition) {
+            return isWeaker(transition.guard, jumpedSourceInvariant);
+          });
+          assert(transitionIt != jumpedSourceState->next.at(action).end());
+          sourceState->next.at(action).emplace_back(transitionIt->target,
+                                                    composition(transitionIt->resetVars, resetByContinuousExterior),
+                                                    this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
         }
       }
 

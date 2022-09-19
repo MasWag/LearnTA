@@ -575,4 +575,46 @@ namespace learnta {
     os << "}\n";
     return os;
   }
+
+  static inline std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> asMap(const TATransition::Resets & resets) {
+    std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> result;
+    for (const auto &[key, value]: resets) {
+      result[key] = value;
+    }
+
+    return result;
+  }
+
+
+  /*!
+   * @brief Construct the composition (\f$left \circ right\f$) of the resets.
+   */
+  static inline TATransition::Resets composition(const TATransition::Resets &left, const TATransition::Resets &right) {
+    TATransition::Resets result;
+    const auto leftMap = asMap(left);
+    const auto rightMap = asMap(right);
+    result.reserve(leftMap.size() + rightMap.size());
+    // Composite left and right
+    for (const auto &[key, value]: leftMap) {
+      if (value.index() == 0) {
+        result.emplace_back(key, value);
+      } else {
+        const auto midVar = std::get<ClockVariables>(value);
+        auto it = rightMap.find(midVar);
+        if (it == rightMap.end()) {
+          result.emplace_back(key, value);
+        } else {
+          result.emplace_back(key, it->second);
+        }
+      }
+    }
+    // We directly use right if the value is not updated by left
+    for (const auto &[key, value]: rightMap) {
+      if (leftMap.find(key) == leftMap.end()) {
+        result.emplace_back(key, value);
+      }
+    }
+
+    return result;
+  }
 }
