@@ -42,11 +42,11 @@ namespace learnta {
                sourceCondition.getLowerBound(j, sourceCondition.size() - 1) ||
                // The value of j should not be modified by the transition
                (j < targetCondition.size() &&
-               targetCondition.getUpperBound(j, targetCondition.size() - 1) !=
-               sourceCondition.getUpperBound(j, sourceCondition.size() - 1)) ||
+                targetCondition.getUpperBound(j, targetCondition.size() - 1) !=
+                sourceCondition.getUpperBound(j, sourceCondition.size() - 1)) ||
                (j < targetCondition.size() &&
-               targetCondition.getLowerBound(j, targetCondition.size() - 1) !=
-               sourceCondition.getLowerBound(j, sourceCondition.size() - 1))) {
+                targetCondition.getLowerBound(j, targetCondition.size() - 1) !=
+                sourceCondition.getLowerBound(j, sourceCondition.size() - 1))) {
           j++;
           if (j >= sourceCondition.size()) {
             return result;

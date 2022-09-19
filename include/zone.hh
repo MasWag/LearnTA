@@ -3,7 +3,9 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <unordered_map>
 #include <boost/unordered_map.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #include "common_types.hh"
 #include "bounds.hh"
@@ -150,6 +152,33 @@ namespace learnta {
           this->value(0, resetVariable + 1) = Bounds(-std::get<double>(updatedVariable), true);
           this->value(resetVariable + 1, 0) = Bounds(std::get<double>(updatedVariable), true);
         }
+        canonize();
+      }
+    }
+
+    /*!
+     * @brief Make it the weakest precondition of the reset
+     *
+     * In addition to unconstrain the updated variables, we use the renaming information
+     */
+    void revertResets(const std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> &resets) {
+      std::vector<ClockVariables> resetVariables;
+      resetVariables.reserve(resets.size());
+      std::unordered_map<ClockVariables, ClockVariables> reverseAssignments;
+      for (const auto &[resetVariable, updatedVariable]: resets) {
+        resetVariables.push_back(resetVariable);
+        if (updatedVariable.index() == 1 && resetVariable != std::get<ClockVariables>(updatedVariable)) {
+          reverseAssignments[std::get<ClockVariables>(updatedVariable)] = resetVariable;
+        }
+      }
+      for (const auto &resetVariable: boost::adaptors::reverse(resetVariables)) {
+        this->unconstrain(resetVariable);
+        auto it = reverseAssignments.find(resetVariable);
+        if (it != reverseAssignments.end()) {
+          this->value(it->first + 1, it->second + 1) = Bounds{0.0, true};
+          this->value(it->second + 1, it->first + 1) = Bounds{0.0, true};
+        }
+        canonize();
       }
     }
 
@@ -272,6 +301,8 @@ namespace learnta {
      * @brief Assign the weakest pre-condition of the delay
      *
      * @note We allow time elapse of duration zero
+     *
+     * @note Since clock variables cannot be negative, SAT(elapsed(Z) && Z') does not imply SAT(Z && reverseElapsed(Z'))
      */
     void reverseElapse() {
       value.row(0).fill(Bounds(0, true));

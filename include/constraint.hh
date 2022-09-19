@@ -48,6 +48,10 @@ namespace learnta {
       return false;
     }
 
+    [[nodiscard]] bool satisfy(std::vector<double> valuation) const {
+      return satisfy(valuation.at(x));
+    }
+
     using Interpretation = std::vector<double>;
 
     learnta::Order operator()(Interpretation val) const {
@@ -368,12 +372,12 @@ namespace learnta {
         for (auto it = newDnfNegated.begin(); it != newDnfNegated.end();) {
           if (std::any_of(it + 1, newDnfNegated.end(), [&](const auto &constraints) {
             if (isWeaker(constraints, *it)) {
-              BOOST_LOG_TRIVIAL(debug) << constraints << " is weaker than " << *it;
+              BOOST_LOG_TRIVIAL(trace) << constraints << " is weaker than " << *it;
             }
             return isWeaker(constraints, *it);
           }) || std::any_of(newDnfNegated.begin(), it, [&](const auto &constraints) {
             if (isWeaker(constraints, *it)) {
-              BOOST_LOG_TRIVIAL(debug) << constraints << " is weaker than " << *it;
+              BOOST_LOG_TRIVIAL(trace) << constraints << " is weaker than " << *it;
             }
             return isWeaker(constraints, *it);
           })) {

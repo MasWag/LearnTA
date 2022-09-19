@@ -165,4 +165,128 @@ x2 >= 1, x3 >= 1, x5 := x4, x6 := x4, x7 := x4,
     zone.tighten(ConstraintMaker(0) >= 1);
     BOOST_TEST((Bounds{-1, false} == zone.value(0, 1)));
   }
+
+  BOOST_AUTO_TEST_CASE(elapse20220919) {
+    /*
+     * preZone
+     * (0.5, false) (0, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, false) (0, false) (0, false) (0, false)
+     * (0.5, false) (0, true) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, false) (0, false) (0, false) (0, false)
+     * (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false)
+     * (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false)
+     * (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false)
+     * (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (0, true)
+     * (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (0, true)
+     * (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (0, true)
+     * (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (1.79769e+308, false) (0, true) (0, true) (0, true) (0, true)
+     */
+    auto preZone = Zone::top(9);
+    preZone.value(0, 0) = Bounds{0.5, false};
+    preZone.value(0, 1) = Bounds{0, false};
+    preZone.value(0, 5) = Bounds{0, false};
+    preZone.value(0, 6) = Bounds{0, false};
+    preZone.value(0, 7) = Bounds{0, false};
+    preZone.value(0, 8) = Bounds{0, false};
+    preZone.value(1, 0) = Bounds{0.5, false};
+    preZone.value(1, 1) = Bounds{0, true};
+    preZone.value(1, 5) = Bounds{0, false};
+    preZone.value(1, 6) = Bounds{0, false};
+    preZone.value(1, 7) = Bounds{0, false};
+    preZone.value(1, 8) = Bounds{0, false};
+    preZone.value(2, 2) = Bounds{0, true};
+    preZone.value(2, 3) = Bounds{0, true};
+    preZone.value(2, 4) = Bounds{0, true};
+    preZone.value(3, 2) = Bounds{0, true};
+    preZone.value(3, 3) = Bounds{0, true};
+    preZone.value(3, 4) = Bounds{0, true};
+    preZone.value(4, 2) = Bounds{0, true};
+    preZone.value(4, 3) = Bounds{0, true};
+    preZone.value(4, 4) = Bounds{0, true};
+    preZone.value(5, 5) = Bounds{0, true};
+    preZone.value(5, 6) = Bounds{0, true};
+    preZone.value(5, 7) = Bounds{0, true};
+    preZone.value(5, 8) = Bounds{0, true};
+    preZone.value(6, 5) = Bounds{0, true};
+    preZone.value(6, 6) = Bounds{0, true};
+    preZone.value(6, 7) = Bounds{0, true};
+    preZone.value(6, 8) = Bounds{0, true};
+    preZone.value(7, 5) = Bounds{0, true};
+    preZone.value(7, 6) = Bounds{0, true};
+    preZone.value(7, 7) = Bounds{0, true};
+    preZone.value(7, 8) = Bounds{0, true};
+    preZone.value(8, 5) = Bounds{0, true};
+    preZone.value(8, 6) = Bounds{0, true};
+    preZone.value(8, 7) = Bounds{0, true};
+    preZone.value(8, 8) = Bounds{0, true};
+
+    /*
+     * zoneBeforeJump
+     * (0, true) (-0.5, true) (-0, true) (-0, true) (-0, true) (-1, true) (-1, true) (-1, true) (-1, true)
+     * (0.5, true) (0, true) (0.5, true) (0.5, true) (0.5, true) (-0.5, true) (-0.5, true) (-0.5, true) (-0.5, true)
+     * (0, true) (-0.5, true) (0, true) (0, true) (0, true) (-1, true) (-1, true) (-1, true) (-1, true)
+     * (0, true) (-0.5, true) (0, true) (0, true) (0, true) (-1, true) (-1, true) (-1, true) (-1, true)
+     * (0, true) (-0.5, true) (0, true) (0, true) (0, true) (-1, true) (-1, true) (-1, true) (-1, true)
+     * (1, true) (0.5, true) (1, true) (1, true) (1, true) (0, true) (0, true) (0, true) (0, true)
+     * (1, true) (0.5, true) (1, true) (1, true) (1, true) (0, true) (0, true) (0, true) (0, true)
+     * (1, true) (0.5, true) (1, true) (1, true) (1, true) (0, true) (0, true) (0, true) (0, true)
+     * (1, true) (0.5, true) (1, true) (1, true) (1, true) (0, true) (0, true) (0, true) (0, true)
+     */
+    auto zoneBeforeJump = Zone::top(9);
+    zoneBeforeJump.value(0, 0) = Bounds{0, true};
+    zoneBeforeJump.value(0, 1) = Bounds{-0.5, true};
+    zoneBeforeJump.value(0, 2) = Bounds{0, true};
+    zoneBeforeJump.value(0, 3) = Bounds{0, true};
+    zoneBeforeJump.value(0, 4) = Bounds{0, true};
+    zoneBeforeJump.value(0, 5) = Bounds{-1, true};
+    zoneBeforeJump.value(0, 6) = Bounds{-1, true};
+    zoneBeforeJump.value(0, 7) = Bounds{-1, true};
+    zoneBeforeJump.value(0, 8) = Bounds{-1, true};
+    zoneBeforeJump.value(1, 0) = Bounds{0.5, true};
+    zoneBeforeJump.value(1, 1) = Bounds{0, true};
+    zoneBeforeJump.value(1, 2) = Bounds{0.5, true};
+    zoneBeforeJump.value(1, 3) = Bounds{0.5, true};
+    zoneBeforeJump.value(1, 4) = Bounds{0.5, true};
+    zoneBeforeJump.value(1, 5) = Bounds{-0.5, true};
+    zoneBeforeJump.value(1, 6) = Bounds{-0.5, true};
+    zoneBeforeJump.value(1, 7) = Bounds{-0.5, true};
+    zoneBeforeJump.value(1, 8) = Bounds{-0.5, true};
+    for (int i = 2; i <= 4; ++i) {
+      zoneBeforeJump.value(i, 0) = Bounds{0, true};
+      zoneBeforeJump.value(i, 1) = Bounds{-0.5, true};
+      zoneBeforeJump.value(i, 2) = Bounds{0, true};
+      zoneBeforeJump.value(i, 3) = Bounds{0, true};
+      zoneBeforeJump.value(i, 4) = Bounds{0, true};
+      zoneBeforeJump.value(i, 5) = Bounds{-1, true};
+      zoneBeforeJump.value(i, 6) = Bounds{-1, true};
+      zoneBeforeJump.value(i, 7) = Bounds{-1, true};
+      zoneBeforeJump.value(i, 8) = Bounds{-1, true};
+    }
+    for (int i = 5; i <= 8; ++i) {
+      zoneBeforeJump.value(i, 0) = Bounds{1, true};
+      zoneBeforeJump.value(i, 1) = Bounds{0.5, true};
+      zoneBeforeJump.value(i, 2) = Bounds{1, true};
+      zoneBeforeJump.value(i, 3) = Bounds{1, true};
+      zoneBeforeJump.value(i, 4) = Bounds{1, true};
+      zoneBeforeJump.value(i, 5) = Bounds{0, true};
+      zoneBeforeJump.value(i, 6) = Bounds{0, true};
+      zoneBeforeJump.value(i, 7) = Bounds{0, true};
+      zoneBeforeJump.value(i, 8) = Bounds{0, true};
+    }
+
+    {
+      // Use the precondition
+      auto tmpZoneBeforeJump = zoneBeforeJump;
+      tmpZoneBeforeJump.reverseElapse();
+      tmpZoneBeforeJump &= preZone;
+      BOOST_TEST(!tmpZoneBeforeJump.isSatisfiable());
+/*      tmpZoneBeforeJump.elapse();
+      zoneBeforeJump &= tmpZoneBeforeJump;*/
+    }
+/*    const auto sampledValuation = zoneBeforeJump.sample();
+    auto backwardPreZone = Zone{sampledValuation, preZone.M};
+    BOOST_TEST((backwardPreZone && zoneBeforeJump).isSatisfiable());
+    std::cout << "\n" << backwardPreZone;
+    backwardPreZone.reverseElapse();
+    std::cout << "\n" << backwardPreZone;
+    BOOST_TEST((backwardPreZone && preZone).isSatisfiable());*/
+  }
 BOOST_AUTO_TEST_SUITE_END()

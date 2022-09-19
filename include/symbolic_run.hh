@@ -18,6 +18,19 @@
 #include "timed_automaton.hh"
 #include "zone_automaton_state.hh"
 
+namespace std {
+  inline static std::ostream& operator<<(std::ostream& stream, const std::vector<double> &valuation) {
+    stream << "{";
+    for (int i = 0; i < valuation.size(); ++i) {
+      if (i > 0) {
+        stream << ", ";
+      }
+      stream << valuation.at(i);
+    }
+    stream << "}";
+    return stream;
+  }
+}
 namespace learnta {
   /*!
    * @brief Run of a zone automaton
@@ -78,19 +91,23 @@ namespace learnta {
      * We note that our zone construction is state --time_elapse--> intermediate --discrete_jump--> next_state.
      */
     [[nodiscard]] std::optional<TimedWord> reconstructWord() const {
-      // Sample the last concrete state;
-      auto postZoneState = this->back();
+      BOOST_LOG_TRIVIAL(debug) << "Started reconstructWord";
+      // The zone after the jump (here, this is the last zone)
       auto postZone = this->tightZones.back();
       if (!postZone.isSatisfiable()) {
         return std::nullopt;
       }
+      // Sample the last concrete state
       auto postValuation = postZone.sample();
 
       const auto N = this->edges.size();
       std::list<double> durations;
 
       for (int i = N - 1; i >= 0; --i) {
+        BOOST_LOG_TRIVIAL(debug) << "postValuation: " << postValuation;
+        // The zone just after the previous jump
         auto preZone = this->tightZoneAt(i);
+        preZone.canonize();
 
         // Construct the zone just before jump
         auto zoneBeforeJump = Zone{postValuation, postZone.M};
@@ -98,12 +115,11 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(error) << "Failed to reconstruct word from a symbolic run\n" << *this;
           return std::nullopt;
         }
-        assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto transition = this->edgeAt(i);
-        for (const auto &[resetVariable, updatedVariable]: transition.resetVars) {
-          zoneBeforeJump.unconstrain(resetVariable);
-        }
+        // Handle the reset
+        zoneBeforeJump.revertResets(transition.resetVars);
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
+        // Handle the guard
         for (const auto guard: transition.guard) {
           zoneBeforeJump.tighten(guard);
           if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
@@ -111,28 +127,35 @@ namespace learnta {
             BOOST_LOG_TRIVIAL(error) << "The unsatisfiable zone\n" << zoneBeforeJump;
             return std::nullopt;
           }
-          assert(zoneBeforeJump.isSatisfiableNoCanonize());
         }
         {
-          auto tmpPreZone = preZone;
-          tmpPreZone.elapse();
-          zoneBeforeJump &= tmpPreZone;
-          if (!zoneBeforeJump.isSatisfiableNoCanonize()) {
+          // Use the precondition
+          auto tmpZoneBeforeJump = zoneBeforeJump;
+          tmpZoneBeforeJump.reverseElapse();
+          tmpZoneBeforeJump &= preZone;
+          if (!tmpZoneBeforeJump.isSatisfiable()) {
             // The word reconstruction may fail due to state mering
             BOOST_LOG_TRIVIAL(debug) << "Failed to reconstruct word from a symbolic run\n" << *this;
             return std::nullopt;
           }
+          tmpZoneBeforeJump.elapse();
+          zoneBeforeJump &= tmpZoneBeforeJump;
         }
 
         // Sample the valuation just before discrete jump
         assert(zoneBeforeJump.isSatisfiableNoCanonize());
         const auto valuationBeforeJump = zoneBeforeJump.sample();
+        assert(std::all_of(transition.guard.begin(), transition.guard.end(), [&] (const auto &guard) {
+          return guard.satisfy(valuationBeforeJump);
+        }));
         auto backwardPreZone = Zone{valuationBeforeJump, postZone.M};
         backwardPreZone.reverseElapse();
         const auto preValuation = (preZone && backwardPreZone).sample();
         if (preValuation.empty()) {
           durations.push_front(0);
         } else {
+          BOOST_LOG_TRIVIAL(trace) << "valuationBeforeJump: " << valuationBeforeJump;
+          BOOST_LOG_TRIVIAL(trace) << "preValuation: " << preValuation;
           durations.push_front(valuationBeforeJump.at(0) - preValuation.at(0));
         }
 
@@ -146,7 +169,40 @@ namespace learnta {
       std::move(durations.begin(), durations.end(), durationsVector.begin());
       durationsVector.push_back(0);
 
+      assert(validate(durationsVector));
       return std::make_optional(TimedWord{word, durationsVector});
+    }
+
+    /*!
+     * @brief Check if the given list of durations is consistent with the symbolic run.
+     */
+    [[nodiscard]] bool validate(const std::vector<double> &durations) const {
+      std::vector<double> valuation;
+      valuation.resize(this->tightZones.front().getNumOfVar());
+      for (int i = 0; i < this->edges.size(); ++i) {
+        std::transform(valuation.begin(), valuation.end(), valuation.begin(), [&] (const auto &value) {
+          return value + durations.at(i);
+        });
+        const auto transition = this->edges.at(i);
+        if (std::all_of(transition.guard.begin(), transition.guard.end(), [&](const Constraint &guard) {
+          return guard.satisfy(valuation);
+        })) {
+          // Reset the clock variables
+          const auto oldValuation = valuation;
+          for (const auto &[resetVariable, targetVariable]: transition.resetVars) {
+            if (targetVariable.index() == 1) {
+              valuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
+            } else {
+              valuation.at(resetVariable) = std::get<double>(targetVariable);
+            }
+          }
+          BOOST_LOG_TRIVIAL(trace) << "valuation: " << valuation;
+        } else {
+          return false;
+        }
+      }
+
+      return true;
     }
 
     //! @brief Print the symbolic run

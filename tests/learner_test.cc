@@ -275,6 +275,7 @@ BOOST_AUTO_TEST_SUITE(LearnerTest)
 
   using SmallPCOracleFixture = OracleFixture<SmallPCFixture>;
   BOOST_FIXTURE_TEST_CASE(smallPC, SmallPCOracleFixture) {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
     Learner learner{this->alphabet, std::move(this->memOracle), std::move(this->eqOracle)};
     const auto result = learner.run();
     BOOST_CHECK_EQUAL(10, result.stateSize());
