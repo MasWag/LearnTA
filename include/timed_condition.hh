@@ -565,7 +565,21 @@ namespace learnta {
      */
     [[nodiscard]] bool includes(const TimedCondition &condition) const {
       return this->zone.includes(condition.zone);
-    };
+    }
+
+    /*!
+     * @brief Returns the intersection of two timed conditions
+     */
+    TimedCondition operator&&(const TimedCondition &another) const {
+      return TimedCondition{this->zone && another.zone};
+    }
+
+    /*!
+     * @brief Returns if the timed condition is satisfiable
+     */
+    [[nodiscard]] bool isSatisfiableNoCanonize() const {
+      return this->zone.isSatisfiableNoCanonize();
+    }
   };
 }
 

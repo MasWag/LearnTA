@@ -185,10 +185,14 @@ namespace learnta {
     /*!
      * @brief Returns the intersection of two zones
      */
-    Zone operator&&(const Zone &another) {
+    Zone operator&&(const Zone &another) const {
       assert(this->value.cols() == another.value.cols());
       assert(this->value.rows() == another.value.rows());
-      return Zone{this->value.array().min(another.value.array())};
+      auto result = Zone{this->value.array().min(another.value.array())};
+      result.M = this->M;
+      result.canonize();
+
+      return result;
     }
 
     /*!
@@ -198,6 +202,8 @@ namespace learnta {
       assert(this->value.cols() == another.value.cols());
       assert(this->value.rows() == another.value.rows());
       this->value = this->value.cwiseMin(another.value);
+      canonize();
+
       return *this;
     }
 

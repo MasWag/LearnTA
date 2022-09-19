@@ -72,6 +72,7 @@ namespace learnta {
              const TimedCondition &sourceCondition, const TimedCondition &targetCondition,
              const std::optional<TimedCondition> &sourceExternalConditionOpt = std::nullopt) {
       if (sourceExternalConditionOpt) {
+        assert(!(sourceCondition && *sourceExternalConditionOpt).isSatisfiableNoCanonize());
         boundaryExteriors.emplace_back(sourceCondition, *sourceExternalConditionOpt);
       }
       auto it = sourceMap.find(std::make_pair(targetState, renamingRelation));
@@ -109,11 +110,8 @@ namespace learnta {
           const auto targetCondition = targetConditions.getConditions().at(i);
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
-          const auto it = std::find_if(boundaryExteriors.begin(), boundaryExteriors.end(), [&](const auto pair) {
-            return sourceCondition.includes(pair.first);
-          });
-          if (it == boundaryExteriors.end()) {
-            // We only have to refresh the new variable
+          // Generate non-boundary transitions
+          {
             auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
             // Initialize the new clock variables
             for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
@@ -124,10 +122,11 @@ namespace learnta {
               }
             }
             result.emplace_back(target.get(), resets, sourceCondition.toGuard());
-          } else {
-            assert(sourceCondition == it->first);
+          }
+          // Generate boundary transitions
+          for (const auto &[internalCondition, externalCondition]: this->boundaryExteriors) {
             // We project to the non-exterior area
-            const auto nonExteriorValuation = toValuation(sourceCondition);
+            const auto nonExteriorValuation = toValuation(internalCondition);
             // Map the valuation using the renaming relation
             const auto renamedValuation = currentRenamingRelation.apply<double>(nonExteriorValuation);
             TATransition::Resets resets;
@@ -138,7 +137,7 @@ namespace learnta {
             for (auto resetVariable = renamedValuation.size(); resetVariable < targetCondition.size(); ++resetVariable) {
               resets.emplace_back(resetVariable, 0.0);
             }
-            result.emplace_back(target.get(), resets, it->second.toGuard());
+            result.emplace_back(target.get(), resets, externalCondition.toGuard());
           }
         }
       }

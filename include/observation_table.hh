@@ -197,6 +197,18 @@ namespace learnta {
       return this->continuousSuccessors.find(i) != this->continuousSuccessors.end();
     }
 
+    /*!
+     * @breif Return the immediate continuous exterior ext(p) if it is not in P.
+     */
+    [[nodiscard]] std::optional<TimedCondition> continuousExteriorIfNotInP(std::size_t index) const {
+      const auto it = this->continuousSuccessors.find(index);
+      if (it == this->continuousSuccessors.end() || this->inP(it->second)) {
+        return std::nullopt;
+      } else {
+        return this->prefixes.at(it->second).removeUpperBound().getTimedCondition();
+      }
+    }
+
   public:
     /*!
      * @brief Initialize the observation table
@@ -657,9 +669,7 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(trace) << "Guard: " << tmpPrefixes.at(newStateIndex).getTimedCondition().toGuard();
                 BOOST_LOG_TRIVIAL(trace) << "Target: " << successor;
                 sourceMap.add(successor, this->prefixes.at(newStateIndex).getTimedCondition(),
-                              this->inP(this->continuousSuccessors.at(newStateIndex)) ?
-                              std::nullopt :
-                              std::make_optional(tmpPrefixes.at(newStateIndex).getTimedCondition()));
+                              this->continuousExteriorIfNotInP(newStateIndex));
                 BOOST_LOG_TRIVIAL(trace) << "The new state: " << successor.get();
               }
               if (this->hasContinuousSuccessor(discrete)) {
@@ -690,8 +700,7 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition(),
-                              this->inP(this->continuousSuccessors.at(source)) ? std::nullopt :
-                              std::make_optional(tmpPrefixes.at(source).getTimedCondition()));
+                              this->continuousExteriorIfNotInP(source));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -717,13 +726,6 @@ namespace learnta {
 
         auto newTransitions = transitionMaker.make();
         if (!newTransitions.empty()) {
-          assert(newTransitions.size() == 1);
-          BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << tmpPrefixes.at(sourceIndex) << " with action " << action;
-          BOOST_LOG_TRIVIAL(trace) << "Original prefix: " << this->prefixes.at(sourceIndex);
-          BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(sourceIndex);
-          BOOST_LOG_TRIVIAL(trace) << "Guard: " << newTransitions.at(0).guard;
-          BOOST_LOG_TRIVIAL(trace) << "Target: " << newTransitions.at(0).target;
-
           stateManager.toState(sourceIndex)->next[action].reserve(
                   stateManager.toState(sourceIndex)->next[action].size() + newTransitions.size());
           std::move(newTransitions.begin(), newTransitions.end(),

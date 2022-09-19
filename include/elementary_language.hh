@@ -150,6 +150,14 @@ namespace learnta {
       timedCondition.removeUpperBoundAssign();
     };
 
+    [[nodiscard]] ElementaryLanguage removeUpperBound() const {
+      assert(word.size() + 1 == timedCondition.size());
+      auto result = *this;
+      result.removeUpperBoundAssign();
+
+      return result;
+    };
+
     /*!
      * @brief Constrain the valuation using a timed word
      * @pre prefix is a prefix of this

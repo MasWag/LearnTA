@@ -62,13 +62,14 @@ namespace learnta {
      *
      * The transition is from \f$(u, \Lambda)\f$, but can also be from the continuous immediate exterior \f$ext^t(\Lambda)\f$, where
      *     - \f$\Lambda\f$ is sourceCondition,
-     *     - \f$\Lambda \lor ext^t(\Lambda)\f$ is sourceExternalCondition
+     *     - \f$ext^t(\Lambda)\f$ is sourceExternalCondition
      */
     void add(const std::shared_ptr<TAState> &targetState, const TimedCondition &sourceCondition,
              const std::optional<TimedCondition> &sourceExternalConditionOpt = std::nullopt) {
       BOOST_LOG_TRIVIAL(trace) << "sourceCondition: " << sourceCondition;
 
       if (sourceExternalConditionOpt) {
+        assert(!(sourceCondition && *sourceExternalConditionOpt).isSatisfiableNoCanonize());
         BOOST_LOG_TRIVIAL(trace) << "sourceExternalConditionOpt: " << *sourceExternalConditionOpt;
         boundaryExteriors.emplace_back(sourceCondition, *sourceExternalConditionOpt);
       }
@@ -103,19 +104,20 @@ namespace learnta {
 
       for (const auto&[target, sourceConditions]: sourceMap) {
         for (const auto &sourceCondition: sourceConditions.getConditions()) {
-          const auto it = std::find_if(boundaryExteriors.begin(), boundaryExteriors.end(), [&](const auto pair) {
-            return sourceCondition.includes(pair.first);
-          });
-          if (it == boundaryExteriors.end()) {
+          // Generate non-boundary transitions
+          {
             // We only have to refresh the new variable
             const TATransition::Resets resets{std::make_pair(sourceCondition.size(), 0.0)};
             result.emplace_back(target.get(), resets, sourceCondition.toGuard());
-          } else {
-            assert(sourceCondition == it->first);
-            // We project to the non-exterior area and refresh the new variable
-            auto resets = toReset(sourceCondition);
-            resets.emplace_back(sourceCondition.size(), 0.0);
-            result.emplace_back(target.get(), resets, it->second.toGuard());
+          }
+          // Generate boundary transitions
+          for (const auto &[internalCondition, externalCondition]: this->boundaryExteriors) {
+            if (sourceCondition.includes(internalCondition)) {
+              // We project to the non-exterior area and refresh the new variable
+              auto resets = toReset(sourceCondition);
+              resets.emplace_back(sourceCondition.size(), 0.0);
+              result.emplace_back(target.get(), resets, externalCondition.toGuard());
+            }
           }
         }
       }
