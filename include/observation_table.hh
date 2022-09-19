@@ -614,19 +614,6 @@ namespace learnta {
         }
       };
 
-      /*!
-       * @brief Map to maintain the target state and the timed condition to invoke the transition
-       *
-       * This is used when making guards
-       */
-      class SourceMap : public std::unordered_map<std::shared_ptr<TAState>, TimedCondition> {
-      public:
-        void set(const std::shared_ptr<TAState> &target, const TimedCondition &condition) {
-          BOOST_LOG_TRIVIAL(trace) << "target: " << target.get() << " condition: " << condition.toGuard();
-          (*this)[target] = condition;
-        }
-      };
-
       const auto initialState = addState(0);
       // construct the initial state
       mergeContinuousSuccessors(0);
@@ -646,7 +633,7 @@ namespace learnta {
           for (const auto &newStateIndex: newStateIndices) {
             BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix " << this->prefixes.at(newStateIndex) << " with action " << action;
 
-            // Skip if there is no discrete nor continuous successors in the observation table
+            // Skip if there is no discrete successor in the observation table
             if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
               BOOST_LOG_TRIVIAL(trace) << "No discrete successor";
               continue;
