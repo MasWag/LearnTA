@@ -91,7 +91,7 @@ namespace learnta {
      * We note that our zone construction is state --time_elapse--> intermediate --discrete_jump--> next_state.
      */
     [[nodiscard]] std::optional<TimedWord> reconstructWord() const {
-      BOOST_LOG_TRIVIAL(debug) << "Started reconstructWord";
+      BOOST_LOG_TRIVIAL(trace) << "Started reconstructWord";
       // The zone after the jump (here, this is the last zone)
       auto postZone = this->tightZones.back();
       if (!postZone.isSatisfiable()) {
@@ -104,7 +104,7 @@ namespace learnta {
       std::list<double> durations;
 
       for (int i = N - 1; i >= 0; --i) {
-        BOOST_LOG_TRIVIAL(debug) << "postValuation: " << postValuation;
+        BOOST_LOG_TRIVIAL(trace) << "postValuation: " << postValuation;
         // The zone just after the previous jump
         auto preZone = this->tightZoneAt(i);
         preZone.canonize();
