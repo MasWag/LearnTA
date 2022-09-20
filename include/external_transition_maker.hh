@@ -21,6 +21,7 @@ namespace learnta {
   /*!
    * @brief A class to make a transition from P to ext(P)
    *
+   * @todo We need a refactoring once it works
    */
   class ExternalTransitionMaker {
   private:
@@ -30,7 +31,7 @@ namespace learnta {
     boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedConditionSet> targetMap;
     // Pairs of \f$\Lambda\f$ and \f$ext^t(\Lambda)\f$ such that \f$\Lambda\f$ is a boundary of P and successor(P)
     std::vector<std::pair<TimedCondition, TimedCondition>> boundaryExteriors;
-
+  public:
     /*!
      * @brief Construct a reset to a value in the timed condition
      *
@@ -56,7 +57,7 @@ namespace learnta {
 
       return result;
     }
-  public:
+
     /*!
      * @brief Add a transition to targetState
      *
@@ -115,7 +116,7 @@ namespace learnta {
             auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
             // Initialize the new clock variables
             for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
-              if (resets.end() != std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
+              if (resets.end() == std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
                 return pair.first == resetVariable;
               })) {
                 resets.emplace_back(resetVariable, 0.0);

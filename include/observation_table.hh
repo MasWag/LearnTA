@@ -735,10 +735,19 @@ namespace learnta {
         // The continuous successor after mapping to P.
         const auto jumpedSourceIndex = it->first;
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
-        // The renaming relation connecting continuousSuccessor and jumpedSourceIndex
-        const RenamingRelation renamingRelation = it->second;
-        auto resetByContinuousExterior = renamingRelation.toReset(this->prefixes.at(continuousSuccessor).getTimedCondition(),
-                                                                  this->prefixes.at(jumpedSourceIndex).getTimedCondition());
+        const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
+        // We project to the non-exterior area
+        const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
+        // Map the valuation using the renaming relation
+        const auto renamedValuation = it->second.apply<double>(nonExteriorValuation);
+        TATransition::Resets resetByContinuousExterior;
+        for (int var = 0; var < renamedValuation.size(); ++var) {
+          resetByContinuousExterior.emplace_back(var, renamedValuation.at(var));
+        }
+        // Initialize the new clock variables
+        for (auto resetVariable = renamedValuation.size(); resetVariable < jumpedSourceCondition.size(); ++resetVariable) {
+          resetByContinuousExterior.emplace_back(resetVariable, 0.0);
+        }
         for (const auto action: alphabet) {
           const auto jumpedSourceInvariant = this->prefixes.at(jumpedSourceIndex).getTimedCondition().toGuard();
           // Find a transition consistent with jumpedSourceInvariant
