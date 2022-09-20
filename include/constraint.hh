@@ -78,7 +78,7 @@ namespace learnta {
      * @returns false if the compared variables are different
      * @returns false if the compared constraints bound from the different order (i.e., upper vs. lower)
      */
-    [[nodiscard]] bool isWeaker(Constraint another) const {
+    [[nodiscard]] bool isWeaker(const Constraint &another) const {
       if (this->x != another.x) {
         return false;
       }
