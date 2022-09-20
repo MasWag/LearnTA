@@ -29,8 +29,6 @@ namespace learnta {
     boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedConditionSet> sourceMap;
     // (TargetTAState, RenamingRelation) -> TargetTimedCondition
     boost::unordered_map<std::pair<std::shared_ptr<TAState>, RenamingRelation>, TimedConditionSet> targetMap;
-    // Pairs of \f$\Lambda\f$ and \f$ext^t(\Lambda)\f$ such that \f$\Lambda\f$ is a boundary of P and successor(P)
-    std::vector<std::pair<TimedCondition, TimedCondition>> boundaryExteriors;
   public:
     /*!
      * @brief Construct a reset to a value in the timed condition
@@ -65,17 +63,9 @@ namespace learnta {
      *     - \f$\Lambda\f$ is sourceCondition,
      *     - \f$\Lambda\f$ is targetCondition, and
      *     - \f$R\f$ is renamingRelation.
-     *
-     * We can also include the transition from the continuous immediate exterior \f$ext^t(\Lambda)\f$, where
-     *  - \f$\Lambda \lor ext^t(\Lambda)\f$ is sourceExternalCondition
      */
     void add(const std::shared_ptr<TAState> &targetState, const RenamingRelation &renamingRelation,
-             const TimedCondition &sourceCondition, const TimedCondition &targetCondition,
-             const std::optional<TimedCondition> &sourceExternalConditionOpt = std::nullopt) {
-      if (sourceExternalConditionOpt) {
-        assert(!(sourceCondition && *sourceExternalConditionOpt).isSatisfiableNoCanonize());
-        boundaryExteriors.emplace_back(sourceCondition, *sourceExternalConditionOpt);
-      }
+             const TimedCondition &sourceCondition, const TimedCondition &targetCondition) {
       auto it = sourceMap.find(std::make_pair(targetState, renamingRelation));
       if (it == sourceMap.end()) {
         sourceMap[std::make_pair(targetState, renamingRelation)] = TimedConditionSet{sourceCondition};
@@ -85,14 +75,6 @@ namespace learnta {
         it->second.push_back(sourceCondition);
         targetMap.at(std::make_pair(targetState, renamingRelation)).push_back(targetCondition);
       }
-    }
-
-    /*!
-     * @brief Include the transition of the immediate exterior of the current conditions
-     */
-    void includeImmediateExterior(const std::shared_ptr<TAState> &targetState,
-                                  const RenamingRelation &renamingRelation) {
-      sourceMap[std::make_pair(targetState, renamingRelation)].removeEqualityUpperBoundAssign();
     }
 
     /*!
@@ -111,35 +93,17 @@ namespace learnta {
           const auto targetCondition = targetConditions.getConditions().at(i);
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
-          // Generate non-boundary transitions
-          {
-            auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
-            // Initialize the new clock variables
-            for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
-              if (resets.end() == std::find_if(resets.begin(), resets.end(), [&] (const auto &pair) {
-                return pair.first == resetVariable;
-              })) {
-                resets.emplace_back(resetVariable, 0.0);
-              }
-            }
-            result.emplace_back(target.get(), resets, sourceCondition.toGuard());
-          }
-          // Generate boundary transitions
-          for (const auto &[internalCondition, externalCondition]: this->boundaryExteriors) {
-            // We project to the non-exterior area
-            const auto nonExteriorValuation = toValuation(internalCondition);
-            // Map the valuation using the renaming relation
-            const auto renamedValuation = currentRenamingRelation.apply<double>(nonExteriorValuation);
-            TATransition::Resets resets;
-            for (int var = 0; var < renamedValuation.size(); ++var) {
-              resets.emplace_back(var, renamedValuation.at(var));
-            }
-            // Initialize the new clock variables
-            for (auto resetVariable = renamedValuation.size(); resetVariable < targetCondition.size(); ++resetVariable) {
+          // Generate transitions
+          auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
+          // Initialize the new clock variables
+          for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
+            if (resets.end() == std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
+              return pair.first == resetVariable;
+            })) {
               resets.emplace_back(resetVariable, 0.0);
             }
-            result.emplace_back(target.get(), resets, externalCondition.toGuard());
           }
+          result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }
       }
 

@@ -197,18 +197,6 @@ namespace learnta {
       return this->continuousSuccessors.find(i) != this->continuousSuccessors.end();
     }
 
-    /*!
-     * @breif Return the immediate continuous exterior ext(p) if it is not in P.
-     */
-    [[nodiscard]] std::optional<TimedCondition> continuousExteriorIfNotInP(std::size_t index) const {
-      const auto it = this->continuousSuccessors.find(index);
-      if (true || it == this->continuousSuccessors.end() || this->inP(it->second)) {
-        return std::nullopt;
-      } else {
-        return this->prefixes.at(it->second).removeUpperBound().getTimedCondition();
-      }
-    }
-
   public:
     /*!
      * @brief Initialize the observation table
@@ -534,39 +522,11 @@ namespace learnta {
      * @brief Construct a hypothesis DTA from the current timed observation table
      *
      * @pre The observation table is closed, consistent, and exterior-consistent.
-     * @todo We currently construct only the DTAs without unobservable transitions.
+     * @note We currently construct only the DTAs without unobservable transitions.
      */
     TimedAutomaton generateHypothesis() {
       StateManager stateManager;
       std::vector<std::shared_ptr<TAState>> states;
-      // We have a temporary vector of prefixes because we can modify it when merging states
-      auto tmpPrefixes = prefixes;
-      /*!
-       * @berief Propagate the update in tmpPrefixes to the successors
-       *
-       * @param[in] root The root of the modification. The updated row index should be given.
-       * This function should be called after updating tmpPrefixes.
-       */
-      auto refreshTmpPrefixes = [&](std::size_t root) {
-        std::queue<std::size_t> currentQueue;
-        currentQueue.push(root);
-        while (!currentQueue.empty()) {
-          const auto currentIndex = currentQueue.front();
-          currentQueue.pop();
-          if (this->hasContinuousSuccessor(currentIndex)) {
-            const auto continuousIndex = this->continuousSuccessors.at(currentIndex);
-            tmpPrefixes.at(continuousIndex) = tmpPrefixes.at(currentIndex).successor();
-            currentQueue.push(continuousIndex);
-          }
-          for (const auto a: this->alphabet) {
-            if (this->hasDiscreteSuccessor(currentIndex, a)) {
-              const auto discreteIndex = this->discreteSuccessors.at({currentIndex, a});
-              tmpPrefixes.at(discreteIndex) = tmpPrefixes.at(currentIndex).successor(a);
-              currentQueue.push(discreteIndex);
-            }
-          }
-        }
-      };
 
       /*!
        * @brief Make a state corresponding to the given index
@@ -610,9 +570,6 @@ namespace learnta {
         // Our optimization to merge the continuous exterior
         if (isMatch(sourceIndex) == isMatch(nextIndex)) {
           stateManager.add(state, nextIndex);
-          // Include all the continuous successors
-          tmpPrefixes.at(sourceIndex).removeUpperBoundAssign();
-          // refreshTmpPrefixes(sourceIndex);
         } else {
           BOOST_LOG_TRIVIAL(error)
             << "We have not implemented such a case that an unobservable transition is necessary";
@@ -656,13 +613,11 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(trace) << "The discrete successor is new";
                 const auto successor = addState(discrete);
                 newStates.push(successor);
-                BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << tmpPrefixes.at(newStateIndex) << " with action " << action;
-                BOOST_LOG_TRIVIAL(trace) << "Original prefix: " << this->prefixes.at(newStateIndex);
+                BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << this->prefixes.at(newStateIndex) << " with action " << action;
                 BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(newStateIndex);
-                BOOST_LOG_TRIVIAL(trace) << "Guard: " << tmpPrefixes.at(newStateIndex).getTimedCondition().toGuard();
+                BOOST_LOG_TRIVIAL(trace) << "Guard: " << this->prefixes.at(newStateIndex).getTimedCondition().toGuard();
                 BOOST_LOG_TRIVIAL(trace) << "Target: " << successor;
-                sourceMap.add(successor, this->prefixes.at(newStateIndex).getTimedCondition(),
-                              this->continuousExteriorIfNotInP(newStateIndex));
+                sourceMap.add(successor, this->prefixes.at(newStateIndex).getTimedCondition());
                 BOOST_LOG_TRIVIAL(trace) << "The new state: " << successor.get();
               }
               if (this->hasContinuousSuccessor(discrete)) {
@@ -692,8 +647,7 @@ namespace learnta {
           auto jumpedState = stateManager.toState(jumpedTarget);
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
-                              this->prefixes.at(jumpedTarget).getTimedCondition(),
-                              this->continuousExteriorIfNotInP(source));
+                              this->prefixes.at(jumpedTarget).getTimedCondition());
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -771,6 +725,12 @@ namespace learnta {
             return isWeaker(transition.guard, jumpedSourceInvariant);
           });
           assert(transitionIt != jumpedSourceState->next.at(action).end());
+          BOOST_LOG_TRIVIAL(debug) << "source: " << sourceState;
+          BOOST_LOG_TRIVIAL(debug) << "jumpedSource: " << jumpedSourceState;
+          BOOST_LOG_TRIVIAL(debug) << "target: " << transitionIt->target;
+          BOOST_LOG_TRIVIAL(debug) << "resetByContinuousExterior: " << resetByContinuousExterior;
+          BOOST_LOG_TRIVIAL(debug) << "resetByTransition: " << transitionIt->resetVars;
+          BOOST_LOG_TRIVIAL(debug) << "composition: " << composition(transitionIt->resetVars, resetByContinuousExterior);
           sourceState->next.at(action).emplace_back(transitionIt->target,
                                                     composition(transitionIt->resetVars, resetByContinuousExterior),
                                                     this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());

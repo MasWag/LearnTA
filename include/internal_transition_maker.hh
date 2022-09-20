@@ -25,54 +25,17 @@ namespace learnta {
   private:
     // TargetTAState -> SourceTimedCondition
     boost::unordered_map<std::shared_ptr<TAState>, TimedConditionSet> sourceMap;
-    // Pairs of \f$\Lambda\f$ and \f$ext^t(\Lambda)\f$ such that \f$\Lambda\f$ is a boundary of P and successor(P)
-    std::vector<std::pair<TimedCondition, TimedCondition>> boundaryExteriors;
 
-    /*!
-     * @brief Construct a reset to a value in the timed condition
-     *
-     * @pre condition is simple
-     */
-    static TATransition::Resets toReset(TimedCondition condition) {
-      assert(condition.isSimple());
-      BOOST_LOG_TRIVIAL(trace) << "Input condition: " << condition;
-      TATransition::Resets result;
-      result.reserve(condition.size());
-      for (int i = 0; i < condition.size(); ++i) {
-        const auto lowerBound = condition.getLowerBound(i, condition.size() - 1);
-        const auto upperBound = condition.getUpperBound(i, condition.size() - 1);
-        if (lowerBound.first == -upperBound.first && lowerBound.second && upperBound.second) {
-          // When the bound is a point
-          result.emplace_back(i, upperBound.first);
-        } else {
-          // When the bound is not a point
-          auto middlePoint = (upperBound.first - lowerBound.first) / 2.0;
-          result.emplace_back(i, middlePoint);
-          condition.restrictLowerBound(i, condition.size() - 1, Bounds{-middlePoint, true});
-          condition.restrictUpperBound(i, condition.size() - 1, Bounds{middlePoint, true});
-        }
-      }
-
-      BOOST_LOG_TRIVIAL(trace) << "Resulting reset: " << result;
-      return result;
-    }
   public:
     /*!
      * @brief Add a transition to targetState
      *
-     * The transition is from \f$(u, \Lambda)\f$, but can also be from the continuous immediate exterior \f$ext^t(\Lambda)\f$, where
-     *     - \f$\Lambda\f$ is sourceCondition,
-     *     - \f$ext^t(\Lambda)\f$ is sourceExternalCondition
+     * The transition is from \f$(u, \Lambda)\f$, where
+     *     - \f$\Lambda\f$ is sourceCondition.
      */
-    void add(const std::shared_ptr<TAState> &targetState, const TimedCondition &sourceCondition,
-             const std::optional<TimedCondition> &sourceExternalConditionOpt = std::nullopt) {
+    void add(const std::shared_ptr<TAState> &targetState, const TimedCondition &sourceCondition) {
       BOOST_LOG_TRIVIAL(trace) << "sourceCondition: " << sourceCondition;
 
-      if (sourceExternalConditionOpt) {
-        assert(!(sourceCondition && *sourceExternalConditionOpt).isSatisfiableNoCanonize());
-        BOOST_LOG_TRIVIAL(trace) << "sourceExternalConditionOpt: " << *sourceExternalConditionOpt;
-        boundaryExteriors.emplace_back(sourceCondition, *sourceExternalConditionOpt);
-      }
       auto it = sourceMap.find(targetState);
       if (it == sourceMap.end()) {
         sourceMap[targetState] = TimedConditionSet{sourceCondition};
@@ -90,7 +53,7 @@ namespace learnta {
             it->second.push_back(sourceCondition);
           }
         } else {*/
-          it->second.push_back(sourceCondition);
+        it->second.push_back(sourceCondition);
         //}
       }
     }
@@ -102,23 +65,12 @@ namespace learnta {
       std::vector<TATransition> result;
       result.reserve(sourceMap.size());
 
-      for (const auto&[target, sourceConditions]: sourceMap) {
+      for (const auto &[target, sourceConditions]: sourceMap) {
         for (const auto &sourceCondition: sourceConditions.getConditions()) {
-          // Generate non-boundary transitions
-          {
-            // We only have to refresh the new variable
-            const TATransition::Resets resets{std::make_pair(sourceCondition.size(), 0.0)};
-            result.emplace_back(target.get(), resets, sourceCondition.toGuard());
-          }
-          // Generate boundary transitions
-          for (const auto &[internalCondition, externalCondition]: this->boundaryExteriors) {
-            if (sourceCondition.includes(internalCondition)) {
-              // We project to the non-exterior area and refresh the new variable
-              auto resets = toReset(sourceCondition);
-              resets.emplace_back(sourceCondition.size(), 0.0);
-              result.emplace_back(target.get(), resets, externalCondition.toGuard());
-            }
-          }
+          // Generate transitions
+          // We only have to refresh the new variable
+          const TATransition::Resets resets{std::make_pair(sourceCondition.size(), 0.0)};
+          result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }
       }
 
