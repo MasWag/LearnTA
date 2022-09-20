@@ -19,7 +19,7 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const override {
+    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) override {
       for (const auto &oracle: this->oracles) {
         auto result = oracle->findCounterExample(hypothesis);
         if (result) {

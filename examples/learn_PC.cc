@@ -33,6 +33,7 @@
 #include "equivalence_oracle_by_test.hh"
 #include "equivalence_oracle_by_random_test.hh"
 #include "experiment_runner.hh"
+#include "equivalence_oracle_memo.hh"
 
 void run() {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
@@ -138,7 +139,8 @@ void run() {
   eqOracle->push_back(
           std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                   targetAutomaton, complementTargetAutomaton, alphabet));
-  learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
+  learnta::Learner learner{alphabet, std::move(memOracle),
+                           std::make_unique<learnta::EquivalenceOracleMemo>(std::move(eqOracle), targetAutomaton)};
 
   // Run the learning
   std::cout << "Start Learning!!" << std::endl;

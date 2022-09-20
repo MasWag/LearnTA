@@ -21,6 +21,6 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    [[nodiscard]] virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const = 0;
+    [[nodiscard]] virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) = 0;
   };
 }

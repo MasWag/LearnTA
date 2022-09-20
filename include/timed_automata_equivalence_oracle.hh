@@ -78,7 +78,7 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const override {
+    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) override {
       auto subCounterExample = subset(hypothesis);
       if (subCounterExample) {
         // Confirm that the generated counterexample is really a counterexample

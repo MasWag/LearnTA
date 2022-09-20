@@ -18,6 +18,7 @@
 #include "timed_automata_equivalence_oracle.hh"
 #include "learner.hh"
 #include "equivalance_oracle_chain.hh"
+#include "equivalence_oracle_memo.hh"
 
 namespace learnta {
 
@@ -60,7 +61,8 @@ namespace learnta {
       eqOracle->push_back(
               std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
                       this->target, complement, alphabet));
-      learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
+      learnta::Learner learner{alphabet, std::move(memOracle),
+                               std::make_unique<learnta::EquivalenceOracleMemo>(std::move(eqOracle), this->target)};
 
       // Run the learning
       BOOST_LOG_TRIVIAL(info) << "Start Learning!!";

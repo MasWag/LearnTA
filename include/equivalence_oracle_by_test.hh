@@ -26,7 +26,7 @@ namespace learnta {
     /*!
      * @brief Make an equivalence query
      */
-    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) const override {
+    [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) override {
       TimedAutomatonRunner runner(automaton);
       TimedAutomatonRunner hypothesisRunner(hypothesis);
      for (const auto &word: words) {
