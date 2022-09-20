@@ -260,9 +260,15 @@ namespace learnta {
 
         // We have no idea of the target prefix, and we find an equivalent row
         if (!found) {
+          // First, we try to "jump" to the same state
           found = std::any_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto j) {
-            return equivalent(i, j);
+            return this->continuousSuccessors.at(j) == i && equivalent(i, j);
           });
+          if (!found) {
+            found = std::any_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto j) {
+              return equivalent(i, j);
+            });
+          }
         }
         if (!found) {
           // The observation table is not closed
@@ -728,10 +734,19 @@ namespace learnta {
         }
         const auto sourceState = stateManager.toState(continuousSuccessor);
         // Find a successor in P
+        // First, we try to "jump" to the same state
         auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
                                this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
-                  return this->inP(rel.first);
+                  return this->inP(rel.first) && stateManager.toState(rel.first) == stateManager.toState(continuousSuccessor);
                 });
+        // When there is no such renaming relation, we use any other predecessor
+        if (it == this->closedRelation.at(continuousSuccessor).end()) {
+          it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
+                                 this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
+                    return this->inP(rel.first);
+                  });
+        }
+        assert(it != this->closedRelation.at(continuousSuccessor).end());
         // The continuous successor after mapping to P.
         const auto jumpedSourceIndex = it->first;
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
