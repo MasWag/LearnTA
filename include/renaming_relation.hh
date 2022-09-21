@@ -65,6 +65,9 @@ namespace learnta {
 
     template<class T>
     std::vector<T> apply(const std::vector<T> &value) const {
+      assert(std::all_of(this->begin(), this->end(), [&value] (const auto pair) {
+        return value.size() > pair.first;
+      }));
       std::vector<T> result = value;
       for (const auto &[source, target]: *this) {
         if (result.size() <= target) {
