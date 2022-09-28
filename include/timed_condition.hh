@@ -578,6 +578,10 @@ namespace learnta {
     [[nodiscard]] bool isSatisfiableNoCanonize() const {
       return this->zone.isSatisfiableNoCanonize();
     }
+
+    [[nodiscard]] std::size_t hash_value() const {
+      return learnta::hash_value(this->zone);
+    }
   };
 }
 
@@ -601,5 +605,9 @@ namespace learnta {
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::TimedCondition &b) {
     return learnta::print(os, b);
+  }
+
+  inline std::size_t hash_value(learnta::TimedCondition const &timedCondition) {
+    return timedCondition.hash_value();
   }
 }

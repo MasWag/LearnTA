@@ -50,6 +50,10 @@ namespace learnta {
       return os;
     }
 
+    [[nodiscard]] const FractionalOrder &getFractionalOrder() const {
+      return fractionalOrder;
+    }
+
     bool operator==(const BackwardRegionalElementaryLanguage &another) const {
       return this->word == another.word && this->timedCondition == another.timedCondition &&
              this->fractionalOrder == another.fractionalOrder;
@@ -58,5 +62,9 @@ namespace learnta {
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::BackwardRegionalElementaryLanguage &lang) {
     return lang.print(os);
+  }
+
+  inline std::size_t hash_value(learnta::BackwardRegionalElementaryLanguage const &lang) {
+    return boost::hash_value(std::make_tuple(lang.getWord(), lang.getTimedCondition(), lang.getFractionalOrder()));
   }
 }

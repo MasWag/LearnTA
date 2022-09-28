@@ -138,8 +138,14 @@ namespace learnta {
       return this->equivalent(i, j);
     }
 
+    boost::unordered_map<std::tuple<std::size_t, std::size_t, BackwardRegionalElementaryLanguage>, std::pair<std::size_t, bool>> equivalentWithColumnCache;
     [[nodiscard]] bool
-    equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix) const {
+    equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix) {
+      auto key = std::make_tuple(i, j, newSuffix);
+      auto it = equivalentWithColumnCache.find(key);
+      if (it != equivalentWithColumnCache.end() && this->suffixes.size() == it->second.first) {
+        return it->second.second;
+      }
       auto leftRow = this->table.at(i);
       leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
       auto rightRow = this->table.at(j);
@@ -147,8 +153,11 @@ namespace learnta {
       auto newSuffixes = this->suffixes;
       newSuffixes.push_back(newSuffix);
 
-      return findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
-                                    newSuffixes).has_value();
+      const auto result = findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
+                                                 newSuffixes).has_value();
+      equivalentWithColumnCache[key] = std::make_pair(this->suffixes.size(), result);
+
+      return result;
     }
 
     [[nodiscard]] bool

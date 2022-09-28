@@ -183,9 +183,17 @@ namespace learnta {
 
       return os;
     }
+
+    std::size_t hash_value() const {
+      return boost::hash_value(std::make_pair(this->order, this->size));
+    }
   };
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::FractionalOrder &order) {
     return order.print(os);
+  }
+
+  inline std::size_t hash_value(learnta::FractionalOrder const &order) {
+    return order.hash_value();
   }
 }
