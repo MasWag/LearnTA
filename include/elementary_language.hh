@@ -35,9 +35,7 @@ namespace learnta {
      * @brief Construct the empty elementary language containing only 0.
      */
     static ElementaryLanguage empty() {
-      ElementaryLanguage elementary;
-      elementary.word = "";
-      elementary.timedCondition = TimedCondition::empty();
+      ElementaryLanguage elementary {"", TimedCondition::empty()};
       assert(elementary.word.size() + 1 == elementary.timedCondition.size());
       return elementary;
     }

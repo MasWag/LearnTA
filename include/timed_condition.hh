@@ -127,41 +127,39 @@ namespace learnta {
      * @post The dimension of the resulting timed conditions is the sum of the dimensions of the inputs - 1.
      */
     [[nodiscard]] TimedCondition operator+(const TimedCondition &another) const {
-      TimedCondition result;
       const size_t N = this->size();
       const size_t M = another.size();
-      result = TimedCondition();
-      result.zone = Zone::top(N + M);
+      Zone result = Zone::top(N + M);
       // Copy \f$A_{(0, 0), (N + 1, N + 1)}\f$ to \f$C_{(0, 0), (N + 1, N + 1)}\f$.
-      result.zone.value.block(0, 0, N + 1, N + 1) = this->zone.value;
+      result.value.block(0, 0, N + 1, N + 1) = this->zone.value;
       for (int i = N + 1; i < N + M; ++i) {
         // Copy \f$A_{(1, 0), (N, 1)}\f$ to \f$C_{(1, i), (N, 1)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
-        result.zone.value.block(1, i, N, 1) = this->zone.value.block(1, 0, N, 1);
+        result.value.block(1, i, N, 1) = this->zone.value.block(1, 0, N, 1);
         // Copy \f$A_{(0, 1), (1, N)}\f$ to \f$C_{(i, 1), (1, N)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
-        result.zone.value.block(i, 1, 1, N) = this->zone.value.block(0, 1, 1, N);
+        result.value.block(i, 1, 1, N) = this->zone.value.block(0, 1, 1, N);
       }
       if (M >= 2) {
         // Copy \f$B_{(2, 2), (M - 1, M - 1)}\f$ to \f$C_{(N + 1, N + 1), (M - 1, M - 1)}\f$.
-        result.zone.value.block(N + 1, N + 1, M - 1, M - 1) = another.zone.value.block(2, 2, M - 1, M - 1);
+        result.value.block(N + 1, N + 1, M - 1, M - 1) = another.zone.value.block(2, 2, M - 1, M - 1);
         // Copy \f$B_{(2, 0), (M - 1, 1)}\f$ to \f$C_{(N + 1, 0), (M - 1, 1)}\f$.
-        result.zone.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(2, 0, M - 1, 1);
+        result.value.block(N + 1, 0, M - 1, 1) = another.zone.value.block(2, 0, M - 1, 1);
         // Copy \f$B_{(0, 2), (1, M - 1)}\f$ to \f$C_{(0, N + 1), (1, M - 1)}\f$.
-        result.zone.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 2, 1, M - 1);
+        result.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 2, 1, M - 1);
       }
       for (int i = 1; i <= N; ++i) {
         // Add  \f$B_{(2, 1), (M - 1, 1)}\f$ to \f$C_{(N + 1, i), (M - 1, 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
-        result.zone.value.block(N + 1, i, M - 1, 1).array() += another.zone.value.block(2, 1, M - 1, 1).array();
+        result.value.block(N + 1, i, M - 1, 1).array() += another.zone.value.block(2, 1, M - 1, 1).array();
         // Add  \f$B_{(1, 2), (1, M - 1)}\f$ to \f$C_{(i, N + 1), (1, M - 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
-        result.zone.value.block(i, N + 1, 1, M - 1).array() += another.zone.value.block(1, 2, 1, M - 1).array();
+        result.value.block(i, N + 1, 1, M - 1).array() += another.zone.value.block(1, 2, 1, M - 1).array();
       }
       // Add  \f$B_{(1, 0)}\f$ to \f$C_{(1, 0), (N, 1)}\f$.
-      result.zone.value.block(1, 0, N, 1).array() += another.zone.value(1, 0);
+      result.value.block(1, 0, N, 1).array() += another.zone.value(1, 0);
       // Add  \f$B_{(0, 1)}\f$ to \f$C_{(0, 1), (1, N)}\f$.
-      result.zone.value.block(0, 1, 1, N).array() += another.zone.value(0, 1);
+      result.value.block(0, 1, 1, N).array() += another.zone.value(0, 1);
 
-      result.zone.canonize();
+      result.canonize();
 
-      return result;
+      return TimedCondition{std::move(result)};
     }
 
     /*!
