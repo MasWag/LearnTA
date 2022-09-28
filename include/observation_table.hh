@@ -371,6 +371,26 @@ namespace learnta {
       assert(!this->equivalentWithMemo(i, j));
     }
 
+    /*!
+     * @brief Resolve an inconsistency due to continuous successors
+     *
+     * @pre equivalent(i, j)
+     * @pre !equivalent(i, j, predecessor(suffix))
+     * @post !equivalent(i, j)
+     */
+    void resolveContinuousInconsistency(const std::size_t i, const std::size_t j, const std::size_t suffixInd) {
+      assert(this->equivalentWithMemo(i, j));
+      const auto newSuffix = suffixes.at(suffixInd).predecessor();
+      assert(!equivalent(i, j, newSuffix));
+      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      BOOST_LOG_TRIVIAL(debug) << "Original suffix: " << suffixes.at(suffixInd);
+      suffixes.push_back(newSuffix);
+
+      this->refreshTable();
+      // i and j should not be equivalent after adding the new suffix
+      assert(!this->equivalentWithMemo(i, j));
+    }
+
   public:
     /*!
      * @brief Make the observation table consistent
@@ -395,17 +415,16 @@ namespace learnta {
                 return false;
               }
             }
-// We do not use continuous consistency since it does not work in general
-#if 0
-            if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))) {
-              // The observation table is inconsistent due to a continuous successor
-              BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the continuous successors of "
-                                       << this->prefixes.at(i) << " and " << this->prefixes.at(j);
-              resolveContinuousInconsistency(i, j);
+            for (int k = 0; k < this->suffixes.size(); ++k) {
+              const auto predecessor = this->suffixes.at(k).predecessor();
+              // TODO: This is slow. we need memoization
+              if (std::find(this->suffixes.begin(), this->suffixes.end(), predecessor) == this->suffixes.end() && !this->equivalent(i, j, predecessor)) {
+                // The observation table is inconsistent due to a continuous predecessor
+                resolveContinuousInconsistency(i, j, k);
 
-              return false;
+                return false;
+              }
             }
-#endif
           }
         }
       }
@@ -470,7 +489,9 @@ namespace learnta {
               suffixes.push_back(suffix);
 
               this->refreshTable();
-              return;
+              if (!this->close()) {
+                return;
+              }
             }
           }
 
