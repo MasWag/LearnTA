@@ -25,6 +25,14 @@ namespace learnta {
                           const std::vector<TimedConditionSet> &rightRow,
                           const std::vector<BackwardRegionalElementaryLanguage> &suffixes,
                           const RenamingRelation &renaming) {
+#ifdef LEARNTA_DEBUG_EQUIVALENCE
+    BOOST_LOG_TRIVIAL(trace) << "left: " << left;
+    BOOST_LOG_TRIVIAL(trace) << "right: " << right;
+    BOOST_LOG_TRIVIAL(trace) << "leftRowSize: " << leftRow.back().size();
+    // BOOST_LOG_TRIVIAL(trace) << "leftRowBack: " << leftRow.back().front();
+    BOOST_LOG_TRIVIAL(trace) << "rightRowSize: " << rightRow.back().size();
+    BOOST_LOG_TRIVIAL(trace) << "suffix.back(): " << suffixes.back();
+#endif
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());
     // Check the compatibility of prefixes up to renaming
@@ -52,6 +60,33 @@ namespace learnta {
 
     return true;
   }
+
+  /*!
+   * Return if two elementary languages are equivalent
+   *
+   * @pre leftJuxtapositions.size() == rightJuxtapositions.size()
+   */
+   static bool equivalence(JuxtaposedZone leftRightJuxtaposition,
+                           std::vector<JuxtaposedZoneSet> leftJuxtapositions,
+                           std::vector<JuxtaposedZoneSet> rightJuxtapositions,
+                           const RenamingRelation &renaming) {
+     assert(leftJuxtapositions.size() == rightJuxtapositions.size());
+     // Check the compatibility of prefixes up to renaming
+     leftRightJuxtaposition.addRenaming(renaming);
+     if (!leftRightJuxtaposition) {
+       return false;
+     }
+     // Check the compatibility of symbolic membership up to renaming
+     for (int i = 0; i < leftJuxtapositions.size(); ++i) {
+       leftJuxtapositions.at(i).addRenaming(renaming);
+       rightJuxtapositions.at(i).addRenaming(renaming);
+       if (leftJuxtapositions.at(i) != rightJuxtapositions.at(i)) {
+         return false;
+       }
+     }
+
+     return true;
+   }
 
   /*!
    * Construct a renaming constraint if two elementary languages are equivalent
@@ -124,20 +159,23 @@ namespace learnta {
       }
     }
 
+    std::vector<TimedCondition> leftConcatenations, rightConcatenations;
+    leftConcatenations.resize(leftRow.size());
+    rightConcatenations.resize(leftRow.size());
     // 2. Make the set of the strictly constrained variables in the symbolic membership.
     std::vector<std::size_t> constrainedV1, constrainedV2;
     for (int i = 0; i < leftRow.size(); ++i) {
-      const auto leftConcatenation = left + suffixes.at(i);
-      const auto rightConcatenation = right + suffixes.at(i);
+      leftConcatenations.at(i) = (left + suffixes.at(i)).getTimedCondition();
+      rightConcatenations.at(i) = (right + suffixes.at(i)).getTimedCondition();
       // 2-1. We quickly check if they are clearly not equivalent.
       if (leftRow.at(i).empty() != rightRow.at(i).empty()) {
         // One of them is bottom but another is not
         return std::nullopt;
       }
       auto currentV1Constrained =
-              leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenation.getTimedCondition(), N);
+              leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenations.at(i), N);
       auto currentV2Constrained =
-              rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenation.getTimedCondition(), M);
+              rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenations.at(i), M);
       if (currentV1Constrained.empty() != currentV2Constrained.empty()) {
         // One of them is trivial but another is not
         return std::nullopt;
@@ -218,8 +256,16 @@ namespace learnta {
     }
 
     // 4. Check candidate renaming
+    const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+    std::vector<JuxtaposedZoneSet> leftJuxtapositions, rightJuxtapositions;
+    leftJuxtapositions.reserve(leftRow.size());
+    rightJuxtapositions.reserve(leftRow.size());
+    for (int i = 0; i < leftRow.size(); ++i) {
+      leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenations.at(i), suffixes.at(i).wordSize());
+      rightJuxtapositions.emplace_back(leftConcatenations.at(i), rightRow.at(i), suffixes.at(i).wordSize());
+    }
     auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
-      return equivalence(left, leftRow, right, rightRow, suffixes, candidate);
+      return equivalence(leftRightJuxtaposition, leftJuxtapositions, rightJuxtapositions, candidate);
     });
     if (it == candidates.end()) {
       // We add other equations in this case
