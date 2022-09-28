@@ -140,10 +140,20 @@ namespace learnta {
       suffixDurations.front() -= prefixWord.getDurations().back();
       // Generate the elementary language containing the suffix
       const auto forward = fromTimedWord(TimedWord{suffixWord, suffixDurations});
+      // Construct the fractional order
+      std::vector<double> suffixDurationsFractional;
+      suffixDurationsFractional.resize(suffixDurations.size());
+      suffixDurationsFractional.front() = suffixDurations.front() - int(suffixDurations.front());
+      for (int i = 1; i < suffixDurationsFractional.size(); ++i) {
+        suffixDurationsFractional.at(i) = suffixDurationsFractional.at(i - 1) + suffixDurations.at(i);
+        suffixDurationsFractional.at(i) -= int(suffixDurationsFractional.at(i));
+      }
+      assert(std::all_of(suffixDurationsFractional.begin(), suffixDurationsFractional.end(), [] (const double fractional) {
+        return 0 <= fractional && fractional < 1;
+      }));
 
-      // Note: this fractional order is invalid.
       return BackwardRegionalElementaryLanguage{ElementaryLanguage{forward.getWord(), forward.getTimedCondition()},
-                                                forward.fractionalOrder};
+                                                FractionalOrder(suffixDurationsFractional)};
     }
 
     bool operator==(const ForwardRegionalElementaryLanguage &another) const {
@@ -152,7 +162,7 @@ namespace learnta {
     }
 
     std::ostream &print(std::ostream &os) const {
-      os << "(" << this->getWord() << ", " << this->getTimedCondition() << ", " << this->fractionalOrder;
+      os << "(" << this->getWord() << ", " << this->getTimedCondition() << ", " << this->fractionalOrder << ")";
 
       return os;
     }
