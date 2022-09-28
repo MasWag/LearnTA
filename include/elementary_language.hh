@@ -7,6 +7,7 @@
 
 #include <string>
 #include <utility>
+#include <ostream>
 
 #include "timed_condition.hh"
 #include "timed_word.hh"
@@ -184,5 +185,12 @@ namespace learnta {
     [[nodiscard]] const TimedCondition &getTimedCondition() const {
       return timedCondition;
     }
+
+    friend std::ostream &operator<<(std::ostream &os, const ElementaryLanguage &language);
   };
+
+  inline std::ostream &operator<<(std::ostream &os, const ElementaryLanguage &language) {
+    os << "(" << language.word << ", " << language.timedCondition << ")";
+    return os;
+  }
 }
