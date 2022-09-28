@@ -117,4 +117,8 @@ namespace learnta {
   static inline std::ostream &operator<<(std::ostream &os, const learnta::TimedWord &word) {
     return learnta::print(os, word);
   }
+
+  static inline std::size_t hash_value(const TimedWord &word) {
+    return boost::hash_value(std::make_tuple(word.getWord(), word.getDurations()));
+  }
 }

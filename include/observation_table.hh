@@ -417,7 +417,6 @@ namespace learnta {
             }
             for (int k = 0; k < this->suffixes.size(); ++k) {
               const auto predecessor = this->suffixes.at(k).predecessor();
-              // TODO: This is slow. we need memoization
               if (std::find(this->suffixes.begin(), this->suffixes.end(), predecessor) == this->suffixes.end() && !this->equivalent(i, j, predecessor)) {
                 // The observation table is inconsistent due to a continuous predecessor
                 resolveContinuousInconsistency(i, j, k);
