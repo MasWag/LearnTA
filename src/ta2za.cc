@@ -22,7 +22,7 @@ namespace learnta {
               *std::max_element(TA.maxConstraints.begin(), TA.maxConstraints.end()),
               true};
       initialZone.maxConstraints.resize(TA.maxConstraints.size());
-      for (int i = 0; i < initialZone.maxConstraints.size(); ++i) {
+      for (std::size_t i = 0; i < initialZone.maxConstraints.size(); ++i) {
         initialZone.maxConstraints.at(i) = TA.maxConstraints.at(i);
       }
     } else {

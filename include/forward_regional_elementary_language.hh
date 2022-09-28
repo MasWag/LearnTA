@@ -144,7 +144,7 @@ namespace learnta {
       std::vector<double> suffixDurationsFractional;
       suffixDurationsFractional.resize(suffixDurations.size());
       suffixDurationsFractional.front() = suffixDurations.front() - int(suffixDurations.front());
-      for (int i = 1; i < suffixDurationsFractional.size(); ++i) {
+      for (std::size_t i = 1; i < suffixDurationsFractional.size(); ++i) {
         suffixDurationsFractional.at(i) = suffixDurationsFractional.at(i - 1) + suffixDurations.at(i);
         suffixDurationsFractional.at(i) -= int(suffixDurationsFractional.at(i));
       }

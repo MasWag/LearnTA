@@ -28,8 +28,8 @@ namespace learnta {
 
       // Construct the reset from the timed conditions
       // TODO: I am not too sure if we need this part
-      int j = 0;
-      for (int i = 0; i < targetCondition.size(); ++i) {
+      std::size_t j = 0;
+      for (std::size_t i = 0; i < targetCondition.size(); ++i) {
         if (std::find_if(result.begin(), result.end(), [&](const auto p) { return p.first == i; }) != result.end()) {
           continue;
         }

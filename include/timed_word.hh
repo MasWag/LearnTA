@@ -11,6 +11,8 @@
 #include <vector>
 #include <cassert>
 
+#include <boost/functional/hash.hpp>
+
 namespace learnta {
   /*!
    * @brief A timed word
@@ -80,7 +82,7 @@ namespace learnta {
      */
     std::ostream &print(std::ostream &stream) {
       stream << durations[0];
-      for (int i = 0; i < word.size(); i++) {
+      for (std::size_t i = 0; i < word.size(); i++) {
         stream << " " << word[i] << " " << durations[i + 1];
       }
       return stream;
@@ -108,7 +110,7 @@ namespace learnta {
 
   static inline std::ostream &print(std::ostream &os, const learnta::TimedWord &word) {
     os << word.getDurations().front();
-    for (int i = 0; i < word.wordSize(); ++i) {
+    for (std::size_t i = 0; i < word.wordSize(); ++i) {
       os << " " << word.getWord().at(i) << " " << word.getDurations().at(i + 1);
     }
     return os;

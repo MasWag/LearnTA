@@ -263,7 +263,7 @@ namespace learnta {
       }
     }
 
-    for (int i = 0; i < lowerBounds.size(); ++i) {
+    for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
       if (lowerBounds.at(i).first > upperBounds.at(i).first ||
           (lowerBounds.at(i).first == upperBounds.at(i).first && !(lowerBounds.at(i).second && upperBounds.at(i).second))) {
         return false;
@@ -305,7 +305,7 @@ namespace learnta {
       }
     }
 
-    for (int i = 0; i < lowerBounds.size(); ++i) {
+    for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
       if (lowerBounds.at(i) != IntBounds(0, true)) {
         if (lowerBounds.at(i).second) {
           result.push_back(ConstraintMaker(i) >= lowerBounds.at(i).first);
@@ -315,7 +315,7 @@ namespace learnta {
       }
     }
 
-    for (int i = 0; i < upperBounds.size(); ++i) {
+    for (std::size_t i = 0; i < upperBounds.size(); ++i) {
       if (upperBounds.at(i) != IntBounds(std::numeric_limits<int>::max(), false)) {
         if (upperBounds.at(i).second) {
           result.push_back(ConstraintMaker(i) <= upperBounds.at(i).first);

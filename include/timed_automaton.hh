@@ -412,7 +412,7 @@ namespace learnta {
       std::sort(usedClockVariablesVec.begin(), usedClockVariablesVec.end());
       // Clock variable x is renamed to clockRenaming.at(x)
       std::unordered_map < ClockVariables, ClockVariables > clockRenaming;
-      for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
+      for (std::size_t i = 0; i < usedClockVariablesVec.size(); ++i) {
         clockRenaming[usedClockVariablesVec.at(i)] = i;
       }
 
@@ -439,7 +439,7 @@ namespace learnta {
       }
 
       // Rename the max constraints
-      for (int i = 0; i < usedClockVariablesVec.size(); ++i) {
+      for (std::size_t i = 0; i < usedClockVariablesVec.size(); ++i) {
         this->maxConstraints.at(i) = this->maxConstraints.at(usedClockVariablesVec.at(i));
       }
       this->maxConstraints.erase(this->maxConstraints.begin() + usedClockVariablesVec.size(),

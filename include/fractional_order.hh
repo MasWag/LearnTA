@@ -8,6 +8,7 @@
 #include <list>
 #include <unordered_set>
 
+#include <boost/functional/hash.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
@@ -37,7 +38,7 @@ namespace learnta {
     explicit FractionalOrder(const std::vector<double> &fractionalParts) {
       std::vector<std::pair<double, ClockVariables>> fractionalPartsWithIndices;
       fractionalPartsWithIndices.resize(fractionalParts.size());
-      for (int i = 0; i < fractionalParts.size(); ++i) {
+      for (std::size_t i = 0; i < fractionalParts.size(); ++i) {
         fractionalPartsWithIndices.at(i) = std::make_pair(fractionalParts.at(i), i);
       }
       std::sort(fractionalPartsWithIndices.begin(), fractionalPartsWithIndices.end());
@@ -133,7 +134,7 @@ namespace learnta {
      */
     [[nodiscard]] FractionalOrder removeN() const {
       FractionalOrder result = *this;
-      assert(result.order.front().back() + 1 == this->size);
+      assert(static_cast<std::size_t>(result.order.front().back() + 1) == this->size);
       assert(result.size > 0);
       result.order.front().pop_back();
       result.size--;

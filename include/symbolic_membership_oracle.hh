@@ -28,7 +28,7 @@ namespace learnta {
       std::string word = timedWord.getWord();
       std::vector<double> duration = timedWord.getDurations();
       bool result = sul->step(duration[0]);
-      for (int i = 0; i < timedWord.wordSize(); i++) {
+      for (std::size_t i = 0; i < timedWord.wordSize(); i++) {
         sul->step(word[i]);
         result = sul->step(duration[i + 1]);
       }

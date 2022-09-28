@@ -38,7 +38,7 @@ namespace learnta {
     static std::vector<double> toValuation(TimedCondition condition) {
       std::vector<double> result;
       result.resize(condition.size());
-      for (int i = 0; i < condition.size(); ++i) {
+      for (std::size_t i = 0; i < condition.size(); ++i) {
         const auto lowerBound = condition.getLowerBound(i, condition.size() - 1);
         const auto upperBound = condition.getUpperBound(i, condition.size() - 1);
         if (lowerBound.first == -upperBound.first && lowerBound.second && upperBound.second) {
@@ -88,7 +88,7 @@ namespace learnta {
         const auto &[target, currentRenamingRelation] = targetWithRenaming;
         const auto targetConditions = targetMap.at(targetWithRenaming);
         assert(sourceConditions.size() == targetConditions.size());
-        for (int i = 0; i < sourceConditions.size(); ++i) {
+        for (std::size_t i = 0; i < sourceConditions.size(); ++i) {
           const auto sourceCondition = sourceConditions.getConditions().at(i);
           const auto targetCondition = targetConditions.getConditions().at(i);
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "

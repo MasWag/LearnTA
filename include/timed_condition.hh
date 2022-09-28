@@ -34,8 +34,8 @@ namespace learnta {
      */
     explicit TimedCondition(const std::vector<double> &accumulatedDuration) {
       this->zone = Zone::top(accumulatedDuration.size() + 1);
-      for (int i = 0; i < accumulatedDuration.size(); ++i) {
-        for (int j = i; j < accumulatedDuration.size(); ++j) {
+      for (std::size_t i = 0; i < accumulatedDuration.size(); ++i) {
+        for (std::size_t j = i; j < accumulatedDuration.size(); ++j) {
           // T_{i, j} = accumulatedDuration.at(i) - accumulatedDuration.at(j + 1)
           const auto concreteDifference = accumulatedDuration.at(i) -
                                           ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
@@ -132,7 +132,7 @@ namespace learnta {
       Zone result = Zone::top(N + M);
       // Copy \f$A_{(0, 0), (N + 1, N + 1)}\f$ to \f$C_{(0, 0), (N + 1, N + 1)}\f$.
       result.value.block(0, 0, N + 1, N + 1) = this->zone.value;
-      for (int i = N + 1; i < N + M; ++i) {
+      for (std::size_t i = N + 1; i < N + M; ++i) {
         // Copy \f$A_{(1, 0), (N, 1)}\f$ to \f$C_{(1, i), (N, 1)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
         result.value.block(1, i, N, 1) = this->zone.value.block(1, 0, N, 1);
         // Copy \f$A_{(0, 1), (1, N)}\f$ to \f$C_{(i, 1), (1, N)}\f$ for each \f$i \in \{N, N + 1, \dots, N + M - 1\}\f$.
@@ -146,7 +146,7 @@ namespace learnta {
         // Copy \f$B_{(0, 2), (1, M - 1)}\f$ to \f$C_{(0, N + 1), (1, M - 1)}\f$.
         result.value.block(0, N + 1, 1, M - 1) = another.zone.value.block(0, 2, 1, M - 1);
       }
-      for (int i = 1; i <= N; ++i) {
+      for (std::size_t i = 1; i <= N; ++i) {
         // Add  \f$B_{(2, 1), (M - 1, 1)}\f$ to \f$C_{(N + 1, i), (M - 1, 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
         result.value.block(N + 1, i, M - 1, 1).array() += another.zone.value.block(2, 1, M - 1, 1).array();
         // Add  \f$B_{(1, 2), (1, M - 1)}\f$ to \f$C_{(i, N + 1), (1, M - 1)}\f$ for each \f$i \in \{1, \dots, N\}\f$.
@@ -192,7 +192,7 @@ namespace learnta {
     /*!
      * @brief Returns the lower bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
      */
-    [[nodiscard]] Bounds getLowerBound(int i, int j) const {
+    [[nodiscard]] Bounds getLowerBound(std::size_t i, std::size_t j) const {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
@@ -205,7 +205,7 @@ namespace learnta {
     /*!
      * @brief Returns the upper bound of \f$\tau_i + \tau_{i+1} + \dots \tau_{j} \f$.
      */
-    [[nodiscard]] Bounds getUpperBound(int i, int j) const {
+    [[nodiscard]] Bounds getUpperBound(std::size_t i, std::size_t j) const {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
@@ -220,7 +220,7 @@ namespace learnta {
      *
      * @post zone is canonical
      */
-    void restrictLowerBound(int i, int j, Bounds lowerBound) {
+    void restrictLowerBound(std::size_t i, std::size_t j, Bounds lowerBound) {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
@@ -236,7 +236,7 @@ namespace learnta {
      *
      * @post zone is canonical
      */
-    void restrictUpperBound(int i, int j, Bounds upperBound) {
+    void restrictUpperBound(std::size_t i, std::size_t j, Bounds upperBound) {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
@@ -278,8 +278,8 @@ namespace learnta {
         return;
       }
       std::vector<TimedCondition> currentConditions = {*this};
-      for (int i = 0; i < this->size(); i++) {
-        for (int j = i; j < this->size(); j++) {
+      for (std::size_t i = 0; i < this->size(); i++) {
+        for (std::size_t j = i; j < this->size(); j++) {
           std::vector<TimedCondition> nextConditions;
           for (const TimedCondition &timedCondition: currentConditions) {
             if (timedCondition.isSimple()) {
@@ -366,7 +366,7 @@ namespace learnta {
      */
     void removeEqualityUpperBoundAssign() {
 
-      for (auto i = 0; i < this->zone.getNumOfVar(); i++) {
+      for (std::size_t i = 0; i < this->zone.getNumOfVar(); i++) {
         // Bound of \f$\mathbb{T}_{i,N}
         Bounds &upperBound = this->zone.value(i + 1, 0);
         if (upperBound.second) {
@@ -379,7 +379,7 @@ namespace learnta {
      * @brief Remove the upper bounds
      */
     void removeUpperBoundAssign() {
-      for (auto i = 0; i < this->zone.getNumOfVar(); i++) {
+      for (std::size_t i = 0; i < this->zone.getNumOfVar(); i++) {
         // Bound of \f$\mathbb{T}_{i,N}
         this->zone.value(i + 1, 0) = Bounds{std::numeric_limits<double>::max(), false};
       }
@@ -500,7 +500,7 @@ namespace learnta {
     [[nodiscard]] std::vector<std::size_t> getStrictlyConstrainedVariables(const TimedCondition &originalCondition,
                                                                            const size_t examinedVariableSize) const {
       std::vector<std::size_t> result;
-      for (int i = 1; i <= examinedVariableSize; ++i) {
+      for (std::size_t i = 1; i <= examinedVariableSize; ++i) {
         if (this->zone.value.col(i) != originalCondition.zone.value.col(i) ||
             this->zone.value.row(i) != originalCondition.zone.value.row(i)) {
           result.push_back(i - 1);
@@ -525,7 +525,7 @@ namespace learnta {
       std::vector<Constraint> result;
       const auto N = this->size();
       result.reserve(N * 2);
-      for (int i = 0; i < this->size(); ++i) {
+      for (std::size_t i = 0; i < this->size(); ++i) {
         const auto lowerBound = this->getLowerBound(i, N - 1);
         const auto upperBound = this->getUpperBound(i, N - 1);
         if (lowerBound.first != std::numeric_limits<double>::max() && lowerBound != Bounds{0, true}) {
@@ -588,8 +588,8 @@ namespace learnta {
 
 namespace learnta {
   static inline std::ostream &print(std::ostream &os, const learnta::TimedCondition &cond) {
-    for (int i = 0; i < cond.size(); ++i) {
-      for (int j = i; j < cond.size(); ++j) {
+    for (std::size_t i = 0; i < cond.size(); ++i) {
+      for (std::size_t j = i; j < cond.size(); ++j) {
         const auto upperBound = cond.getUpperBound(i, j);
         const auto lowerBound = cond.getLowerBound(i, j);
         os << -lowerBound.first << (lowerBound.second ? " <= " : " < ")

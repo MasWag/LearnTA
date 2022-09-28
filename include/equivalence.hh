@@ -42,7 +42,7 @@ namespace learnta {
       return false;
     }
     // Check the compatibility of symbolic membership up to renaming
-    for (int i = 0; i < leftRow.size(); ++i) {
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
       const auto leftConcatenation = left + suffixes.at(i);
       const auto rightConcatenation = right + suffixes.at(i);
       auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(i),
@@ -77,7 +77,7 @@ namespace learnta {
        return false;
      }
      // Check the compatibility of symbolic membership up to renaming
-     for (int i = 0; i < leftJuxtapositions.size(); ++i) {
+     for (std::size_t i = 0; i < leftJuxtapositions.size(); ++i) {
        leftJuxtapositions.at(i).addRenaming(renaming);
        rightJuxtapositions.at(i).addRenaming(renaming);
        if (leftJuxtapositions.at(i) != rightJuxtapositions.at(i)) {
@@ -164,7 +164,7 @@ namespace learnta {
     rightConcatenations.resize(leftRow.size());
     // 2. Make the set of the strictly constrained variables in the symbolic membership.
     std::vector<std::size_t> constrainedV1, constrainedV2;
-    for (int i = 0; i < leftRow.size(); ++i) {
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
       leftConcatenations.at(i) = (left + suffixes.at(i)).getTimedCondition();
       rightConcatenations.at(i) = (right + suffixes.at(i)).getTimedCondition();
       // 2-1. We quickly check if they are clearly not equivalent.
@@ -200,7 +200,7 @@ namespace learnta {
     std::deque<RenamingRelation> candidates;
     candidates.emplace_back();
     {
-      auto v1Index = 0, v2Index = 0;
+      std::size_t v1Index = 0, v2Index = 0;
       while (v1Index < constrainedV1.size() && v2Index < constrainedV2.size()) {
         v1 = constrainedV1.at(v1Index);
         v2 = constrainedV2.at(v2Index);
@@ -260,7 +260,7 @@ namespace learnta {
     std::vector<JuxtaposedZoneSet> leftJuxtapositions, rightJuxtapositions;
     leftJuxtapositions.reserve(leftRow.size());
     rightJuxtapositions.reserve(leftRow.size());
-    for (int i = 0; i < leftRow.size(); ++i) {
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
       leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenations.at(i), suffixes.at(i).wordSize());
       rightJuxtapositions.emplace_back(leftConcatenations.at(i), rightRow.at(i), suffixes.at(i).wordSize());
     }

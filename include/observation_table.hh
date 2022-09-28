@@ -53,7 +53,7 @@ namespace learnta {
      */
     void refreshTable() {
       table.resize(prefixes.size());
-      for (int prefixIndex = 0; prefixIndex < prefixes.size(); ++prefixIndex) {
+      for (std::size_t prefixIndex = 0; prefixIndex < prefixes.size(); ++prefixIndex) {
         const auto originalSize = table.at(prefixIndex).size();
         table.at(prefixIndex).resize(suffixes.size());
         for (auto suffixIndex = originalSize; suffixIndex < suffixes.size(); ++suffixIndex) {
@@ -424,7 +424,7 @@ namespace learnta {
                 return false;
               }
             }
-            for (int k = 0; k < this->suffixes.size(); ++k) {
+            for (std::size_t k = 0; k < this->suffixes.size(); ++k) {
               const auto predecessor = this->suffixes.at(k).predecessor();
               if (std::find(this->suffixes.begin(), this->suffixes.end(), predecessor) == this->suffixes.end() && !this->equivalent(i, j, predecessor)) {
                 // The observation table is inconsistent due to a continuous predecessor
@@ -737,7 +737,7 @@ namespace learnta {
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
-        for (int var = 0; var < nonExteriorValuation.size(); ++var) {
+        for (std::size_t var = 0; var < nonExteriorValuation.size(); ++var) {
           resetByContinuousExterior.emplace_back(var, nonExteriorValuation.at(var));
         }
         for (const auto action: alphabet) {

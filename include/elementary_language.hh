@@ -114,7 +114,7 @@ namespace learnta {
       std::vector<double> durations;
       std::size_t N = this->wordSize() + 1;
       durations.resize(N);
-      for (int i = 0; i < N; i++) {
+      for (std::size_t i = 0; i < N; i++) {
         Bounds lowerBound = this->timedCondition.getLowerBound(i, i);
         Bounds upperBound = this->timedCondition.getUpperBound(i, i);
         if (isPoint(upperBound, lowerBound)) {
@@ -165,7 +165,7 @@ namespace learnta {
       // Check the precondition
       assert(this->word.compare(0, prefix.wordSize(), prefix.getWord()) == 0);
       TimedCondition resultingCondition = this->timedCondition;
-      for (int i = 0; i < prefix.wordSize(); ++i) {
+      for (std::size_t i = 0; i < prefix.wordSize(); ++i) {
         assert(-resultingCondition.getLowerBound(i, i).first <= prefix.getDurations().at(i));
         resultingCondition.restrictLowerBound(i, i, Bounds{-prefix.getDurations().at(i), true});
         assert(resultingCondition.getUpperBound(i, i).first >= prefix.getDurations().at(i));

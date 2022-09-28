@@ -86,7 +86,7 @@ namespace learnta {
         TimedAutomatonRunner hypothesisRunner{hypothesis};
         targetRunner.pre();
         hypothesisRunner.pre();
-        for (int i = 0; i < subCounterExample->wordSize(); ++i) {
+        for (std::size_t i = 0; i < subCounterExample->wordSize(); ++i) {
           targetRunner.step(subCounterExample->getDurations().at(i));
           hypothesisRunner.step(subCounterExample->getDurations().at(i));
           targetRunner.step(subCounterExample->getWord().at(i));
@@ -106,7 +106,7 @@ namespace learnta {
         TimedAutomatonRunner hypothesisRunner{hypothesis};
         targetRunner.pre();
         hypothesisRunner.pre();
-        for (int i = 0; i < supCounterExample->wordSize(); ++i) {
+        for (std::size_t i = 0; i < supCounterExample->wordSize(); ++i) {
           targetRunner.step(supCounterExample->getDurations().at(i));
           hypothesisRunner.step(supCounterExample->getDurations().at(i));
           targetRunner.step(supCounterExample->getWord().at(i));

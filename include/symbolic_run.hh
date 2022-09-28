@@ -21,7 +21,7 @@
 namespace std {
   inline static std::ostream& operator<<(std::ostream& stream, const std::vector<double> &valuation) {
     stream << "{";
-    for (int i = 0; i < valuation.size(); ++i) {
+    for (std::size_t i = 0; i < valuation.size(); ++i) {
       if (i > 0) {
         stream << ", ";
       }
@@ -179,7 +179,7 @@ namespace learnta {
     [[nodiscard]] bool validate(const std::vector<double> &durations) const {
       std::vector<double> valuation;
       valuation.resize(this->tightZones.front().getNumOfVar());
-      for (int i = 0; i < this->edges.size(); ++i) {
+      for (std::size_t i = 0; i < this->edges.size(); ++i) {
         std::transform(valuation.begin(), valuation.end(), valuation.begin(), [&] (const auto &value) {
           return value + durations.at(i);
         });
@@ -209,7 +209,7 @@ namespace learnta {
     static inline std::ostream &print(std::ostream &os, const learnta::SymbolicRun &run) {
       os << run.tightZones.front();
 
-      for (int i = 0; i < run.word.size(); ++i) {
+      for (std::size_t i = 0; i < run.word.size(); ++i) {
         os << run.word.at(i) << "\n";
         os << run.edges.at(i).guard << run.edges.at(i).resetVars;
         os << "\n" << run.tightZoneAt(i + 1);

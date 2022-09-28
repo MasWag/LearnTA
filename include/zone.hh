@@ -64,7 +64,7 @@ namespace learnta {
     explicit Zone(const std::vector<double> &valuation, Bounds M) : M(std::move(M)) {
       value.resize(valuation.size() + 1, valuation.size() + 1);
       value.fill(Bounds(std::numeric_limits<double>::max(), false));
-      for (int i = 0; i < valuation.size(); ++i) {
+      for (std::size_t i = 0; i < valuation.size(); ++i) {
         this->tighten(i, -1, Bounds{valuation.at(i), true});
         this->tighten(-1, i, Bounds{-valuation.at(i), true});
       }
@@ -96,7 +96,7 @@ namespace learnta {
      */
     static Zone top(std::size_t size) {
       static Zone topZone;
-      if (topZone.value.cols() == size) {
+      if (static_cast<std::size_t>(topZone.value.cols()) == size) {
         return topZone;
       }
       topZone.value.resize(size, size);
@@ -237,7 +237,7 @@ namespace learnta {
       std::vector<double> valuation;
       std::size_t N = this->getNumOfVar();
       valuation.resize(N);
-      for (int i = 0; i < N; i++) {
+      for (std::size_t i = 0; i < N; i++) {
         Bounds lowerBound = this->value(0, i + 1);
         Bounds upperBound = this->value(i + 1, 0);
         if (isPoint(upperBound, lowerBound)) {
@@ -245,7 +245,7 @@ namespace learnta {
         } else {
           double lower = std::max(0.0, -lowerBound.first);
           double upper = upperBound.first;
-          for (int j = 0; j < i; j++) {
+          for (std::size_t j = 0; j < i; j++) {
             Bounds tmpLowerBound = this->value(j + 1, i + 1);
             Bounds tmpUpperBound = this->value(i + 1, j + 1);
             lower = std::max(lower, -tmpLowerBound.first + valuation[j]);
@@ -371,14 +371,14 @@ namespace learnta {
     */
     void extrapolate() {
       static constexpr Bounds infinity = Bounds(std::numeric_limits<double>::max(), false);
-      for (int i = 0; i < this->maxConstraints.size(); ++i) {
+      for (std::size_t i = 0; i < this->maxConstraints.size(); ++i) {
         if (value(i + 1, 0).first > this->maxConstraints.at(i)) {
           value(i + 1, 0) = infinity;
         }
         if (-value(0, i + 1).first > this->maxConstraints.at(i)) {
           value(0, i + 1) = Bounds{-this->maxConstraints.at(i), false};
         }
-        for (int j = 0; j < this->maxConstraints.size(); ++j) {
+        for (std::size_t j = 0; j < this->maxConstraints.size(); ++j) {
           if (value(i + 1, j + 1).first > this->maxConstraints.at(i)) {
             value(i + 1, j + 1) = infinity;
           } else if (-value(0, i + 1).first > this->maxConstraints.at(i)) {

@@ -18,7 +18,7 @@ namespace learnta {
     void run(std::string word, std::vector<double> durations, int wrongLast = 0) {
       hypothesis.pre();
       expected.pre();
-      for (int i = 0; i < word.size(); ++i) {
+      for (std::size_t i = 0; i < word.size(); ++i) {
         if (i + wrongLast <= word.size()) {
           BOOST_CHECK_EQUAL(expected.step(durations.at(i)), hypothesis.step(durations.at(i)));
         } else {
