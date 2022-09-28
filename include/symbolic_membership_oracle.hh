@@ -17,6 +17,7 @@ namespace learnta {
   private:
     std::unique_ptr<SUL> sul;
     boost::unordered_map<TimedWord, bool> membershipCache;
+    boost::unordered_map<ElementaryLanguage, TimedConditionSet> cache;
 
     [[nodiscard]] bool membership(const TimedWord &timedWord) {
       auto it = this->membershipCache.find(timedWord);
@@ -50,6 +51,10 @@ namespace learnta {
      * @returns A list representing the resulting timed conditions
      */
     TimedConditionSet query(const ElementaryLanguage &elementary) {
+      auto it = cache.find(elementary);
+      if (it != cache.end()) {
+        return it->second;
+      }
       std::list<ElementaryLanguage> includedLanguages;
       bool allIncluded = true;
       // Check if each of the simple elementary language is in the target language
@@ -63,18 +68,22 @@ namespace learnta {
 
       // Simplify the result
       if (includedLanguages.empty()) {
-        return TimedConditionSet::bottom();
+        cache[elementary] = TimedConditionSet::bottom();
+        return cache[elementary];
       } else if (allIncluded) {
-        return TimedConditionSet{elementary.getTimedCondition()};
+        cache[elementary] = TimedConditionSet{elementary.getTimedCondition()};
+        return cache[elementary];
       } else {
         auto convexHull = ElementaryLanguage::convexHull(includedLanguages);
         // Check if the convex hull is the exact union.
         if (convexHull.enumerate().size() == includedLanguages.size()) {
           // When the convex hull is the exact union
-          return TimedConditionSet{convexHull.getTimedCondition()};
+          cache[elementary] = TimedConditionSet{convexHull.getTimedCondition()};
+          return cache[elementary];
         } else {
           // When the convex hull is an overapproximation
-          return TimedConditionSet::reduce(std::move(includedLanguages));
+          cache[elementary] = TimedConditionSet::reduce(std::move(includedLanguages));
+          return cache[elementary];
         }
       }
     }

@@ -185,10 +185,22 @@ namespace learnta {
     }
 
     friend std::ostream &operator<<(std::ostream &os, const ElementaryLanguage &language);
+
+    bool operator==(const ElementaryLanguage &another) const {
+      return word == another.word && timedCondition == another.timedCondition;
+    }
+
+    bool operator!=(const ElementaryLanguage &another) const {
+      return !(another == *this);
+    }
   };
 
   inline std::ostream &operator<<(std::ostream &os, const ElementaryLanguage &language) {
     os << "(" << language.word << ", " << language.timedCondition << ")";
     return os;
+  }
+
+  inline std::size_t hash_value(learnta::ElementaryLanguage const &lang) {
+    return boost::hash_value(std::make_tuple(lang.getWord(), lang.getTimedCondition()));
   }
 }
