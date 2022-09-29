@@ -176,7 +176,7 @@ namespace learnta {
      *
      * @sa JuxtaposedZone::JuxtaposedZone
      */
-    [[nodiscard]] JuxtaposedZone juxtaposeRight(const TimedCondition &right, std::size_t commonVariableSize) const {
+    [[nodiscard]] JuxtaposedZone juxtaposeRight(const TimedCondition &right, Eigen::Index commonVariableSize) const {
       return JuxtaposedZone{this->zone, right.zone, commonVariableSize};
     }
 
@@ -185,7 +185,7 @@ namespace learnta {
      *
      * @sa JuxtaposedZone::JuxtaposedZone
      */
-    [[nodiscard]] JuxtaposedZone juxtaposeLeft(const TimedCondition &left, std::size_t commonVariableSize) const {
+    [[nodiscard]] JuxtaposedZone juxtaposeLeft(const TimedCondition &left, Eigen::Index commonVariableSize) const {
       return JuxtaposedZone{left.zone, this->zone, commonVariableSize};
     }
 

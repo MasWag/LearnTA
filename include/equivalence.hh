@@ -176,10 +176,6 @@ namespace learnta {
               leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenations.at(i), N);
       auto currentV2Constrained =
               rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenations.at(i), M);
-      if (currentV1Constrained.empty() != currentV2Constrained.empty()) {
-        // One of them is trivial but another is not
-        return std::nullopt;
-      }
       std::move(currentV1Constrained.begin(), currentV1Constrained.end(), std::back_inserter(constrainedV1));
       std::move(currentV2Constrained.begin(), currentV2Constrained.end(), std::back_inserter(constrainedV2));
     }
@@ -238,6 +234,9 @@ namespace learnta {
             const auto currentEdge = std::make_pair(currentV1, currentV2);
             for (const auto &candidate: candidates) {
               tmp.push_back(candidate);
+              tmp.push_back(candidate);
+              tmp.back().push_back(currentEdge);
+              tmp.emplace_back();
               tmp.back().push_back(currentEdge);
             }
           }
@@ -254,6 +253,10 @@ namespace learnta {
         }
       }
     }
+
+    // Reduce the candidates for optimization
+    std::sort(candidates.begin(), candidates.end());
+    candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
 
     // 4. Check candidate renaming
     const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();

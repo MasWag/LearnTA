@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     leftRow.at(1).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, leftRow.at(1).size());
     stream << leftRow.at(1).front();
-    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
     rightRow.emplace_back();
     rightRow.at(1).push_back(TimedCondition{Zone::top(5)});
@@ -288,12 +288,12 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     rightRow.at(1).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, rightRow.at(1).size());
     stream << rightRow.at(1).front();
-    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 2 <= T_{1, 2}  <= 2 && 2 <= T_{1, 3}  <= 2 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 2 <= T_{1, 2}  <= 2 && 2 <= T_{1, 3}  <= 2 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
 
     suffixes.emplace_back(suffixes.at(0).predecessor('a'));
     stream << suffixes.at(2);
-    BOOST_CHECK_EQUAL("(a, 0 <= T_{0, 0}  <= 0 && 0 <= T_{0, 1}  <= 0 && 0 <= T_{1, 1}  <= 0, 0 <= {x0, x1, }", stream.str());
+    BOOST_CHECK_EQUAL("(a, -0 <= T_{0, 0}  <= 0 && -0 <= T_{0, 1}  <= 0 && -0 <= T_{1, 1}  <= 0, 0 <= {x0, x1, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     rightRow.emplace_back();
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
 
     suffixes.push_back(suffixes.at(2).predecessor());
     stream << suffixes.at(3);
-    BOOST_CHECK_EQUAL("(a, 0 < T_{0, 0}  < 1 && 0 < T_{0, 1}  < 1 && 0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
+    BOOST_CHECK_EQUAL("(a, -0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     leftRow.at(3).push_back(TimedCondition{Zone::top(5)});
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     leftRow.at(3).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, leftRow.at(3).size());
     stream << leftRow.at(3).front();
-    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 3 < T_{0, 2}  < 5 && 3 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 3 && 1 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 3 < T_{0, 2}  < 5 && 3 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 3 && 1 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
     rightRow.emplace_back();
     rightRow.at(3).push_back(TimedCondition{Zone::top(5)});
@@ -354,12 +354,12 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     rightRow.at(3).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, rightRow.at(3).size());
     stream << rightRow.at(3).front();
-    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 2 && 1 < T_{1, 3}  < 2 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 5 && 4 < T_{0, 3}  < 5 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 2 && 1 < T_{1, 3}  < 2 && 1 < T_{2, 2}  < 2 && 1 < T_{2, 3}  < 2 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
 
     suffixes.push_back(suffixes.at(3).predecessor().predecessor());
     stream << suffixes.at(4);
-    BOOST_CHECK_EQUAL("(a, 1 < T_{0, 0}  < 2 && 1 < T_{0, 1}  < 2 && 0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
+    BOOST_CHECK_EQUAL("(a, 1 < T_{0, 0}  < 2 && 1 < T_{0, 1}  < 2 && -0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     leftRow.at(4).push_back(TimedCondition{Zone::top(5)});
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     leftRow.at(4).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, leftRow.at(4).size());
     stream << leftRow.at(4).front();
-    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 4 && 2 < T_{1, 3}  < 4 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 4 && 2 < T_{1, 3}  < 4 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
     rightRow.emplace_back();
     rightRow.at(4).push_back(TimedCondition{Zone::top(5)});
@@ -411,12 +411,12 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     rightRow.at(4).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, rightRow.at(4).size());
     stream << rightRow.at(4).front();
-    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
 
     suffixes.push_back(suffixes.at(4).predecessor('b'));
     stream << suffixes.at(5);
-    BOOST_CHECK_EQUAL("(ba, -0 <= T_{0, 0}  <= 0 && 1 < T_{0, 1}  < 2 && 1 < T_{0, 2}  < 2 && 1 < T_{1, 1}  < 2 && 1 < T_{1, 2}  < 2 && 0 <= T_{2, 2}  <= 0, 0 <= {x0, }{x1, x2, }", stream.str());
+    BOOST_CHECK_EQUAL("(ba, -0 <= T_{0, 0}  <= 0 && 1 < T_{0, 1}  < 2 && 1 < T_{0, 2}  < 2 && 1 < T_{1, 1}  < 2 && 1 < T_{1, 2}  < 2 && -0 <= T_{2, 2}  <= 0, 0 <= {x0, }{x1, x2, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     leftRow.at(5).push_back(TimedCondition{Zone::top(6)});
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     leftRow.at(5).front().restrictUpperBound(4, 4, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, leftRow.at(5).size());
     stream << leftRow.at(5).front();
-    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 6 && 4 < T_{0, 4}  < 6 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 2 && 2 < T_{1, 3}  < 4 && 2 < T_{1, 4}  < 4 && -0 < T_{2, 2}  < 1 && 1 < T_{2, 3}  < 3 && 1 < T_{2, 4}  < 3 && 1 < T_{3, 3}  < 2 && 1 < T_{3, 4}  < 2 && 0 <= T_{4, 4}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 6 && 4 < T_{0, 4}  < 6 && -0 < T_{1, 1}  < 1 && 1 < T_{1, 2}  < 2 && 2 < T_{1, 3}  < 4 && 2 < T_{1, 4}  < 4 && -0 < T_{2, 2}  < 1 && 1 < T_{2, 3}  < 3 && 1 < T_{2, 4}  < 3 && 1 < T_{3, 3}  < 2 && 1 < T_{3, 4}  < 2 && -0 <= T_{4, 4}  <= 0", stream.str());
     stream.str("");
     rightRow.emplace_back();
     rightRow.at(5).push_back(TimedCondition{Zone::top(6)});
@@ -460,8 +460,8 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     rightRow.at(5).front().restrictUpperBound(0, 0, Bounds{3, false});
     rightRow.at(5).front().restrictLowerBound(0, 1, Bounds{-3, true});
     rightRow.at(5).front().restrictUpperBound(0, 1, Bounds{3, true});
-    rightRow.at(5).front().restrictLowerBound(0, 2, Bounds{-4, false});
-    rightRow.at(5).front().restrictUpperBound(0, 2, Bounds{6, false});
+    rightRow.at(5).front().restrictLowerBound(0, 2, Bounds{-3, false});
+    rightRow.at(5).front().restrictUpperBound(0, 2, Bounds{4, false});
     rightRow.at(5).front().restrictLowerBound(0, 3, Bounds{-4, false});
     rightRow.at(5).front().restrictUpperBound(0, 3, Bounds{6, false});
     rightRow.at(5).front().restrictLowerBound(0, 4, Bounds{-4, false});
@@ -488,12 +488,12 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     rightRow.at(5).front().restrictUpperBound(4, 4, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, rightRow.at(5).size());
     stream << rightRow.at(5).front();
-    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 6 && 4 < T_{0, 4}  < 6 && -0 < T_{1, 1}  < 1 && 1 <= T_{1, 2}  <= 1 && 2 < T_{1, 3}  < 3 && 2 < T_{1, 4}  < 3 && -0 < T_{2, 2}  < 1 && 1 < T_{2, 3}  < 3 && 1 < T_{2, 4}  < 3 && 1 < T_{3, 3}  < 2 && 1 < T_{3, 4}  < 2 && 0 <= T_{4, 4}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 6 && 4 < T_{0, 4}  < 6 && -0 < T_{1, 1}  < 1 && 1 <= T_{1, 2}  <= 1 && 2 < T_{1, 3}  < 3 && 2 < T_{1, 4}  < 3 && -0 < T_{2, 2}  < 1 && 1 < T_{2, 3}  < 3 && 1 < T_{2, 4}  < 3 && 1 < T_{3, 3}  < 2 && 1 < T_{3, 4}  < 2 && -0 <= T_{4, 4}  <= 0", stream.str());
     stream.str("");
 
     suffixes.push_back(suffixes.at(4).predecessor().predecessor());
     stream << suffixes.at(6);
-    BOOST_CHECK_EQUAL("(a, 2 < T_{0, 0}  < 3 && 2 < T_{0, 1}  < 3 && 0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
+    BOOST_CHECK_EQUAL("(a, 2 < T_{0, 0}  < 3 && 2 < T_{0, 1}  < 3 && -0 <= T_{1, 1}  <= 0, 0 < {x0, x1, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     leftRow.at(6).push_back(TimedCondition{Zone::top(5)});
@@ -519,43 +519,72 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     leftRow.at(6).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, leftRow.at(6).size());
     stream << leftRow.at(6).front();
-    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 5 < T_{0, 2}  < 6 && 5 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 3 < T_{1, 2}  < 4 && 3 < T_{1, 3}  < 4 && 2 < T_{2, 2}  < 3 && 2 < T_{2, 3}  < 3 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 5 < T_{0, 2}  < 6 && 5 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 3 < T_{1, 2}  < 4 && 3 < T_{1, 3}  < 4 && 2 < T_{2, 2}  < 3 && 2 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
     rightRow.emplace_back();
-    rightRow.at(4).push_back(TimedCondition{Zone::top(5)});
-    rightRow.at(4).front().restrictLowerBound(0, 0, Bounds{-2, false});
-    rightRow.at(4).front().restrictUpperBound(0, 0, Bounds{3, false});
-    rightRow.at(4).front().restrictLowerBound(0, 1, Bounds{-3, true});
-    rightRow.at(4).front().restrictUpperBound(0, 1, Bounds{3, true});
-    rightRow.at(4).front().restrictLowerBound(0, 2, Bounds{-5, false});
-    rightRow.at(4).front().restrictUpperBound(0, 2, Bounds{6, false});
-    rightRow.at(4).front().restrictLowerBound(0, 3, Bounds{-5, false});
-    rightRow.at(4).front().restrictUpperBound(0, 3, Bounds{6, false});
-    rightRow.at(4).front().restrictLowerBound(1, 1, Bounds{0, false});
-    rightRow.at(4).front().restrictUpperBound(1, 1, Bounds{1, false});
-    rightRow.at(4).front().restrictLowerBound(1, 2, Bounds{-3, false});
-    rightRow.at(4).front().restrictUpperBound(1, 2, Bounds{4, false});
-    rightRow.at(4).front().restrictLowerBound(1, 3, Bounds{-3, false});
-    rightRow.at(4).front().restrictUpperBound(1, 3, Bounds{4, false});
-    rightRow.at(4).front().restrictLowerBound(2, 2, Bounds{-2, false});
-    rightRow.at(4).front().restrictUpperBound(2, 2, Bounds{3, false});
-    rightRow.at(4).front().restrictLowerBound(2, 3, Bounds{-2, false});
-    rightRow.at(4).front().restrictUpperBound(2, 3, Bounds{3, false});
-    rightRow.at(4).front().restrictLowerBound(3, 3, Bounds{0, true});
-    rightRow.at(4).front().restrictUpperBound(3, 3, Bounds{0, true});
+    rightRow.at(6).push_back(TimedCondition{Zone::top(5)});
+    rightRow.at(6).front().restrictLowerBound(0, 0, Bounds{-2, false});
+    rightRow.at(6).front().restrictUpperBound(0, 0, Bounds{3, false});
+    rightRow.at(6).front().restrictLowerBound(0, 1, Bounds{-3, true});
+    rightRow.at(6).front().restrictUpperBound(0, 1, Bounds{3, true});
+    rightRow.at(6).front().restrictLowerBound(0, 2, Bounds{-5, false});
+    rightRow.at(6).front().restrictUpperBound(0, 2, Bounds{6, false});
+    rightRow.at(6).front().restrictLowerBound(0, 3, Bounds{-5, false});
+    rightRow.at(6).front().restrictUpperBound(0, 3, Bounds{6, false});
+    rightRow.at(6).front().restrictLowerBound(1, 1, Bounds{0, false});
+    rightRow.at(6).front().restrictUpperBound(1, 1, Bounds{1, false});
+    rightRow.at(6).front().restrictLowerBound(1, 2, Bounds{-3, false});
+    rightRow.at(6).front().restrictUpperBound(1, 2, Bounds{4, false});
+    rightRow.at(6).front().restrictLowerBound(1, 3, Bounds{-3, false});
+    rightRow.at(6).front().restrictUpperBound(1, 3, Bounds{4, false});
+    rightRow.at(6).front().restrictLowerBound(2, 2, Bounds{-2, false});
+    rightRow.at(6).front().restrictUpperBound(2, 2, Bounds{3, false});
+    rightRow.at(6).front().restrictLowerBound(2, 3, Bounds{-2, false});
+    rightRow.at(6).front().restrictUpperBound(2, 3, Bounds{3, false});
+    rightRow.at(6).front().restrictLowerBound(3, 3, Bounds{0, true});
+    rightRow.at(6).front().restrictUpperBound(3, 3, Bounds{0, true});
     BOOST_CHECK_EQUAL(1, rightRow.at(6).size());
     stream << rightRow.at(6).front();
-    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 5 < T_{0, 2}  < 6 && 5 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 3 < T_{1, 2}  < 4 && 3 < T_{1, 3}  < 4 && 2 < T_{2, 2}  < 3 && 2 < T_{2, 3}  < 3 && 0 <= T_{3, 3}  <= 0", stream.str());
+    BOOST_CHECK_EQUAL("2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 5 < T_{0, 2}  < 6 && 5 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 3 < T_{1, 2}  < 4 && 3 < T_{1, 3}  < 4 && 2 < T_{2, 2}  < 3 && 2 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0", stream.str());
     stream.str("");
 
     suffixes.push_back(suffixes.at(0).predecessor());
     stream << suffixes.at(7);
-    BOOST_CHECK_EQUAL(" (, -0 < T_{0, 0}  < 1, 0 < {x0, }", stream.str());
+    BOOST_CHECK_EQUAL("(, -0 < T_{0, 0}  < 1, 0 < {x0, }", stream.str());
     stream.str("");
     leftRow.emplace_back();
     rightRow.emplace_back();
     BOOST_TEST(leftRow.at(7).empty());
     BOOST_TEST(rightRow.at(7).empty());
+
+    // The actual testing
+    auto renamingRelOpt = findEquivalentRenaming(left, leftRow, right, rightRow, suffixes);
+    BOOST_TEST(renamingRelOpt.has_value());
+    BOOST_TEST(equivalence(left, leftRow, right, rightRow, suffixes, renamingRelation));
+    {
+      auto juxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+      juxtaposition.addRenaming(renamingRelation);
+      BOOST_TEST(bool(juxtaposition));
+      const auto leftConcatenation = left + suffixes.at(4);
+      stream << leftConcatenation;
+      BOOST_CHECK_EQUAL("(bba, 2 <= T_{0, 0}  <= 2 && 2 < T_{0, 1}  < 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 4 && 2 < T_{1, 3}  < 4 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0)", stream.str());
+      stream.str("");
+      const auto rightConcatenation = right + suffixes.at(4);
+      stream << rightConcatenation;
+      BOOST_CHECK_EQUAL("(bba, 2 < T_{0, 0}  < 3 && 3 <= T_{0, 1}  <= 3 && 4 < T_{0, 2}  < 6 && 4 < T_{0, 3}  < 6 && -0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && 1 < T_{2, 2}  < 3 && 1 < T_{2, 3}  < 3 && -0 <= T_{3, 3}  <= 0)", stream.str());
+      stream.str("");
+
+      auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(4),
+                                                 rightConcatenation.getTimedCondition(),
+                                                 suffixes.at(4).wordSize()};
+      auto rightJuxtaposition = JuxtaposedZoneSet{leftConcatenation.getTimedCondition(),
+                                                  rightRow.at(4),
+                                                  suffixes.at(4).wordSize()};
+      BOOST_CHECK_EQUAL(leftJuxtaposition, rightJuxtaposition);
+      leftJuxtaposition.addRenaming(renamingRelation);
+      rightJuxtaposition.addRenaming(renamingRelation);
+      BOOST_CHECK_EQUAL(leftJuxtaposition, rightJuxtaposition);
+    }
   }
 
 BOOST_AUTO_TEST_SUITE_END()

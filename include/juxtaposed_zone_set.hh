@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <ostream>
 #include "juxtaposed_zone.hh"
 #include "timed_condition_set.hh"
 
@@ -79,6 +80,19 @@ namespace learnta {
 
     bool operator!=(const JuxtaposedZoneSet &another) const {
       return !(*this == another);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const JuxtaposedZoneSet &set) {
+      bool isFirst = true;
+      for (const JuxtaposedZone &zone: set.zones) {
+        if (!isFirst) {
+          os << ", ";
+        }
+        os << zone;
+        isFirst = false;
+      }
+
+      return os;
     }
   };
 }

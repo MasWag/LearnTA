@@ -97,8 +97,12 @@ namespace learnta {
       return this->conditions.size();
     }
 
-    [[nodiscard]] TimedCondition front() const {
+    [[nodiscard]] TimedCondition& front() {
       return this->conditions.front();
+    }
+
+    [[nodiscard]] TimedCondition& at(std::size_t i) {
+      return this->conditions.at(i);
     }
 
     [[nodiscard]] const std::vector<TimedCondition> &getConditions() const {

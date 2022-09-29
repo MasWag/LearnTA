@@ -11,8 +11,8 @@ namespace learnta {
   //! @brief A zone constructed by juxtaposing two zones with or without shared variables.
   class JuxtaposedZone : public Zone {
   private:
-    std::size_t leftSize;
-    std::size_t rightSize;
+    Eigen::Index leftSize = 0;
+    Eigen::Index rightSize = 0;
   public:
     JuxtaposedZone() = default;
 
@@ -24,7 +24,9 @@ namespace learnta {
      * - \f$x_i = z_i\f$ if \f$1 \le i \le N\f$ and
      * - \f$y_{i - N} = z_i\f$ if \f$N + 1 \le i \le N + M\f$.
      */
-    JuxtaposedZone(const Zone &left, const Zone &right) : leftSize(left.getNumOfVar()), rightSize(right.getNumOfVar()) {
+    JuxtaposedZone(const Zone &left, const Zone &right) :
+            leftSize(static_cast<Eigen::Index>(left.getNumOfVar())),
+            rightSize(static_cast<Eigen::Index>(right.getNumOfVar())) {
       this->value.resize(leftSize + rightSize + 1, leftSize + rightSize + 1);
       this->value.fill(Bounds(std::numeric_limits<double>::max(), false));
       // Copy the constraints in left
@@ -49,10 +51,11 @@ namespace learnta {
      * - \f$x_i = z_i\f$ if \f$1 \le i \le N\f$ and
      * - \f$y_{i - M} = z_i\f$ if \f$N + 1 \le i \le N + M - L\f$.
      */
-    JuxtaposedZone(const Zone &left, const Zone &right, std::size_t commonVariableSize) :
-            leftSize(left.getNumOfVar()), rightSize(right.getNumOfVar()) {
-      const auto M = left.getNumOfVar();
-      const auto N = right.getNumOfVar();
+    JuxtaposedZone(const Zone &left, const Zone &right, Eigen::Index commonVariableSize) :
+            leftSize(static_cast<Eigen::Index>(left.getNumOfVar())),
+            rightSize(static_cast<Eigen::Index>(right.getNumOfVar())) {
+      const auto M = leftSize;
+      const auto N = rightSize;
       const auto L = commonVariableSize;
       const auto resultVariableSize = M + N - L;
       const auto commonBeginIndex = M - L + 1;
@@ -101,8 +104,8 @@ namespace learnta {
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
       for (const auto &pair: renaming) {
         // add T[first][N] == T[second][N]
-        Eigen::Index leftIndex = pair.first + 1;
-        Eigen::Index rightIndex = pair.second + leftSize + 1;
+        Eigen::Index leftIndex = static_cast<Eigen::Index>(pair.first) + 1;
+        Eigen::Index rightIndex = static_cast<Eigen::Index>(pair.second) + leftSize + 1;
         this->value(leftIndex, rightIndex) = std::min(this->value(leftIndex, rightIndex), {0, true});
         this->value(rightIndex, leftIndex) = std::min(this->value(rightIndex, leftIndex), {0, true});
       }
