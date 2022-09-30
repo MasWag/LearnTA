@@ -32,7 +32,7 @@ namespace learnta {
      for (const auto &word: words) {
        runner.pre();
        hypothesisRunner.pre();
-       for (int i = 0; i < word.wordSize(); ++i) {
+       for (std::size_t i = 0; i < word.wordSize(); ++i) {
          if (runner.step(word.getDurations().at(i)) != hypothesisRunner.step(word.getDurations().at(i))) {
            return word;
          }
