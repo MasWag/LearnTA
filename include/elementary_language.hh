@@ -176,6 +176,23 @@ namespace learnta {
       return ElementaryLanguage{this->word, resultingCondition};
     }
 
+    /*!
+     * @brief Check if the given the timed word is a member of this elementary languages.
+     */
+    [[nodiscard]] bool contains(const TimedWord& testedWord) const {
+      if (testedWord.getWord() != this->getWord()) {
+        return false;
+      }
+      auto condition = this->timedCondition;
+      for (std::size_t i = 0; i < condition.size(); ++i) {
+        condition.restrictUpperBound(i, i, {testedWord.getDurations().at(i), true});
+        condition.restrictLowerBound(i, i, {-testedWord.getDurations().at(i), true});
+        std::cout << condition << std::endl;
+      }
+
+      return static_cast<bool>(condition);
+    }
+
     [[nodiscard]] const std::string &getWord() const {
       return word;
     }

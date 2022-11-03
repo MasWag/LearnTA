@@ -93,4 +93,25 @@ BOOST_AUTO_TEST_SUITE(ElementaryLanguageTest)
     ss.str("");
   }
 
+  BOOST_AUTO_TEST_CASE(contains) {
+    TimedCondition timedCondition;
+    // left is \tau_0 \in (0,1) && \tau_0 + \tau_1 = 1 && \tau_1 \in (0,1)
+    // Our encoding is x0 == 0, x1 == \tau_0 + \tau_1, and x2 == \tau_1.
+    // Therefore, we have x1 - x2 < 1 && x2 - x1 < 0 && x1 - x0 <= 1 && x0 - x1 <= -1 && x2 - x0 < 1 && x0 - x2 < 0
+    timedCondition.zone = Zone::top(3);
+    timedCondition.zone.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    timedCondition.zone.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    timedCondition.zone.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    timedCondition.zone.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    timedCondition.zone.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    timedCondition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+    ElementaryLanguage elementary = {"a", timedCondition};
+
+    // 1.0 - 0.7 != 0.3 in floating number!!
+    BOOST_TEST(elementary.contains(TimedWord{"a", {0.7, 1.0 - 0.7}}));
+    BOOST_TEST(elementary.contains(TimedWord{"a", {0.5, 0.5}}));
+    BOOST_TEST(!elementary.contains(TimedWord{"a", {0.5, 0.3}}));
+    BOOST_TEST(!elementary.contains(TimedWord{"a", {0.0, 1.0}}));
+    BOOST_TEST(!elementary.contains(TimedWord{"a", {1.0, 0.0}}));
+  }
 BOOST_AUTO_TEST_SUITE_END()

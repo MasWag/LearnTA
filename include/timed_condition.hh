@@ -579,6 +579,13 @@ namespace learnta {
       return this->zone.isSatisfiableNoCanonize();
     }
 
+    /*!
+     * @brief Returns if the timed condition is satisfiable
+     */
+    [[nodiscard]] explicit operator bool() {
+      return this->zone.isSatisfiable();
+    }
+
     [[nodiscard]] std::size_t hash_value() const {
       return learnta::hash_value(this->zone);
     }
