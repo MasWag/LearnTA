@@ -12,7 +12,6 @@
 BOOST_AUTO_TEST_SUITE(InternalTransitionMakerTest)
 
   using namespace learnta;
-  BOOST_AUTO_TEST_SUITE(make)
 
     BOOST_AUTO_TEST_CASE(single) {
       InternalTransitionMaker maker;
@@ -43,7 +42,4 @@ BOOST_AUTO_TEST_SUITE(InternalTransitionMakerTest)
                                                ConstraintMaker(1) > 0, ConstraintMaker(1) < 1};
       BOOST_CHECK_EQUAL(expectedGuard, result.front().guard);
     }
-
-  BOOST_AUTO_TEST_SUITE_END()
-
 BOOST_AUTO_TEST_SUITE_END()

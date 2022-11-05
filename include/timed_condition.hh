@@ -40,11 +40,11 @@ namespace learnta {
           const auto concreteDifference = accumulatedDuration.at(i) -
                                           ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
           if (double(long(concreteDifference)) == concreteDifference) {
-            this->restrictUpperBound(i, j, Bounds{concreteDifference, true});
-            this->restrictLowerBound(i, j, Bounds{-concreteDifference, true});
+            this->restrictUpperBound(i, j, Bounds{concreteDifference, true}, true);
+            this->restrictLowerBound(i, j, Bounds{-concreteDifference, true}, true);
           } else {
-            this->restrictUpperBound(i, j, Bounds{double(long(concreteDifference)) + 1, false});
-            this->restrictLowerBound(i, j, Bounds{-double(long(concreteDifference)), false});
+            this->restrictUpperBound(i, j, Bounds{double(long(concreteDifference)) + 1, false}, true);
+            this->restrictLowerBound(i, j, Bounds{-double(long(concreteDifference)), false}, true);
           }
         }
       }
@@ -220,13 +220,13 @@ namespace learnta {
      *
      * @post zone is canonical
      */
-    void restrictLowerBound(std::size_t i, std::size_t j, Bounds lowerBound) {
+    void restrictLowerBound(std::size_t i, std::size_t j, Bounds lowerBound, bool force = false) {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
-        this->zone.value(0, i + 1) = lowerBound;
+        this->zone.value(0, i + 1) = force ? lowerBound : std::min(lowerBound, this->zone.value(0, i + 1));
       } else {
-        this->zone.value(j + 2, i + 1) = lowerBound;
+        this->zone.value(j + 2, i + 1) = force ? lowerBound : std::min(lowerBound, this->zone.value(j + 2, i + 1));
       }
       this->zone.canonize();
     }
@@ -236,13 +236,13 @@ namespace learnta {
      *
      * @post zone is canonical
      */
-    void restrictUpperBound(std::size_t i, std::size_t j, Bounds upperBound) {
+    void restrictUpperBound(std::size_t i, std::size_t j, Bounds upperBound, bool force = false) {
       assert(0 <= i && i < this->size());
       assert(0 <= j && j < this->size());
       if (j == this->size() - 1) {
-        this->zone.value(i + 1, 0) = upperBound;
+        this->zone.value(i + 1, 0) = force ? upperBound : std::min(upperBound, this->zone.value(i + 1, 0));
       } else {
-        this->zone.value(i + 1, j + 2) = upperBound;
+        this->zone.value(i + 1, j + 2) = force ? upperBound : std::min(upperBound, this->zone.value(i + 1, j + 2));
       }
       this->zone.canonize();
     }
@@ -294,8 +294,8 @@ namespace learnta {
               Bounds currentUpperBound = lowerBound.second ? -lowerBound : std::make_pair(-lowerBound.first + 1, false);
               while (currentUpperBound <= upperBound) {
                 auto currentTimedCondition = timedCondition;
-                currentTimedCondition.restrictLowerBound(i, j, lowerBound);
-                currentTimedCondition.restrictUpperBound(i, j, currentUpperBound);
+                currentTimedCondition.restrictLowerBound(i, j, lowerBound, false);
+                currentTimedCondition.restrictUpperBound(i, j, currentUpperBound, false);
                 if (lowerBound.second) {
                   currentUpperBound = {-lowerBound.first + 1, false};
                   lowerBound.second = false;

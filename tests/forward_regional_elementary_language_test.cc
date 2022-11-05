@@ -4,6 +4,7 @@
  */
 #include "../include/bounds.hh"
 #include <boost/test/unit_test.hpp>
+#include <sstream>
 
 #define protected public
 #define private public
@@ -214,8 +215,16 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     BOOST_CHECK_EQUAL(1, word.fractionalOrder.order.front().size());
     BOOST_CHECK_EQUAL(3, word.fractionalOrder.order.front().front());
     BOOST_CHECK_EQUAL(3, word.fractionalOrder.order.back().size());
-    BOOST_CHECK_EQUAL(0, word.fractionalOrder.order.back().front());
-    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.back().back());
+    const std::vector<std::size_t> orderList = {0, 1, 2};
+    BOOST_CHECK_EQUAL_COLLECTIONS(orderList.begin(), orderList.end(),
+                                  word.fractionalOrder.order.back().begin(),
+                                  word.fractionalOrder.order.back().end());
+
+    BOOST_CHECK_EQUAL("aaa", word.getWord());
+    std::stringstream stream;
+    stream << word.getTimedCondition();
+    const auto expectedTimedCondition = "2 <= T_{0, 0}  <= 2 && 3 <= T_{0, 1}  <= 3 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 1 <= T_{1, 1}  <= 1 && 1 < T_{1, 2}  < 2 && 1 < T_{1, 3}  < 2 && 0 < T_{2, 2}  < 1 && 0 < T_{2, 3}  < 1 && 0 <= T_{3, 3}  <= 0";
+    BOOST_CHECK_EQUAL(expectedTimedCondition, stream.str());
   }
 
   BOOST_FIXTURE_TEST_CASE(p7HasEqualityN, SimpleObservationTableKeysFixture) {

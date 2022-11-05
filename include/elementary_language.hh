@@ -167,9 +167,9 @@ namespace learnta {
       TimedCondition resultingCondition = this->timedCondition;
       for (std::size_t i = 0; i < prefix.wordSize(); ++i) {
         assert(-resultingCondition.getLowerBound(i, i).first <= prefix.getDurations().at(i));
-        resultingCondition.restrictLowerBound(i, i, Bounds{-prefix.getDurations().at(i), true});
+        resultingCondition.restrictLowerBound(i, i, Bounds{-prefix.getDurations().at(i), true}, false);
         assert(resultingCondition.getUpperBound(i, i).first >= prefix.getDurations().at(i));
-        resultingCondition.restrictUpperBound(i, i, Bounds{prefix.getDurations().at(i), true});
+        resultingCondition.restrictUpperBound(i, i, Bounds{prefix.getDurations().at(i), true}, false);
       }
       assert(resultingCondition.getUpperBound(prefix.wordSize(), prefix.wordSize()).first >= prefix.getDurations().at(prefix.wordSize()));
 
@@ -177,7 +177,7 @@ namespace learnta {
     }
 
     /*!
-     * @brief Check if the given the timed word is a member of this elementary languages.
+     * @brief Check if the given the timed word is a member of this elementary languages
      */
     [[nodiscard]] bool contains(const TimedWord& testedWord) const {
       if (testedWord.getWord() != this->getWord()) {
@@ -185,9 +185,8 @@ namespace learnta {
       }
       auto condition = this->timedCondition;
       for (std::size_t i = 0; i < condition.size(); ++i) {
-        condition.restrictUpperBound(i, i, {testedWord.getDurations().at(i), true});
-        condition.restrictLowerBound(i, i, {-testedWord.getDurations().at(i), true});
-        std::cout << condition << std::endl;
+        condition.restrictUpperBound(i, i, {testedWord.getDurations().at(i), true}, false);
+        condition.restrictLowerBound(i, i, {-testedWord.getDurations().at(i), true}, false);
       }
 
       return static_cast<bool>(condition);

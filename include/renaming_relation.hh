@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <utility>
+#include <ostream>
 
 #include "timed_condition.hh"
 
@@ -77,6 +78,20 @@ namespace learnta {
       }
 
       return result;
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const RenamingRelation &relation) {
+      bool isFirst = true;
+      os << '{';
+      for (const auto & pair: relation) {
+        if (!isFirst) {
+          os << " && ";
+        }
+        os << "t" << pair.first << " == t'" << pair.second;
+        isFirst = false;
+      }
+      os << '}';
+      return os;
     }
   };
 }

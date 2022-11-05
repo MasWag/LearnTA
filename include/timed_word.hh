@@ -97,6 +97,19 @@ namespace learnta {
     }
 
     /*!
+     * @breif Return the suffix such that the concatenation with prefix is this
+     *
+     * @pre prefix must be a prefix of this
+     */
+    TimedWord getSuffix(const TimedWord& prefix) const {
+      const auto suffixWord = this->word.substr(prefix.wordSize());
+      auto suffixDurations = std::vector<double>(this->durations.begin() + prefix.wordSize(), this->durations.end());
+      suffixDurations.front() -= prefix.getDurations().back();
+
+      return TimedWord{suffixWord, suffixDurations};
+    }
+
+    /*!
      * @brief Return the number of the actions in this timed word
      */
     [[nodiscard]] std::size_t wordSize() const {

@@ -48,8 +48,8 @@ namespace learnta {
           // When the bound is not a point
           auto middlePoint = (upperBound.first - lowerBound.first) / 2.0;
           result.at(i) = middlePoint;
-          condition.restrictLowerBound(i, condition.size() - 1, Bounds{-middlePoint, true});
-          condition.restrictUpperBound(i, condition.size() - 1, Bounds{middlePoint, true});
+          condition.restrictLowerBound(i, condition.size() - 1, Bounds{-middlePoint, true}, false);
+          condition.restrictUpperBound(i, condition.size() - 1, Bounds{middlePoint, true}, false);
         }
       }
 

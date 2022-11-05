@@ -6,6 +6,7 @@
 #pragma once
 
 #include <utility>
+#include <ostream>
 
 #include "elementary_language.hh"
 #include "renaming_relation.hh"
@@ -36,6 +37,17 @@ namespace learnta {
     }
 
     /*!
+     * @brief Check if the given timed word is in the domain of this morphism
+     */
+    [[nodiscard]] bool isDomain(const ElementaryLanguage &elementaryLanguage) const {
+      return this->domain == elementaryLanguage;
+    }
+
+    [[nodiscard]] const ElementaryLanguage &getDomain() const {
+      return domain;
+    }
+
+    /*!
      * @brief Apply this single morphism to the given timed word.
      *
      * @pre this->inDomain(word)
@@ -60,6 +72,21 @@ namespace learnta {
       }
 
       return TimedWord{this->codomain.getWord(), durations};
+    }
+
+    bool operator==(const SingleMorphism &rhs) const {
+      return domain == rhs.domain &&
+             codomain == rhs.codomain &&
+             renaming == rhs.renaming;
+    }
+
+    bool operator!=(const SingleMorphism &rhs) const {
+      return !(rhs == *this);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const SingleMorphism &morphism) {
+      os << "domain: " << morphism.domain << " codomain: " << morphism.codomain << " renaming: " << morphism.renaming;
+      return os;
     }
   };
 }

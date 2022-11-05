@@ -32,6 +32,9 @@ namespace learnta {
       assert(this->fractionalOrder.getSize() == this->wordSize() + 1);
     }
 
+    /*!
+     * @brief Construct the fractional elementary language containing the given timed word
+     */
     static ForwardRegionalElementaryLanguage fromTimedWord(const TimedWord &timedWord) {
       std::vector<double> fractionalPart, accumulatedDuration;
       fractionalPart.resize(timedWord.wordSize() + 1);

@@ -114,4 +114,10 @@ BOOST_AUTO_TEST_SUITE(ElementaryLanguageTest)
     BOOST_TEST(!elementary.contains(TimedWord{"a", {0.0, 1.0}}));
     BOOST_TEST(!elementary.contains(TimedWord{"a", {1.0, 0.0}}));
   }
+
+  BOOST_AUTO_TEST_CASE(containsZero) {
+    const auto word = TimedWord{"", {1.75}};
+    auto zero = ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"", {0}});
+    BOOST_CHECK(!zero.contains(word));
+  }
 BOOST_AUTO_TEST_SUITE_END()
