@@ -7,43 +7,25 @@
 
 #include "elementary_language.hh"
 #include "sul.hh"
+#include "membership_oracle.hh"
 #include "timed_condition_set.hh"
 
 namespace learnta {
   /*!
    * @brief The oracle to answer symbolic membership queries
    */
-  class SymbolicMembershipOracle {
+  class SymbolicMembershipOracle final : public MembershipOracle {
   private:
-    std::unique_ptr<SUL> sul;
-    boost::unordered_map<TimedWord, bool> membershipCache;
+    std::unique_ptr<MembershipOracle> membershipOracle;
     boost::unordered_map<ElementaryLanguage, TimedConditionSet> cache;
 
-    [[nodiscard]] bool membership(const TimedWord &timedWord) {
-      auto it = this->membershipCache.find(timedWord);
-      if (it != membershipCache.end()) {
-        return it->second;
-      }
-      sul->pre();
-      std::string word = timedWord.getWord();
-      std::vector<double> duration = timedWord.getDurations();
-      bool result = sul->step(duration[0]);
-      for (std::size_t i = 0; i < timedWord.wordSize(); i++) {
-        sul->step(word[i]);
-        result = sul->step(duration[i + 1]);
-      }
-      sul->post();
-      this->membershipCache[timedWord] = result;
-
-      return result;
-    }
-
     [[nodiscard]] bool included(const ElementaryLanguage &elementary) {
-      return this->membership(elementary.sample());
+      return this->membershipOracle->answerQuery(elementary.sample());
     }
 
   public:
-    explicit SymbolicMembershipOracle(std::unique_ptr<SUL>&& sul) : sul(std::move(sul)) {}
+    explicit SymbolicMembershipOracle(std::unique_ptr<SUL>&& sul) : membershipOracle(
+            std::make_unique<MembershipOracleCache>(std::make_unique<SULMembershipOracle>(std::move(sul)))) {}
 
     /*!
      * @brief Make a symbolic membership query
@@ -88,8 +70,12 @@ namespace learnta {
       }
     }
 
-    [[nodiscard]] std::size_t count() const {
-      return this->sul->count();
+    [[nodiscard]] std::size_t count() const override {
+      return this->membershipOracle->count();
+    }
+
+    [[nodiscard]] bool answerQuery(const TimedWord &timedWord) override {
+      return this->membershipOracle->answerQuery(timedWord);
     }
   };
 }
