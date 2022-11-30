@@ -68,7 +68,9 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/constraint_test.cc
   tests/timed_automaton_test.cc
   tests/internal_transition_maker_test.cc
-  tests/single_morphism_test.cc tests/recognizable_languages_test.cc)
+  tests/single_morphism_test.cc
+  tests/recognizable_languages_test.cc
+  tests/counterexample_analyzer_test.cc)
 
 target_link_libraries(unit_test
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
