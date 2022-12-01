@@ -225,4 +225,25 @@ BOOST_AUTO_TEST_SUITE(BackwardRegionalElementaryLanguageTest)
     BOOST_CHECK_EQUAL((Bounds{0, true}), s3.getTimedCondition().getUpperBound(1, 1));
   }
 
+  BOOST_AUTO_TEST_CASE(fromWord) {
+    const auto word = BackwardRegionalElementaryLanguage::fromTimedWord({"aaa", {2,1,0.5,0}});
+    BOOST_CHECK_EQUAL(4, word.fractionalOrder.size);
+    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.size());
+    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.front().size());
+    const std::vector<std::size_t> firstOrderList = {0, 1};
+    BOOST_CHECK_EQUAL_COLLECTIONS(firstOrderList.begin(), firstOrderList.end(),
+                                  word.fractionalOrder.order.front().begin(),
+                                  word.fractionalOrder.order.front().end());
+    BOOST_CHECK_EQUAL(2, word.fractionalOrder.order.back().size());
+    const std::vector<std::size_t> secondOrderList = {2, 3};
+    BOOST_CHECK_EQUAL_COLLECTIONS(secondOrderList.begin(), secondOrderList.end(),
+                                  word.fractionalOrder.order.back().begin(),
+                                  word.fractionalOrder.order.back().end());
+
+    BOOST_CHECK_EQUAL("aaa", word.getWord());
+    std::stringstream stream;
+    stream << word.getTimedCondition();
+    const auto expectedTimedCondition = "2 <= T_{0, 0}  <= 2 && 3 <= T_{0, 1}  <= 3 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 1 <= T_{1, 1}  <= 1 && 1 < T_{1, 2}  < 2 && 1 < T_{1, 3}  < 2 && 0 < T_{2, 2}  < 1 && 0 < T_{2, 3}  < 1 && 0 <= T_{3, 3}  <= 0";
+    BOOST_CHECK_EQUAL(expectedTimedCondition, stream.str());
+  }
 BOOST_AUTO_TEST_SUITE_END()

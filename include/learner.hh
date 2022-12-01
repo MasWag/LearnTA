@@ -46,7 +46,7 @@ namespace learnta {
 
         if (counterExample) {
           BOOST_LOG_TRIVIAL(info) << "Equivalence oracle returned a counter example: " << counterExample.value();
-          observationTable.addCounterExample(ForwardRegionalElementaryLanguage::fromTimedWord(counterExample.value()));
+          observationTable.addSuffix(counterExample.value());
         } else {
           return hypothesis;
         }

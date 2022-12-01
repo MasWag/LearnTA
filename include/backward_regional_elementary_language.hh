@@ -30,6 +30,30 @@ namespace learnta {
             ElementaryLanguage(std::move(elementary)), fractionalOrder(std::move(fractionalOrder)) {}
 
     /*!
+     * @brief Construct the fractional elementary language containing the given timed word
+     */
+    static BackwardRegionalElementaryLanguage fromTimedWord(const TimedWord &timedWord) {
+      std::vector<double> fractionalPart, accumulatedDurationFromFront, accumulatedDurationFromBack;
+      fractionalPart.resize(timedWord.wordSize() + 1);
+      accumulatedDurationFromFront.resize(timedWord.wordSize() + 1);
+      accumulatedDurationFromFront.front() = timedWord.getDurations().front();
+      fractionalPart.front() = timedWord.getDurations().front() - double(long(timedWord.getDurations().front()));
+      for (int i = 1; i < fractionalPart.size(); ++i) {
+        accumulatedDurationFromFront.at(i) = accumulatedDurationFromFront.at(i - 1) + timedWord.getDurations().at(i);
+        fractionalPart.at(i) = accumulatedDurationFromFront.at(i);
+        fractionalPart.at(i) -= double(long(fractionalPart.at(i)));
+      }
+      accumulatedDurationFromBack.resize(timedWord.wordSize() + 1);
+      accumulatedDurationFromBack.back() = timedWord.getDurations().back();
+      for (int i = fractionalPart.size() - 2; i >= 0; --i) {
+        accumulatedDurationFromBack.at(i) = accumulatedDurationFromBack.at(i + 1) + timedWord.getDurations().at(i);
+      }
+
+      return {ElementaryLanguage{timedWord.getWord(), TimedCondition{accumulatedDurationFromBack}},
+              FractionalOrder{fractionalPart}};
+    }
+
+    /*!
      * @brief Construct the discrete predecessor
      */
     [[nodiscard]] BackwardRegionalElementaryLanguage predecessor(char action) const {

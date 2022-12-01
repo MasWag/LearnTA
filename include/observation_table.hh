@@ -308,98 +308,6 @@ namespace learnta {
       assert(!this->equivalentWithMemo(i, j));
     }
 
-    /*!
-     * @brief Resolve an inconsistency due to continuous successors
-     *
-     * @pre equivalent(i, j)
-     * @pre !equivalent(continuousSuccessors(i), continuousSuccessors(j))
-     * @post !equivalent(i, j)
-     */
-    void resolveContinuousInconsistency(const std::size_t i, const std::size_t j) {
-      // Find a single witness of the inconsistency
-      auto it = std::find_if_not(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
-        return equivalent(i, j, suffix.predecessor());
-      });
-      if (it != suffixes.end()) {
-        const auto newSuffix = it->predecessor();
-        BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
-        suffixes.push_back(newSuffix);
-      } else {
-        // We find a set of suffixes to add
-        std::list<BackwardRegionalElementaryLanguage> allPredecessors;
-        allPredecessors.resize(suffixes.size());
-        std::transform(suffixes.begin(), suffixes.end(), allPredecessors.begin(), [](const auto &suffix) {
-          return suffix.predecessor();
-        });
-        if (equivalent(i, j, allPredecessors)) {
-          BOOST_LOG_TRIVIAL(info) << "Finding longer predecessors. This is slow";
-          BOOST_LOG_TRIVIAL(debug) << "left: " << this->prefixes.at(i);
-          BOOST_LOG_TRIVIAL(debug) << "right: " << this->prefixes.at(j);
-          BOOST_LOG_TRIVIAL(debug) << "Suffixes are as follows: ";
-          for (const auto &suffix: suffixes) {
-            BOOST_LOG_TRIVIAL(debug) << suffix;
-          }
-          auto previousNewSuffixes = allPredecessors;
-          do {
-            decltype(allPredecessors) newSuffixes;
-            for (const auto &suffix: previousNewSuffixes) {
-              try {
-                newSuffixes.push_back(suffix.predecessor());
-                BOOST_LOG_TRIVIAL(info) << "New Suffix: " << suffix.predecessor();
-              } catch (...) {
-              }
-            }
-            if (newSuffixes.empty()) {
-              BOOST_LOG_TRIVIAL(fatal) << "Something is wrong in resolving continuous inconsistency";
-              abort();
-            }
-            previousNewSuffixes = std::move(newSuffixes);
-            std::copy(previousNewSuffixes.begin(), previousNewSuffixes.end(), std::back_inserter(allPredecessors));
-          } while (equivalent(i, j, allPredecessors));
-          BOOST_LOG_TRIVIAL(info) << "Found longer predecessors.";
-        }
-        while (!allPredecessors.empty()) {
-          auto jt = std::find_if_not(allPredecessors.begin(), allPredecessors.end(), [&](const auto &suffix) {
-            auto examinedPredecessor = allPredecessors;
-            auto kt = std::find(examinedPredecessor.begin(), examinedPredecessor.end(), suffix);
-            examinedPredecessor.erase(kt);
-            return equivalent(i, j, examinedPredecessor);
-          });
-          if (jt == allPredecessors.end()) {
-            break;
-          }
-          allPredecessors.erase(jt);
-        }
-
-        suffixes.reserve(suffixes.size() + allPredecessors.size());
-        std::move(allPredecessors.begin(), allPredecessors.end(), std::back_inserter(suffixes));
-      }
-
-      this->refreshTable();
-      // i and j should not be equivalent after adding the new suffix
-      assert(!this->equivalentWithMemo(i, j));
-    }
-
-    /*!
-     * @brief Resolve an inconsistency due to continuous successors
-     *
-     * @pre equivalent(i, j)
-     * @pre !equivalent(i, j, predecessor(suffix))
-     * @post !equivalent(i, j)
-     */
-    void resolveContinuousInconsistency(const std::size_t i, const std::size_t j, const std::size_t suffixInd) {
-      assert(this->equivalentWithMemo(i, j));
-      const auto newSuffix = suffixes.at(suffixInd).predecessor();
-      assert(!equivalent(i, j, newSuffix));
-      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
-      BOOST_LOG_TRIVIAL(debug) << "Original suffix: " << suffixes.at(suffixInd);
-      suffixes.push_back(newSuffix);
-
-      this->refreshTable();
-      // i and j should not be equivalent after adding the new suffix
-      assert(!this->equivalentWithMemo(i, j));
-    }
-
   public:
     /*!
      * @brief Make the observation table consistent
@@ -421,15 +329,6 @@ namespace learnta {
                                          << this->prefixes.at(i) << " and " << this->prefixes.at(j)
                                          << " with action " << action;
                 resolveDiscreteInconsistency(i, j, action);
-                return false;
-              }
-            }
-            for (std::size_t k = 0; k < this->suffixes.size(); ++k) {
-              const auto predecessor = this->suffixes.at(k).predecessor();
-              if (std::find(this->suffixes.begin(), this->suffixes.end(), predecessor) == this->suffixes.end() && !this->equivalent(i, j, predecessor)) {
-                // The observation table is inconsistent due to a continuous predecessor
-                resolveContinuousInconsistency(i, j, k);
-
                 return false;
               }
             }
@@ -472,42 +371,15 @@ namespace learnta {
     }
 
     /*!
-     * @brief Add each prefix of counterExample to P
+     * @brief Refine the suffixes by adding an elementary language containing the given timed word
+     *
      */
-    void addCounterExample(const ForwardRegionalElementaryLanguage &counterExample) {
-      // Counter example should not be in the row index of the observation table
-      assert(std::find(this->prefixes.begin(), this->prefixes.end(), counterExample) == this->prefixes.end());
-      BOOST_LOG_TRIVIAL(debug) << "Handling a counter example";
+    void addSuffix(const TimedWord &suffix) {
+      auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(suffix);
+      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      suffixes.push_back(std::move(newSuffix));
 
-      const auto newPrefixes = counterExample.prefixes();
-      for (const auto &prefix: newPrefixes) {
-        auto it = std::find(this->prefixes.begin(), this->prefixes.end(), prefix);
-        // prefix should be in the observation table
-        assert(it != this->prefixes.end());
-        const auto index = it - this->prefixes.begin();
-        auto pIt = this->pIndices.find(index);
-        if (pIt == this->pIndices.end()) {
-          // index is not in P
-          // Construct the suffix s such that cex \in p \cdot s
-          const auto suffix = counterExample.suffix(prefix);
-          // Check if the equivalence relation is refined by adding s
-          for (const auto &jumpedIndex: this->pIndices) {
-            if (this->equivalentWithMemo(index, jumpedIndex) && !equivalent(index, jumpedIndex, suffix)) {
-              BOOST_LOG_TRIVIAL(debug) << "Adding a suffix " << suffix << " to S";
-              suffixes.push_back(suffix);
-
-              this->refreshTable();
-              if (!this->close()) {
-                return;
-              }
-            }
-          }
-
-          BOOST_LOG_TRIVIAL(debug) << "Adding a prefix " << prefix << " to P";
-
-          this->moveToP(index);
-        }
-      }
+      this->refreshTable();
     }
 
     /*!
