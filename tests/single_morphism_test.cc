@@ -44,4 +44,32 @@ BOOST_AUTO_TEST_SUITE(SingleMorphismTest)
     BOOST_CHECK_EQUAL(expected, morphism.maps(TimedWord{"aa", {0.5, 0.25, 0.0}}));
   }
 
+  BOOST_AUTO_TEST_CASE(maps2) {
+    // domain: (a, 2 <= T_{0, 0}  <= 2 && 4 < T_{0, 1}  < 5 && 2 < T_{1, 1}  < 3)
+    auto domainCondition = TimedCondition{Zone::top(3)};
+    domainCondition.restrictLowerBound(0, 0, Bounds{-2, true});
+    domainCondition.restrictUpperBound(0, 0, Bounds{2, true});
+    domainCondition.restrictLowerBound(0, 1, Bounds{-4, false});
+    domainCondition.restrictUpperBound(0, 1, Bounds{5, false});
+    domainCondition.restrictLowerBound(1, 1, Bounds{-2, false});
+    domainCondition.restrictUpperBound(1, 1, Bounds{3, false});
+    ElementaryLanguage domain = {"a", domainCondition};
+
+    // codomain: (a, 2 <= T_{0, 0}  <= 2 && 4 <= T_{0, 1}  <= 4 && 2 <= T_{1, 1}  <= 2)
+    auto codomainCondition = TimedCondition{Zone::top(3)};
+    codomainCondition.restrictLowerBound(0, 0, Bounds{-2, true});
+    codomainCondition.restrictUpperBound(0, 0, Bounds{2, true});
+    codomainCondition.restrictLowerBound(0, 1, Bounds{-4, true});
+    codomainCondition.restrictUpperBound(0, 1, Bounds{4, true});
+    codomainCondition.restrictLowerBound(1, 1, Bounds{-2, true});
+    codomainCondition.restrictUpperBound(1, 1, Bounds{2, true});
+    ElementaryLanguage codomain = {"a", codomainCondition};
+
+    // renaming: {}
+    RenamingRelation renaming;
+
+    const auto morphism = SingleMorphism{domain, codomain, renaming};
+    const auto expected = TimedWord{"a", {2.0, 2.0}};
+    BOOST_CHECK_EQUAL(expected, morphism.maps(TimedWord{"a", {2.0, 2.5}}));
+  }
 BOOST_AUTO_TEST_SUITE_END()

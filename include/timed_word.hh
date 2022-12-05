@@ -97,6 +97,22 @@ namespace learnta {
     }
 
     /*!
+     * @brief Construct and return the (tail) accumulated duration.
+     *
+     * The accumulated duration is a vector representing \f$\mathbb{T}_{i,N}\f$, where \f$N\f$ is the length.
+     */
+    [[nodiscard]] std::vector<double> getAccumulatedDurations() const {
+      std::vector<double> accumulatedDurations;
+      accumulatedDurations.resize(durations.size());
+
+      accumulatedDurations.back() = durations.back();
+      for (int i = durations.size() - 2; i >= 0; --i) {
+        accumulatedDurations.at(i) = accumulatedDurations.at(i + 1) +durations.at(i);
+      }
+      return accumulatedDurations;
+    }
+
+    /*!
      * @breif Return the suffix such that the concatenation with prefix is this
      *
      * @pre prefix must be a prefix of this

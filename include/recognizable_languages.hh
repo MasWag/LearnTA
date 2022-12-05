@@ -139,5 +139,15 @@ namespace learnta {
       }
       return this->isFinal(word);
     }
+
+    friend std::ostream &operator<<(std::ostream &os, const RecognizableLanguage &language) {
+      os << "{\n";
+      for (const auto& morphism: language.morphisms) {
+        os << morphism << "\n";
+      }
+      os << "}";
+
+      return os;
+    }
   };
 }
