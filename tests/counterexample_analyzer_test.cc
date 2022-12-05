@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE(CounterexampleAnalyzerTest)
     };
     const RecognizableLanguage hypothesis {prefixes, final, morphisms};
     const TimedWord cex {"a", {1.0, 0.0}};
-    const auto result = analyzeCEX(cex, this->oracle, hypothesis);
+    const auto result = analyzeCEX(cex, *this->oracle, hypothesis);
     BOOST_CHECK_EQUAL("a", result.getWord());
     BOOST_CHECK_EQUAL(2, result.getDurations().size());
     BOOST_CHECK_EQUAL(0.5, result.getDurations().at(0));

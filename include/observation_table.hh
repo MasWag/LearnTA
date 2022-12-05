@@ -24,6 +24,7 @@
 #include "renaming_relation.hh"
 #include "internal_transition_maker.hh"
 #include "external_transition_maker.hh"
+#include "counterexample_analyzer.hh"
 
 namespace learnta {
   /*!
@@ -307,8 +308,36 @@ namespace learnta {
       // i and j should not be equivalent after adding the new suffix
       assert(!this->equivalentWithMemo(i, j));
     }
-
   public:
+    /*!
+     * @brief Construct a recognizable timed language corresponding to the observation table
+     * @pre The observation table is closed, consistent, and exterior-consistent.
+     */
+    [[nodiscard]] RecognizableLanguage toRecognizable() const {
+      std::vector<ElementaryLanguage> P;
+      std::vector<ElementaryLanguage> final;
+      for (int i = 0; i < this->prefixes.size(); ++i) {
+        if (this->inP(i)) {
+          P.push_back(this->prefixes.at(i));
+          if (this->isMatch(i)) {
+            final.push_back(this->prefixes.at(i));
+          }
+        }
+      }
+
+      std::vector<SingleMorphism> morphisms;
+      morphisms.reserve(this->closedRelation.size());
+      for (const auto &[i, mapping]: this->closedRelation) {
+        if (!this->inP(i) && !mapping.empty()) {
+          morphisms.emplace_back(this->prefixes.at(i),
+                                 this->prefixes.at(mapping.begin()->first),
+                                 mapping.begin()->second);
+        }
+      }
+
+      return RecognizableLanguage{P, final, morphisms};
+    }
+
     /*!
      * @brief Make the observation table consistent
      *
@@ -371,11 +400,13 @@ namespace learnta {
     }
 
     /*!
-     * @brief Refine the suffixes by adding an elementary language containing the given timed word
+     * @brief Refine the suffixes by the given counterexample
      *
      */
-    void addSuffix(const TimedWord &suffix) {
-      auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(suffix);
+    void handleCEX(const TimedWord &cex) {
+      auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(analyzeCEX(cex,
+                                                                                    *this->memOracle,
+                                                                                    this->toRecognizable()));
       BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
       suffixes.push_back(std::move(newSuffix));
 
