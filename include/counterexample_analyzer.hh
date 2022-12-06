@@ -17,12 +17,14 @@ namespace learnta {
    * @param[in] oracle The membership oracle
    * @param[in] hypothesis The hypothesis recognizable language
    *
+   * @todo Use linear search to a new counterexample
+   *
    * @pre word is a counterexample. Namely, we should have oracle->answerQuery(word) != hypothesis.contains(word)
    */
-  static inline TimedWord analyzeCEX(const TimedWord &word,
-                                     MembershipOracle &oracle,
-                                     const RecognizableLanguage &hypothesis,
-                                     const std::vector<BackwardRegionalElementaryLanguage> &currentSuffixes = {}) {
+  static inline std::optional<TimedWord> analyzeCEX(const TimedWord &word,
+                                                   MembershipOracle &oracle,
+                                                   const RecognizableLanguage &hypothesis,
+                                                   const std::vector<BackwardRegionalElementaryLanguage> &currentSuffixes = {}) {
     BOOST_LOG_TRIVIAL(debug) << "hypothesis: " << hypothesis;
     std::vector<TimedWord> mappedWords = {word};
     std::vector<TimedWord> suffixes = {TimedWord{}};
@@ -39,9 +41,9 @@ namespace learnta {
     };
     assert(eval(mappedWords.back()));
     assert(!eval(mappedWords.front()));
-    auto count = mappedWords.size() / 2;
+    auto count = (mappedWords.size() - 1) / 2;
     auto index = count;
-    while (eval(mappedWords.at(index)) == eval(mappedWords.at(index - 1))) {
+    while (eval(mappedWords.at(index)) == eval(mappedWords.at(index + 1))) {
       count = int(ceil(count * 0.5));
       if (eval(mappedWords.at(index))) {
         index -= count;
@@ -49,7 +51,7 @@ namespace learnta {
         index += count;
       }
     }
-    assert(eval(mappedWords.at(index)) != eval(mappedWords.at(index - 1)));
+    assert(eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1)));
     // Check if the found suffix is new
     if (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&] (const ElementaryLanguage& suffix) {
       return !suffix.contains(suffixes.at(index));
@@ -66,6 +68,6 @@ namespace learnta {
         }
       }
     }
-    abort();
+    return std::nullopt;
   }
 }

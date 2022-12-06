@@ -411,14 +411,29 @@ namespace learnta {
      *
      */
     void handleCEX(const TimedWord &cex) {
-      auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(analyzeCEX(cex,
-                                                                                    *this->memOracle,
-                                                                                    this->toRecognizable(),
-                                                                                    this->suffixes));
-      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
-      suffixes.push_back(std::move(newSuffix));
-
-      this->refreshTable();
+      auto newSuffixOpt = analyzeCEX(cex, *this->memOracle, this->toRecognizable(), this->suffixes);
+      if (newSuffixOpt) {
+        BOOST_LOG_TRIVIAL(debug) << "New suffix " << *newSuffixOpt << " is added";
+        auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(*newSuffixOpt);
+        suffixes.push_back(std::move(newSuffix));
+        this->refreshTable();
+      } else {
+        BOOST_LOG_TRIVIAL(debug) << "Failed to find a new suffix. We add prefixes to P";
+        const auto newPrefixes = ForwardRegionalElementaryLanguage::fromTimedWord(cex).prefixes();
+        for (const auto &newPrefix: newPrefixes) {
+          auto it = std::find(this->prefixes.begin(), this->prefixes.end(), newPrefix);
+          assert(it != this->prefixes.end());
+          if (this->inP(std::distance(this->prefixes.begin(), it))) {
+            continue;
+          } else {
+            this->moveToP(std::distance(this->prefixes.begin(), it));
+            if (!this->close()) {
+              // The observation table is refined
+              return;
+            }
+          }
+        }
+      }
     }
 
     /*!
