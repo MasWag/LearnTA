@@ -64,6 +64,7 @@ namespace learnta {
       TimedWord suffix;
       SingleMorphism morphism;
       [[nodiscard]] TimedWord apply() const {
+        BOOST_LOG_TRIVIAL(debug) << "applying: " << *this;
         return morphism.maps(prefix) + suffix;
       }
 
