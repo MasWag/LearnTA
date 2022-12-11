@@ -95,14 +95,16 @@ namespace learnta {
                                    << currentRenamingRelation.size();
           // Generate transitions
           auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
-          // Initialize the new clock variables
-          for (auto resetVariable = sourceCondition.size(); resetVariable < targetCondition.size(); ++resetVariable) {
+          auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
+          // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
+          for (auto resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
             if (resets.end() == std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
               return pair.first == resetVariable;
             })) {
-              resets.emplace_back(resetVariable, 0.0);
+              resets.emplace_back(resetVariable, targetValuation.at(resetVariable));
             }
           }
+          BOOST_LOG_TRIVIAL(trace) << "Resets: " << resets;
           result.emplace_back(target.get(), resets, sourceCondition.toGuard());
         }
       }

@@ -596,6 +596,7 @@ namespace learnta {
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
                                discreteBoundaries.end());
       for (const auto &[sourceIndex, action]: discreteBoundaries) {
+        BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from: " << this->prefixes.at(sourceIndex) << " with action " << action;
         ExternalTransitionMaker transitionMaker;
         const auto addNewTransition = [&](std::size_t source, std::size_t jumpedTarget, std::size_t target,
                                           const auto &renamingRelation) {
@@ -644,17 +645,17 @@ namespace learnta {
         const auto sourceState = stateManager.toState(continuousSuccessor);
         // Find a successor in P
         // First, we try to "jump" to the same state
-        auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
+/*        auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
                                this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
                   return this->inP(rel.first) && stateManager.toState(rel.first) == stateManager.toState(continuousSuccessor);
-                });
+                });*/
         // When there is no such renaming relation, we use any other predecessor
-        if (it == this->closedRelation.at(continuousSuccessor).end()) {
-          it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
-                                 this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
-                    return this->inP(rel.first);
-                  });
-        }
+//        if (it == this->closedRelation.at(continuousSuccessor).end()) {
+         const auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
+                                      this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
+           return this->inP(rel.first);
+         });
+//        }
         assert(it != this->closedRelation.at(continuousSuccessor).end());
         // The continuous successor after mapping to P.
         const auto jumpedSourceIndex = it->first;
@@ -685,8 +686,6 @@ namespace learnta {
                                                     this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
         }
       }
-
-      //! @todo We need to implement transitions by continuous immediate exteriors to support unobservable transitions
 
       // Assert the totality of the constructed DTA
       assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {
