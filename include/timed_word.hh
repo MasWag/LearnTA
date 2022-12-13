@@ -13,6 +13,8 @@
 
 #include <boost/functional/hash.hpp>
 
+#include "common_types.hh"
+
 namespace learnta {
   /*!
    * @brief A timed word
@@ -27,8 +29,25 @@ namespace learnta {
   public:
     TimedWord() : durations({0}) {}
 
-    TimedWord(std::string word, std::vector<double> durations) : word(std::move(word)),
-                                                                 durations(std::move(durations)) {
+    /*!
+     * @brief Constructor of timed words
+     *
+     * @note When the given word contains unobservable actions, we absorb them
+     */
+    TimedWord(const std::string& word, const std::vector<double>& durations) {
+      assert(word.size() + 1 == durations.size());
+      this->word.reserve(word.size());
+      this->durations = {durations.front()};
+      this->durations.reserve(durations.size());
+      for (int i = 0; i < word.size(); ++i) {
+        if (word.at(i) != UNOBSERVABLE) {
+          this->word.push_back(word.at(i));
+          this->durations.push_back(durations.at(i + 1));
+        } else {
+          this->durations.back() += durations.at(i + 1);
+        }
+      }
+
       assert(this->word.size() + 1 == this->durations.size());
     }
 
@@ -80,7 +99,7 @@ namespace learnta {
      * @param stream The stream to write this timed word
      * @return stream
      */
-    std::ostream &print(std::ostream &stream) {
+    std::ostream &print(std::ostream &stream) const {
       stream << durations[0];
       for (std::size_t i = 0; i < word.size(); i++) {
         stream << " " << word[i] << " " << durations[i + 1];
@@ -117,7 +136,7 @@ namespace learnta {
      *
      * @pre prefix must be a prefix of this
      */
-    TimedWord getSuffix(const TimedWord& prefix) const {
+    [[nodiscard]] TimedWord getSuffix(const TimedWord& prefix) const {
       const auto suffixWord = this->word.substr(prefix.wordSize());
       auto suffixDurations = std::vector<double>(this->durations.begin() + prefix.wordSize(), this->durations.end());
       suffixDurations.front() -= prefix.getDurations().back();
