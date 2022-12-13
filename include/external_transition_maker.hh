@@ -93,8 +93,10 @@ namespace learnta {
           const auto targetCondition = targetConditions.getConditions().at(i);
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
                                    << currentRenamingRelation.size();
+          BOOST_LOG_TRIVIAL(trace) << "target condition: " << targetCondition;
           // Generate transitions
           auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
+          BOOST_LOG_TRIVIAL(trace) << "Resets from renaming: " << resets;
           auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
           // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
           for (auto resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
@@ -105,7 +107,7 @@ namespace learnta {
             }
           }
           BOOST_LOG_TRIVIAL(trace) << "Resets: " << resets;
-          result.emplace_back(target.get(), resets, sourceCondition.toGuard());
+          result.emplace_back(target.get(), clean(resets), sourceCondition.toGuard());
         }
       }
 

@@ -23,9 +23,6 @@ namespace learnta {
       std::transform(this->begin(), this->end(), result.begin(), [&](const auto &renamingPair) {
         return std::make_pair(renamingPair.second, static_cast<ClockVariables>(renamingPair.first));
       });
-      result.erase(std::remove_if(result.begin(), result.end(), [](const auto &resetPair) {
-        return resetPair.second.index() == 1 && resetPair.first == std::get<ClockVariables>(resetPair.second);
-      }), result.end());
 
       // Construct the reset from the timed conditions
       // TODO: I am not too sure if we need this part

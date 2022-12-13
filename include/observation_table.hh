@@ -330,7 +330,7 @@ namespace learnta {
       for (auto &[i, mapping]: this->closedRelation) {
         if (!this->inP(i) && !mapping.empty()) {
           for (auto it = mapping.begin(); it != mapping.end();) {
-            if (this->equivalentWithMemo(i, it->first)) {
+            if (this->inP(it->first) && this->equivalentWithMemo(i, it->first)) {
               morphisms.emplace_back(this->prefixes.at(i),
                                      this->prefixes.at(it->first),
                                      mapping.begin()->second);
@@ -663,6 +663,10 @@ namespace learnta {
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
+        TATransition::Resets defaultResets;
+        for (int i = 0; i < nonExteriorValuation.size(); ++i) {
+          defaultResets.emplace_back(i, nonExteriorValuation.at(i));
+        }
         TATransition::Resets resetByContinuousExterior;
         for (std::size_t var = 0; var < nonExteriorValuation.size(); ++var) {
           resetByContinuousExterior.emplace_back(var, nonExteriorValuation.at(var));
@@ -680,9 +684,11 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(debug) << "target: " << transitionIt->target;
           BOOST_LOG_TRIVIAL(debug) << "resetByContinuousExterior: " << resetByContinuousExterior;
           BOOST_LOG_TRIVIAL(debug) << "resetByTransition: " << transitionIt->resetVars;
-          BOOST_LOG_TRIVIAL(debug) << "composition: " << composition(transitionIt->resetVars, resetByContinuousExterior);
+          BOOST_LOG_TRIVIAL(debug) << "composition: " << composition(transitionIt->resetVars,
+                                                                     addDefault(resetByContinuousExterior, defaultResets));
           sourceState->next.at(action).emplace_back(transitionIt->target,
-                                                    composition(transitionIt->resetVars, resetByContinuousExterior),
+                                                    composition(transitionIt->resetVars,
+                                                                addDefault(resetByContinuousExterior, defaultResets)),
                                                     this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
         }
       }

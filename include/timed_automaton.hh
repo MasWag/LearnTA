@@ -617,4 +617,27 @@ namespace learnta {
 
     return result;
   }
+
+  static inline TATransition::Resets addDefault(const TATransition::Resets &original, const TATransition::Resets &defaultReset) {
+    const auto originalMap = asMap(original);
+    const auto defaultMap = asMap(defaultReset);
+    TATransition::Resets result = original;
+    result.reserve(defaultMap.size());
+    // Composite left and right
+    for (const auto &[key, value]: defaultReset) {
+      if (originalMap.find(key) == originalMap.end()) {
+        result.emplace_back(key, value);
+      }
+    }
+
+    return result;
+  }
+
+  static inline TATransition::Resets clean(const TATransition::Resets &resets) {
+    auto result = resets;
+    result.erase(std::remove_if(result.begin(), result.end(), [](const auto &resetPair) {
+      return resetPair.second.index() == 1 && resetPair.first == std::get<ClockVariables>(resetPair.second);
+    }), result.end());
+    return result;
+  }
 }
