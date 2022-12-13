@@ -63,8 +63,8 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/equivalence_test.cc
   tests/juxtaposed_zone_test.cc
   tests/timed_automaton_equivalence_oracle_test.cc
-  tests/observation_table_test.cc
-  tests/learner_test.cc
+  #tests/observation_table_test.cc
+  #tests/learner_test.cc
   tests/constraint_test.cc
   tests/timed_automaton_test.cc
   tests/internal_transition_maker_test.cc
