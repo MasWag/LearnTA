@@ -16,7 +16,7 @@
  * - [APT'20]: Aichernig, Bernhard K., Andrea Pferscher, and Martin Tappler. "From passive to active: learning timed automata efficiently." NASA Formal Methods Symposium. Springer, Cham, 2020.
  */
 struct LightAutomatonFixture {
-  const std::vector<Alphabet> alphabet = {'p', 'r', 's', 'e', 't'};
+  const std::vector<learnta::Alphabet> alphabet = {'p', 'r', 's', 'e', 't'};
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
   const int scale;
 

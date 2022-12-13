@@ -514,8 +514,7 @@ namespace learnta {
 }
 
 namespace std {
-    static inline std::ostream &operator<<(std::ostream &os,
-                                           const std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> &resetVars) {
+    static inline std::ostream &operator<<(std::ostream &os, const learnta::TATransition::Resets &resetVars) {
       bool isFirst = true;
       for (const auto &[resetVar, newVar]: resetVars) {
         if (!isFirst) {
@@ -523,7 +522,7 @@ namespace std {
         }
       os << "x" << int(resetVar) << " := ";
       if (newVar.index() == 1) {
-        os << "x" << int(std::get<ClockVariables>(newVar));
+        os << "x" << int(std::get<learnta::ClockVariables>(newVar));
       } else {
         os << std::get<double>(newVar);
       }
@@ -561,7 +560,13 @@ namespace learnta {
         for (const TATransition &edge: edges.second) {
           TAState *target = edge.target;
           os << "        loc" << stateNumber.at(source.get()) << "->loc"
-             << stateNumber.at(target) << " [label=\"" << edges.first << "\"";
+             << stateNumber.at(target) << " [label=\"";
+          if (edges.first != UNOBSERVABLE) {
+            os << edges.first;
+          } else {
+            os << UNOBSERVABLE_STRING;
+          }
+          os << "\"";
           if (!edge.guard.empty()) {
             os << ", guard=\"{" << edge.guard << "}\"";
           }
