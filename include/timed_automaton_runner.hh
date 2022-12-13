@@ -15,7 +15,8 @@ namespace learnta {
   /*!
    * @brief Class to execute a timed automaton
    *
-   * @note We assume that the given timed automaton is \em deterministic and with <em>no unobservable transitions</em>.
+   * @note We assume that the given timed automaton is \em deterministic.
+   * @note We support unobservable transitions, but we assume that there is no loop of unobservable transitions
    * @invariant this->clockValuation.size() == this->automaton.maxConstraints.size();
    */
   class TimedAutomatonRunner : public SUL {
@@ -96,6 +97,34 @@ namespace learnta {
       if (this->state == nullptr) {
         return false;
       }
+      const auto unobservableIt = this->state->next.find(UNOBSERVABLE);
+      if (unobservableIt != this->state->next.end() && !unobservableIt->second.empty()) {
+        // If there are unobservable transitions, we choose the minimum duration to satisfy it
+        double minDuration;
+        auto candidateTransition = unobservableIt->second.end();
+        if (unobservableIt->second.size() == 1) {
+          minDuration = lowerBoundDurationToSatisfy(unobservableIt->second.front().guard, this->clockValuation);
+          candidateTransition = unobservableIt->second.begin();
+        } else {
+          candidateTransition = std::min_element(unobservableIt->second.begin(), unobservableIt->second.end(),
+                                                 [&](const auto &a, const auto &b) {
+                                                   return lowerBoundDurationToSatisfy(a.guard, this->clockValuation) <
+                                                          lowerBoundDurationToSatisfy(b.guard, this->clockValuation);
+                                                 });
+          minDuration = lowerBoundDurationToSatisfy(candidateTransition->guard, this->clockValuation);
+        }
+        if (std::isnormal(minDuration) && minDuration >= 0 && duration >= minDuration) {
+          // An unobservable transition is available
+          std::transform(this->clockValuation.begin(), this->clockValuation.end(), this->clockValuation.begin(),
+                         [&](double value) {
+                           return value + minDuration;
+                         });
+          // We just reuse step for observable transitions for simplicity. We can make it a bit more efficient here
+          this->step(UNOBSERVABLE);
+          return this->step(duration - minDuration);
+        }
+      }
+      // No unobservable transition is available
       std::transform(this->clockValuation.begin(), this->clockValuation.end(), this->clockValuation.begin(),
                      [&](double value) {
                        return value + duration;

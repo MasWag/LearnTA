@@ -105,6 +105,20 @@ namespace learnta {
       }
     }
 
+    [[nodiscard]] inline double lowerBoundDurationToSatisfy(std::vector<double> valuation) const {
+      switch (odr) {
+        case Order::lt:
+        case Order::le:
+          // Bounded from above
+          return valuation.at(this->x) <= this->c ? 0.0 : std::numeric_limits<double>::infinity();
+        case Order::gt:
+        case Order::ge:
+          // Bounded from below
+          return std::max(0.0, this->c - valuation.at(this->x));
+      }
+      return false;
+    }
+
     [[nodiscard]] IntBounds toBound() const {
       switch (odr) {
         case learnta::Constraint::Order::le:
@@ -326,6 +340,16 @@ namespace learnta {
     }
 
     return result;
+  }
+
+  [[nodiscard]] inline double lowerBoundDurationToSatisfy(const std::vector<Constraint> &guard, const std::vector<double> &valuation) {
+    std::vector<double> lowerBoundDurations;
+    lowerBoundDurations.reserve(guard.size());
+    std::transform(guard.begin(), guard.end(), std::back_inserter(lowerBoundDurations), [&] (const auto &constraint) {
+      return constraint.lowerBoundDurationToSatisfy(valuation);
+    });
+
+    return *std::max_element(lowerBoundDurations.begin(), lowerBoundDurations.end());
   }
 
   static inline std::ostream &operator<<(std::ostream &os, const std::vector<Constraint> &guards) {
