@@ -17,8 +17,6 @@ namespace learnta {
    * @param[in] oracle The membership oracle
    * @param[in] hypothesis The hypothesis recognizable language
    *
-   * @todo Use linear search to a new counterexample
-   *
    * @pre word is a counterexample. Namely, we should have oracle->answerQuery(word) != hypothesis.contains(word)
    */
   static inline std::optional<TimedWord> analyzeCEX(const TimedWord &word,
@@ -41,30 +39,14 @@ namespace learnta {
     };
     assert(eval(mappedWords.back()));
     assert(!eval(mappedWords.front()));
-    auto count = (mappedWords.size() - 1) / 2;
-    auto index = count;
-    while (eval(mappedWords.at(index)) == eval(mappedWords.at(index + 1))) {
-      count = int(ceil(count * 0.5));
-      if (eval(mappedWords.at(index))) {
-        index -= count;
-      } else {
-        index += count;
-      }
-    }
-    assert(eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1)));
-    // Check if the found suffix is new
-    if (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&] (const ElementaryLanguage& suffix) {
-      return !suffix.contains(suffixes.at(index));
-    })) {
-      return suffixes.at(index);
-    } else {
-      // Conduct linear search to find a fresh suffix
-      for (index = 0; index + 1 < mappedWords.size(); ++index) {
-        if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1)) &&
-        std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&] (const ElementaryLanguage& suffix) {
-          return !suffix.contains(suffixes.at(index));
+    for (int index = 0; index + 1 < mappedWords.size(); ++index) {
+      if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {
+        if (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&](const ElementaryLanguage &suffix) {
+          return !suffix.contains(suffixes.at(index + 1));
         })) {
-          return suffixes.at(index);
+          return suffixes.at(index + 1);
+        } else {
+          BOOST_LOG_TRIVIAL(debug) << suffixes.at(index + 1) << " is a counterexample but not fresh!!";
         }
       }
     }
