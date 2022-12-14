@@ -50,4 +50,19 @@ BOOST_AUTO_TEST_SUITE(TimedAutomatonTest)
     BOOST_CHECK_EQUAL(expected, stream.str());
   }
 
+  BOOST_FIXTURE_TEST_CASE(makeCompleteUnobservable, SimpleAutomatonWithOneUnobservableFixture) {
+    TimedAutomaton original;
+    std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new;
+    this->automatonWithOneUnobservable.deepCopy(original, old2new);
+    this->automatonWithOneUnobservable.makeComplete(this->alphabet);
+    BOOST_CHECK_EQUAL(original.stateSize() + 1, this->automatonWithOneUnobservable.stateSize());
+    BOOST_CHECK_EQUAL(original.initialStates.size(), this->automatonWithOneUnobservable.initialStates.size());
+    BOOST_CHECK_EQUAL_COLLECTIONS(original.maxConstraints.begin(),
+                                  original.maxConstraints.end(),
+                                  this->automatonWithOneUnobservable.maxConstraints.begin(),
+                                  this->automatonWithOneUnobservable.maxConstraints.end());
+    this->automatonWithOneUnobservable = this->automatonWithOneUnobservable.simplify();
+    BOOST_CHECK_EQUAL(original.stateSize(), this->automatonWithOneUnobservable.stateSize());
+  }
+
 BOOST_AUTO_TEST_SUITE_END()

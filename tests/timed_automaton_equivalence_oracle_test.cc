@@ -18,6 +18,8 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
           : public SimpleAutomatonFixture, public UniversalAutomatonFixture, public ComplementSimpleAutomatonFixture {
   };
 
+  struct FixtureWithUnobservable : public Fixture, public SimpleAutomatonWithOneUnobservableFixture, public SimpleAutomatonWithTwoUnobservableFixture {};
+
   BOOST_FIXTURE_TEST_CASE(query, Fixture) {
     auto oracle = ComplementTimedAutomataEquivalenceOracle{this->automaton, this->complementAutomaton, {'a'}};
 
@@ -172,4 +174,10 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
     BOOST_CHECK(counterExampleOpt);
   }
 
+  BOOST_FIXTURE_TEST_CASE(queryWithUnobservableHypothesis, FixtureWithUnobservable) {
+    auto oracle = ComplementTimedAutomataEquivalenceOracle{this->automaton, this->complementAutomaton, {'a'}};
+
+    BOOST_CHECK(!oracle.findCounterExample(this->automatonWithOneUnobservable));
+    BOOST_CHECK(!oracle.findCounterExample(this->automatonWithTwoUnobservable));
+  }
 BOOST_AUTO_TEST_SUITE_END()

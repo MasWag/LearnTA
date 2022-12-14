@@ -164,12 +164,24 @@ namespace learnta {
       }
       // If the transition is empty, we make a transition to the sink state
       for (auto &state: this->states) {
+        // Construct the disjunctive guards of unobservable transitions
+        std::vector<std::vector<Constraint>> disjunctiveGuardOfUnobservable;
+        if (state->next.find(UNOBSERVABLE) != state->next.end()) {
+          disjunctiveGuardOfUnobservable.reserve(state->next.at(UNOBSERVABLE).size());
+          for (const auto &transition: state->next.at(UNOBSERVABLE)) {
+            if (transition.guard.empty()) {
+              disjunctiveGuardOfUnobservable.clear();
+              break;
+            }
+            disjunctiveGuardOfUnobservable.push_back(transition.guard);
+          }
+        }
         for (const auto &action: alphabet) {
-          if (state->next.find(action) == state->next.end() || state->next.at(action).empty()) {
+          if (disjunctiveGuardOfUnobservable.empty() && (state->next.find(action) == state->next.end() || state->next.at(action).empty())) {
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
           } else {
-            std::vector<std::vector<Constraint>> disjunctiveGuard;
+            std::vector<std::vector<Constraint>> disjunctiveGuard = disjunctiveGuardOfUnobservable;
             disjunctiveGuard.reserve(state->next.at(action).size());
             for (const auto &transition: state->next.at(action)) {
               if (transition.guard.empty()) {
