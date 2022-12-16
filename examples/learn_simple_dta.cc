@@ -65,7 +65,7 @@ void run(int scale) {
   BOOST_LOG_TRIVIAL(info) << "complementTargetAutomaton:\n" << complementTargetAutomaton;
 
   // Construct the learner
-  const std::vector<Alphabet> alphabet = {'a'};
+  const std::vector<learnta::Alphabet> alphabet = {'a'};
   auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
   auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
   auto eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(

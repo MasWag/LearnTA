@@ -14,7 +14,7 @@
  * @brief Fixture of "Unbalanced" benchmark, which is inspired by the unbalanced TRE in [ACM'02]
  */
 struct UnbalancedFixture {
-  const std::vector<Alphabet> alphabet = {'a', 'b', 'c'};
+  const std::vector<learnta::Alphabet> alphabet = {'a', 'b', 'c'};
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
 
   explicit UnbalancedFixture(const int scale = 1) {

@@ -644,18 +644,10 @@ namespace learnta {
         }
         const auto sourceState = stateManager.toState(continuousSuccessor);
         // Find a successor in P
-        // First, we try to "jump" to the same state
-/*        auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
-                               this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
-                  return this->inP(rel.first) && stateManager.toState(rel.first) == stateManager.toState(continuousSuccessor);
-                });*/
-        // When there is no such renaming relation, we use any other predecessor
-//        if (it == this->closedRelation.at(continuousSuccessor).end()) {
          const auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
                                       this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
            return this->inP(rel.first);
          });
-//        }
         assert(it != this->closedRelation.at(continuousSuccessor).end());
         // The continuous successor after mapping to P.
         const auto jumpedSourceIndex = it->first;
@@ -663,33 +655,39 @@ namespace learnta {
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
-        TATransition::Resets defaultResets;
-        for (int i = 0; i < nonExteriorValuation.size(); ++i) {
-          defaultResets.emplace_back(i, nonExteriorValuation.at(i));
-        }
         TATransition::Resets resetByContinuousExterior;
         for (std::size_t var = 0; var < nonExteriorValuation.size(); ++var) {
           resetByContinuousExterior.emplace_back(var, nonExteriorValuation.at(var));
         }
-        for (const auto action: alphabet) {
-          const auto jumpedSourceInvariant = this->prefixes.at(jumpedSourceIndex).getTimedCondition().toGuard();
-          // Find a transition consistent with jumpedSourceInvariant
-          auto transitionIt = std::find_if(jumpedSourceState->next.at(action).begin(),
-                                        jumpedSourceState->next.at(action).end(), [&] (const TATransition &transition) {
-            return isWeaker(transition.guard, jumpedSourceInvariant);
-          });
-          assert(transitionIt != jumpedSourceState->next.at(action).end());
-          BOOST_LOG_TRIVIAL(debug) << "source: " << sourceState;
-          BOOST_LOG_TRIVIAL(debug) << "jumpedSource: " << jumpedSourceState;
-          BOOST_LOG_TRIVIAL(debug) << "target: " << transitionIt->target;
-          BOOST_LOG_TRIVIAL(debug) << "resetByContinuousExterior: " << resetByContinuousExterior;
-          BOOST_LOG_TRIVIAL(debug) << "resetByTransition: " << transitionIt->resetVars;
-          BOOST_LOG_TRIVIAL(debug) << "composition: " << composition(transitionIt->resetVars,
-                                                                     addDefault(resetByContinuousExterior, defaultResets));
-          sourceState->next.at(action).emplace_back(transitionIt->target,
-                                                    composition(transitionIt->resetVars,
-                                                                addDefault(resetByContinuousExterior, defaultResets)),
-                                                    this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
+        if (sourceState == jumpedSourceState) {
+          // Merge to the next discrete successor if it is a self loop
+          for (const auto action: alphabet) {
+            const auto jumpedSourceInvariant = this->prefixes.at(jumpedSourceIndex).getTimedCondition().toGuard();
+            // Find a transition consistent with jumpedSourceInvariant
+            auto transitionIt = std::find_if(jumpedSourceState->next.at(action).begin(),
+                                             jumpedSourceState->next.at(action).end(),
+                                             [&](const TATransition &transition) {
+                                               return isWeaker(transition.guard, jumpedSourceInvariant);
+                                             });
+            assert(transitionIt != jumpedSourceState->next.at(action).end());
+            BOOST_LOG_TRIVIAL(debug) << "source: " << sourceState;
+            BOOST_LOG_TRIVIAL(debug) << "jumpedSource: " << jumpedSourceState;
+            BOOST_LOG_TRIVIAL(debug) << "target: " << transitionIt->target;
+            BOOST_LOG_TRIVIAL(debug) << "resetByContinuousExterior: " << resetByContinuousExterior;
+            BOOST_LOG_TRIVIAL(debug) << "resetByTransition: " << transitionIt->resetVars;
+            BOOST_LOG_TRIVIAL(debug) << "composition: "
+                                     << composition(transitionIt->resetVars, resetByContinuousExterior);
+            sourceState->next.at(action).emplace_back(transitionIt->target,
+                                                      composition(transitionIt->resetVars, resetByContinuousExterior),
+                                                      this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
+          }
+        } else {
+          ExternalTransitionMaker maker;
+          maker.add(jumpedSourceState, it->second,
+                    this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition(),
+                    jumpedSourceCondition);
+          assert(maker.make().size() == 1);
+          sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
         }
       }
 

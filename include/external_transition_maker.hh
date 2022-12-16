@@ -79,6 +79,13 @@ namespace learnta {
 
     /*!
      * @brief Generate transitions
+     *
+     * @todo There is an issue in reset generation
+     * domain: (ab, 1 <= T_{0, 0}  <= 1 && 1 <= T_{0, 1}  <= 1 && 1 < T_{0, 2}  < 2 && -0 <= T_{1, 1}  <= 0 && -0 < T_{1, 2}  < 1 && -0 < T_{2, 2}  < 1)
+     * codomain: (ab, -0 < T_{0, 0}  < 1 && 1 <= T_{0, 1}  <= 1 && 1 < T_{0, 2}  < 2 && -0 < T_{1, 1}  < 1 && -0 < T_{1, 2}  < 1 && -0 < T_{2, 2}  < 1)
+     * renaming: {t1 == t'1}
+     * loc6->loc5 [label="ε", guard="{x0 > 1, x1 > 0, x2 > 0}", reset="{x0 := 1.5, x2 := 0.5}"]
+     * The order gets broken
      */
     [[nodiscard]] std::vector<TATransition> make() const {
       std::vector<TATransition> result;
