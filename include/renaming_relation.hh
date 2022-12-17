@@ -77,6 +77,18 @@ namespace learnta {
       return result;
     }
 
+    /*!
+     * @brief The clock variables on the right hand side of the renaming relation
+     */
+    [[nodiscard]] auto rightVariables() const {
+      std::vector<size_t> result;
+      result.reserve(this->size());
+      std::transform(this->begin(), this->end(), std::back_inserter(result), [] (const auto &pair) {
+        return pair.second;
+      });
+      return result;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const RenamingRelation &relation) {
       bool isFirst = true;
       os << '{';

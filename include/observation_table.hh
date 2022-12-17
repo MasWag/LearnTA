@@ -591,6 +591,23 @@ namespace learnta {
         }
       }
 
+      // The inactive clock variables for each state
+      std::unordered_map<TAState*, std::unordered_map<ClockVariables, std::size_t>> inactiveClocks;
+      const auto addInactiveClocks = [&] (TAState* jumpedState, const RenamingRelation& renamingRelation, const TimedCondition &targetCondition) {
+        auto it = inactiveClocks.find(jumpedState);
+        if (it == inactiveClocks.end()) {
+          inactiveClocks[jumpedState] = ExternalTransitionMaker::inactiveClockVariables(renamingRelation, targetCondition);
+        } else {
+          for (const auto &[inactive, lowerBound]: ExternalTransitionMaker::inactiveClockVariables(renamingRelation, targetCondition)) {
+            auto it2 = it->second.find(inactive);
+            if (it2 != it->second.end()) {
+              it2->second = std::min(it2->second, lowerBound);
+            } else {
+              it->second[inactive] = lowerBound;
+            }
+          }
+        }
+      };
       //! Construct transitions by discrete immediate exteriors
       std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
@@ -604,6 +621,7 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
+          addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -653,6 +671,7 @@ namespace learnta {
         const auto jumpedSourceIndex = it->first;
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
+        addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -689,6 +708,64 @@ namespace learnta {
           assert(maker.make().size() == 1);
           sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
         }
+      }
+      // Modify the guards based on the inactive clock variables
+      std::unordered_set<TAState*> handledStates;
+      while (!inactiveClocks.empty()) {
+        auto it = inactiveClocks.begin();
+        for (auto &[action, transitions]: it->first->next) {
+          for (TATransition &transition: transitions) {
+            // We modify each stat only once
+            if (handledStates.find(transition.target) != handledStates.end()) {
+              continue;
+            } else {
+              handledStates.insert(transition.target);
+            }
+            auto currentInactiveClocks = it->second;
+            std::unordered_set<ClockVariables> currentActiveClocks;
+            // tighten the current inactive clock variables
+            for (const Constraint &constraint: transition.guard) {
+              currentActiveClocks.insert(constraint.x);
+            }
+            for (auto it2 = currentInactiveClocks.begin(); it2 != currentInactiveClocks.end(); ) {
+              if (currentActiveClocks.end() == currentActiveClocks.find(it2->first)) {
+                it2 = currentInactiveClocks.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+            // Remove the guards on the inactive clock variables
+            transition.guard.erase(std::remove_if(transition.guard.begin(), transition.guard.end(), [&] (const Constraint &constraint) {
+              auto it2 = currentInactiveClocks.find(constraint.x);
+              return it2 != currentInactiveClocks.end() && it2->second < constraint.c;
+            }), transition.guard.end());
+            // We do not propagate the inactive clock variables if the transition is a self loop
+            if (transition.target == it->first) {
+              continue;
+            }
+            // Update inactive clock variables
+            for (const auto &[resetVar, newValue]: transition.resetVars) {
+              auto it2 = currentInactiveClocks.find(resetVar);
+              if (it2 != currentInactiveClocks.end()) {
+                currentInactiveClocks.erase(it2);
+              }
+            }
+            auto it2 = inactiveClocks.find(transition.target);
+            if (it2 == inactiveClocks.end()) {
+              inactiveClocks[transition.target] = currentInactiveClocks;
+            } else {
+              for (const auto &[inactiveClock, lowerBound]: currentInactiveClocks) {
+                auto it3 = it2->second.find(inactiveClock);
+                if (it3 == it2->second.end()) {
+                  it2->second[inactiveClock] = lowerBound;
+                } else {
+                  it3->second = std::min(it3->second, lowerBound);
+                }
+              }
+            }
+          }
+        }
+        inactiveClocks.erase(it);
       }
 
       // Assert the totality of the constructed DTA

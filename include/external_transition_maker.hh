@@ -7,6 +7,7 @@
 
 #include <utility>
 #include <memory>
+#include <numeric>
 
 #include <boost/unordered_map.hpp>
 #include <boost/log/trivial.hpp>
@@ -115,6 +116,27 @@ namespace learnta {
           }
           BOOST_LOG_TRIVIAL(trace) << "Resets: " << resets;
           result.emplace_back(target.get(), clean(resets), sourceCondition.toGuard());
+        }
+      }
+
+      return result;
+    }
+
+    /*!
+     * @brief Return the inactive clock variables after the transition
+     */
+    static auto inactiveClockVariables(const RenamingRelation &renamingRelation, const TimedCondition &targetCondition) {
+      std::vector<ClockVariables> inactiveClocks;
+      inactiveClocks.resize(targetCondition.size());
+      std::iota(inactiveClocks.begin(), inactiveClocks.end(), 0);
+      for (const auto &activeClock: renamingRelation.rightVariables()) {
+        inactiveClocks.erase(std::remove(inactiveClocks.begin(), inactiveClocks.end(), activeClock), inactiveClocks.end());
+      }
+      std::unordered_map<ClockVariables, std::size_t> result;
+      for (const auto &inactiveClock: inactiveClocks) {
+        // Check if the clock variable is active because of a constant constraint
+        if (!isPoint(targetCondition.getUpperBound(inactiveClock, inactiveClock), targetCondition.getLowerBound(inactiveClock, inactiveClock))) {
+          result[inactiveClock] = fabs(targetCondition.getLowerBound(inactiveClock, inactiveClock).first);
         }
       }
 
