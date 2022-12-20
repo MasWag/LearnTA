@@ -110,7 +110,7 @@ namespace learnta {
       const auto unobservableIt = this->state->next.find(UNOBSERVABLE);
       if (unobservableIt != this->state->next.end() && !unobservableIt->second.empty()) {
         // If there are unobservable transitions, we choose the minimum duration to satisfy it
-        double minDuration;
+        Bounds minDuration;
         auto candidateTransition = unobservableIt->second.end();
         if (unobservableIt->second.size() == 1) {
           minDuration = lowerBoundDurationToSatisfy(unobservableIt->second.front().guard, this->clockValuation);
@@ -123,22 +123,22 @@ namespace learnta {
                                                  });
           minDuration = lowerBoundDurationToSatisfy(candidateTransition->guard, this->clockValuation);
         }
-        if (std::isfinite(minDuration) && minDuration >= 0 && duration >= minDuration) {
+        if (std::isfinite(minDuration.first) && minDuration.first <= 0 && Bounds{-duration, true} <= minDuration) {
           // An unobservable transition is available
           std::transform(this->clockValuation.begin(), this->clockValuation.end(), this->clockValuation.begin(),
                          [&](double value) {
-                           return value + minDuration;
+                           return value + -minDuration.first;
                          });
           // Reset the clock variables
           // assert the validity of the candidate transition
           assert(candidateTransition != unobservableIt->second.end());
           this->applyReset(candidateTransition->resetVars);
           this->state = candidateTransition->target;
-          return this->step(duration - minDuration);
+          return this->step(duration - -minDuration.first);
         } else {
           BOOST_LOG_TRIVIAL(debug) << "Unobservable transitions are skipped";
-          BOOST_LOG_TRIVIAL(debug) << "std::isfinite(minDuration): " << std::isfinite(minDuration);
-          BOOST_LOG_TRIVIAL(debug) << "minDuration: " << minDuration;
+          BOOST_LOG_TRIVIAL(debug) << "std::isfinite(-minDuration): " << std::isfinite(-minDuration.first);
+          BOOST_LOG_TRIVIAL(debug) << "minDuration: " << minDuration.first << ", " << minDuration.second;
           BOOST_LOG_TRIVIAL(debug) << "duration: " << duration;
         }
       }

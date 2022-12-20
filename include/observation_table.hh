@@ -715,7 +715,7 @@ namespace learnta {
         auto it = inactiveClocks.begin();
         for (auto &[action, transitions]: it->first->next) {
           for (TATransition &transition: transitions) {
-            // We modify each stat only once
+            // We modify each state at most once
             if (handledStates.find(transition.target) != handledStates.end()) {
               continue;
             } else {
@@ -762,6 +762,17 @@ namespace learnta {
                   it3->second = std::min(it3->second, lowerBound);
                 }
               }
+            }
+          }
+          // Make the transitions deterministic
+          // We assume that if the conjunction of the guards of two transitions is satisfiable, one of them is weaker
+          for (auto it2 = transitions.begin(); it2 != transitions.end();) {
+            if (std::any_of(transitions.begin(), transitions.end(), [&](const TATransition &transition) -> bool {
+              return *it2 != transition && isWeaker(transition.guard, it2->guard);
+            })) {
+              it2 = transitions.erase(it2);
+            } else {
+              ++it2;
             }
           }
         }
