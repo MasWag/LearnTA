@@ -37,7 +37,7 @@
 
 void run() {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
-  const std::vector<Alphabet> alphabet = {'s', 'u', 'b', 'a', 'l', 't', 'y', 'e', 'c', 'r', 'g'};
+  const std::vector<learnta::Alphabet> alphabet = {'s', 'u', 'b', 'a', 'l', 't', 'y', 'e', 'c', 'r', 'g'};
 
   // Generate the target DTA
   targetAutomaton.states.resize(17);
