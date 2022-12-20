@@ -9,6 +9,7 @@
 #include "../include/timed_automaton.hh"
 
 #include "simple_automaton_fixture.hh"
+#include "unbalanced_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(TimedAutomatonTest)
 
@@ -65,4 +66,13 @@ BOOST_AUTO_TEST_SUITE(TimedAutomatonTest)
     BOOST_CHECK_EQUAL(original.stateSize(), this->automatonWithOneUnobservable.stateSize());
   }
 
+  BOOST_FIXTURE_TEST_CASE(makeCompleteUnbalancedHypothesis20221219, UnbalancedHypothesis20221219Fixture) {
+    TimedAutomaton original;
+    std::unordered_map<TAState *, std::shared_ptr<TAState>> old2new;
+    this->hypothesis.deepCopy(original, old2new);
+    const std::vector<learnta::Alphabet> alphabet = {'a', 'b', 'c'};
+    this->hypothesis.makeComplete(alphabet);
+    BOOST_CHECK_EQUAL(original.stateSize() + 1, this->hypothesis.stateSize());
+    BOOST_CHECK_EQUAL(original.initialStates.size(), this->hypothesis.initialStates.size());
+  }
 BOOST_AUTO_TEST_SUITE_END()

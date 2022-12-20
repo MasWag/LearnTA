@@ -180,7 +180,7 @@ namespace learnta {
           if (disjunctiveGuardOfUnobservable.empty() && (state->next.find(action) == state->next.end() || state->next.at(action).empty())) {
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
-          } else {
+          } else if (state->next.find(action) != state->next.end() && !state->next.at(action).empty()) {
             std::vector<std::vector<Constraint>> disjunctiveGuard = disjunctiveGuardOfUnobservable;
             disjunctiveGuard.reserve(state->next.at(action).size());
             for (const auto &transition: state->next.at(action)) {

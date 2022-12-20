@@ -5,11 +5,15 @@
 
 #include <boost/test/unit_test.hpp>
 
+#define private public
+
 #include "../include/timed_automata_equivalence_oracle.hh"
 #include "simple_automaton_fixture.hh"
 #include "light_automaton_fixture.hh"
 
 #include "manual_eq_tester.hh"
+#include "unbalanced_fixture.hh"
+#include "../examples/unbalanced_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
 
@@ -179,5 +183,17 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
 
     BOOST_CHECK(!oracle.findCounterExample(this->automatonWithOneUnobservable));
     BOOST_CHECK(!oracle.findCounterExample(this->automatonWithTwoUnobservable));
+  }
+
+  struct UnbalancedHypothesis20221219OracleFixture : public UnbalancedHypothesis20221219Fixture, public UnbalancedFixture{
+    ComplementTimedAutomataEquivalenceOracle oracle;
+
+    UnbalancedHypothesis20221219OracleFixture() : UnbalancedHypothesis20221219Fixture(), UnbalancedFixture(1), oracle(this->targetAutomaton, this->complementTargetAutomaton, this->alphabet) {}
+  };
+
+  BOOST_FIXTURE_TEST_CASE(queryUnbalancedHypothesis20221219, UnbalancedHypothesis20221219OracleFixture) {
+    BOOST_CHECK(!oracle.subset(this->hypothesis));
+    BOOST_CHECK(!oracle.superset(this->hypothesis));
+    BOOST_CHECK(!oracle.findCounterExample(this->hypothesis));
   }
 BOOST_AUTO_TEST_SUITE_END()
