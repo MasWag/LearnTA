@@ -54,6 +54,20 @@ namespace learnta {
       }
     }
 
+    /*!
+     * @brief Apply the given reset to the clock valuation
+     */
+    void applyReset(const TATransition::Resets &resets) {
+      const auto oldValuation = this->clockValuation;
+      for (const auto &[resetVariable, targetVariable]: resets) {
+        if (targetVariable.index() == 1) {
+          this->clockValuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
+        } else {
+          this->clockValuation.at(resetVariable) = std::get<double>(targetVariable);
+        }
+      }
+    }
+
     bool step(char action) override {
       if (isEmpty) {
         return false;
@@ -69,14 +83,7 @@ namespace learnta {
           return guard.satisfy(this->clockValuation.at(guard.x));
         })) {
           // Reset the clock variables
-          const auto oldValuation = this->clockValuation;
-          for (const auto &[resetVariable, targetVariable]: transition.resetVars) {
-            if (targetVariable.index() == 1) {
-              this->clockValuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
-            } else {
-              this->clockValuation.at(resetVariable) = std::get<double>(targetVariable);
-            }
-          }
+          this->applyReset(transition.resetVars);
           this->state = transition.target;
 
           return this->state->isMatch;
@@ -113,15 +120,23 @@ namespace learnta {
                                                  });
           minDuration = lowerBoundDurationToSatisfy(candidateTransition->guard, this->clockValuation);
         }
-        if (std::isnormal(minDuration) && minDuration >= 0 && duration >= minDuration) {
+        if (std::isfinite(minDuration) && minDuration >= 0 && duration >= minDuration) {
           // An unobservable transition is available
           std::transform(this->clockValuation.begin(), this->clockValuation.end(), this->clockValuation.begin(),
                          [&](double value) {
                            return value + minDuration;
                          });
-          // We just reuse step for observable transitions for simplicity. We can make it a bit more efficient here
-          this->step(UNOBSERVABLE);
+          // Reset the clock variables
+          // assert the validity of the candidate transition
+          assert(candidateTransition != unobservableIt->second.end());
+          this->applyReset(candidateTransition->resetVars);
+          this->state = candidateTransition->target;
           return this->step(duration - minDuration);
+        } else {
+          BOOST_LOG_TRIVIAL(debug) << "Unobservable transitions are skipped";
+          BOOST_LOG_TRIVIAL(debug) << "std::isfinite(minDuration): " << std::isfinite(minDuration);
+          BOOST_LOG_TRIVIAL(debug) << "minDuration: " << minDuration;
+          BOOST_LOG_TRIVIAL(debug) << "duration: " << duration;
         }
       }
       // No unobservable transition is available
