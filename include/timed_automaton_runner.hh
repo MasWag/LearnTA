@@ -104,6 +104,9 @@ namespace learnta {
       if (this->state == nullptr) {
         return false;
       }
+      if (duration == 0) {
+        return this->state->isMatch;
+      }
       const auto unobservableIt = this->state->next.find(UNOBSERVABLE);
       if (unobservableIt != this->state->next.end() && !unobservableIt->second.empty()) {
         // If there are unobservable transitions, we choose the minimum duration to satisfy it

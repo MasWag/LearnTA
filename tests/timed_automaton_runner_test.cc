@@ -115,4 +115,15 @@ BOOST_AUTO_TEST_SUITE(TimedAutomatonRunnerTest)
                                   runner.clockValuation.begin(), runner.clockValuation.end());
     runner.post();
   }
+
+  BOOST_FIXTURE_TEST_CASE(stepUnobservable20221220Simplified, UnbalancedHypothesis20221220Fixture) {
+    TimedAutomatonRunner runner{this->hypothesis};
+    runner.pre();
+    BOOST_CHECK_EQUAL(runner.automaton.states.at(0).get(), runner.state);
+    BOOST_CHECK(!runner.step(0.0));
+    BOOST_CHECK_EQUAL(runner.automaton.states.at(0).get(), runner.state);
+    BOOST_CHECK(runner.step('a'));
+    BOOST_CHECK_EQUAL(runner.automaton.states.at(1).get(), runner.state);
+    runner.post();
+  }
 BOOST_AUTO_TEST_SUITE_END()

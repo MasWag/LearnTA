@@ -97,3 +97,37 @@ struct UnbalancedHypothesis20221219Fixture {
 
   learnta::TimedAutomaton hypothesis;
 };
+
+
+struct UnbalancedHypothesis20221220Fixture {
+  UnbalancedHypothesis20221220Fixture() {
+    // Generate the target DTA
+    hypothesis.states.resize(2);
+    hypothesis.states.at(0) = std::make_shared<learnta::TAState>(false);
+    hypothesis.states.at(0)->next['a'].resize(1);
+    hypothesis.states.at(0)->next['b'].resize(1);
+    hypothesis.states.at(0)->next['c'].resize(1);
+    hypothesis.states.at(0)->next[learnta::UNOBSERVABLE].resize(1);
+    hypothesis.states.at(1) = std::make_shared<learnta::TAState>(true);
+
+    // Transitions from loc0
+    hypothesis.states.at(0)->next['a'].at(0).target = hypothesis.states.at(1).get();
+    hypothesis.states.at(0)->next['a'].at(0).guard = {learnta::ConstraintMaker(0) <= 0};
+    hypothesis.states.at(0)->next['a'].at(0).resetVars = {{1, 0.0}};
+    hypothesis.states.at(0)->next['b'].at(0).target = hypothesis.states.at(1).get();
+    hypothesis.states.at(0)->next['b'].at(0).guard = {learnta::ConstraintMaker(0) <= 0};
+    hypothesis.states.at(0)->next['b'].at(0).resetVars = {{1, 0.0}};
+    hypothesis.states.at(0)->next['c'].at(0).target = hypothesis.states.at(1).get();
+    hypothesis.states.at(0)->next['c'].at(0).guard = {learnta::ConstraintMaker(0) <= 0};
+    hypothesis.states.at(0)->next['c'].at(0).resetVars = {{1, 0.0}};
+    hypothesis.states.at(0)->next[learnta::UNOBSERVABLE].at(0).target = hypothesis.states.at(0).get();
+    hypothesis.states.at(0)->next[learnta::UNOBSERVABLE].at(0).guard = {learnta::ConstraintMaker(0) > 0};
+
+    hypothesis.initialStates.push_back(hypothesis.states.at(0));
+    hypothesis.maxConstraints.resize(2);
+    hypothesis.maxConstraints[0] = 1;
+    hypothesis.maxConstraints[1] = 1;
+  }
+
+  learnta::TimedAutomaton hypothesis;
+};
