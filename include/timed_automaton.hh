@@ -41,6 +41,8 @@ namespace learnta {
      * @brief Check if the transitions is deterministic.
      */
     [[nodiscard]] bool deterministic() const;
+
+    void addUpperBoundForUnobservableTransitions();
   };
 
 /*!
@@ -521,6 +523,10 @@ namespace learnta {
 
     [[nodiscard]] bool deterministic() const {
       return std::all_of(this->states.begin(), this->states.end(), std::mem_fn(&TAState::deterministic));
+    }
+
+    void addUpperBoundForUnobservableTransitions() {
+      std::for_each(this->states.begin(), this->states.end(), std::mem_fn(&TAState::addUpperBoundForUnobservableTransitions));
     }
   };
 }

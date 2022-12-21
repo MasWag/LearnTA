@@ -34,6 +34,8 @@ namespace learnta {
       intersectionTA(complement, hypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
       intersection.simplifyStrong();
+      // This is a quick fix for the urgent semantics of the unobservable transitions
+      intersection.addUpperBoundForUnobservableTransitions();
       BOOST_LOG_TRIVIAL(debug) << "subset: before ta2za";
       BOOST_LOG_TRIVIAL(debug) << "Number of states: " << intersection.stateSize();
       BOOST_LOG_TRIVIAL(debug) << "Number of clock: " << intersection.clockSize();
@@ -54,6 +56,8 @@ namespace learnta {
       intersectionTA(target, complementedHypothesis, intersection, toIState);
       ZoneAutomaton zoneAutomaton;
       intersection.simplifyStrong();
+      // This is a quick fix for the urgent semantics of the unobservable transitions
+      intersection.addUpperBoundForUnobservableTransitions();
       BOOST_LOG_TRIVIAL(debug) << "superset: before ta2za";
       BOOST_LOG_TRIVIAL(debug) << "Number of states: " << intersection.stateSize();
       BOOST_LOG_TRIVIAL(debug) << "Number of clock: " << intersection.clockSize();

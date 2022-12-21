@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <ostream>
 #include <vector>
+#include <unordered_map>
 
 #include <boost/unordered_map.hpp>
 #include <boost/log/trivial.hpp>
@@ -417,5 +418,27 @@ namespace learnta {
     }
 
     return dnfNegated;
+  }
+
+  inline void addUpperBound(std::vector<Constraint> &guard) {
+    std::unordered_map<ClockVariables, std::vector<Constraint>> mapFromClock;
+    for (const auto &constraint: guard) {
+      auto it = mapFromClock.find(constraint.x);
+      if (it == mapFromClock.end()) {
+        mapFromClock[constraint.x] = {constraint};
+      } else {
+        mapFromClock.at(constraint.x).push_back(constraint);
+      }
+    }
+    for (const auto&[clock, constraints]: mapFromClock) {
+      // assume that the guard is non-redundant
+      if (constraints.size() == 1 && !constraints.front().isUpperBound()) {
+        if (constraints.front().odr == Constraint::Order::le) {
+          guard.push_back(ConstraintMaker(clock) <= constraints.front().c);
+        } else {
+          guard.push_back(ConstraintMaker(clock) < constraints.front().c + 1);
+        }
+      }
+    }
   }
 }

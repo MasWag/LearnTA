@@ -85,21 +85,21 @@ namespace learnta {
     for (auto s1: in1.states) {
       for (auto s2: in2.states) {
         // Epsilon transitions
-        for (const auto &e1: s1->next[0]) {
+        for (const auto &e1: s1->next[learnta::UNOBSERVABLE]) {
           auto nextS1 = e1.target;
           if (!nextS1) {
             continue;
           }
           addProductTransition(s1.get(), s2.get(), nextS1, s2.get(), e1,
-                               emptyTransition, 0);
+                               emptyTransition, learnta::UNOBSERVABLE);
         }
-        for (const auto &e2: s2->next[0]) {
+        for (const auto &e2: s2->next[learnta::UNOBSERVABLE]) {
           auto nextS2 = e2.target;
           if (!nextS2) {
             continue;
           }
           addProductTransition(s1.get(), s2.get(), s1.get(), nextS2,
-                               emptyTransition, e2, 0);
+                               emptyTransition, e2, learnta::UNOBSERVABLE);
         }
 
         // Observable transitions

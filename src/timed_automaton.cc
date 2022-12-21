@@ -109,4 +109,13 @@ namespace learnta {
       return true;
     });
   }
+
+  void TAState::addUpperBoundForUnobservableTransitions() {
+    auto it = this->next.find(learnta::UNOBSERVABLE);
+    if (it != this->next.end()) {
+      for (auto &transition: it->second) {
+        addUpperBound(transition.guard);
+      }
+    }
+  }
 }
