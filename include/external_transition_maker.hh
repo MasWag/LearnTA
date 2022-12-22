@@ -99,11 +99,15 @@ namespace learnta {
         for (std::size_t i = 0; i < sourceConditions.size(); ++i) {
           const auto sourceCondition = sourceConditions.getConditions().at(i);
           const auto targetCondition = targetConditions.getConditions().at(i);
+          // Add implicit renaming relations
+          auto juxtaposedCondition = sourceCondition ^ targetCondition;
+          juxtaposedCondition.addRenaming(currentRenamingRelation);
+          const auto newRenamingRelation = RenamingRelation{juxtaposedCondition.makeRenaming()};
           BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
-                                   << currentRenamingRelation.size();
+                                   << newRenamingRelation.size();
           BOOST_LOG_TRIVIAL(trace) << "target condition: " << targetCondition;
           // Generate transitions
-          auto resets = currentRenamingRelation.toReset(sourceCondition, targetCondition);
+          auto resets = newRenamingRelation.toReset(sourceCondition, targetCondition);
           BOOST_LOG_TRIVIAL(trace) << "Resets from renaming: " << resets;
           auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
           // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
@@ -128,6 +132,7 @@ namespace learnta {
     static auto inactiveClockVariables(const RenamingRelation &renamingRelation, const TimedCondition &targetCondition) {
       std::vector<ClockVariables> inactiveClocks;
       inactiveClocks.resize(targetCondition.size());
+      const ClockVariables lastClock = targetCondition.size() - 1;
       std::iota(inactiveClocks.begin(), inactiveClocks.end(), 0);
       for (const auto &activeClock: renamingRelation.rightVariables()) {
         inactiveClocks.erase(std::remove(inactiveClocks.begin(), inactiveClocks.end(), activeClock), inactiveClocks.end());
@@ -135,12 +140,38 @@ namespace learnta {
       std::unordered_map<ClockVariables, std::size_t> result;
       for (const auto &inactiveClock: inactiveClocks) {
         // Check if the clock variable is active because of a constant constraint
-        if (!isPoint(targetCondition.getUpperBound(inactiveClock, inactiveClock), targetCondition.getLowerBound(inactiveClock, inactiveClock))) {
-          result[inactiveClock] = fabs(targetCondition.getLowerBound(inactiveClock, inactiveClock).first);
+        if (!isPoint(targetCondition.getUpperBound(inactiveClock, lastClock), targetCondition.getLowerBound(inactiveClock, lastClock))) {
+          result[inactiveClock] = fabs(targetCondition.getUpperBound(inactiveClock, lastClock).first);
         }
+      }
+      BOOST_LOG_TRIVIAL(debug) << "inactiveClockVariables: " << renamingRelation << ", " << targetCondition;
+      for (const auto &[inactiveClock, bound]: result) {
+        BOOST_LOG_TRIVIAL(debug) << "inactiveClockVariables: " << int(inactiveClock) << ", " << bound;
       }
 
       return result;
     }
   };
+}
+
+namespace std {
+  static inline std::ostream &operator<<(std::ostream &os, const std::pair<learnta::ClockVariables, std::size_t> &inactiveClockPair) {
+    const auto &[inactiveClock, bound] = inactiveClockPair;
+    os << "x" << int(inactiveClock) << ", " << bound;
+
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const std::unordered_map<learnta::ClockVariables, std::size_t> &inactiveClocks) {
+    bool isFirst = true;
+    for (const auto &[inactiveClock, bound]: inactiveClocks) {
+      if (!isFirst) {
+        os << ", ";
+      }
+      os << "x" << int(inactiveClock) << ", " << bound;
+      isFirst = false;
+    }
+
+    return os;
+  }
 }

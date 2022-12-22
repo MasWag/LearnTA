@@ -105,6 +105,10 @@ namespace learnta {
       // the continuous successor of prefixes.at(index) should be in ext(P)
       assert(0 <= continuousSuccessors.at(index) && continuousSuccessors.at(index) < prefixes.size());
       assert(pIndices.find(continuousSuccessors.at(index)) == pIndices.end());
+      // We add continuous successors to P if it is clearly not saturated
+      if (!equivalentWithMemo(continuousSuccessors.at(index), index)) {
+        this->moveToP(continuousSuccessors.at(index));
+      }
     }
 
     bool equivalent(std::size_t i, std::size_t j) {
@@ -709,6 +713,69 @@ namespace learnta {
           sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
         }
       }
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling inactive clocks\n" <<
+      TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      std::queue<std::tuple<TAState*, ClockVariables, int>> inactiveQueue;
+      // Initialize the inactive Queue
+      for (const auto &state: states) {
+        for (const auto &[action, transitions]: state->next) {
+          for (const auto &transition: transitions) {
+            for (const auto &[clock, value]: transition.resetVars) {
+              if (value.index() == 0 && std::get<double>(value) != int (std::get<double>(value))) {
+                inactiveQueue.emplace(transition.target, clock, int(std::get<double>(value)) + 1);
+              }
+            }
+          }
+        }
+      }
+      while (!inactiveQueue.empty()) {
+        auto [state, clock, bound] = inactiveQueue.front();
+        inactiveQueue.pop();
+        for (auto &[action, transitions]: state->next) {
+          for (auto &transition: transitions) {
+            bool used = false;
+            for (auto it = transition.guard.begin(); it != transition.guard.end();) {
+              if (it->x != clock || it->c <= bound) {
+                ++it;
+              } else {
+                it = transition.guard.erase(it);
+                used = true;
+              }
+            }
+            const auto c = clock;
+            if (used) {
+              auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(), [=] (const auto &p) {
+                return p.first == c;
+              });
+              if (it == transition.resetVars.end()) {
+                inactiveQueue.emplace(transition.target, clock, bound);
+              }
+              it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(), [=] (const auto &p) {
+                return p.second.index() == 1 && std::get<ClockVariables>(p.second) == c;
+              });
+              if (it == transition.resetVars.end()) {
+                inactiveQueue.emplace(transition.target, it->first, bound);
+              }
+            }
+          }
+        }
+      }
+      // Make the transitions deterministic
+      for (const auto &state: states) {
+        for (auto &[action, transitions]: state->next) {
+          // We assume that if the conjunction of the guards of two transitions is satisfiable, one of them is weaker
+          for (auto it2 = transitions.begin(); it2 != transitions.end();) {
+            if (std::any_of(transitions.begin(), transitions.end(), [&](const TATransition &transition) -> bool {
+              return *it2 != transition && isWeaker(transition.guard, it2->guard);
+            })) {
+              it2 = transitions.erase(it2);
+            } else {
+              ++it2;
+            }
+          }
+        }
+      }
+      #if 0
       // Modify the guards based on the inactive clock variables
       std::unordered_set<TAState*> handledStates;
       while (!inactiveClocks.empty()) {
@@ -734,11 +801,17 @@ namespace learnta {
                 ++it2;
               }
             }
-            // Remove the guards on the inactive clock variables
+            // Relax the guards on the inactive clock variables
             transition.guard.erase(std::remove_if(transition.guard.begin(), transition.guard.end(), [&] (const Constraint &constraint) {
               auto it2 = currentInactiveClocks.find(constraint.x);
-              return it2 != currentInactiveClocks.end() && it2->second < constraint.c;
+              return it2 != currentInactiveClocks.end() && it2->second < constraint.c && constraint.isUpperBound();
             }), transition.guard.end());
+            for (Constraint &constraint: transition.guard) {
+              auto it2 = currentInactiveClocks.find(constraint.x);
+              if (it2 != currentInactiveClocks.end() && it2->second < constraint.c && !constraint.isUpperBound()) {
+                constraint.c = it2->second;
+              }
+            }
             // We do not propagate the inactive clock variables if the transition is a self loop
             if (transition.target == it->first) {
               continue;
@@ -778,6 +851,10 @@ namespace learnta {
         }
         inactiveClocks.erase(it);
       }
+      #endif
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
+      TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 
       // Assert the totality of the constructed DTA
       assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {

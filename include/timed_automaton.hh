@@ -37,6 +37,7 @@ namespace learnta {
     TAState(bool isMatch,
             std::unordered_map<Alphabet, std::vector<TATransition>> next)
             : isMatch(isMatch), next(std::move(next)) {}
+
     /*!
      * @brief Check if the transitions is deterministic.
      */
@@ -179,7 +180,8 @@ namespace learnta {
           }
         }
         for (const auto &action: alphabet) {
-          if (disjunctiveGuardOfUnobservable.empty() && (state->next.find(action) == state->next.end() || state->next.at(action).empty())) {
+          if (disjunctiveGuardOfUnobservable.empty() &&
+              (state->next.find(action) == state->next.end() || state->next.at(action).empty())) {
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
           } else if (state->next.find(action) != state->next.end() && !state->next.at(action).empty()) {
@@ -425,7 +427,7 @@ namespace learnta {
       std::vector<ClockVariables> usedClockVariablesVec{usedClockVariables.begin(), usedClockVariables.end()};
       std::sort(usedClockVariablesVec.begin(), usedClockVariablesVec.end());
       // Clock variable x is renamed to clockRenaming.at(x)
-      std::unordered_map < ClockVariables, ClockVariables > clockRenaming;
+      std::unordered_map<ClockVariables, ClockVariables> clockRenaming;
       for (std::size_t i = 0; i < usedClockVariablesVec.size(); ++i) {
         clockRenaming[usedClockVariablesVec.at(i)] = i;
       }
@@ -526,24 +528,33 @@ namespace learnta {
     }
 
     void addUpperBoundForUnobservableTransitions() {
-      std::for_each(this->states.begin(), this->states.end(), std::mem_fn(&TAState::addUpperBoundForUnobservableTransitions));
+      std::for_each(this->states.begin(), this->states.end(),
+                    std::mem_fn(&TAState::addUpperBoundForUnobservableTransitions));
     }
   };
 }
 
 namespace std {
-    static inline std::ostream &operator<<(std::ostream &os, const learnta::TATransition::Resets &resetVars) {
-      bool isFirst = true;
-      for (const auto &[resetVar, newVar]: resetVars) {
-        if (!isFirst) {
-          os << ", ";
-        }
-      os << "x" << int(resetVar) << " := ";
-      if (newVar.index() == 1) {
-        os << "x" << int(std::get<learnta::ClockVariables>(newVar));
-      } else {
-        os << std::get<double>(newVar);
+  static inline std::ostream &
+  operator<<(std::ostream &os, const learnta::TATransition::Resets::value_type &resetVarPair) {
+    const auto &[resetVar, newVar] = resetVarPair;
+    os << "x" << int(resetVar) << " := ";
+    if (newVar.index() == 1) {
+      os << "x" << int(std::get<learnta::ClockVariables>(newVar));
+    } else {
+      os << std::get<double>(newVar);
+    }
+
+    return os;
+  }
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::TATransition::Resets &resetVars) {
+    bool isFirst = true;
+    for (const auto &resetVarPair: resetVars) {
+      if (!isFirst) {
+        os << ", ";
       }
+      os << resetVarPair;
       isFirst = false;
     }
 
@@ -599,7 +610,8 @@ namespace learnta {
     return os;
   }
 
-  static inline std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> asMap(const TATransition::Resets & resets) {
+  static inline std::unordered_map<ClockVariables, std::variant<double, ClockVariables>>
+  asMap(const TATransition::Resets &resets) {
     std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> result;
     for (const auto &[key, value]: resets) {
       result[key] = value;
@@ -641,7 +653,8 @@ namespace learnta {
     return result;
   }
 
-  static inline TATransition::Resets addDefault(const TATransition::Resets &original, const TATransition::Resets &defaultReset) {
+  static inline TATransition::Resets
+  addDefault(const TATransition::Resets &original, const TATransition::Resets &defaultReset) {
     const auto originalMap = asMap(original);
     const auto defaultMap = asMap(defaultReset);
     TATransition::Resets result = original;

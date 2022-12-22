@@ -104,3 +104,12 @@ namespace learnta {
     }
   };
 }
+
+namespace std {
+  template<class T, class U>
+  std::ostream &operator<<(std::ostream &os, const std::pair<T, U> &pair) {
+    os << '{' << pair.first << ", " << pair.second << "}";
+
+    return os;
+  }
+}

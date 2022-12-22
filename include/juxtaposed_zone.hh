@@ -111,5 +111,19 @@ namespace learnta {
       }
       this->canonize();
     }
+
+    //! @brief Make renaming constraints
+    [[nodiscard]] auto makeRenaming() const {
+      std::vector<std::pair<std::size_t, std::size_t>> renaming;
+      for (Eigen::Index leftIndex = 1; leftIndex <= leftSize; ++leftIndex) {
+        for (Eigen::Index rightIndex = leftSize + 1; rightIndex <= rightSize + leftSize; ++rightIndex) {
+          if (this->value(leftIndex, rightIndex) == Bounds{0, true} && this->value(rightIndex, leftIndex) == Bounds{0, true}) {
+            renaming.emplace_back(leftIndex - 1, rightIndex - leftSize - 1);
+          }
+        }
+      }
+
+      return renaming;
+    }
   };
 }
