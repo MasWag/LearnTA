@@ -722,7 +722,7 @@ namespace learnta {
           for (const auto &transition: transitions) {
             for (const auto &[clock, value]: transition.resetVars) {
               if (value.index() == 0 && std::get<double>(value) != int (std::get<double>(value))) {
-                inactiveQueue.emplace(transition.target, clock, int(std::get<double>(value)) + 1);
+                inactiveQueue.emplace(transition.target, clock, int(std::get<double>(value)));
               }
             }
           }
@@ -753,7 +753,7 @@ namespace learnta {
               it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(), [=] (const auto &p) {
                 return p.second.index() == 1 && std::get<ClockVariables>(p.second) == c;
               });
-              if (it == transition.resetVars.end()) {
+              if (it != transition.resetVars.end()) {
                 inactiveQueue.emplace(transition.target, it->first, bound);
               }
             }
