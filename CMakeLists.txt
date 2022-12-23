@@ -41,7 +41,9 @@ include_directories(
 add_library(learnta
   src/intersection.cc
   src/ta2za.cc
-  src/timed_automaton.cc)
+  src/timed_automaton.cc
+  src/observation_table.cc
+  )
 
 ## Config for Test
 enable_testing()
