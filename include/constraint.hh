@@ -420,6 +420,53 @@ namespace learnta {
     return dnfNegated;
   }
 
+  /*!
+   * @brief Return the strongest guard that is weaker than all of the given guards
+   */
+  static inline auto unionHull(const std::vector<std::vector<Constraint>> &guards) {
+    boost::unordered_map<std::pair<ClockVariables, bool>, Bounds> guardsAsBounds;
+    for (const auto& guard: guards) {
+      for (const auto &constraint: guard) {
+        const auto clock = constraint.x;
+        const auto upperBound = constraint.isUpperBound();
+        auto it = guardsAsBounds.find(std::make_pair(clock, upperBound));
+        if (it == guardsAsBounds.end()) {
+          guardsAsBounds[std::make_pair(clock, upperBound)] = constraint.toDBMBound();
+        } else {
+          it->second = std::max(it->second, constraint.toDBMBound());
+        }
+      }
+    }
+
+    std::vector<Constraint> result;
+    result.reserve(guardsAsBounds.size());
+    std::transform(guardsAsBounds.begin(), guardsAsBounds.end(), std::back_inserter(result), [] (const auto p) {
+      const auto clock = p.first.first;
+      const auto upperBound = p.first.second;
+      const auto bound = p.second;
+      if (upperBound) {
+        if (bound.second) {
+          return ConstraintMaker(clock) <= bound.first;
+        } else {
+          return ConstraintMaker(clock) < bound.first;
+        }
+      } else {
+        if (bound.second) {
+          return ConstraintMaker(clock) >= -bound.first;
+        } else {
+          return ConstraintMaker(clock) > -bound.first;
+        }
+      }
+    });
+
+    // Assert the weakness
+    assert(std::all_of(guards.begin(), guards.end(), [&] (const auto guard) {
+      return isWeaker(result, guard);
+    }));
+
+    return result;
+  }
+
   inline void addUpperBound(std::vector<Constraint> &guard) {
     std::unordered_map<ClockVariables, std::vector<Constraint>> mapFromClock;
     for (const auto &constraint: guard) {

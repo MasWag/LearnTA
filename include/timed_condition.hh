@@ -589,6 +589,8 @@ namespace learnta {
     [[nodiscard]] std::size_t hash_value() const {
       return learnta::hash_value(this->zone);
     }
+
+    friend class NeighborConditions;
   };
 }
 

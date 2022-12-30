@@ -69,6 +69,9 @@ namespace learnta {
             }
           }
           std::vector<ClockVariables> nextInactiveClocks;
+          if (transition.guard.empty()) {
+            nextInactiveClocks = inactiveClocks;
+          }
           for (const auto &[clock, value]: transition.resetVars) {
             if (value.index() == 0 && std::get<double>(value) != int (std::get<double>(value))) {
               nextInactiveClocks.push_back(clock);

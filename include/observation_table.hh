@@ -605,7 +605,7 @@ namespace learnta {
       }
 
       // The inactive clock variables for each state
-      std::unordered_map<TAState*, std::unordered_map<ClockVariables, std::size_t>> inactiveClocks;
+      /*std::unordered_map<TAState*, std::unordered_map<ClockVariables, std::size_t>> inactiveClocks;
       const auto addInactiveClocks = [&] (TAState* jumpedState, const RenamingRelation& renamingRelation, const TimedCondition &targetCondition) {
         auto it = inactiveClocks.find(jumpedState);
         if (it == inactiveClocks.end()) {
@@ -620,7 +620,7 @@ namespace learnta {
             }
           }
         }
-      };
+      };*/
       //! Construct transitions by discrete immediate exteriors
       std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
@@ -634,7 +634,7 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
-          addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
+          // addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -651,6 +651,7 @@ namespace learnta {
                                this->closedRelation.at(targetIndex).end(), [&](const auto &rel) {
                   return this->inP(rel.first);
                 });
+        assert(it != this->closedRelation.at(targetIndex).end());
         // The target state of the transitions after mapping to P.
         const auto jumpedTargetIndex = it->first;
         // The renaming relation connecting targetIndex and jumpedTargetIndex
@@ -684,7 +685,7 @@ namespace learnta {
         const auto jumpedSourceIndex = it->first;
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
-        addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
+        // addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -724,7 +725,7 @@ namespace learnta {
       }
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling inactive clocks\n" <<
       TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
-      handleInactiveClocks(states);
+      // handleInactiveClocks(states);
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
       TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
       // Make the transitions deterministic
