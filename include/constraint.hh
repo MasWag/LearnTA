@@ -249,10 +249,17 @@ namespace learnta {
     return result;
   }
 
-  inline bool satisfiable(const std::vector<Constraint> &constraints) {
+  inline std::vector<Constraint> conjunction(const std::vector<Constraint> &left, const std::vector<Constraint> &right) {
+    std::vector<Constraint> result = left;
+    result.reserve(left.size() + right.size());
+    result.insert(result.end(), right.begin(), right.end());
+
+    return result;
+  }
+
+  inline auto toBounds(const std::vector<Constraint> &constraints) {
     std::vector<IntBounds> upperBounds;
     std::vector<IntBounds> lowerBounds;
-
     const auto resizeBounds = [&](const ClockVariables x) {
       if (x >= upperBounds.size()) {
         const auto oldSize = upperBounds.size();
@@ -279,6 +286,12 @@ namespace learnta {
         }
       }
     }
+
+    return std::make_pair(upperBounds, lowerBounds);
+  }
+
+  inline bool satisfiable(const std::vector<Constraint> &constraints) {
+    const auto &[upperBounds, lowerBounds] = toBounds(constraints);
 
     for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
       if (lowerBounds.at(i).first > upperBounds.at(i).first ||
@@ -290,37 +303,10 @@ namespace learnta {
     return true;
   }
 
-  inline std::vector<Constraint> simplify(const std::vector<Constraint> &constraints) {
-    std::vector<IntBounds> upperBounds;
-    std::vector<IntBounds> lowerBounds;
+    inline std::vector<Constraint> simplify(const std::vector<Constraint> &constraints) {
+    const auto &[upperBounds, lowerBounds] = toBounds(constraints);
     std::vector<Constraint> result;
-
-    const auto resizeBounds = [&](const ClockVariables x) {
-      if (x >= upperBounds.size()) {
-        const auto oldSize = upperBounds.size();
-        upperBounds.resize(x + 1);
-        lowerBounds.resize(x + 1);
-        for (auto i = oldSize; i <= x; ++i) {
-          upperBounds.at(i) = IntBounds(std::numeric_limits<int>::max(), false);
-          lowerBounds.at(i) = IntBounds(0, true);
-        }
-      }
-    };
-
-    for (const auto &constraint: constraints) {
-      resizeBounds(constraint.x);
-      const auto bound = constraint.toBound();
-
-      if (constraint.isUpperBound()) {
-        if (upperBounds.at(constraint.x) > bound) {
-          upperBounds.at(constraint.x) = bound;
-        }
-      } else {
-        if (-lowerBounds.at(constraint.x) > -bound) {
-          lowerBounds.at(constraint.x) = bound;
-        }
-      }
-    }
+    result.reserve(upperBounds.size() + lowerBounds.size());
 
     for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
       if (lowerBounds.at(i) != IntBounds(0, true)) {

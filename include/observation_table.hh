@@ -145,6 +145,7 @@ namespace learnta {
     }
 
     boost::unordered_map<std::tuple<std::size_t, std::size_t, BackwardRegionalElementaryLanguage>, std::pair<std::size_t, bool>> equivalentWithColumnCache;
+
     [[nodiscard]] bool
     equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix) {
       auto key = std::make_tuple(i, j, newSuffix);
@@ -321,7 +322,8 @@ namespace learnta {
      * This happens when we use (u, Λ, u', Λ', R) such that (w, w') ∈ (u, Λ, u', Λ', R) ∧ (w, w'') ∈ (u, Λ, u', Λ', R) does not imply w' = w''
      * By definition of recognizable timed languages, such w, w', and w'' are equivalent with respect to any extension
      */
-     static void handleInactiveClocks(std::vector<std::shared_ptr<TAState>> &states);
+    static void handleInactiveClocks(std::vector<std::shared_ptr<TAState>> &states);
+
   public:
     /*!
      * @brief Construct a recognizable timed language corresponding to the observation table
@@ -563,7 +565,8 @@ namespace learnta {
           // TargetState -> the timed condition to reach that state
           InternalTransitionMaker sourceMap;
           for (const auto &newStateIndex: newStateIndices) {
-            BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix " << this->prefixes.at(newStateIndex) << " with action " << action;
+            BOOST_LOG_TRIVIAL(trace) << "Start exploration of the discrete successor from the prefix "
+                                     << this->prefixes.at(newStateIndex) << " with action " << action;
 
             // Skip if there is no discrete successor in the observation table
             if (!this->hasDiscreteSuccessor(newStateIndex, action)) {
@@ -582,7 +585,8 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(trace) << "The discrete successor is new";
                 const auto successor = addState(discrete);
                 newStates.push(successor);
-                BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << this->prefixes.at(newStateIndex) << " with action " << action;
+                BOOST_LOG_TRIVIAL(trace) << "Generate discrete transitions from " << this->prefixes.at(newStateIndex)
+                                         << " with action " << action;
                 BOOST_LOG_TRIVIAL(trace) << "Source: " << stateManager.toState(newStateIndex);
                 BOOST_LOG_TRIVIAL(trace) << "Guard: " << this->prefixes.at(newStateIndex).getTimedCondition().toGuard();
                 BOOST_LOG_TRIVIAL(trace) << "Target: " << successor;
@@ -622,11 +626,13 @@ namespace learnta {
           }
         }
       };*/
-      std::queue<std::pair<TAState*, NeighborConditions>> impreciseNeighbors;
-      const auto addNeighbors = [&] (TAState* jumpedState, const RenamingRelation& renamingRelation, const ForwardRegionalElementaryLanguage &targetElementary) {
+      std::queue<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
+      const auto addNeighbors = [&](TAState *jumpedState, const RenamingRelation &renamingRelation,
+                                    const ForwardRegionalElementaryLanguage &targetElementary) {
         // There are imprecise clocks
         if (!renamingRelation.empty() && !renamingRelation.full(targetElementary.getTimedCondition())) {
-          impreciseNeighbors.emplace(jumpedState, NeighborConditions{targetElementary, renamingRelation.rightVariables()});
+          impreciseNeighbors.emplace(jumpedState,
+                                     NeighborConditions{targetElementary, renamingRelation.rightVariables()});
         }
       };
       //! Construct transitions by discrete immediate exteriors
@@ -634,7 +640,8 @@ namespace learnta {
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
                                discreteBoundaries.end());
       for (const auto &[sourceIndex, action]: discreteBoundaries) {
-        BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from: " << this->prefixes.at(sourceIndex) << " with action " << action;
+        BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from: " << this->prefixes.at(sourceIndex)
+                                 << " with action " << action;
         ExternalTransitionMaker transitionMaker;
         const auto addNewTransition = [&](std::size_t source, std::size_t jumpedTarget, std::size_t target,
                                           const auto &renamingRelation) {
@@ -651,7 +658,8 @@ namespace learnta {
         // The target state of the transitions, which should be in ext(P)
         const auto targetIndex = this->discreteSuccessors.at(std::make_pair(sourceIndex, action));
         if (!stateManager.isNew(targetIndex)) {
-          BOOST_LOG_TRIVIAL(trace) << "The boundary is already handled: " << this->prefixes.at(sourceIndex) << " " << action;
+          BOOST_LOG_TRIVIAL(trace) << "The boundary is already handled: " << this->prefixes.at(sourceIndex) << " "
+                                   << action;
           continue;
         }
         assert(!this->inP(targetIndex));
@@ -685,10 +693,10 @@ namespace learnta {
         }
         const auto sourceState = stateManager.toState(continuousSuccessor);
         // Find a successor in P
-         const auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
-                                      this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
-           return this->inP(rel.first);
-         });
+        const auto it = std::find_if(this->closedRelation.at(continuousSuccessor).begin(),
+                                     this->closedRelation.at(continuousSuccessor).end(), [&](const auto &rel) {
+                  return this->inP(rel.first);
+                });
         assert(it != this->closedRelation.at(continuousSuccessor).end());
         // The continuous successor after mapping to P.
         const auto jumpedSourceIndex = it->first;
@@ -722,7 +730,8 @@ namespace learnta {
                                      << composition(transitionIt->resetVars, resetByContinuousExterior);
             sourceState->next.at(action).emplace_back(transitionIt->target,
                                                       composition(transitionIt->resetVars, resetByContinuousExterior),
-                                                      this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
+                                                      this->prefixes.at(
+                                                              continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
           }
         } else {
           ExternalTransitionMaker maker;
@@ -733,8 +742,9 @@ namespace learnta {
           sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
         }
       }
-      BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling inactive clocks\n" <<
-      TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling imprecise clocks\n" <<
+                               TimedAutomaton{{states, {initialState}},
+                                              TimedAutomaton::makeMaxConstants(states)}.simplify();
       while (!impreciseNeighbors.empty()) {
         auto [state, neighbor] = impreciseNeighbors.front();
         impreciseNeighbors.pop();
@@ -748,7 +758,8 @@ namespace learnta {
               if (neighbor.match(transition)) {
                 auto relaxedGuard = neighbor.toRelaxedGuard();
                 if (isWeaker(relaxedGuard, transition.guard)) {
-                  matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(), std::mem_fn(&Constraint::isUpperBound));
+                  matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(),
+                                              std::mem_fn(&Constraint::isUpperBound));
                   BOOST_LOG_TRIVIAL(debug) << "Guard before relaxation: " << transition.guard;
                   transition.guard = std::move(relaxedGuard);
                   BOOST_LOG_TRIVIAL(debug) << "Guard after relaxation: " << transition.guard;
@@ -766,13 +777,13 @@ namespace learnta {
           neighbor = neighbor.successor();
         } while (matchBounded);
       }
-      // handleInactiveClocks(states);
-      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
-      TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling imprecise clocks\n" <<
+                               TimedAutomaton{{states, {initialState}},
+                                              TimedAutomaton::makeMaxConstants(states)}.simplify();
       // Make the transitions deterministic
       for (const auto &state: states) {
         for (auto &[action, transitions]: state->next) {
-          // We assume that if the conjunction of the guards of two transitions is satisfiable, one of them is weaker
+          // Remove weaker guards
           for (auto it2 = transitions.begin(); it2 != transitions.end();) {
             if (std::any_of(transitions.begin(), transitions.end(), [&](const TATransition &transition) -> bool {
               return *it2 != transition && isWeaker(transition.guard, it2->guard);
@@ -782,16 +793,33 @@ namespace learnta {
               ++it2;
             }
           }
+          for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
+            for (auto it3 = std::next(it2); it3 != transitions.end();) {
+              if (satisfiable(conjunction(it2->guard, it3->guard))) {
+                BOOST_LOG_TRIVIAL(debug) << "The conjunction of " << it2->guard << " and "
+                                         << it3->guard << " is satisfiable";
+                assert(it2->target == it3->target);
+                assert(it2->resetVars == it3->resetVars);
+                std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
+                it2->guard = unionHull(guards);
+                it3 = transitions.erase(it3);
+              } else {
+                ++it3;
+              }
+            }
+          }
         }
       }
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
-      TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+                               TimedAutomaton{{states, {initialState}},
+                                              TimedAutomaton::makeMaxConstants(states)}.simplify();
       BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 
       // Assert the totality of the constructed DTA
       assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {
         return !stateManager.isNew(pIndex);
       }));
+      #if 0
       assert(std::all_of(this->discreteSuccessors.begin(), this->discreteSuccessors.end(), [&](const auto &pair) {
         auto sourceStateIndex = pair.first.first;
         auto action = pair.first.second;
@@ -804,6 +832,7 @@ namespace learnta {
                               return transition.target == targetState.get();
                             });
       }));
+      #endif
       for (std::size_t index = 0; index < this->prefixes.size(); index++) {
         if (stateManager.isNew(index)) {
           BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
@@ -814,7 +843,7 @@ namespace learnta {
       return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
     }
 
-    std::ostream& printDetail(std::ostream &stream) const {
+    std::ostream &printDetail(std::ostream &stream) const {
       printStatistics(stream);
       stream << "P is as follows\n";
       for (const auto &pIndex: this->pIndices) {

@@ -96,11 +96,7 @@ namespace learnta {
       const auto &[action, transitions] = pair;
       for (auto it = transitions.begin(); it != transitions.end(); ++it) {
         if (std::any_of(transitions.begin(), it, [&](const TATransition &transition) -> bool {
-          auto constraint = transition.guard;
-          constraint.reserve(constraint.size() + it->guard.size());
-          constraint.insert(constraint.end(), it->guard.begin(), it->guard.end());
-
-          return satisfiable(constraint);
+          return satisfiable(conjunction(transition.guard, it->guard));
         })) {
           return false;
         }
