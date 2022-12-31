@@ -6,6 +6,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_set>
 #include <utility>
 #include <ostream>
 
@@ -81,12 +82,21 @@ namespace learnta {
      * @brief The clock variables on the right hand side of the renaming relation
      */
     [[nodiscard]] auto rightVariables() const {
-      std::vector<size_t> result;
+      std::vector<ClockVariables> result;
       result.reserve(this->size());
       std::transform(this->begin(), this->end(), std::back_inserter(result), [] (const auto &pair) {
         return pair.second;
       });
+      // Assert that the right variables have no duplications
+      assert(result.size() == std::unordered_set<size_t>(result.begin(), result.end()).size());
       return result;
+    }
+
+    /*!
+     * @brief Check if the renaming relation is full, i.e., all the right variables are bounded
+     */
+    [[nodiscard]] bool full(const TimedCondition &condition) const {
+      return this->size() == condition.size();
     }
 
     friend std::ostream &operator<<(std::ostream &os, const RenamingRelation &relation) {

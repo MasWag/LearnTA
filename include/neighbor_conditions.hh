@@ -29,12 +29,12 @@ namespace learnta {
   class NeighborConditions {
   private:
     // The original elementary language
-    const ForwardRegionalElementaryLanguage original;
+    ForwardRegionalElementaryLanguage original;
     // The precise clock variables
-    const std::unordered_set<ClockVariables> preciseClocks;
+    std::unordered_set<ClockVariables> preciseClocks;
     // The neighbor elementary languages due to imprecise clocks
     std::vector<ForwardRegionalElementaryLanguage> neighbors;
-    const std::size_t clockSize;
+    std::size_t clockSize;
 
     void assertInvariants() const {
       assert(std::all_of(neighbors.begin(), neighbors.end(), [&](const auto &neighbor) {
@@ -110,9 +110,22 @@ namespace learnta {
       return neighbors;
     }
 
-    NeighborConditions(ForwardRegionalElementaryLanguage original,
-                       std::unordered_set<ClockVariables> preciseClocks) : original(std::move(original)),
+    NeighborConditions(const ForwardRegionalElementaryLanguage &original,
+                       std::unordered_set<ClockVariables> preciseClocks) : original(original),
                                                                            preciseClocks(std::move(preciseClocks)),
+                                                                           neighbors(makeNeighbors(this->original,
+                                                                                                   this->preciseClocks)),
+                                                                           clockSize(
+                                                                                   this->original.getTimedCondition().size()) {
+      assertInvariants();
+    }
+
+    NeighborConditions(const ForwardRegionalElementaryLanguage &original,
+                       const std::vector<ClockVariables> &preciseClocks) : original(original),
+                                                                           preciseClocks(
+                                                                                   std::unordered_set<ClockVariables>(
+                                                                                           preciseClocks.begin(),
+                                                                                           preciseClocks.end())),
                                                                            neighbors(makeNeighbors(this->original,
                                                                                                    this->preciseClocks)),
                                                                            clockSize(
@@ -136,6 +149,17 @@ namespace learnta {
     [[nodiscard]] bool match(const std::vector<Constraint> &guard) const {
       assertInvariants();
       return isWeaker(guard, this->toOriginalGuard());
+    }
+
+    [[nodiscard]] const size_t getClockSize() const {
+      return clockSize;
+    }
+
+    /*!
+     * @brief Returns if the relaxed guard is precise
+     */
+    [[nodiscard]] const bool precise() const {
+      return this->neighbors.size() == 1;
     }
 
     /*!
@@ -182,14 +206,22 @@ namespace learnta {
       for (auto neighbor: neighbors) {
         neighbor = neighbor.successor();
         while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-          return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
-                 originalSuccessor.getTimedCondition().getLowerBound(preciseClock,
-                                                                     originalSuccessor.getTimedCondition().size() - 1) &&
-                 neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+          return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
                  originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
                                                                      originalSuccessor.getTimedCondition().size() - 1);
         })) {
-          newNeighbors.push_back(neighbor);
+          if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+            return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+                   originalSuccessor.getTimedCondition().getLowerBound(preciseClock,
+                                                                       originalSuccessor.getTimedCondition().size() -
+                                                                       1) &&
+                   neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+                   originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
+                                                                       originalSuccessor.getTimedCondition().size() -
+                                                                       1);
+          })) {
+            newNeighbors.push_back(neighbor);
+          }
           neighbor = neighbor.successor();
         }
       }

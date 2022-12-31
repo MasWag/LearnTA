@@ -19,12 +19,26 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
                                   neighborConditions(elementary, preciseClocks) {}
   };
 
+  struct NeighborConditionsFixture20221231 {
+    ForwardRegionalElementaryLanguage elementary;
+    std::unordered_set<ClockVariables> preciseClocks = {1, 2};
+    NeighborConditions neighborConditions;
+    NeighborConditionsFixture20221231() : elementary(ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"ab", {2.0, 0, 2.5}})),
+                                          neighborConditions(elementary, preciseClocks) {}
+  };
+
   BOOST_FIXTURE_TEST_CASE(fixtureTest, NeighborConditionsFixture) {
     std::stringstream stream;
-    ForwardRegionalElementaryLanguage elementary;
-    elementary = elementary.successor().successor().successor().successor().successor('a').successor('b').successor().successor().successor().successor().successor();
     stream << static_cast<ElementaryLanguage>(elementary);
     BOOST_CHECK_EQUAL("(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && -0 <= T_{1, 1}  <= 0 && 2 < T_{1, 2}  < 3 && 2 < T_{2, 2}  < 3)",
+                      stream.str());
+    stream.str("");
+  }
+
+  BOOST_FIXTURE_TEST_CASE(fixtureTest20221231, NeighborConditionsFixture20221231) {
+    std::stringstream stream;
+    stream << static_cast<ElementaryLanguage>(elementary);
+    BOOST_CHECK_EQUAL("(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && 0 <= T_{1, 1}  <= 0 && 2 < T_{1, 2}  < 3 && 2 < T_{2, 2}  < 3)",
                       stream.str());
     stream.str("");
   }
@@ -79,6 +93,29 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
       return stream.str();
     });
     std::sort(neighborsString.begin(), neighborsString.end());
+    BOOST_TEST(expectedNeighbors == neighborsString, boost::test_tools::per_element());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(continuousSuccessorTest20221231, NeighborConditionsFixture20221231) {
+    const auto successor = neighborConditions.successor();
+    // The clock size does not change
+    BOOST_TEST(successor.clockSize == neighborConditions.clockSize);
+    // The precise clock does not change
+    BOOST_TEST(successor.preciseClocks == neighborConditions.preciseClocks);
+    std::vector<std::string> expectedNeighbors = {
+            "(ab, 1 < T_{0, 0}  < 2 && 1 < T_{0, 1}  < 2 && 4 < T_{0, 2}  < 5 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x1, x2, }{x0, })",
+            "(ab, 2 < T_{0, 0}  < 3 && 2 < T_{0, 1}  < 3 && 5 < T_{0, 2}  < 6 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x1, x2, }{x0, })",
+            "(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 5 <= T_{0, 2}  <= 5 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x0, x1, x2, })"
+    };
+    std::sort(expectedNeighbors.begin(), expectedNeighbors.end());
+    std::vector<std::string> neighborsString;
+    std::transform(successor.neighbors.begin(), successor.neighbors.end(), std::back_inserter(neighborsString), [] (const auto& condition) {
+      std::stringstream stream;
+      stream << condition;
+      return stream.str();
+    });
+    std::sort(neighborsString.begin(), neighborsString.end());
+    BOOST_TEST(expectedNeighbors == neighborsString, boost::test_tools::per_element());
   }
 
   BOOST_FIXTURE_TEST_CASE(toRelaxedGuardTest, NeighborConditionsFixture) {
@@ -95,6 +132,25 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
             ConstraintMaker(0) > 4, ConstraintMaker(0) <= 5,
             ConstraintMaker(1) <= 3, ConstraintMaker(1) >= 3,
             ConstraintMaker(2) > 2, ConstraintMaker(2) <= 3
+    };
+    BOOST_TEST(sort(expectedSuccessorGuard) == sort(neighborConditions.successor().toRelaxedGuard()),
+               boost::test_tools::per_element());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(toRelaxedGuardTest20221231, NeighborConditionsFixture20221231) {
+    const auto sort = [] (std::vector<Constraint> guard) -> std::vector<Constraint> {
+      std::sort(guard.begin(), guard.end(), [] (const Constraint &left, const Constraint &right) -> bool {
+        return std::make_pair(left.x, left.toDBMBound()) <= std::make_pair(right.x, right.toDBMBound());
+      });
+      return guard;
+    };
+    // If we do not take successor, the guard is the same as the original one.
+    BOOST_TEST(sort(neighborConditions.toOriginalGuard()) == sort(neighborConditions.toRelaxedGuard()),
+               boost::test_tools::per_element());
+    std::vector<Constraint> expectedSuccessorGuard = {
+            ConstraintMaker(0) > 4, ConstraintMaker(0) < 6,
+            ConstraintMaker(1) <= 3, ConstraintMaker(1) >= 3,
+            ConstraintMaker(2) >= 3, ConstraintMaker(2) <= 3
     };
     BOOST_TEST(sort(expectedSuccessorGuard) == sort(neighborConditions.successor().toRelaxedGuard()),
                boost::test_tools::per_element());

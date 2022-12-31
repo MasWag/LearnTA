@@ -25,6 +25,7 @@
 #include "internal_transition_maker.hh"
 #include "external_transition_maker.hh"
 #include "counterexample_analyzer.hh"
+#include "neighbor_conditions.hh"
 
 namespace learnta {
   /*!
@@ -621,6 +622,13 @@ namespace learnta {
           }
         }
       };*/
+      std::queue<std::pair<TAState*, NeighborConditions>> impreciseNeighbors;
+      const auto addNeighbors = [&] (TAState* jumpedState, const RenamingRelation& renamingRelation, const ForwardRegionalElementaryLanguage &targetElementary) {
+        // There are imprecise clocks
+        if (!renamingRelation.empty() && !renamingRelation.full(targetElementary.getTimedCondition())) {
+          impreciseNeighbors.emplace(jumpedState, NeighborConditions{targetElementary, renamingRelation.rightVariables()});
+        }
+      };
       //! Construct transitions by discrete immediate exteriors
       std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
@@ -635,6 +643,7 @@ namespace learnta {
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
           // addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
+          addNeighbors(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -686,6 +695,7 @@ namespace learnta {
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
+        addNeighbors(jumpedSourceState.get(), it->second, this->prefixes.at(jumpedSourceIndex));
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -725,6 +735,37 @@ namespace learnta {
       }
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling inactive clocks\n" <<
       TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      while (!impreciseNeighbors.empty()) {
+        auto [state, neighbor] = impreciseNeighbors.front();
+        impreciseNeighbors.pop();
+        bool matchBounded = false;
+        do {
+          matchBounded = false;
+          // Loop over successors
+          for (auto &[action, transitions]: state->next) {
+            for (auto &transition: transitions) {
+              // Relax the guard if it matches
+              if (neighbor.match(transition)) {
+                auto relaxedGuard = neighbor.toRelaxedGuard();
+                if (isWeaker(relaxedGuard, transition.guard)) {
+                  matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(), std::mem_fn(&Constraint::isUpperBound));
+                  BOOST_LOG_TRIVIAL(debug) << "Guard before relaxation: " << transition.guard;
+                  transition.guard = std::move(relaxedGuard);
+                  BOOST_LOG_TRIVIAL(debug) << "Guard after relaxation: " << transition.guard;
+                  // Follow the transition if it is internal
+                  if (transition.resetVars.size() == 1 &&
+                      transition.resetVars.front().first == neighbor.getClockSize() &&
+                      transition.resetVars.front().second.index() == 0 &&
+                      std::get<double>(transition.resetVars.front().second) == 0.0) {
+                    impreciseNeighbors.emplace(transition.target, neighbor.successor(action));
+                  }
+                }
+              }
+            }
+          }
+          neighbor = neighbor.successor();
+        } while (matchBounded);
+      }
       // handleInactiveClocks(states);
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
       TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();

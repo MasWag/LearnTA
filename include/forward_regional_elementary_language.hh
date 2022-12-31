@@ -32,6 +32,8 @@ namespace learnta {
       assert(this->fractionalOrder.getSize() == this->wordSize() + 1);
     }
 
+    ForwardRegionalElementaryLanguage(const ForwardRegionalElementaryLanguage &language) = default;
+
     /*!
      * @brief Construct the fractional elementary language containing the given timed word
      */
