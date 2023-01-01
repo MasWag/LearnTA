@@ -49,4 +49,11 @@ BOOST_AUTO_TEST_SUITE(TimedWordTest)
     BOOST_CHECK_EQUAL_COLLECTIONS(expectedDurations.begin(), expectedDurations.end(),
                                   word.getDurations().begin(), word.getDurations().end());
   }
+
+  BOOST_AUTO_TEST_CASE(getAccumulatedDurationsTest) {
+    const auto word = TimedWord{"ab", {1.5, 0.5, 0.75}};
+    const auto accumulatedDurations = word.getAccumulatedDurations();
+    std::vector<double> expectedAccumulatedDurations = {2.75, 1.25, 0.75};
+    BOOST_TEST(accumulatedDurations == expectedAccumulatedDurations, boost::test_tools::per_element());
+  }
 BOOST_AUTO_TEST_SUITE_END()

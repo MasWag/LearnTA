@@ -18,6 +18,8 @@ void run(const std::string &jsonPath) {
 int main(int argc, const char *argv[]) {
 #ifdef NDEBUG
   boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+#else
+  boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
 #endif
 
   std::cout << "Usage: " << argv[0] << " [json path]" << std::endl;

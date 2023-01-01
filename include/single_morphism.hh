@@ -55,7 +55,7 @@ namespace learnta {
     [[nodiscard]] TimedWord maps(const TimedWord &word) const {
       assert(this->inDomain(word));
       // Juxtapose the timed conditions to constrain with the renaming relation
-      auto juxtaposedCondition = TimedCondition{word.getAccumulatedDurations()} ^ codomain.getTimedCondition();
+      auto juxtaposedCondition = TimedCondition::makeExact(word.getAccumulatedDurations()) ^ codomain.getTimedCondition();
       juxtaposedCondition.addRenaming(this->renaming);
       juxtaposedCondition.canonize();
       assert(juxtaposedCondition.isSatisfiableNoCanonize());

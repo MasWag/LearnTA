@@ -29,6 +29,7 @@ namespace learnta {
 
     /*!
      * @brief Construct a timed condition from concrete values of T_{i,j}.
+     * The generated timed condition is the simple timed condition containing the given concrete valuation.
      *
      * @param [in] accumulatedDuration a vector representing \f$\mathbb{T}_{i,N}\f$, where \f$N\f$ is the length.
      */
@@ -48,6 +49,27 @@ namespace learnta {
           }
         }
       }
+    }
+
+    /*!
+     * @brief Construct a timed condition from concrete values of T_{i,j}.
+     * The generated timed condition only contains the given concrete valuation.
+     *
+     * @param [in] accumulatedDuration a vector representing \f$\mathbb{T}_{i,N}\f$, where \f$N\f$ is the length.
+     */
+    static TimedCondition makeExact(const std::vector<double> &accumulatedDuration) {
+      TimedCondition result{Zone::top(accumulatedDuration.size() + 1)};
+      for (std::size_t i = 0; i < accumulatedDuration.size(); ++i) {
+        for (std::size_t j = i; j < accumulatedDuration.size(); ++j) {
+          // T_{i, j} = accumulatedDuration.at(i) - accumulatedDuration.at(j + 1)
+          const auto concreteDifference = accumulatedDuration.at(i) -
+                                          ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
+          result.restrictUpperBound(i, j, Bounds{concreteDifference, true}, true);
+          result.restrictLowerBound(i, j, Bounds{-concreteDifference, true}, true);
+        }
+      }
+
+      return result;
     }
 
     /*!
