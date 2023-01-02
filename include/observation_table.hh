@@ -40,6 +40,7 @@ namespace learnta {
     // The indexes of prefixes in P
     std::unordered_set<std::size_t> pIndices;
     // prefixes[first] and prefixes[second.first] are in the same equivalence class witnessed by second.second
+    // Maybe we should use vector instead
     std::unordered_map<std::size_t, std::unordered_map<std::size_t, RenamingRelation>> closedRelation;
     // The table containing the symbolic membership
     std::vector<std::vector<TimedConditionSet>> table;
@@ -236,7 +237,7 @@ namespace learnta {
     bool close() {
       for (std::size_t i = 0; i < this->prefixes.size(); i++) {
         // Skip if this prefix is in P
-        if (this->pIndices.find(i) != this->pIndices.end()) {
+        if (this->inP(i)) {
           continue;
         }
         auto prefix = this->prefixes.at(i);
@@ -253,8 +254,12 @@ namespace learnta {
               if (equivalence(prefix, prefixRow,
                               this->prefixes.at(targetIt->first), this->table.at(targetIt->first),
                               this->suffixes, renamingRelation)) {
-                found = true;
-                break;
+                if (this->inP(targetIt->first)) {
+                  found = true;
+                  break;
+                } else {
+                  ++targetIt;
+                }
               } else {
                 targetIt = it->second.erase(targetIt);
               }
@@ -266,11 +271,11 @@ namespace learnta {
         if (!found) {
           // First, we try to "jump" to the same state
           found = std::any_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto j) {
-            return this->continuousSuccessors.at(j) == i && equivalent(i, j);
+            return this->continuousSuccessors.at(j) == i && equivalentWithMemo(i, j);
           });
           if (!found) {
             found = std::any_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto j) {
-              return equivalent(i, j);
+              return equivalentWithMemo(i, j);
             });
           }
         }
@@ -282,10 +287,47 @@ namespace learnta {
           this->moveToP(i);
           assert(prePSize < this->pIndices.size());
           BOOST_LOG_TRIVIAL(debug) << "Observation table is not closed because of " << this->prefixes.at(i);
+          this->refreshTable();
           return false;
         }
       }
 
+      // Assert that we have prefixes for any successors
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+        const auto successor = this->continuousSuccessors.at(pIndex);
+        return successor < this->prefixes.size();
+      }));
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&] (const auto &action) {
+          const auto successor = this->discreteSuccessors.at(std::make_pair(pIndex, action));
+          return successor < this->prefixes.size();
+        });
+      }));
+      // Assert that we have the information of the closedness in closed relation
+      for (int pIndex = 0; pIndex < this->prefixes.size(); ++pIndex) {
+        assert(this->inP(pIndex) || std::any_of(this->closedRelation.at(pIndex).begin(),
+                                                this->closedRelation.at(pIndex).end(),
+                                                [&] (const auto& rPair) {
+          return this->inP(rPair.first);
+        }));
+      }
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+        return this->pIndices.find(this->continuousSuccessors.at(pIndex)) != this->pIndices.end() ||
+        std::any_of(this->closedRelation.at(this->continuousSuccessors.at(pIndex)).begin(),
+                    this->closedRelation.at(this->continuousSuccessors.at(pIndex)).end(), [&] (const auto& rPair) {
+          return this->inP(rPair.first);
+        });
+      }));
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&] (const auto &action) {
+          const auto successor = this->discreteSuccessors.at(std::make_pair(pIndex, action));
+          return this->inP(successor) || std::any_of(this->closedRelation.at(successor).begin(),
+                                                     this->closedRelation.at(successor).end(),
+                                                     [&](const std::pair<std::size_t, RenamingRelation> &rPair) {
+            return this->inP(rPair.first);
+          });
+        });
+      }));
       return true;
     }
 
@@ -421,6 +463,47 @@ namespace learnta {
       this->refreshTable();
       return false;
     }
+
+    /*!
+     * @brief Make the observation table exterior-saturated
+     *
+     * Observation table is exterior-saturated if for any \f$p \in P\f$, if \f$\mathrm{ext}^t(p) \not\in P\f$,
+     * we have \f$\mathrm{ext}^t(p) \sim^{S, \top} p\f$.
+     *
+     * @returns If the observation table is already exterior-saturated
+     */
+     bool exteriorSaturate() {
+      std::vector<std::size_t> newP;
+      newP.reserve(pIndices.size());
+      for (const std::size_t pIndex: pIndices) {
+        const auto successorIndex = continuousSuccessors.at(pIndex);
+        // Skip if p is not a boundary
+        if (this->inP(successorIndex)) {
+          continue;
+        }
+        if (equivalentWithMemo(successorIndex, pIndex)) {
+          auto it = this->closedRelation.find(successorIndex);
+          assert(it != this->closedRelation.end());
+          auto it2 = it->second.find(pIndex);
+          assert(it2 != it->second.end());
+          if (it2->second.empty()) {
+            continue;
+          }
+        }
+        newP.push_back(successorIndex);
+      }
+      if (newP.empty()) {
+        return true;
+      }
+
+      // update the observation table
+      for (auto newIndex: newP) {
+        this->moveToP(newIndex);
+      }
+      this->refreshTable();
+
+      return false;
+     }
 
     /*!
      * @brief Refine the suffixes by the given counterexample
