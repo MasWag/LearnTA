@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['manualeqtester_170',['ManualEqTester',['../structlearnta_1_1ManualEqTester.html',1,'learnta']]]
+  ['juxtaposedzone_245',['JuxtaposedZone',['../classlearnta_1_1JuxtaposedZone.html',1,'learnta']]],
+  ['juxtaposedzoneset_246',['JuxtaposedZoneSet',['../classlearnta_1_1JuxtaposedZoneSet.html',1,'learnta']]]
 ];

@@ -1,0 +1,9 @@
+<map id="UnbalancedHypothesis20221219OracleFixture" name="UnbalancedHypothesis20221219OracleFixture">
+<area shape="rect" id="node1" title=" " alt="" coords="976,64,1212,105"/>
+<area shape="rect" id="node2" href="$structUnbalancedHypothesis20221219Fixture.html" title=" " alt="" coords="647,5,883,47"/>
+<area shape="rect" id="node3" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="207,43,396,70"/>
+<area shape="rect" id="node5" href="$structUnbalancedFixture.html" title="Fixture of &quot;Unbalanced&quot; benchmark, which is inspired by the unbalanced TRE in [ACM&#39;02]." alt="" coords="693,71,837,98"/>
+<area shape="rect" id="node4" href="$structlearnta_1_1Automaton.html" title=" " alt="" coords="5,36,153,77"/>
+<area shape="rect" id="node6" href="$classlearnta_1_1ComplementTimedAutomataEquivalenceOracle.html" title="Equivalence oracle with a timed automaton recognizing the complement of the target language." alt="" coords="661,123,868,164"/>
+<area shape="rect" id="node7" href="$classlearnta_1_1EquivalenceOracle.html" title="Interface of the equivalence oracle." alt="" coords="203,130,400,157"/>
+</map>

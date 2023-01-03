@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['tastate_181',['TAState',['../structlearnta_1_1TAState.html',1,'learnta']]],
-  ['tatransition_182',['TATransition',['../structlearnta_1_1TATransition.html',1,'learnta']]],
-  ['timedautomaton_183',['TimedAutomaton',['../structlearnta_1_1TimedAutomaton.html',1,'learnta']]],
-  ['timedautomatonrunner_184',['TimedAutomatonRunner',['../classlearnta_1_1TimedAutomatonRunner.html',1,'learnta']]],
-  ['timedcondition_185',['TimedCondition',['../classlearnta_1_1TimedCondition.html',1,'learnta']]],
-  ['timedconditionset_186',['TimedConditionSet',['../classlearnta_1_1TimedConditionSet.html',1,'learnta']]],
-  ['timedword_187',['TimedWord',['../classlearnta_1_1TimedWord.html',1,'learnta']]]
+  ['observationtable_257',['ObservationTable',['../classlearnta_1_1ObservationTable.html',1,'learnta']]],
+  ['oraclefixture_258',['OracleFixture',['../structOracleFixture.html',1,'']]],
+  ['otaexamplefixture_259',['OTAExampleFixture',['../structOTAExampleFixture.html',1,'']]],
+  ['otaexamplehypothesis20221221fixture_260',['OTAExampleHypothesis20221221Fixture',['../structOTAExampleHypothesis20221221Fixture.html',1,'']]],
+  ['otajsonparser_261',['OtaJsonParser',['../classlearnta_1_1OtaJsonParser.html',1,'learnta']]]
 ];

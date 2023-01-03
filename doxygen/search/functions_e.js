@@ -1,13 +1,21 @@
 var searchData=
 [
-  ['reconstructword_262',['reconstructWord',['../classlearnta_1_1SymbolicRun.html#a4fd962629dc34bc1c95c747e3c67e6e4',1,'learnta::SymbolicRun']]],
-  ['reduce_263',['reduce',['../classlearnta_1_1TimedConditionSet.html#a38ded097fcac1f6d174aac75d1df67a2',1,'learnta::TimedConditionSet']]],
-  ['removedeadloop_264',['removeDeadLoop',['../structlearnta_1_1TimedAutomaton.html#a474c4b6951ec200fa9eb49c1a040994e',1,'learnta::TimedAutomaton']]],
-  ['removeequalityupperboundassign_265',['removeEqualityUpperBoundAssign',['../classlearnta_1_1TimedCondition.html#adc981ddc136bd122b2f525edc8635957',1,'learnta::TimedCondition::removeEqualityUpperBoundAssign()'],['../classlearnta_1_1TimedConditionSet.html#a1af77867e3dcce35965f0c5e92a85e31',1,'learnta::TimedConditionSet::removeEqualityUpperBoundAssign()']]],
-  ['removen_266',['removeN',['../classlearnta_1_1FractionalOrder.html#aa5ebf324916fbb766952bf7b7c783a1c',1,'learnta::FractionalOrder::removeN()'],['../classlearnta_1_1TimedCondition.html#a14b9c2a7066b560dcb3f0e87cbec9dd4',1,'learnta::TimedCondition::removeN()']]],
-  ['removeuselesstransitions_267',['removeUselessTransitions',['../structlearnta_1_1TimedAutomaton.html#a7910802f7293d55654a9ef785a4a9ba9',1,'learnta::TimedAutomaton']]],
-  ['reset_268',['reset',['../structlearnta_1_1Zone.html#a8de9742ceb3d51b6686d4b49037eb13f',1,'learnta::Zone']]],
-  ['restrictlowerbound_269',['restrictLowerBound',['../classlearnta_1_1TimedCondition.html#a362bf3162f7ec8d067cc53bca119f879',1,'learnta::TimedCondition']]],
-  ['restrictupperbound_270',['restrictUpperBound',['../classlearnta_1_1TimedCondition.html#a94a36f5e1439896148cd3957678cf4c3',1,'learnta::TimedCondition']]],
-  ['reverseelapse_271',['reverseElapse',['../structlearnta_1_1Zone.html#aea2ee49991647180a1bb75c2587041d3',1,'learnta::Zone']]]
+  ['reconstructword_391',['reconstructWord',['../classlearnta_1_1SymbolicRun.html#adeb1b1ecde934e00e206269c77626d59',1,'learnta::SymbolicRun']]],
+  ['reduce_392',['reduce',['../classlearnta_1_1TimedConditionSet.html#a38ded097fcac1f6d174aac75d1df67a2',1,'learnta::TimedConditionSet']]],
+  ['removedeadloop_393',['removeDeadLoop',['../structlearnta_1_1TimedAutomaton.html#a474c4b6951ec200fa9eb49c1a040994e',1,'learnta::TimedAutomaton']]],
+  ['removedeadstates_394',['removeDeadStates',['../structlearnta_1_1ZoneAutomaton.html#afc6769bd95f147e4a42c90283621cbcf',1,'learnta::ZoneAutomaton']]],
+  ['removeequalityupperboundassign_395',['removeEqualityUpperBoundAssign',['../classlearnta_1_1TimedCondition.html#adc981ddc136bd122b2f525edc8635957',1,'learnta::TimedCondition::removeEqualityUpperBoundAssign()'],['../classlearnta_1_1TimedConditionSet.html#a1af77867e3dcce35965f0c5e92a85e31',1,'learnta::TimedConditionSet::removeEqualityUpperBoundAssign()']]],
+  ['removen_396',['removeN',['../classlearnta_1_1FractionalOrder.html#aa5ebf324916fbb766952bf7b7c783a1c',1,'learnta::FractionalOrder::removeN()'],['../classlearnta_1_1TimedCondition.html#a14b9c2a7066b560dcb3f0e87cbec9dd4',1,'learnta::TimedCondition::removeN()']]],
+  ['removetriviallydeadstates_397',['removeTriviallyDeadStates',['../structlearnta_1_1TimedAutomaton.html#ab16f102a243aedfe798f968b66a97ff2',1,'learnta::TimedAutomaton']]],
+  ['removetriviallyunreachablestates_398',['removeTriviallyUnreachableStates',['../structlearnta_1_1TimedAutomaton.html#af21baa11b2c07b7643ea0a94e762c468',1,'learnta::TimedAutomaton']]],
+  ['removeunusedclockvariables_399',['removeUnusedClockVariables',['../structlearnta_1_1TimedAutomaton.html#a9b703e889e7911b562af01e14724a3a5',1,'learnta::TimedAutomaton']]],
+  ['removeupperboundassign_400',['removeUpperBoundAssign',['../classlearnta_1_1TimedCondition.html#a2ddf7e19803476819f22ebe2b8d6fe96',1,'learnta::TimedCondition']]],
+  ['removeuselesstransitions_401',['removeUselessTransitions',['../structlearnta_1_1TimedAutomaton.html#a7910802f7293d55654a9ef785a4a9ba9',1,'learnta::TimedAutomaton']]],
+  ['reset_402',['reset',['../structlearnta_1_1Zone.html#a8de9742ceb3d51b6686d4b49037eb13f',1,'learnta::Zone']]],
+  ['restrictlowerbound_403',['restrictLowerBound',['../classlearnta_1_1TimedCondition.html#a8f108c3101659d707340aca32df74b59',1,'learnta::TimedCondition']]],
+  ['restrictupperbound_404',['restrictUpperBound',['../classlearnta_1_1TimedCondition.html#a27627e3b19e472862c33ffae6e37381a',1,'learnta::TimedCondition']]],
+  ['reverseelapse_405',['reverseElapse',['../structlearnta_1_1Zone.html#aea2ee49991647180a1bb75c2587041d3',1,'learnta::Zone']]],
+  ['revertresets_406',['revertResets',['../structlearnta_1_1Zone.html#ac7b6b44dff5fbc797368b492452616e5',1,'learnta::Zone']]],
+  ['rightvariables_407',['rightVariables',['../classlearnta_1_1RenamingRelation.html#a117723ed13bbe7f6316436b6421cd2f3',1,'learnta::RenamingRelation']]],
+  ['run_408',['run',['../classlearnta_1_1ExperimentRunner.html#af12c166ef01402b48e0adf50370b956d',1,'learnta::ExperimentRunner']]]
 ];

@@ -1,5 +1,7 @@
 <map id="include/equivalence.hh" name="include/equivalence.hh">
-<area shape="rect" id="node1" title="This file implements functions on the equivalence relation defined by the distinguishing suffixes." alt="" coords="5,5,177,32"/>
-<area shape="rect" id="node2" href="$observation__table_8hh_source.html" title=" " alt="" coords="16,80,167,121"/>
-<area shape="rect" id="node3" href="$learner_8hh_source.html" title=" " alt="" coords="22,169,161,196"/>
+<area shape="rect" id="node1" title="This file implements functions on the equivalence relation defined by the distinguishing suffixes." alt="" coords="79,5,251,32"/>
+<area shape="rect" id="node2" href="$equivalence__oracle__memo_8hh_source.html" title=" " alt="" coords="5,169,157,211"/>
+<area shape="rect" id="node4" href="$observation__table_8hh_source.html" title=" " alt="" coords="161,80,311,121"/>
+<area shape="rect" id="node3" href="$experiment__runner_8hh_source.html" title=" " alt="" coords="83,259,248,300"/>
+<area shape="rect" id="node5" href="$learner_8hh_source.html" title=" " alt="" coords="181,177,320,203"/>
 </map>

@@ -1,4 +1,6 @@
 <map id="SimpleObservationTableKeysFixture" name="SimpleObservationTableKeysFixture">
-<area shape="rect" id="node1" title="Fixture of the keys of the observation table in the paper." alt="" coords="5,5,216,47"/>
-<area shape="rect" id="node2" href="$structFixture.html" title=" " alt="" coords="77,95,144,121"/>
+<area shape="rect" id="node1" title="Fixture of the keys of the observation table in the paper." alt="" coords="183,5,393,47"/>
+<area shape="rect" id="node2" href="$structFixture.html" title=" " alt="" coords="65,95,132,121"/>
+<area shape="rect" id="node4" href="$structSimpleAutomatonOracleFixture.html" title=" " alt="" coords="156,95,420,121"/>
+<area shape="rect" id="node3" href="$structFixtureWithUnobservable.html" title=" " alt="" coords="5,169,192,196"/>
 </map>

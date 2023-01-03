@@ -1,5 +1,5 @@
 <map id="SmallLightAutomatonFixture" name="SmallLightAutomatonFixture">
-<area shape="rect" id="node1" title="Fixture of a variant of the Light DTA in [APT&#39;20]." alt="" coords="5,185,213,212"/>
-<area shape="rect" id="node2" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="15,81,204,108"/>
-<area shape="rect" id="node3" href="$structAutomaton.html" title=" " alt="" coords="22,5,197,32"/>
+<area shape="rect" id="node1" title="Fixture of a variant of the Light DTA in [APT&#39;20]." alt="" coords="5,200,213,227"/>
+<area shape="rect" id="node2" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="15,96,204,123"/>
+<area shape="rect" id="node3" href="$structlearnta_1_1Automaton.html" title=" " alt="" coords="35,5,183,47"/>
 </map>

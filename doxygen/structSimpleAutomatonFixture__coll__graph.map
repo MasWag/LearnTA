@@ -1,5 +1,5 @@
 <map id="SimpleAutomatonFixture" name="SimpleAutomatonFixture">
-<area shape="rect" id="node1" title="Fixture of the DTA in the paper." alt="" coords="8,171,192,197"/>
-<area shape="rect" id="node2" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="5,81,195,108"/>
-<area shape="rect" id="node3" href="$structAutomaton.html" title=" " alt="" coords="13,5,187,32"/>
+<area shape="rect" id="node1" title="Fixture of the DTA in the paper." alt="" coords="8,185,192,212"/>
+<area shape="rect" id="node2" href="$structlearnta_1_1TimedAutomaton.html" title="A timed automaton." alt="" coords="5,96,195,123"/>
+<area shape="rect" id="node3" href="$structlearnta_1_1Automaton.html" title=" " alt="" coords="26,5,174,47"/>
 </map>

@@ -1,0 +1,6 @@
+<map id="learnta::MembershipOracle" name="learnta::MembershipOracle">
+<area shape="rect" id="node1" title="Interface of a membership oracle." alt="" coords="5,71,204,98"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1MembershipOracleCache.html" title="Wrapper of a membership oracle to cache the result." alt="" coords="265,5,463,47"/>
+<area shape="rect" id="node3" href="$classlearnta_1_1SULMembershipOracle.html" title="Membership oracle defined by an SUL." alt="" coords="252,71,476,98"/>
+<area shape="rect" id="node4" href="$classlearnta_1_1SymbolicMembershipOracle.html" title="The oracle to answer symbolic membership queries." alt="" coords="255,123,473,164"/>
+</map>

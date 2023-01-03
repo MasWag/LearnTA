@@ -1,0 +1,9 @@
+<map id="NeighborConditionsFixture20221231" name="NeighborConditionsFixture20221231">
+<area shape="rect" id="node1" title=" " alt="" coords="58,377,317,404"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1NeighborConditions.html" title="Elementary language with its neighbor conditions." alt="" coords="5,281,209,307"/>
+<area shape="rect" id="node3" href="$classlearnta_1_1ForwardRegionalElementaryLanguage.html" title="A forward regional elementary language." alt="" coords="233,273,419,315"/>
+<area shape="rect" id="node4" href="$classlearnta_1_1ElementaryLanguage.html" title="An elementary language." alt="" coords="65,184,280,211"/>
+<area shape="rect" id="node5" href="$classlearnta_1_1TimedCondition.html" title="A timed condition, a finite conjunction of inequalities of the form , where &#160;and ." alt="" coords="83,95,262,121"/>
+<area shape="rect" id="node6" href="$structlearnta_1_1Zone.html" title="Implementation of a zone with DBM." alt="" coords="118,5,227,32"/>
+<area shape="rect" id="node7" href="$classlearnta_1_1FractionalOrder.html" title="Order on the fractional part of the variables." alt="" coords="305,184,481,211"/>
+</map>

@@ -1,7 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structComplementSimpleAutomatonFixture.html" title=" " alt="" coords="5,5,228,47"/>
-<area shape="rect" id="node2" href="$structSimpleAutomatonOracleFixture.html" title=" " alt="" coords="276,45,503,71"/>
-<area shape="rect" id="node3" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="25,71,209,98"/>
-<area shape="rect" id="node4" href="$structFixture.html" title=" " alt="" coords="356,99,423,126"/>
-<area shape="rect" id="node5" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="11,123,222,164"/>
+<area shape="rect" id="node1" href="$classlearnta_1_1SUL.html" title="Interface of the system under learning." alt="" coords="5,5,107,32"/>
+<area shape="rect" id="node2" href="$classlearnta_1_1TimedAutomatonRunner.html" title="Class to execute a timed automaton." alt="" coords="155,5,389,32"/>
 </map>

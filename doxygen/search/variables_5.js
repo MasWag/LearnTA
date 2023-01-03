@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['states_299',['states',['../structAutomaton.html#a4a34bd622ed2977a61d25c540b72e306',1,'Automaton']]]
+  ['states_448',['states',['../structlearnta_1_1Automaton.html#a9d7239a97aea220ed254009a96fc87ca',1,'learnta::Automaton']]]
 ];

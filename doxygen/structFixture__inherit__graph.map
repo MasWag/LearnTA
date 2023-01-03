@@ -1,5 +1,8 @@
 <map id="Fixture" name="Fixture">
-<area shape="rect" id="node1" title=" " alt="" coords="188,95,255,121"/>
-<area shape="rect" id="node2" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="5,5,216,47"/>
-<area shape="rect" id="node3" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="240,13,424,39"/>
+<area shape="rect" id="node1" title=" " alt="" coords="276,71,343,98"/>
+<area shape="rect" id="node6" href="$structFixtureWithUnobservable.html" title=" " alt="" coords="391,71,577,98"/>
+<area shape="rect" id="node2" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="11,5,222,47"/>
+<area shape="rect" id="node3" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="25,71,209,98"/>
+<area shape="rect" id="node4" href="$structUniversalAutomatonFixture.html" title=" " alt="" coords="16,122,217,149"/>
+<area shape="rect" id="node5" href="$structComplementSimpleAutomatonFixture.html" title=" " alt="" coords="5,173,228,215"/>
 </map>

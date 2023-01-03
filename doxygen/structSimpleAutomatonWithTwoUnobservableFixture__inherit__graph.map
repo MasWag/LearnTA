@@ -1,0 +1,4 @@
+<map id="SimpleAutomatonWithTwoUnobservableFixture" name="SimpleAutomatonWithTwoUnobservableFixture">
+<area shape="rect" id="node1" title="Fixture of a DTA equivalent to the one in the paper but with two unobservable transitions." alt="" coords="5,5,289,47"/>
+<area shape="rect" id="node2" href="$structFixtureWithUnobservable.html" title=" " alt="" coords="54,95,241,121"/>
+</map>
