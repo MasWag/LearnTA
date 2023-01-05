@@ -10,7 +10,7 @@ This is the source code repository for LearnTA --- A C++ library for active lear
 Installation
 ------------
 
-LearnTA is tested on Ubuntu (18.04 and 20.04) and macOS 10.15 Catalina.
+LearnTA is tested on Ubuntu (20.04) and macOS 10.15 Catalina.
 
 ### Requirements
 
