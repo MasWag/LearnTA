@@ -304,7 +304,7 @@ namespace learnta {
         });
       }));
       // Assert that we have the information of the closedness in closed relation
-      for (int pIndex = 0; pIndex < this->prefixes.size(); ++pIndex) {
+      for (std::size_t pIndex = 0; pIndex < this->prefixes.size(); ++pIndex) {
         assert(this->inP(pIndex) || std::any_of(this->closedRelation.at(pIndex).begin(),
                                                 this->closedRelation.at(pIndex).end(),
                                                 [&] (const auto& rPair) {
@@ -374,7 +374,7 @@ namespace learnta {
     [[nodiscard]] RecognizableLanguage toRecognizable() {
       std::vector<ElementaryLanguage> P;
       std::vector<ElementaryLanguage> final;
-      for (int i = 0; i < this->prefixes.size(); ++i) {
+      for (std::size_t i = 0; i < this->prefixes.size(); ++i) {
         if (this->inP(i)) {
           P.push_back(this->prefixes.at(i));
           if (this->isMatch(i)) {
