@@ -24,6 +24,21 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test
 
+  ubuntu_jammy:
+    runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install required packages
+      run: sudo apt-get update && sudo apt-get install cmake libeigen3-dev libboost-all-dev libtbb-dev -y
+    - name: build and test
+      run: |
+        mkdir -p build
+        cd build && cmake .. && make unit_test && ./unit_test
+
   macOS_Catalina:
     runs-on: macos-10.15
     strategy:
