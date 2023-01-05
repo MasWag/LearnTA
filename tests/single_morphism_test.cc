@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(SingleMorphismTest)
     renaming.emplace_back(0, 0);
 
     const auto morphism = SingleMorphism{domain, codomain, renaming};
-    const auto expected = TimedWord{"aa", {0.25, 0, 0.25}};
+    const auto expected = TimedWord{"aa", {0.25, 0, 0.5}};
     BOOST_CHECK_EQUAL(expected, morphism.maps(TimedWord{"aa", {0.5, 0.25, 0.0}}));
   }
 
