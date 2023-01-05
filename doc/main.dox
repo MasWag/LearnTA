@@ -5,7 +5,7 @@
 
   @section Installation
 
-  LearnTA is tested on Ubuntu (18.04 and 20.04) and macOS 10.15 Catalina.
+  LearnTA is tested on Ubuntu (20.04 and 22.04) and macOS (Catalina 10.15, Big Sur 11, and Monterey 12).
 
   @subsection Requirements
   
