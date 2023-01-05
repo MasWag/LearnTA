@@ -14,7 +14,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install required packages
@@ -29,7 +29,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install required packages
@@ -44,7 +44,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install required packages
@@ -59,7 +59,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install required packages
@@ -74,7 +74,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install required packages
@@ -91,7 +91,7 @@ jobs:
     strategy:
       max-parallel: 4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install required packages
       run: pacman -Syu cmake eigen boost tbb doxygen --noconfirm
     - name: build and test
