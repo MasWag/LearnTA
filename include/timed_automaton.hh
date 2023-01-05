@@ -12,6 +12,7 @@
 #include <queue>
 #include <optional>
 #include <cassert>
+#include <variant>
 #include <boost/log/trivial.hpp>
 
 #include "common_types.hh"
