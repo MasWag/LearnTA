@@ -167,4 +167,14 @@ x0 >= 2 && x1 < 0 && x1 < 1 &&
     BOOST_TEST(isWeaker(expected, unionHull(guards)));
     BOOST_TEST(isWeaker(unionHull(guards), expected));
   }
+
+  BOOST_AUTO_TEST_CASE(unionHullTest20220105) {
+    std::vector<std::vector<Constraint>> guards = {
+            {ConstraintMaker(1) < 3, ConstraintMaker(0) > 2, ConstraintMaker(1) > 0, ConstraintMaker(2) < 2, ConstraintMaker(2) > 0, ConstraintMaker(0) < 3},
+            {ConstraintMaker(0) > 2, ConstraintMaker(1) > 1, ConstraintMaker(2) > 1}
+    };
+    std::vector<Constraint> expected = {ConstraintMaker(0) > 2, ConstraintMaker(1) > 0, ConstraintMaker(2) > 0};
+    BOOST_TEST(isWeaker(expected, unionHull(guards)));
+    BOOST_TEST(isWeaker(unionHull(guards), expected));
+  }
 BOOST_AUTO_TEST_SUITE_END()

@@ -915,7 +915,11 @@ namespace learnta {
                                          << it3->guard << " is satisfiable";
 #endif
                 assert(it2->target == it3->target);
-                assert(it2->resetVars == it3->resetVars);
+                // assert(it2->resetVars == it3->resetVars);
+                // Use more strict reset
+                if (it2->resetVars.size() < it3->resetVars.size()) {
+                  it2->resetVars = it3->resetVars;
+                }
                 std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
                 it2->guard = unionHull(guards);
                 it3 = transitions.erase(it3);

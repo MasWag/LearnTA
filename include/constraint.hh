@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
@@ -411,17 +412,29 @@ namespace learnta {
    */
   static inline auto unionHull(const std::vector<std::vector<Constraint>> &guards) {
     boost::unordered_map<std::pair<ClockVariables, bool>, Bounds> guardsAsBounds;
+    bool initial = true;
     for (const auto& guard: guards) {
+      boost::unordered_set<std::pair<ClockVariables, bool>> boundedKeys;
       for (const auto &constraint: guard) {
         const auto clock = constraint.x;
         const auto upperBound = constraint.isUpperBound();
+        boundedKeys.emplace(clock, upperBound);
         auto it = guardsAsBounds.find(std::make_pair(clock, upperBound));
         if (it == guardsAsBounds.end()) {
-          guardsAsBounds[std::make_pair(clock, upperBound)] = constraint.toDBMBound();
+          if (initial) {
+            guardsAsBounds[std::make_pair(clock, upperBound)] = constraint.toDBMBound();
+          }
         } else {
           it->second = std::max(it->second, constraint.toDBMBound());
         }
       }
+      if (boundedKeys.size() < guardsAsBounds.size()) {
+        // We have unbounded variables
+        erase_if(guardsAsBounds, [&] (const auto& pair) {
+          return boundedKeys.find(pair.first) == boundedKeys.end();
+        });
+      }
+      initial = false;
     }
 
     std::vector<Constraint> result;
