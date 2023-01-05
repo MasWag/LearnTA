@@ -22,7 +22,7 @@ namespace learnta {
   protected:
     Zone zone;
 
-    explicit TimedCondition(Zone zone) : zone(std::move(zone)) {}
+    explicit TimedCondition(Zone &&zone) : zone(zone) {}
 
   public:
     TimedCondition() : zone(Zone::zero(2)) {}
@@ -362,7 +362,7 @@ namespace learnta {
     /*!
      * @brief Make a continuous successor by elapsing variables
      */
-    [[nodiscard]] TimedCondition successor(const std::list<ClockVariables> &variables) const {
+    [[nodiscard]] TimedCondition successor(const std::deque<ClockVariables> &variables) const {
       Zone result = this->zone;
 
       for (const auto i: variables) {
@@ -380,7 +380,7 @@ namespace learnta {
         }
       }
 
-      return TimedCondition(result);
+      return TimedCondition(std::move(result));
     }
 
     /*!
@@ -410,7 +410,7 @@ namespace learnta {
     /*!
      * @brief Make a continuous predecessor by backward-elapsing variables
      */
-    [[nodiscard]] TimedCondition predecessor(const std::list<ClockVariables> &variables) const {
+    [[nodiscard]] TimedCondition predecessor(const std::deque<ClockVariables> &variables) const {
       Zone result = this->zone;
 
       for (const auto i: variables) {
@@ -428,13 +428,13 @@ namespace learnta {
         }
       }
 
-      return TimedCondition(result);
+      return TimedCondition(std::move(result));
     }
 
     /*!
      * @brief Make a continuous prefix
      */
-    [[nodiscard]] TimedCondition prefix(const std::list<ClockVariables> &variables) const {
+    [[nodiscard]] TimedCondition prefix(const std::deque<ClockVariables> &variables) const {
       Zone result = this->zone;
 
       for (const auto i: variables) {
@@ -452,7 +452,7 @@ namespace learnta {
         }
       }
 
-      return TimedCondition(result);
+      return TimedCondition(std::move(result));
     }
 
     /*!
@@ -511,7 +511,7 @@ namespace learnta {
       result.value(1, 2) = {0, true};
       result.value(2, 1) = {0, true};
 
-      return TimedCondition(result);
+      return TimedCondition(std::move(result));
     }
 
     /*!
@@ -543,7 +543,9 @@ namespace learnta {
      * @breif Construct a guard over \f${x_0, x_1,\dots,x_N}\f$ such that \f$x_i = \mathbb{T}_{i,N}\f$.
      */
     [[nodiscard]] std::vector<Constraint> toGuard() const {
+#ifdef DEBUG
       BOOST_LOG_TRIVIAL(trace) << "Constraint:" << *this;
+#endif
       std::vector<Constraint> result;
       const auto N = this->size();
       result.reserve(N * 2);
@@ -566,7 +568,9 @@ namespace learnta {
         }
       }
 
+#ifdef DEBUG
       BOOST_LOG_TRIVIAL(trace) << "Guard: " << result;
+#endif
       return result;
     }
 

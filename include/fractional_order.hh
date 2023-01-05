@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <list>
+#include <deque>
 #include <unordered_set>
 
 #include <boost/functional/hash.hpp>
@@ -23,7 +23,7 @@ namespace learnta {
    */
   class FractionalOrder {
   private:
-    std::list<std::list<ClockVariables>> order;
+    std::deque<std::deque<ClockVariables>> order;
     // The number of the variables
     std::size_t size;
   public:
@@ -48,7 +48,7 @@ namespace learnta {
         if (currentFractionalPart == fractionalPart) {
           order.back().push_back(index);
         } else {
-          order.emplace_back(std::list<ClockVariables>{index});
+          order.emplace_back(std::deque<ClockVariables>{index});
           currentFractionalPart = fractionalPart;
         }
       }
@@ -59,7 +59,7 @@ namespace learnta {
     /*!
      * @brief Return the variable to elapse
      */
-    [[nodiscard]] std::list<ClockVariables> successorVariables() const {
+    [[nodiscard]] std::deque<ClockVariables> successorVariables() const {
       if (order.front().empty()) {
         return order.back();
       } else {
@@ -87,7 +87,7 @@ namespace learnta {
     /*!
      * @brief Return the variable to backward-elapse
      */
-    [[nodiscard]] std::list<ClockVariables> predecessorVariables() const {
+    [[nodiscard]] std::deque<ClockVariables> predecessorVariables() const {
       if (order.empty()) {
         BOOST_LOG_TRIVIAL(error) << "Something wrong happened in the predecessorVariables. order is empty";
       }
@@ -185,7 +185,7 @@ namespace learnta {
       return os;
     }
 
-    std::size_t hash_value() const {
+    [[nodiscard]] std::size_t hash_value() const {
       return boost::hash_value(std::make_pair(this->order, this->size));
     }
   };

@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     timedCondition.zone.tighten(-1, 1, {0, false}); // x0 - x2 < 0
     FractionalOrder order;
     BOOST_REQUIRE_EQUAL(1, order.order.front().size());
-    order.order.push_back(std::list<ClockVariables>{1});
+    order.order.push_back(std::deque<ClockVariables>{1});
     order.size = 2;
     ForwardRegionalElementaryLanguage elementary = {{"a", timedCondition}, order};
 
