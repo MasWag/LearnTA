@@ -54,6 +54,37 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test
 
+  macOS_BigSur:
+    runs-on: macos-11
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install required packages
+      run: brew install eigen boost tbb
+    - name: build and test
+      run: |
+        mkdir -p build
+        cd build && cmake .. && make unit_test && ./unit_test
+
+  macOS_Monterey:
+    runs-on: macos-12
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Install required packages
+      run: brew install eigen boost tbb
+    - name: build and test
+      run: |
+        mkdir -p build
+        cd build && cmake .. && make unit_test && ./unit_test
+
+
   arch_linux:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
