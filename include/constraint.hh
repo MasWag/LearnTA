@@ -430,9 +430,13 @@ namespace learnta {
       }
       if (boundedKeys.size() < guardsAsBounds.size()) {
         // We have unbounded variables
-        erase_if(guardsAsBounds, [&] (const auto& pair) {
-          return boundedKeys.find(pair.first) == boundedKeys.end();
-        });
+        for (auto it = guardsAsBounds.begin(); it!= guardsAsBounds.end(); ) {
+          if (boundedKeys.find(it->first) == boundedKeys.end()) {
+            it = guardsAsBounds.erase(it);
+          } else {
+            ++it;
+          }
+        }
       }
       initial = false;
     }
