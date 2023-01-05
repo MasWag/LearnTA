@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintTest)
     expected.at(4) = {ConstraintMaker(0) < 4, ConstraintMaker(1) < 2, ConstraintMaker(1) > 2};
 
     BOOST_CHECK_EQUAL(expected.size(), dnfConstraints.size());
-    for (int i = 0; i < dnfConstraints.size(); ++i) {
+    for (std::size_t i = 0; i < dnfConstraints.size(); ++i) {
       BOOST_CHECK_EQUAL(expected.at(i), negateAll(dnfConstraints.at(i)));
     }
   }
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintTest)
     expected.at(0) = {ConstraintMaker(0) < 2};
     inputs.at(1) = {ConstraintMaker(1) > 0, ConstraintMaker(0) <= 2};
     expected.at(1) = {ConstraintMaker(1) > 0, ConstraintMaker(0) <= 2};
-    for (int i = 0; i < inputs.size(); ++i) {
+    for (std::size_t i = 0; i < inputs.size(); ++i) {
       BOOST_CHECK_EQUAL(expected.at(i), simplify(inputs.at(i)));
     }
   }
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_SUITE(ConstraintTest)
     expected.at(2) = true;
     inputs.at(3) = {ConstraintMaker(1) > 0, ConstraintMaker(1) <= 0};
     expected.at(3) = false;
-    for (int i = 0; i < inputs.size(); ++i) {
+    for (std::size_t i = 0; i < inputs.size(); ++i) {
       BOOST_CHECK_EQUAL(expected.at(i), satisfiable(inputs.at(i)));
     }
     /*

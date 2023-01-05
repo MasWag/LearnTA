@@ -64,7 +64,7 @@ namespace learnta {
       std::vector<double> durations;
       durations.resize(codomain.wordSize() + 1);
       for (int i = static_cast<int>(codomain.wordSize()); i >= 0; --i) {
-        if (i == codomain.wordSize()) {
+        if (i == static_cast<int>(codomain.wordSize())) {
           durations.at(i) = values.back();
         } else {
           durations.at(i) = values.at(i + 1 + domain.wordSize()) - values.at(i + 2 + domain.wordSize());

@@ -39,7 +39,7 @@ namespace learnta {
       this->word.reserve(word.size());
       this->durations = {durations.front()};
       this->durations.reserve(durations.size());
-      for (int i = 0; i < word.size(); ++i) {
+      for (std::size_t i = 0; i < word.size(); ++i) {
         if (word.at(i) != UNOBSERVABLE) {
           this->word.push_back(word.at(i));
           this->durations.push_back(durations.at(i + 1));

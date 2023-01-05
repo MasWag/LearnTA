@@ -109,7 +109,7 @@ namespace learnta {
       auto prefixDomainTimedCondition = it->getDomain().getTimedCondition();
       std::vector<double> prefixDurations;
       prefixDurations.reserve(it->getDomain().wordSize());
-      for (int i = 0; i < it->getDomain().wordSize(); ++i) {
+      for (std::size_t i = 0; i < it->getDomain().wordSize(); ++i) {
         prefixDomainTimedCondition.restrictUpperBound(i, i, Bounds{word.getDurations().at(i), true});
         prefixDomainTimedCondition.restrictLowerBound(i, i, Bounds{-word.getDurations().at(i), true});
         prefixDurations.push_back(word.getDurations().at(i));

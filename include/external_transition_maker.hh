@@ -111,7 +111,7 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(trace) << "Resets from renaming: " << resets;
           auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
           // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
-          for (auto resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
+          for (std::size_t resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
             if (resets.end() == std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
               return pair.first == resetVariable;
             })) {

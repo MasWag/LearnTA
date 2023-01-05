@@ -38,7 +38,7 @@ namespace learnta {
       accumulatedDurationFromFront.resize(timedWord.wordSize() + 1);
       accumulatedDurationFromFront.front() = timedWord.getDurations().front();
       fractionalPart.front() = timedWord.getDurations().front() - double(long(timedWord.getDurations().front()));
-      for (int i = 1; i < fractionalPart.size(); ++i) {
+      for (std::size_t i = 1; i < fractionalPart.size(); ++i) {
         accumulatedDurationFromFront.at(i) = accumulatedDurationFromFront.at(i - 1) + timedWord.getDurations().at(i);
         fractionalPart.at(i) = accumulatedDurationFromFront.at(i);
         fractionalPart.at(i) -= double(long(fractionalPart.at(i)));

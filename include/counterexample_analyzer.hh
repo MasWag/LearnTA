@@ -39,7 +39,7 @@ namespace learnta {
     };
     assert(eval(mappedWords.back()));
     assert(!eval(mappedWords.front()));
-    for (int index = 0; index + 1 < mappedWords.size(); ++index) {
+    for (std::size_t index = 0; index + 1 < mappedWords.size(); ++index) {
       if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {
         if (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&](const ElementaryLanguage &suffix) {
           return !suffix.contains(suffixes.at(index + 1));
