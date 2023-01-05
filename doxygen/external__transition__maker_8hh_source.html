@@ -158,7 +158,7 @@ $(function() {
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;          BOOST_LOG_TRIVIAL(trace) &lt;&lt; <span class="stringliteral">&quot;Resets from renaming: &quot;</span> &lt;&lt; resets;</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;          <span class="keyword">auto</span> targetValuation = <a class="code" href="classlearnta_1_1ExternalTransitionMaker.html#ab551d41cef5861394e32fcbe1d1f0be0">learnta::ExternalTransitionMaker::toValuation</a>(targetCondition);</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;          <span class="comment">// Map the clock variables to the target timed condition if it is not mapped with the renaming relation</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;          <span class="keywordflow">for</span> (<span class="keyword">auto</span> resetVariable = 0; resetVariable &lt; targetCondition.size(); ++resetVariable) {</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;          <span class="keywordflow">for</span> (std::size_t resetVariable = 0; resetVariable &lt; targetCondition.size(); ++resetVariable) {</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;            <span class="keywordflow">if</span> (resets.end() == std::find_if(resets.begin(), resets.end(), [&amp;](<span class="keyword">const</span> <span class="keyword">auto</span> &amp;pair) {</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;              return pair.first == resetVariable;</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            })) {</div>

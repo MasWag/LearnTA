@@ -103,7 +103,7 @@ $(function() {
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      this-&gt;word.reserve(word.size());</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      this-&gt;durations = {durations.front()};</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      this-&gt;durations.reserve(durations.size());</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; word.size(); ++i) {</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      <span class="keywordflow">for</span> (std::size_t i = 0; i &lt; word.size(); ++i) {</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <span class="keywordflow">if</span> (word.at(i) != UNOBSERVABLE) {</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          this-&gt;word.push_back(word.at(i));</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;          this-&gt;durations.push_back(durations.at(i + 1));</div>

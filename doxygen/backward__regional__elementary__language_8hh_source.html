@@ -102,7 +102,7 @@ $(function() {
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      accumulatedDurationFromFront.resize(timedWord.<a class="code" href="classlearnta_1_1TimedWord.html#a90763ffa159da7f7631e03efa657ab14">wordSize</a>() + 1);</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;      accumulatedDurationFromFront.front() = timedWord.getDurations().front();</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      fractionalPart.front() = timedWord.getDurations().front() - double(<span class="keywordtype">long</span>(timedWord.getDurations().front()));</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1; i &lt; fractionalPart.size(); ++i) {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <span class="keywordflow">for</span> (std::size_t i = 1; i &lt; fractionalPart.size(); ++i) {</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        accumulatedDurationFromFront.at(i) = accumulatedDurationFromFront.at(i - 1) + timedWord.getDurations().at(i);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        fractionalPart.at(i) = accumulatedDurationFromFront.at(i);</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        fractionalPart.at(i) -= double(<span class="keywordtype">long</span>(fractionalPart.at(i)));</div>
