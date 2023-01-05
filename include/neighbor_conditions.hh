@@ -151,14 +151,14 @@ namespace learnta {
       return isWeaker(guard, this->toOriginalGuard());
     }
 
-    [[nodiscard]] const size_t getClockSize() const {
+    [[nodiscard]] size_t getClockSize() const {
       return clockSize;
     }
 
     /*!
      * @brief Returns if the relaxed guard is precise
      */
-    [[nodiscard]] const bool precise() const {
+    [[nodiscard]] bool precise() const {
       return this->neighbors.size() == 1;
     }
 
@@ -225,10 +225,33 @@ namespace learnta {
           neighbor = neighbor.successor();
         }
       }
-      auto newPreciseClocks = preciseClocks;
-      newPreciseClocks.insert(clockSize);
       return NeighborConditions{std::move(originalSuccessor), std::move(newNeighbors),
                                 preciseClocks, clockSize};
+    }
+
+    void successorAssign() {
+      original.successorAssign();
+      // The neighbor elementary languages due to imprecise clocks
+      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
+      newNeighbors.reserve(neighbors.size());
+      for (auto neighbor: neighbors) {
+        neighbor.successorAssign();
+        while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+          return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
+          original.getTimedCondition().getUpperBound(preciseClock, original.getTimedCondition().size() - 1);
+        })) {
+          if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+            return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+            original.getTimedCondition().getLowerBound(preciseClock, original.getTimedCondition().size() - 1) &&
+            neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+            original.getTimedCondition().getUpperBound(preciseClock, original.getTimedCondition().size() - 1);
+          })) {
+            newNeighbors.push_back(neighbor);
+          }
+          neighbor.successorAssign();
+        }
+      }
+      neighbors = std::move(newNeighbors);
     }
   };
 }

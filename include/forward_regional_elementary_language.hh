@@ -69,6 +69,14 @@ namespace learnta {
     }
 
     /*!
+     * @brief Construct the continuous successor
+     */
+    void successorAssign() {
+      this->timedCondition.successorAssign(fractionalOrder.successorVariables());
+      this->fractionalOrder.successorAssign();
+    }
+
+    /*!
      * @brief Return if there is \f$\mathbb{T}_{i,N} = c\f$.
      *
      * @pre the timed condition is simple

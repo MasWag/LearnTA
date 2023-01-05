@@ -384,6 +384,26 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make a continuous successor by elapsing variables
+     */
+    void successorAssign(const std::deque<ClockVariables> &variables) {
+      for (const auto i: variables) {
+        // Bound of \f$\mathbb{T}_{i,N}
+        Bounds &upperBound = this->zone.value(i + 1, 0);
+        Bounds &lowerBound = this->zone.value(0, i + 1);
+        if (lowerBound.second) {
+          upperBound.first++;
+          upperBound.second = false;
+          lowerBound.second = false;
+        } else {
+          lowerBound.first--;
+          lowerBound.second = true;
+          upperBound.second = true;
+        }
+      }
+    }
+
+    /*!
      * @brief Remove the equality upper bound
      */
     void removeEqualityUpperBoundAssign() {

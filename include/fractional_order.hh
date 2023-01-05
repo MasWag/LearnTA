@@ -59,7 +59,7 @@ namespace learnta {
     /*!
      * @brief Return the variable to elapse
      */
-    [[nodiscard]] std::deque<ClockVariables> successorVariables() const {
+    [[nodiscard]] const std::deque<ClockVariables>& successorVariables() const {
       if (order.front().empty()) {
         return order.back();
       } else {
@@ -82,6 +82,20 @@ namespace learnta {
       }
 
       return result;
+    }
+
+    /*!
+     * @brief Make it to be the successor
+     */
+    void successorAssign() {
+      if (order.front().empty()) {
+        // If there is no variables equal to 0.
+        std::swap(order.front(), order.back());
+        order.pop_back();
+      } else {
+        // If there are some variables equal to 0.
+        order.emplace_front();
+      }
     }
 
     /*!
