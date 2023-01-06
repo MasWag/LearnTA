@@ -80,6 +80,10 @@ namespace learnta {
      * A clock variable x is implicitly precise if we have c <= x <= c in original.
      */
     void addImplicitPreciseClocks() {
+      BOOST_LOG_TRIVIAL(debug) << "explicit precise clocks: ";
+      for (const auto &preciseClock: preciseClocks) {
+        BOOST_LOG_TRIVIAL(debug) << "x" << static_cast<int>(preciseClock);
+      }
       for (std::size_t i = 0; i < clockSize; ++i) {
         // We skip explicitly precise clocks
         if (this->preciseClocks.find(i) != this->preciseClocks.end()) {
@@ -93,6 +97,10 @@ namespace learnta {
           }));
           this->preciseClocks.insert(i);
         }
+      }
+      BOOST_LOG_TRIVIAL(debug) << "appended precise clocks: ";
+      for (const auto &preciseClock: preciseClocks) {
+        BOOST_LOG_TRIVIAL(debug) << "x" << static_cast<int>(preciseClock);
       }
     }
   public:
@@ -289,5 +297,28 @@ namespace learnta {
       newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
       neighbors = std::move(newNeighbors);
     }
+
+    std::ostream &print(std::ostream &os) const {
+      os << this->original << " {";
+      bool initial = true;
+      for (const auto &preciseClock: preciseClocks) {
+        if (!initial) {
+          os << ", ";
+        }
+        os << "x" << static_cast<int>(preciseClock);
+        initial = false;
+      }
+      os << "} {";
+      for (const auto &neighbor: neighbors) {
+        os << "\n" << neighbor;
+      }
+      os << "\n}";
+
+      return os;
+    }
   };
+
+  static inline std::ostream &operator<<(std::ostream &os, const learnta::NeighborConditions &conditions) {
+    return conditions.print(os);
+  }
 }

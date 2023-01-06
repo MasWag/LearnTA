@@ -227,4 +227,25 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     BOOST_TEST(sort(expectedSuccessorGuard) == sort(neighborConditions.toRelaxedGuard()),
                boost::test_tools::per_element());
   }
+
+  BOOST_FIXTURE_TEST_CASE(matchAndRelax20230106, NeighborConditionsFixture20230106) {
+    //         loc6->loc1 [label="b", guard="{x0 >= 4, x0 <= 4, x1 >= 3, x1 <= 3, x2 > 0, x2 < 1, x3 > 0, x3 < 1}", reset="{x0 := 8, x1 := 7}"] is supposed to be relaxed, but not :-(
+    TATransition::Resets resets;
+    resets.emplace_back(static_cast<ClockVariables>(0), static_cast<ClockVariables>(8));
+    resets.emplace_back(static_cast<ClockVariables>(1), static_cast<ClockVariables>(7));
+    const TATransition transition {new TAState(),
+                                   resets,
+                                   std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                            ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1,
+                                                            ConstraintMaker(3) > 0, ConstraintMaker(3) < 1}};
+    BOOST_TEST(!neighborConditions.match(transition));
+    neighborConditions.successorAssign();
+    BOOST_TEST(!neighborConditions.match(transition));
+    neighborConditions.successorAssign();
+    BOOST_TEST(neighborConditions.match(transition));
+    auto relaxedGuard = neighborConditions.toRelaxedGuard();
+    BOOST_TEST(isWeaker(relaxedGuard, transition.guard));
+    BOOST_TEST(!isWeaker(transition.guard, relaxedGuard));
+  }
 BOOST_AUTO_TEST_SUITE_END()

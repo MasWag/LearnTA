@@ -158,4 +158,52 @@ BOOST_AUTO_TEST_SUITE(RecognizableLanguagesTest)
                                   expectedValuation.begin(), expectedValuation.end());
   }
 
+  // codomain: (abb, 1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && -0 <= T_{2, 2}  <= 0 && -0 <= T_{2, 3}  <= 0 && -0 <= T_{3, 3}  <= 0) renaming: {t0 == t'1}
+  BOOST_AUTO_TEST_CASE(fullAndEmpty) {
+    std::stringstream stream;
+    auto condition = TimedCondition{Zone::top(5)};
+    condition.restrictLowerBound(0, 0, Bounds{-1, true});
+    condition.restrictUpperBound(0, 0, Bounds{1, true});
+    condition.restrictLowerBound(0, 1, Bounds{-3, false});
+    condition.restrictUpperBound(0, 1, Bounds{4, false});
+    condition.restrictLowerBound(0, 2, Bounds{-3, false});
+    condition.restrictUpperBound(0, 2, Bounds{4, false});
+    condition.restrictLowerBound(0, 3, Bounds{-3, false});
+    condition.restrictUpperBound(0, 3, Bounds{4, false});
+    condition.restrictLowerBound(1, 1, Bounds{-2, false});
+    condition.restrictUpperBound(1, 1, Bounds{3, false});
+    condition.restrictLowerBound(1, 2, Bounds{-2, false});
+    condition.restrictUpperBound(1, 2, Bounds{3, false});
+    condition.restrictLowerBound(1, 3, Bounds{-2, false});
+    condition.restrictUpperBound(1, 3, Bounds{3, false});
+    condition.restrictLowerBound(2, 2, Bounds{0, true});
+    condition.restrictUpperBound(2, 2, Bounds{0, true});
+    condition.restrictLowerBound(2, 3, Bounds{0, true});
+    condition.restrictUpperBound(2, 3, Bounds{0, true});
+    condition.restrictLowerBound(3, 3, Bounds{0, true});
+    condition.restrictUpperBound(3, 3, Bounds{0, true});
+    stream << condition;
+    BOOST_CHECK_EQUAL(stream.str(),
+                      "1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && -0 <= T_{2, 2}  <= 0 && -0 <= T_{2, 3}  <= 0 && -0 <= T_{3, 3}  <= 0");
+    stream.str("");
+
+    RenamingRelation renaming;
+    renaming.emplace_back(static_cast<ClockVariables>(0), static_cast<ClockVariables>(1));
+    stream << renaming;
+    BOOST_CHECK_EQUAL(stream.str(), "{t0 == t'1}");
+    stream.str("");
+    BOOST_TEST(!renaming.empty());
+    BOOST_TEST(!renaming.full(condition));
+  }
+
+  BOOST_AUTO_TEST_CASE(rightVariables) {
+    std::stringstream stream;
+    RenamingRelation renaming;
+    renaming.emplace_back(static_cast<ClockVariables>(0), static_cast<ClockVariables>(1));
+    stream << renaming;
+    BOOST_CHECK_EQUAL(stream.str(), "{t0 == t'1}");
+    stream.str("");
+    std::vector<ClockVariables> expectedRightVariables = {1};
+    BOOST_TEST(expectedRightVariables == renaming.rightVariables(), boost::test_tools::per_element());
+  }
 BOOST_AUTO_TEST_SUITE_END()

@@ -833,8 +833,29 @@ namespace learnta {
             BOOST_LOG_TRIVIAL(debug) << "composition: "
                                      << composition(transitionIt->resetVars, resetByContinuousExterior);
 #endif
-            sourceState->next.at(action).emplace_back(transitionIt->target,
-                                                      composition(transitionIt->resetVars, resetByContinuousExterior),
+            const auto newReset = composition(transitionIt->resetVars, resetByContinuousExterior);
+            // TODO: addNeighbors(transitionIt->target, it->second, this->prefixes.at(jumpedSourceIndex));
+            /*
+            RenamingRelation renaming;
+            renaming.reserve(newReset.size());
+            for (const auto &[target, value]: newReset) {
+              if (value.index() == 1) {
+                renaming.emplace_back(std::make_pair(std::get<ClockVariables>(value), target));
+              }
+            }
+            if (this->inP(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)))) {
+              addNeighbors(transitionIt->target, renaming,
+                           this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action))));
+            } else {
+              const auto &map = this->closedRelation.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
+              for (const auto &[mappedIndex, relation]: map) {
+                if (this->inP(mappedIndex)) {
+                  addNeighbors(transitionIt->target, renaming, this->prefixes.at(mappedIndex));
+                  break;
+                }
+              }
+            }*/
+            sourceState->next.at(action).emplace_back(transitionIt->target, newReset,
                                                       this->prefixes.at(
                                                               continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
           }
@@ -856,22 +877,33 @@ namespace learnta {
         auto [state, neighbor] = impreciseNeighbors.front();
         impreciseNeighbors.pop();
         bool matchBounded = false;
+        bool noMatch = true;
         do {
+#ifdef DEBUG
+          BOOST_LOG_TRIVIAL(debug) << "current imprecise neighbors: " << state << ", " << neighbor;
+#endif
           matchBounded = false;
           // Loop over successors
           for (auto &[action, transitions]: state->next) {
             const auto neighborSuccessor = neighbor.successor(action);
+            std::vector<TATransition> newTransitions;
             for (auto &transition: transitions) {
               // Relax the guard if it matches
               if (neighbor.match(transition)) {
+                noMatch = false;
+#ifdef DEBUG
+                BOOST_LOG_TRIVIAL(debug) << "matched! " << "guard: " << transition.guard;
+#endif
+                matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(),
+                                            std::mem_fn(&Constraint::isUpperBound));
+                BOOST_LOG_TRIVIAL(debug) << "matchBounded: " << matchBounded;
                 auto relaxedGuard = neighbor.toRelaxedGuard();
+                BOOST_LOG_TRIVIAL(debug) << "relaxed guard: " << relaxedGuard;
                 if (isWeaker(relaxedGuard, transition.guard) && !isWeaker(transition.guard, relaxedGuard)) {
-                  matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(),
-                                              std::mem_fn(&Constraint::isUpperBound));
 #ifdef DEBUG
                   BOOST_LOG_TRIVIAL(debug) << "Guard before relaxation: " << transition.guard;
 #endif
-                  transition.guard = std::move(relaxedGuard);
+                  newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
 #ifdef DEBUG
                   BOOST_LOG_TRIVIAL(debug) << "Guard after relaxation: " << transition.guard;
 #endif
@@ -885,9 +917,10 @@ namespace learnta {
                 }
               }
             }
+            std::move(newTransitions.begin(), newTransitions.end(), std::back_inserter(transitions));
           }
           neighbor.successorAssign();
-        } while (matchBounded);
+        } while (matchBounded || noMatch);
       }
 #ifdef DEBUG
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling imprecise clocks\n" <<
