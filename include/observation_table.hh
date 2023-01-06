@@ -391,7 +391,7 @@ namespace learnta {
             if (this->inP(it->first) && this->equivalentWithMemo(i, it->first)) {
               morphisms.emplace_back(this->prefixes.at(i),
                                      this->prefixes.at(it->first),
-                                     mapping.begin()->second);
+                                     it->second);
               break;
             } else {
               it = mapping.erase(it);
@@ -865,7 +865,7 @@ namespace learnta {
               // Relax the guard if it matches
               if (neighbor.match(transition)) {
                 auto relaxedGuard = neighbor.toRelaxedGuard();
-                if (isWeaker(relaxedGuard, transition.guard)) {
+                if (isWeaker(relaxedGuard, transition.guard) && !isWeaker(transition.guard, relaxedGuard)) {
                   matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(),
                                               std::mem_fn(&Constraint::isUpperBound));
 #ifdef DEBUG
@@ -900,7 +900,7 @@ namespace learnta {
           // Remove weaker guards
           for (auto it2 = transitions.begin(); it2 != transitions.end();) {
             if (std::any_of(transitions.begin(), transitions.end(), [&](const TATransition &transition) -> bool {
-              return *it2 != transition && isWeaker(transition.guard, it2->guard);
+              return *it2 != transition && isWeaker(transition.guard, it2->guard) && transition.target == it2->target;
             })) {
               it2 = transitions.erase(it2);
             } else {
