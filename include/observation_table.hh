@@ -869,6 +869,7 @@ namespace learnta {
         }
       }
 #ifdef DEBUG
+      BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis before handling imprecise clocks\n" <<
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
@@ -964,10 +965,9 @@ namespace learnta {
         }
       }
 #ifdef DEBUG
-      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling inactive clocks\n" <<
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after making transitions deterministic\n" <<
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
-      BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 #endif
 
       // Assert the totality of the constructed DTA
