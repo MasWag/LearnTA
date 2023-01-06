@@ -74,6 +74,27 @@ namespace learnta {
       assertInvariants();
     }
 
+    /*!
+     * @brief Add implicitly precise clocks to this->preciseClocks
+     *
+     * A clock variable x is implicitly precise if we have c <= x <= c in original.
+     */
+    void addImplicitPreciseClocks() {
+      for (std::size_t i = 0; i < clockSize; ++i) {
+        // We skip explicitly precise clocks
+        if (this->preciseClocks.find(i) != this->preciseClocks.end()) {
+          continue;
+        }
+        const auto lowerBound = this->original.getTimedCondition().getLowerBound(i, clockSize - 1);
+        const auto upperBound = this->original.getTimedCondition().getUpperBound(i, clockSize - 1);
+        if (isPoint(upperBound, lowerBound)) {
+          assert(std::all_of(this->neighbors.begin(), this->neighbors.end(), [&] (const auto& neighbor) {
+            return neighbor.getTimedCondition().getLowerBound(i, clockSize - 1) == lowerBound && neighbor.getTimedCondition().getUpperBound(i, clockSize - 1) == upperBound;
+          }));
+          this->preciseClocks.insert(i);
+        }
+      }
+    }
   public:
     static auto makeNeighbors(const ForwardRegionalElementaryLanguage &original,
                               const std::unordered_set<ClockVariables> &preciseClocks) {
@@ -114,18 +135,19 @@ namespace learnta {
     NeighborConditions(NeighborConditions&& conditions) = default;
     NeighborConditions& operator=(const NeighborConditions& conditions) = default;
     NeighborConditions& operator=(NeighborConditions&& conditions) = default;
-    NeighborConditions(const ForwardRegionalElementaryLanguage &original,
-                       std::unordered_set<ClockVariables> preciseClocks) : original(original),
+    NeighborConditions(ForwardRegionalElementaryLanguage original,
+                       std::unordered_set<ClockVariables> preciseClocks) : original(std::move(original)),
                                                                            preciseClocks(std::move(preciseClocks)),
                                                                            neighbors(makeNeighbors(this->original,
                                                                                                    this->preciseClocks)),
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
+      addImplicitPreciseClocks();
       assertInvariants();
     }
 
-    NeighborConditions(const ForwardRegionalElementaryLanguage &original,
-                       const std::vector<ClockVariables> &preciseClocks) : original(original),
+    NeighborConditions(ForwardRegionalElementaryLanguage original,
+                       const std::vector<ClockVariables> &preciseClocks) : original(std::move(original)),
                                                                            preciseClocks(
                                                                                    std::unordered_set<ClockVariables>(
                                                                                            preciseClocks.begin(),
@@ -134,6 +156,7 @@ namespace learnta {
                                                                                                    this->preciseClocks)),
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
+      addImplicitPreciseClocks();
       assertInvariants();
     }
 
