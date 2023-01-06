@@ -33,6 +33,9 @@ namespace learnta {
     }
 
     ForwardRegionalElementaryLanguage(const ForwardRegionalElementaryLanguage &language) = default;
+    ForwardRegionalElementaryLanguage(ForwardRegionalElementaryLanguage &&language) = default;
+    ForwardRegionalElementaryLanguage& operator=(const ForwardRegionalElementaryLanguage& language) = default;
+    ForwardRegionalElementaryLanguage& operator=(ForwardRegionalElementaryLanguage&& language) = default;
 
     /*!
      * @brief Construct the fractional elementary language containing the given timed word
@@ -43,7 +46,7 @@ namespace learnta {
       accumulatedDuration.resize(timedWord.wordSize() + 1);
       accumulatedDuration.back() = timedWord.getDurations().back();
       fractionalPart.back() = timedWord.getDurations().back() - double(long(timedWord.getDurations().back()));
-      for (int i = fractionalPart.size() - 2; i >= 0; --i) {
+      for (int i = static_cast<int>(fractionalPart.size()) - 2; i >= 0; --i) {
         accumulatedDuration.at(i) = accumulatedDuration.at(i + 1) + timedWord.getDurations().at(i);
         fractionalPart.at(i) = accumulatedDuration.at(i);
         fractionalPart.at(i) -= double(long(fractionalPart.at(i)));
@@ -179,9 +182,18 @@ namespace learnta {
 
       return os;
     }
+
+    [[nodiscard]] std::size_t hash_value() const {
+      return boost::hash_value(std::make_tuple(this->getWord(), this->getTimedCondition(),
+                                               this->fractionalOrder.hash_value()));
+    }
   };
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::ForwardRegionalElementaryLanguage &lang) {
     return lang.print(os);
+  }
+
+  inline std::size_t hash_value(learnta::ForwardRegionalElementaryLanguage const &lang) {
+    return lang.hash_value();
   }
 }

@@ -32,6 +32,10 @@ namespace learnta {
       size = 1;
     }
 
+    FractionalOrder(const FractionalOrder &order) = default;
+    FractionalOrder(FractionalOrder &&order) = default;
+    FractionalOrder& operator=(const FractionalOrder& order) = default;
+    FractionalOrder& operator=(FractionalOrder&& order) = default;
     /*!
      * @brief Construct a fractional order from a concrete vector of fractional parts.
      */

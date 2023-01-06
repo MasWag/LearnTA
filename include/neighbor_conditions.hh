@@ -110,6 +110,10 @@ namespace learnta {
       return neighbors;
     }
 
+    NeighborConditions(const NeighborConditions& conditions) = default;
+    NeighborConditions(NeighborConditions&& conditions) = default;
+    NeighborConditions& operator=(const NeighborConditions& conditions) = default;
+    NeighborConditions& operator=(NeighborConditions&& conditions) = default;
     NeighborConditions(const ForwardRegionalElementaryLanguage &original,
                        std::unordered_set<ClockVariables> preciseClocks) : original(original),
                                                                            preciseClocks(std::move(preciseClocks)),
@@ -225,6 +229,11 @@ namespace learnta {
           neighbor = neighbor.successor();
         }
       }
+
+      std::sort(newNeighbors.begin(), newNeighbors.end(), [] (const auto& left, const auto& right) {
+        return left.hash_value() < right.hash_value();
+      });
+      newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
       return NeighborConditions{std::move(originalSuccessor), std::move(newNeighbors),
                                 preciseClocks, clockSize};
     }
@@ -251,6 +260,10 @@ namespace learnta {
           neighbor.successorAssign();
         }
       }
+      std::sort(newNeighbors.begin(), newNeighbors.end(), [] (const auto& left, const auto& right) {
+        return left.hash_value() < right.hash_value();
+      });
+      newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
       neighbors = std::move(newNeighbors);
     }
   };
