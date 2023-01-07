@@ -727,9 +727,11 @@ namespace learnta {
       };*/
       std::queue<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
       const auto addNeighbors = [&](TAState *jumpedState, const RenamingRelation &renamingRelation,
+                                    const ForwardRegionalElementaryLanguage &sourceElementary,
                                     const ForwardRegionalElementaryLanguage &targetElementary) {
         // There are imprecise clocks
-        if (!renamingRelation.empty() && !renamingRelation.full(targetElementary.getTimedCondition())) {
+        if (renamingRelation.impreciseClocks(sourceElementary.getTimedCondition(),
+                                             targetElementary.getTimedCondition())) {
           BOOST_LOG_TRIVIAL(debug) << "new imprecise neighbors set is added: " << jumpedState << ", "
                                    << targetElementary << ", " << renamingRelation;
           impreciseNeighbors.emplace(jumpedState,
@@ -753,7 +755,7 @@ namespace learnta {
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
           // addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
-          addNeighbors(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget));
+          addNeighbors(jumpedState.get(), renamingRelation, this->prefixes.at(source), this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -808,7 +810,8 @@ namespace learnta {
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
-        addNeighbors(jumpedSourceState.get(), it->second, this->prefixes.at(jumpedSourceIndex));
+        addNeighbors(jumpedSourceState.get(), it->second,
+                     this->prefixes.at(continuousSuccessor), this->prefixes.at(jumpedSourceIndex));
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -904,12 +907,9 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(debug) << "relaxed guard: " << relaxedGuard;
                 if (isWeaker(relaxedGuard, transition.guard) && !isWeaker(transition.guard, relaxedGuard)) {
 #ifdef DEBUG
-                  BOOST_LOG_TRIVIAL(debug) << "Guard before relaxation: " << transition.guard;
+                  BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
                   newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
-#ifdef DEBUG
-                  BOOST_LOG_TRIVIAL(debug) << "Guard after relaxation: " << transition.guard;
-#endif
                   // Follow the transition if it is internal
                   if (transition.resetVars.size() == 1 &&
                       transition.resetVars.front().first == neighbor.getClockSize() &&

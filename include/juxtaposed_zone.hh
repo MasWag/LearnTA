@@ -125,5 +125,9 @@ namespace learnta {
 
       return renaming;
     }
+
+    [[nodiscard]] Eigen::Index getLeftSize() const {
+      return leftSize;
+    }
   };
 }
