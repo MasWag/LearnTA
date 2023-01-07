@@ -730,6 +730,8 @@ namespace learnta {
                                     const ForwardRegionalElementaryLanguage &targetElementary) {
         // There are imprecise clocks
         if (!renamingRelation.empty() && !renamingRelation.full(targetElementary.getTimedCondition())) {
+          BOOST_LOG_TRIVIAL(debug) << "new imprecise neighbors set is added: " << jumpedState << ", "
+                                   << targetElementary << ", " << renamingRelation;
           impreciseNeighbors.emplace(jumpedState,
                                      NeighborConditions{targetElementary, renamingRelation.rightVariables()});
         }

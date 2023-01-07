@@ -99,6 +99,29 @@ namespace learnta {
       return this->size() == condition.size();
     }
 
+    /*!
+     * @brief Add renaming equations from target and source conditions
+     */
+    void addImplicitConstraints(JuxtaposedZone juxtaposedCondition) {
+      juxtaposedCondition.addRenaming(*this);
+      auto newRenaming = juxtaposedCondition.makeRenaming();
+      std::move(newRenaming.begin(), newRenaming.end(), std::back_inserter(*this));
+      // Make it unique in terms of the right variables
+      std::sort(this->begin(), this->end(), [] (const auto &left, const auto& right) {
+        return left.second < right.second || (left.second == right.second && left.first < right.first);
+      });
+      this->erase(std::unique(this->begin(), this->end(), [] (const auto &left, const auto &right) {
+        return left.second == right.second;
+      }), this->end());
+    }
+
+    /*!
+     * @brief Add renaming equations from target and source conditions
+     */
+     void addImplicitConstraints(const TimedCondition &source, const TimedCondition &target) {
+      addImplicitConstraints(source ^ target);
+     }
+
     friend std::ostream &operator<<(std::ostream &os, const RenamingRelation &relation) {
       bool isFirst = true;
       os << '{';

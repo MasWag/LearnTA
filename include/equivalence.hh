@@ -260,6 +260,10 @@ namespace learnta {
 
     // 4. Check candidate renaming
     const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+    // Add implicit constraints
+    std::for_each(candidates.begin(), candidates.end(), [&] (auto &candidate) {
+      candidate.addImplicitConstraints(leftRightJuxtaposition);
+    });
     std::vector<JuxtaposedZoneSet> leftJuxtapositions, rightJuxtapositions;
     leftJuxtapositions.reserve(leftRow.size());
     rightJuxtapositions.reserve(leftRow.size());
