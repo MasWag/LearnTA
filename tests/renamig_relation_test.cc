@@ -273,4 +273,59 @@ BOOST_AUTO_TEST_SUITE(RecognizableLanguagesTest)
     stream << renaming;
     BOOST_CHECK_EQUAL(stream.str(), "{t0 == t'0 && t1 == t'1 && t3 == t'2 && t3 == t'3}");
   }
+
+  BOOST_AUTO_TEST_CASE(makeRenamingTest) {
+    std::stringstream stream;
+
+    // Make the source condition
+    // We this is the source condition after discrete successor
+    TimedCondition sourceCondition = TimedCondition{Zone::top(2)};
+    sourceCondition.restrictLowerBound(0, 0, Bounds{-2, false});
+    sourceCondition.restrictUpperBound(0, 0, Bounds{3, false});
+    stream << sourceCondition;
+    BOOST_CHECK_EQUAL(stream.str(), "2 < T_{0, 0}  < 3");
+    stream.str("");
+
+    // Make the target condition
+    TimedCondition targetCondition = TimedCondition{Zone::top(5)};
+    targetCondition.restrictLowerBound(0, 0, Bounds{-1, true});
+    targetCondition.restrictUpperBound(0, 0, Bounds{1, true});
+    targetCondition.restrictLowerBound(0, 1, Bounds{-3, false});
+    targetCondition.restrictUpperBound(0, 1, Bounds{4, false});
+    targetCondition.restrictLowerBound(0, 2, Bounds{-3, false});
+    targetCondition.restrictUpperBound(0, 2, Bounds{4, false});
+    targetCondition.restrictLowerBound(0, 3, Bounds{-3, false});
+    targetCondition.restrictUpperBound(0, 3, Bounds{4, false});
+    targetCondition.restrictLowerBound(1, 1, Bounds{-2, false});
+    targetCondition.restrictUpperBound(1, 1, Bounds{3, false});
+    targetCondition.restrictLowerBound(1, 2, Bounds{-2, false});
+    targetCondition.restrictUpperBound(1, 2, Bounds{3, false});
+    targetCondition.restrictLowerBound(1, 3, Bounds{-2, false});
+    targetCondition.restrictUpperBound(1, 3, Bounds{3, false});
+    targetCondition.restrictLowerBound(2, 2, Bounds{0, true});
+    targetCondition.restrictUpperBound(2, 2, Bounds{0, true});
+    targetCondition.restrictLowerBound(2, 3, Bounds{0, true});
+    targetCondition.restrictUpperBound(2, 3, Bounds{0, true});
+    targetCondition.restrictLowerBound(3, 3, Bounds{0, true});
+    targetCondition.restrictUpperBound(3, 3, Bounds{0, true});
+    stream << targetCondition;
+    BOOST_CHECK_EQUAL(stream.str(), "1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && -0 <= T_{2, 2}  <= 0 && -0 <= T_{2, 3}  <= 0 && -0 <= T_{3, 3}  <= 0");
+    stream.str("");
+
+    // Make the renaming relation without implicit renaming equation
+    RenamingRelation renaming;
+    renaming.emplace_back(static_cast<ClockVariables>(0), static_cast<ClockVariables>(1));
+    renaming.emplace_back(static_cast<ClockVariables>(1), static_cast<ClockVariables>(2));
+    renaming.emplace_back(static_cast<ClockVariables>(1), static_cast<ClockVariables>(3));
+    stream << renaming;
+    BOOST_CHECK_EQUAL(stream.str(), "{t0 == t'1 && t1 == t'2 && t1 == t'3}");
+    stream.str("");
+
+    auto juxtaposedCondition = sourceCondition.extendN() ^ targetCondition;
+    juxtaposedCondition.addRenaming(renaming);
+    const auto newRenamingRelation = RenamingRelation{juxtaposedCondition.makeRenaming()};
+
+    stream << newRenamingRelation;
+    BOOST_CHECK_EQUAL(stream.str(), "{t0 == t'1 && t1 == t'2 && t1 == t'3}");
+  }
 BOOST_AUTO_TEST_SUITE_END()

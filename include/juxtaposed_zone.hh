@@ -100,12 +100,20 @@ namespace learnta {
       this->canonize();
     }
 
-    //! @brief Add renaming constraints
+    /*!
+     * @brief Add renaming constraints
+     * @param renaming The renaming relation to be added
+     *
+     * @pre for any (left, right) \in renaming, we have 0 <= left < leftSize and 0 <= right < rightSize
+     */
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
-      for (const auto &pair: renaming) {
+      for (const auto &[leftClock, rightClock]: renaming) {
+        // Assert the pre-condition
+        assert(leftClock < leftSize);
+        assert(rightClock < rightSize);
         // add T[first][N] == T[second][N]
-        Eigen::Index leftIndex = static_cast<Eigen::Index>(pair.first) + 1;
-        Eigen::Index rightIndex = static_cast<Eigen::Index>(pair.second) + leftSize + 1;
+        Eigen::Index leftIndex = static_cast<Eigen::Index>(leftClock) + 1;
+        Eigen::Index rightIndex = static_cast<Eigen::Index>(rightClock) + leftSize + 1;
         this->value(leftIndex, rightIndex) = std::min(this->value(leftIndex, rightIndex), {0, true});
         this->value(rightIndex, leftIndex) = std::min(this->value(rightIndex, leftIndex), {0, true});
       }

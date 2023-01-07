@@ -744,7 +744,7 @@ namespace learnta {
                                discreteBoundaries.end());
       for (const auto &[sourceIndex, action]: discreteBoundaries) {
 #ifdef DEBUG
-        BOOST_LOG_TRIVIAL(trace) << "Constructing a transition from: " << this->prefixes.at(sourceIndex)
+        BOOST_LOG_TRIVIAL(debug) << "Constructing a transition from: " << this->prefixes.at(sourceIndex)
                                  << " with action " << action;
 #endif
         ExternalTransitionMaker transitionMaker;
@@ -754,7 +754,6 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
-          // addInactiveClocks(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget).getTimedCondition());
           addNeighbors(jumpedState.get(), renamingRelation, this->prefixes.at(source), this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
@@ -779,8 +778,16 @@ namespace learnta {
         // The target state of the transitions after mapping to P.
         const auto jumpedTargetIndex = it->first;
         // The renaming relation connecting targetIndex and jumpedTargetIndex
-        const RenamingRelation renamingRelation = it->second;
+        RenamingRelation renamingRelation = it->second;
+#ifdef DEBUG
+        BOOST_LOG_TRIVIAL(debug) << "source: " << this->prefixes.at(sourceIndex);
+        BOOST_LOG_TRIVIAL(debug) << "action: " << action;
+        BOOST_LOG_TRIVIAL(debug) << "target: " << this->prefixes.at(jumpedTargetIndex);
+        BOOST_LOG_TRIVIAL(debug) << "renaming: " << renamingRelation;
+#endif
 
+        // renamingRelation should not have the last variable on the left hand side.
+        renamingRelation.eraseLeft(this->prefixes.at(sourceIndex).getTimedCondition().size());
         addNewTransition(sourceIndex, jumpedTargetIndex, targetIndex, renamingRelation);
 
         auto newTransitions = transitionMaker.make();

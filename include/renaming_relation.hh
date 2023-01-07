@@ -93,17 +93,29 @@ namespace learnta {
     }
 
     /*!
+     * @brief Erase pairs such that (left, right) for some right
+     */
+     void eraseLeft(std::size_t left) {
+       this->erase(std::remove_if(this->begin(), this->end(), [&] (const auto &pair) {
+         return pair.first == left;
+       }), this->end());
+    }
+
+    /*!
      * @brief Check if the renaming relation contains only trivial equation from the timed conditions
      */
     [[nodiscard]] bool onlyTrivial(const TimedCondition &sourceCondition, const TimedCondition &targetCondition) const {
       const auto juxtaposedCondition = sourceCondition ^ targetCondition;
 
-      return std::all_of(this->begin(), this->end(), [&juxtaposedCondition] (const auto &renamingPair) {
+      return std::all_of(this->begin(), this->end(), [&] (const auto &renamingPair) {
         const auto &[sourceClock, targetClock] = renamingPair;
-        const auto leftIndex = sourceClock + 1;
-        const auto rightIndex = targetClock + juxtaposedCondition.getLeftSize() + 1;
-        return juxtaposedCondition.value(leftIndex, rightIndex) == Bounds{0, true} &&
-               juxtaposedCondition.value(rightIndex, leftIndex) == Bounds{0, true};
+        const auto sourceUpperBound = sourceCondition.getUpperBound(sourceClock, sourceCondition.size() - 1);
+        const auto sourceLowerBound = sourceCondition.getLowerBound(sourceClock, sourceCondition.size() - 1);
+        const auto targetUpperBound = targetCondition.getUpperBound(targetClock, targetCondition.size() - 1);
+        const auto targetLowerBound = targetCondition.getLowerBound(targetClock, targetCondition.size() - 1);
+
+        return isPoint(sourceUpperBound, sourceLowerBound) && isPoint(targetUpperBound, targetLowerBound) &&
+               sourceUpperBound == targetUpperBound && sourceLowerBound == targetLowerBound;
       });
     }
 

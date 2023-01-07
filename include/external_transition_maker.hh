@@ -62,7 +62,7 @@ namespace learnta {
      *
      * The transition corresponds to a morphism \f$(u, \Lambda, u', \Lambda', R)\f$, where
      *     - \f$\Lambda\f$ is sourceCondition,
-     *     - \f$\Lambda\f$ is targetCondition, and
+     *     - \f$\Lambda'\f$ is targetCondition, and
      *     - \f$R\f$ is renamingRelation.
      */
     void add(const std::shared_ptr<TAState> &targetState, const RenamingRelation &renamingRelation,
@@ -94,6 +94,7 @@ namespace learnta {
 
       for (const auto &[targetWithRenaming, sourceConditions]: sourceMap) {
         const auto &[target, currentRenamingRelation] = targetWithRenaming;
+        BOOST_LOG_TRIVIAL(debug) << "currentRenamingRelation: " << currentRenamingRelation;
         const auto targetConditions = targetMap.at(targetWithRenaming);
         assert(sourceConditions.size() == targetConditions.size());
         for (std::size_t i = 0; i < sourceConditions.size(); ++i) {
@@ -103,12 +104,12 @@ namespace learnta {
           auto juxtaposedCondition = sourceCondition ^ targetCondition;
           juxtaposedCondition.addRenaming(currentRenamingRelation);
           const auto newRenamingRelation = RenamingRelation{juxtaposedCondition.makeRenaming()};
-          BOOST_LOG_TRIVIAL(trace) << "Constructing a transition with " << sourceCondition << " and "
-                                   << newRenamingRelation.size();
-          BOOST_LOG_TRIVIAL(trace) << "target condition: " << targetCondition;
+          BOOST_LOG_TRIVIAL(debug) << "Constructing a transition with " << sourceCondition << " and "
+                                   << newRenamingRelation;
+          BOOST_LOG_TRIVIAL(debug) << "target condition: " << targetCondition;
           // Generate transitions
           auto resets = newRenamingRelation.toReset(sourceCondition, targetCondition);
-          BOOST_LOG_TRIVIAL(trace) << "Resets from renaming: " << resets;
+          BOOST_LOG_TRIVIAL(debug) << "Resets from renaming: " << resets;
           auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
           // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
           for (std::size_t resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
@@ -118,7 +119,7 @@ namespace learnta {
               resets.emplace_back(resetVariable, targetValuation.at(resetVariable));
             }
           }
-          BOOST_LOG_TRIVIAL(trace) << "Resets: " << resets;
+          BOOST_LOG_TRIVIAL(debug) << "Resets: " << resets;
           result.emplace_back(target.get(), clean(resets), sourceCondition.toGuard());
         }
       }
