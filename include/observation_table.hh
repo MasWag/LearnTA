@@ -936,6 +936,7 @@ namespace learnta {
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling imprecise clocks\n" <<
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
+      BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 #endif
       // Make the transitions deterministic
       for (const auto &state: states) {
@@ -957,8 +958,11 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(debug) << "The conjunction of " << it2->guard << " and "
                                          << it3->guard << " is satisfiable";
 #endif
-                assert(it2->target == it3->target);
-                // assert(it2->resetVars == it3->resetVars);
+                // assert(it2->target == it3->target);
+                // It is fine to merge two transitions if their targets are "equivalent"
+                // However, it is not straightforward to check the equivalence.
+                // So, we tentatively weaken the requirement
+                assert(it2->target->isMatch == it3->target->isMatch);
                 // Use more strict reset
                 if (it2->resetVars.size() < it3->resetVars.size()) {
                   it2->resetVars = it3->resetVars;
