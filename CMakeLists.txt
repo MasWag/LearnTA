@@ -76,6 +76,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/renamig_relation_test.cc
   tests/external_transition_maker_test.cc
   tests/neighbor_conditions_test.cc
+  tests/equivalence_oracle_by_test_test.cc
   )
 
 target_link_libraries(unit_test
