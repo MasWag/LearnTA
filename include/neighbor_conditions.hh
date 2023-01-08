@@ -239,7 +239,6 @@ namespace learnta {
       std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
       newNeighbors.reserve(neighbors.size());
       for (auto neighbor: neighbors) {
-        neighbor = neighbor.successor();
         while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
           return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
                  originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
@@ -275,7 +274,6 @@ namespace learnta {
       std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
       newNeighbors.reserve(neighbors.size());
       for (auto neighbor: neighbors) {
-        neighbor.successorAssign();
         while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
           return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
           original.getTimedCondition().getUpperBound(preciseClock, original.getTimedCondition().size() - 1);

@@ -39,6 +39,19 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
                                           neighborConditions(elementary, preciseClocks) {}
   };
 
+  // [2023-01-07 23:29:49.923297] [0x000000010ed7d600] [debug]   current imprecise neighbors: 0x600002c801f8, (abb, 1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 5 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 3 < T_{1, 3}  < 4 && -0 <= T_{2, 2}  <= 0 && 1 < T_{2, 3}  < 2 && 1 < T_{3, 3}  < 2, 0 < {x2, x3, }{x0, x1, }) {x0, x1} {
+  //(abb, 1 <= T_{0, 0}  <= 1 && 2 < T_{0, 1}  < 3 && 2 < T_{0, 2}  < 3 && 4 < T_{0, 3}  < 5 && 1 < T_{1, 1}  < 2 && 1 < T_{1, 2}  < 2 && 3 < T_{1, 3}  < 4 && 0 <= T_{2, 2}  <= 0 && 1 < T_{2, 3}  < 2 && 1 < T_{3, 3}  < 2, 0 < {x0, x1, }{x2, x3, })
+  //(abb, 1 <= T_{0, 0}  <= 1 && 3 <= T_{0, 1}  <= 3 && 3 <= T_{0, 2}  <= 3 && 4 < T_{0, 3}  < 5 && 2 <= T_{1, 1}  <= 2 && 2 <= T_{1, 2}  <= 2 && 3 < T_{1, 3}  < 4 && 0 <= T_{2, 2}  <= 0 && 1 < T_{2, 3}  < 2 && 1 < T_{3, 3}  < 2, 0 < {x0, x1, x2, x3, })
+  //(abb, 1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 4 < T_{0, 3}  < 5 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 3 < T_{1, 3}  < 4 && 0 <= T_{2, 2}  <= 0 && 1 < T_{2, 3}  < 2 && 1 < T_{3, 3}  < 2, 0 < {x2, x3, }{x0, x1, })
+  //}
+  struct NeighborConditionsFixture20230108 {
+    ForwardRegionalElementaryLanguage elementary;
+    std::unordered_set<ClockVariables> preciseClocks = {0, 1};
+    NeighborConditions neighborConditions;
+    NeighborConditionsFixture20230108() : elementary(ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"abb", {1.0, 2.5, 0, 0.1}})),
+                                          neighborConditions(elementary, preciseClocks) {}
+  };
+
   BOOST_FIXTURE_TEST_CASE(fixtureTest, NeighborConditionsFixture) {
     std::stringstream stream;
     stream << static_cast<ElementaryLanguage>(elementary);
@@ -118,6 +131,36 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
 
   BOOST_FIXTURE_TEST_CASE(continuousSuccessorTest20221231, NeighborConditionsFixture20221231) {
     const auto successor = neighborConditions.successor();
+    // The clock size does not change
+    BOOST_TEST(successor.clockSize == neighborConditions.clockSize);
+    // The precise clock does not change
+    BOOST_TEST(successor.preciseClocks == neighborConditions.preciseClocks);
+    std::vector<std::string> expectedNeighbors = {
+            "(ab, 1 < T_{0, 0}  < 2 && 1 < T_{0, 1}  < 2 && 4 < T_{0, 2}  < 5 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x1, x2, }{x0, })",
+            "(ab, 2 < T_{0, 0}  < 3 && 2 < T_{0, 1}  < 3 && 5 < T_{0, 2}  < 6 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x1, x2, }{x0, })",
+            "(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 5 <= T_{0, 2}  <= 5 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x0, x1, x2, })"
+    };
+    std::sort(expectedNeighbors.begin(), expectedNeighbors.end());
+    std::vector<std::string> neighborsString;
+    std::transform(successor.neighbors.begin(), successor.neighbors.end(), std::back_inserter(neighborsString), [] (const auto& condition) {
+      std::stringstream stream;
+      stream << condition;
+      return stream.str();
+    });
+    std::sort(neighborsString.begin(), neighborsString.end());
+    BOOST_TEST(expectedNeighbors == neighborsString, boost::test_tools::per_element());
+  }
+
+  BOOST_FIXTURE_TEST_CASE(continuousSuccessorTest20230108, NeighborConditionsFixture20230108) {
+    auto successor = neighborConditions.successor();
+    BOOST_LOG_TRIVIAL(debug) << successor;
+    BOOST_LOG_TRIVIAL(debug) << successor.successor();
+    BOOST_LOG_TRIVIAL(debug) << successor.successor().successor();
+    BOOST_LOG_TRIVIAL(debug) << successor.successor().successor().successor();
+    BOOST_LOG_TRIVIAL(debug) << successor.successor().successor().successor().successor();
+    BOOST_LOG_TRIVIAL(debug) << successor.successor().successor().successor().successor().successor();
+    BOOST_LOG_TRIVIAL(debug) << successor.successor().successor().successor().successor().successor().successor();
+
     // The clock size does not change
     BOOST_TEST(successor.clockSize == neighborConditions.clockSize);
     // The precise clock does not change
