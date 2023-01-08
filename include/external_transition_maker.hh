@@ -103,7 +103,15 @@ namespace learnta {
           // Add implicit renaming relations
           auto juxtaposedCondition = sourceCondition ^ targetCondition;
           juxtaposedCondition.addRenaming(currentRenamingRelation);
-          const auto newRenamingRelation = RenamingRelation{juxtaposedCondition.makeRenaming()};
+          auto newRenamingRelation = RenamingRelation{juxtaposedCondition.makeRenaming()};
+          // Make it unique in terms of the right variables
+          std::sort(newRenamingRelation.begin(), newRenamingRelation.end(), [] (const auto &left, const auto& right) {
+            return left.second < right.second || (left.second == right.second && left.first < right.first);
+          });
+          newRenamingRelation.erase(std::unique(newRenamingRelation.begin(), newRenamingRelation.end(),
+                                                [] (const auto &left, const auto &right) {
+            return left.second == right.second;
+          }), newRenamingRelation.end());
           BOOST_LOG_TRIVIAL(debug) << "Constructing a transition with " << sourceCondition << " and "
                                    << newRenamingRelation;
           BOOST_LOG_TRIVIAL(debug) << "target condition: " << targetCondition;

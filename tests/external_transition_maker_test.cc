@@ -96,4 +96,42 @@ BOOST_AUTO_TEST_SUITE(ExternalTransitionMakerTest)
     decltype(inactiveClockVariables) expected = {std::make_pair(1, 2)};
     BOOST_TEST(expected == inactiveClockVariables, boost::test_tools::per_element());
   }
+
+  BOOST_AUTO_TEST_CASE(makeTest20230108) {
+    std::stringstream stream;
+    RenamingRelation renamingRelation;
+
+    TimedCondition sourceCondition{ Zone::top(4)};
+    sourceCondition.restrictLowerBound(0, 0, Bounds{-2, true});
+    sourceCondition.restrictUpperBound(0, 0, Bounds{2, true});
+    sourceCondition.restrictLowerBound(1, 1, Bounds{0, true});
+    sourceCondition.restrictUpperBound(1, 1, Bounds{0, true});
+    sourceCondition.restrictLowerBound(2, 2, Bounds{-3, true});
+    sourceCondition.restrictUpperBound(2, 2, Bounds{3, true});
+    stream << sourceCondition;
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 5 <= T_{0, 2}  <= 5 && -0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3",
+                      stream.str());
+    stream.str("");
+
+    TimedCondition targetCondition {Zone::top(5)};
+    targetCondition.restrictLowerBound(0, 0, Bounds{-2, true});
+    targetCondition.restrictUpperBound(0, 0, Bounds{2, true});
+    targetCondition.restrictLowerBound(1, 1, Bounds{0, true});
+    targetCondition.restrictUpperBound(1, 1, Bounds{0, true});
+    targetCondition.restrictLowerBound(2, 2, Bounds{-1, true});
+    targetCondition.restrictUpperBound(2, 2, Bounds{1, true});
+    targetCondition.restrictLowerBound(3, 3, Bounds{0, true});
+    targetCondition.restrictUpperBound(3, 3, Bounds{0, true});
+    stream << targetCondition;
+    BOOST_CHECK_EQUAL("2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 3 <= T_{0, 2}  <= 3 && 3 <= T_{0, 3}  <= 3 && -0 <= T_{1, 1}  <= 0 && 1 <= T_{1, 2}  <= 1 && 1 <= T_{1, 3}  <= 1 && 1 <= T_{2, 2}  <= 1 && 1 <= T_{2, 3}  <= 1 && -0 <= T_{3, 3}  <= 0",
+                      stream.str());
+    stream.str("");
+
+    ExternalTransitionMaker maker;
+    maker.add(std::make_shared<TAState>(false), renamingRelation, sourceCondition, targetCondition);
+    const auto transitions = maker.make();
+    BOOST_CHECK_EQUAL(1, transitions.size());
+    stream << transitions.front().resetVars;
+    BOOST_CHECK_EQUAL("x0 := 3, x1 := 1, x2 := 1, x3 := 0", stream.str());
+  }
 BOOST_AUTO_TEST_SUITE_END()
