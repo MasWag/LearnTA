@@ -113,10 +113,14 @@ namespace learnta {
           auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
           // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
           for (std::size_t resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
-            if (resets.end() == std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
+            auto it = std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
               return pair.first == resetVariable;
-            })) {
+            });
+            if (it == resets.end()) {
               resets.emplace_back(resetVariable, targetValuation.at(resetVariable));
+            } else if (targetValuation.at(resetVariable) == std::floor(targetValuation.at(resetVariable))) {
+              // We overwrite the assigned value if it is a constant
+              it->second = targetValuation.at(resetVariable);
             }
           }
           BOOST_LOG_TRIVIAL(debug) << "Resets: " << resets;
