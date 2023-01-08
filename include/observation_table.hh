@@ -7,6 +7,7 @@
 
 #include <utility>
 #include <vector>
+#include <stack>
 #include <queue>
 #include <unordered_map>
 
@@ -725,7 +726,7 @@ namespace learnta {
           }
         }
       };*/
-      std::queue<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
+      std::stack<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
       const auto addNeighbors = [&](TAState *jumpedState, const RenamingRelation &renamingRelation,
                                     const ForwardRegionalElementaryLanguage &sourceElementary,
                                     const ForwardRegionalElementaryLanguage &targetElementary) {
@@ -887,7 +888,7 @@ namespace learnta {
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
 #endif
       while (!impreciseNeighbors.empty()) {
-        auto [state, neighbor] = impreciseNeighbors.front();
+        auto [state, neighbor] = impreciseNeighbors.top();
         impreciseNeighbors.pop();
         bool matchBounded = false;
         bool noMatch = true;

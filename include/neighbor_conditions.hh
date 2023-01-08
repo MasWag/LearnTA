@@ -103,6 +103,40 @@ namespace learnta {
         BOOST_LOG_TRIVIAL(debug) << "x" << static_cast<int>(preciseClock);
       }
     }
+
+    [[nodiscard]] auto updateNeighborsWithContinuousSuccessors(const ForwardRegionalElementaryLanguage &originalSuccessor) const {
+      // The neighbor elementary languages due to imprecise clocks
+      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
+      newNeighbors.reserve(neighbors.size());
+      for (auto neighbor: neighbors) {
+        while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+          return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
+                 originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
+                                                                     originalSuccessor.getTimedCondition().size() - 1);
+        })) {
+          if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+            return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+                   originalSuccessor.getTimedCondition().getLowerBound(preciseClock,
+                                                                       originalSuccessor.getTimedCondition().size() -
+                                                                       1) &&
+                   neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
+                   originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
+                                                                       originalSuccessor.getTimedCondition().size() -
+                                                                       1);
+          })) {
+            newNeighbors.push_back(neighbor);
+          }
+          neighbor = neighbor.successor();
+        }
+      }
+
+      std::sort(newNeighbors.begin(), newNeighbors.end(), [] (const auto& left, const auto& right) {
+        return left.hash_value() < right.hash_value();
+      });
+      newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
+
+      return newNeighbors;
+    }
   public:
     static auto makeNeighbors(const ForwardRegionalElementaryLanguage &original,
                               const std::unordered_set<ClockVariables> &preciseClocks) {
@@ -151,6 +185,7 @@ namespace learnta {
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
       addImplicitPreciseClocks();
+      this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
       assertInvariants();
     }
 
@@ -165,6 +200,7 @@ namespace learnta {
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
       addImplicitPreciseClocks();
+      this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
       assertInvariants();
     }
 
@@ -235,65 +271,14 @@ namespace learnta {
 
     [[nodiscard]] NeighborConditions successor() const {
       auto originalSuccessor = original.successor();
-      // The neighbor elementary languages due to imprecise clocks
-      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
-      newNeighbors.reserve(neighbors.size());
-      for (auto neighbor: neighbors) {
-        while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-          return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
-                 originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
-                                                                     originalSuccessor.getTimedCondition().size() - 1);
-        })) {
-          if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-            return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
-                   originalSuccessor.getTimedCondition().getLowerBound(preciseClock,
-                                                                       originalSuccessor.getTimedCondition().size() -
-                                                                       1) &&
-                   neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
-                   originalSuccessor.getTimedCondition().getUpperBound(preciseClock,
-                                                                       originalSuccessor.getTimedCondition().size() -
-                                                                       1);
-          })) {
-            newNeighbors.push_back(neighbor);
-          }
-          neighbor = neighbor.successor();
-        }
-      }
+      auto newNeighbors = updateNeighborsWithContinuousSuccessors(originalSuccessor);
 
-      std::sort(newNeighbors.begin(), newNeighbors.end(), [] (const auto& left, const auto& right) {
-        return left.hash_value() < right.hash_value();
-      });
-      newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
-      return NeighborConditions{std::move(originalSuccessor), std::move(newNeighbors),
-                                preciseClocks, clockSize};
+      return NeighborConditions{std::move(originalSuccessor), std::move(newNeighbors), preciseClocks, clockSize};
     }
 
     void successorAssign() {
       original.successorAssign();
-      // The neighbor elementary languages due to imprecise clocks
-      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
-      newNeighbors.reserve(neighbors.size());
-      for (auto neighbor: neighbors) {
-        while (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-          return neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) <=
-          original.getTimedCondition().getUpperBound(preciseClock, original.getTimedCondition().size() - 1);
-        })) {
-          if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-            return neighbor.getTimedCondition().getLowerBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
-            original.getTimedCondition().getLowerBound(preciseClock, original.getTimedCondition().size() - 1) &&
-            neighbor.getTimedCondition().getUpperBound(preciseClock, neighbor.getTimedCondition().size() - 1) ==
-            original.getTimedCondition().getUpperBound(preciseClock, original.getTimedCondition().size() - 1);
-          })) {
-            newNeighbors.push_back(neighbor);
-          }
-          neighbor.successorAssign();
-        }
-      }
-      std::sort(newNeighbors.begin(), newNeighbors.end(), [] (const auto& left, const auto& right) {
-        return left.hash_value() < right.hash_value();
-      });
-      newNeighbors.erase(std::unique(newNeighbors.begin(), newNeighbors.end()), newNeighbors.end());
-      neighbors = std::move(newNeighbors);
+      neighbors = updateNeighborsWithContinuousSuccessors(original);
     }
 
     std::ostream &print(std::ostream &os) const {
