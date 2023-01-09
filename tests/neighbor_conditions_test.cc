@@ -53,6 +53,15 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
                                           neighborConditions(elementary, preciseClocks) {}
   };
 
+  // (b, -0 < T_{0, 0}  < 1 && 6 < T_{0, 1}  < 7 && 6 < T_{1, 1}  < 7, 0 < {x1, }{x0, }) {x1}
+  struct NeighborConditionsFixture20230109 {
+    ForwardRegionalElementaryLanguage elementary;
+    std::unordered_set<ClockVariables> preciseClocks = {1};
+    NeighborConditions neighborConditions;
+    NeighborConditionsFixture20230109() : elementary(ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"b", {0.25, 6.5}})),
+                                          neighborConditions(elementary, preciseClocks) {}
+  };
+
   BOOST_FIXTURE_TEST_CASE(fixtureTest, NeighborConditionsFixture) {
     std::stringstream stream;
     stream << static_cast<ElementaryLanguage>(elementary);
@@ -85,14 +94,24 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     stream.str("");
   }
 
+  BOOST_FIXTURE_TEST_CASE(fixtureTest20230109, NeighborConditionsFixture20230109) {
+    std::stringstream stream;
+    stream << elementary;
+    BOOST_CHECK_EQUAL("(b, 0 < T_{0, 0}  < 1 && 6 < T_{0, 1}  < 7 && 6 < T_{1, 1}  < 7, 0 < {x1, }{x0, })",
+                      stream.str());
+    stream.str("");
+  }
+
   BOOST_FIXTURE_TEST_CASE(constructionTest, NeighborConditionsFixture) {
     std::stringstream stream;
     // Test the clock size
     BOOST_TEST(neighborConditions.clockSize == 3);
     // Test the neighbor size
-    BOOST_TEST(neighborConditions.neighbors.size() == 2);
-    // 2 < T_{0, 0}  < 3 is impossible because it requires -1 < T_{1, 1} < 0
+    BOOST_TEST(neighborConditions.neighbors.size() == 5);
     std::vector<std::string> expectedNeighbors = {
+            "(ab, 2 < T_{0, 0}  < 3 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && -1 < T_{1, 1}  < 0 && 2 < T_{1, 2}  < 3 && 2 < T_{2, 2}  < 3, 0 < {x1, }{x0, x2, })",
+            "(ab, 2 < T_{0, 0}  < 3 && 2 <= T_{0, 1}  <= 2 && 5 < T_{0, 2}  < 6 && -1 < T_{1, 1}  < 0 && 2 < T_{1, 2}  < 3 && 3 < T_{2, 2}  < 4, 0 < {x0, x2, }{x1, })",
+            "(ab, 2 < T_{0, 0}  < 3 && 2 <= T_{0, 1}  <= 2 && 5 <= T_{0, 2}  <= 5 && -1 < T_{1, 1}  < 0 && 2 < T_{1, 2}  < 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x0, x2, }{x1, })",
             "(ab, 1 < T_{0, 0}  < 2 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && 0 < T_{1, 1}  < 1 && 2 < T_{1, 2}  < 3 && 2 < T_{2, 2}  < 3, 0 < {x0, x2, }{x1, })",
             "(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && 0 <= T_{1, 1}  <= 0 && 2 < T_{1, 2}  < 3 && 2 < T_{2, 2}  < 3, 0 < {x0, x1, x2, })"
     };
@@ -132,6 +151,31 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     BOOST_TEST(expectedNeighbors == neighborsString, boost::test_tools::per_element());
   }
 
+  BOOST_FIXTURE_TEST_CASE(constructionTest20230109, NeighborConditionsFixture20230109) {
+    std::stringstream stream;
+    // Test the clock size
+    BOOST_TEST(neighborConditions.clockSize == 2);
+    // Test the neighbor size
+    BOOST_TEST(neighborConditions.neighbors.size() == 5);
+    std::vector<std::string> expectedNeighbors = {
+            "(b, -1 < T_{0, 0}  < 0 && 6 < T_{0, 1}  < 7 && 6 < T_{1, 1}  < 7, 0 < {x0, }{x1, })",
+            "(b, 0 <= T_{0, 0}  <= 0 && 6 < T_{0, 1}  < 7 && 6 < T_{1, 1}  < 7, 0 < {x0, x1, })",
+            "(b, 0 < T_{0, 0}  < 1 && 7 <= T_{0, 1}  <= 7 && 6 < T_{1, 1}  < 7, 0 <= {x0, }{x1, })",
+            "(b, 0 < T_{0, 0}  < 1 && 6 < T_{0, 1}  < 7 && 6 < T_{1, 1}  < 7, 0 < {x1, }{x0, })",
+            "(b, 0 < T_{0, 0}  < 1 && 7 < T_{0, 1}  < 8 && 6 < T_{1, 1}  < 7, 0 < {x0, }{x1, })"
+    };
+    std::sort(expectedNeighbors.begin(), expectedNeighbors.end());
+    std::vector<std::string> neighborsString;
+    std::transform(neighborConditions.neighbors.begin(), neighborConditions.neighbors.end(),
+                   std::back_inserter(neighborsString), [] (const auto& condition) {
+      std::stringstream stream;
+      stream << condition;
+      return stream.str();
+    });
+    std::sort(neighborsString.begin(), neighborsString.end());
+    BOOST_TEST(expectedNeighbors == neighborsString, boost::test_tools::per_element());
+  }
+
   BOOST_FIXTURE_TEST_CASE(discreteSuccessorTest, NeighborConditionsFixture) {
     const auto successor = neighborConditions.successor('a');
     // The clock size increases by one
@@ -149,6 +193,7 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     // The precise clock does not change
     BOOST_TEST(successor.preciseClocks == neighborConditions.preciseClocks, boost::test_tools::per_element());
     std::vector<std::string> expectedNeighbors = {
+            "(ab, 2 < T_{0, 0}  < 3 && 2 <= T_{0, 1}  <= 2 && 5 < T_{0, 2}  < 6 && -1 < T_{1, 1}  < 0 && 3 <= T_{1, 2}  <= 3 && 3 < T_{2, 2}  < 4, 0 <= {x1, }{x0, x2, })",
             "(ab, 1 < T_{0, 0}  < 2 && 2 <= T_{0, 1}  <= 2 && 4 < T_{0, 2}  < 5 && 0 < T_{1, 1}  < 1 && 3 <= T_{1, 2}  <= 3 && 2 < T_{2, 2}  < 3, 0 <= {x1, }{x0, x2, })",
             "(ab, 2 <= T_{0, 0}  <= 2 && 2 <= T_{0, 1}  <= 2 && 5 <= T_{0, 2}  <= 5 && 0 <= T_{1, 1}  <= 0 && 3 <= T_{1, 2}  <= 3 && 3 <= T_{2, 2}  <= 3, 0 <= {x0, x1, x2, })"
     };
@@ -193,12 +238,24 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
       return guard;
     };
     // If we do not take successor, the guard is the same as the original one.
-    BOOST_TEST(sort(neighborConditions.toOriginalGuard()) == sort(neighborConditions.toRelaxedGuard()),
+    std::vector<Constraint> expectedOriginalGuard = {
+            ConstraintMaker(0) > 4, ConstraintMaker(0) < 5,
+            ConstraintMaker(1) < 3, ConstraintMaker(1) > 2,
+            ConstraintMaker(2) > 2, ConstraintMaker(2) < 3
+    };
+    BOOST_TEST(sort(expectedOriginalGuard) == sort(neighborConditions.toOriginalGuard()),
+               boost::test_tools::per_element());
+    std::vector<Constraint> expectedRelaxedGuard = {
+            ConstraintMaker(0) > 4, ConstraintMaker(0) < 6,
+            ConstraintMaker(1) < 3, ConstraintMaker(1) > 2,
+            ConstraintMaker(2) > 2, ConstraintMaker(2) < 4
+    };
+    BOOST_TEST(sort(expectedRelaxedGuard) == sort(neighborConditions.toRelaxedGuard()),
                boost::test_tools::per_element());
     std::vector<Constraint> expectedSuccessorGuard = {
-            ConstraintMaker(0) > 4, ConstraintMaker(0) <= 5,
+            ConstraintMaker(0) > 4, ConstraintMaker(0) < 6,
             ConstraintMaker(1) <= 3, ConstraintMaker(1) >= 3,
-            ConstraintMaker(2) > 2, ConstraintMaker(2) <= 3
+            ConstraintMaker(2) > 2, ConstraintMaker(2) < 4
     };
     BOOST_TEST(sort(expectedSuccessorGuard) == sort(neighborConditions.successor().toRelaxedGuard()),
                boost::test_tools::per_element());

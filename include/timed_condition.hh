@@ -44,8 +44,8 @@ namespace learnta {
             this->restrictUpperBound(i, j, Bounds{concreteDifference, true}, true);
             this->restrictLowerBound(i, j, Bounds{-concreteDifference, true}, true);
           } else {
-            this->restrictUpperBound(i, j, Bounds{double(long(concreteDifference)) + 1, false}, true);
-            this->restrictLowerBound(i, j, Bounds{-double(long(concreteDifference)), false}, true);
+            this->restrictUpperBound(i, j, Bounds{double(std::floor(concreteDifference)) + 1, false}, true);
+            this->restrictLowerBound(i, j, Bounds{-double(std::floor(concreteDifference)), false}, true);
           }
         }
       }
@@ -634,6 +634,22 @@ namespace learnta {
 
     [[nodiscard]] std::size_t hash_value() const {
       return learnta::hash_value(this->zone);
+    }
+
+    std::ostream &print(std::ostream &os) const {
+      for (std::size_t i = 0; i < this->size(); ++i) {
+        for (std::size_t j = i; j < this->size(); ++j) {
+          const auto upperBound = this->getUpperBound(i, j);
+          const auto lowerBound = this->getLowerBound(i, j);
+          os << -lowerBound.first << (lowerBound.second ? " <= " : " < ")
+             << "T_{" << i << ", " << j << "} "
+             << (upperBound.second ? " <= " : " < ") << upperBound.first;
+          if (i != this->size() - 1 || j != this->size() - 1) {
+            os << " && ";
+          }
+        }
+      }
+      return os;
     }
 
     friend class NeighborConditions;

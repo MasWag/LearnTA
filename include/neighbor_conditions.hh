@@ -157,8 +157,6 @@ namespace learnta {
             // The constraints of the form x - y \in I is used if both are precise or imprecise
             neighborsCondition.restrictLowerBound(i, j - 1, original.getTimedCondition().getLowerBound(i, j - 1));
             neighborsCondition.restrictUpperBound(i, j - 1, original.getTimedCondition().getUpperBound(i, j - 1));
-          } else {
-            neighborsCondition.restrictLowerBound(i, j - 1, Bounds{0, true});
           }
         }
       }
