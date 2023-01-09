@@ -709,23 +709,6 @@ namespace learnta {
         }
       }
 
-      // The inactive clock variables for each state
-      /*std::unordered_map<TAState*, std::unordered_map<ClockVariables, std::size_t>> inactiveClocks;
-      const auto addInactiveClocks = [&] (TAState* jumpedState, const RenamingRelation& renamingRelation, const TimedCondition &targetCondition) {
-        auto it = inactiveClocks.find(jumpedState);
-        if (it == inactiveClocks.end()) {
-          inactiveClocks[jumpedState] = ExternalTransitionMaker::inactiveClockVariables(renamingRelation, targetCondition);
-        } else {
-          for (const auto &[inactive, lowerBound]: ExternalTransitionMaker::inactiveClockVariables(renamingRelation, targetCondition)) {
-            auto it2 = it->second.find(inactive);
-            if (it2 != it->second.end()) {
-              it2->second = std::min(it2->second, lowerBound);
-            } else {
-              it->second[inactive] = lowerBound;
-            }
-          }
-        }
-      };*/
       std::stack<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
       const auto addNeighbors = [&](TAState *jumpedState, const RenamingRelation &renamingRelation,
                                     const ForwardRegionalElementaryLanguage &sourceElementary,
@@ -908,10 +891,18 @@ namespace learnta {
 #ifdef DEBUG
                 BOOST_LOG_TRIVIAL(debug) << "matched! " << "guard: " << transition.guard;
 #endif
-                matchBounded |= std::any_of(transition.guard.begin(), transition.guard.end(),
-                                            std::mem_fn(&Constraint::isUpperBound));
+                const bool upperBounded = std::any_of(transition.guard.begin(), transition.guard.end(),
+                                                      std::mem_fn(&Constraint::isUpperBound));
+                matchBounded = matchBounded || upperBounded;
                 BOOST_LOG_TRIVIAL(debug) << "matchBounded: " << matchBounded;
                 auto relaxedGuard = neighbor.toRelaxedGuard();
+                if (!upperBounded) {
+                  // Remove upper bound if the matched guard has no upper bound
+                  relaxedGuard.erase(std::remove_if(relaxedGuard.begin(), relaxedGuard.end(),
+                                                    [] (const auto &constraint) {
+                    return constraint.isUpperBound();
+                  }), relaxedGuard.end());
+                }
                 BOOST_LOG_TRIVIAL(debug) << "relaxed guard: " << relaxedGuard;
                 if (isWeaker(relaxedGuard, transition.guard) && !isWeaker(transition.guard, relaxedGuard)) {
 #ifdef DEBUG
