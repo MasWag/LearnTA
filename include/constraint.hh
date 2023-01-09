@@ -180,8 +180,7 @@ namespace learnta {
     });
   }
 
-  static inline std::ostream &operator<<(std::ostream &os,
-                                         const Constraint::Order &odr) {
+  static inline std::ostream &operator<<(std::ostream &os, const Constraint::Order &odr) {
     switch (odr) {
       case Constraint::Order::lt:
         os << "<";
