@@ -40,12 +40,12 @@ namespace learnta {
           // T_{i, j} = accumulatedDuration.at(i) - accumulatedDuration.at(j + 1)
           const auto concreteDifference = accumulatedDuration.at(i) -
                                           ((j + 1 < accumulatedDuration.size()) ? accumulatedDuration.at(j + 1) : 0);
-          if (double(long(concreteDifference)) == concreteDifference) {
+          if (std::floor(concreteDifference) == concreteDifference) {
             this->restrictUpperBound(i, j, Bounds{concreteDifference, true}, true);
             this->restrictLowerBound(i, j, Bounds{-concreteDifference, true}, true);
           } else {
-            this->restrictUpperBound(i, j, Bounds{double(std::floor(concreteDifference)) + 1, false}, true);
-            this->restrictLowerBound(i, j, Bounds{-double(std::floor(concreteDifference)), false}, true);
+            this->restrictUpperBound(i, j, Bounds{std::floor(concreteDifference) + 1, false}, true);
+            this->restrictLowerBound(i, j, Bounds{-std::floor(concreteDifference), false}, true);
           }
         }
       }

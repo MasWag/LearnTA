@@ -45,11 +45,11 @@ namespace learnta {
       fractionalPart.resize(timedWord.wordSize() + 1);
       accumulatedDuration.resize(timedWord.wordSize() + 1);
       accumulatedDuration.back() = timedWord.getDurations().back();
-      fractionalPart.back() = timedWord.getDurations().back() - double(long(timedWord.getDurations().back()));
+      fractionalPart.back() = timedWord.getDurations().back() - std::floor(timedWord.getDurations().back());
       for (int i = static_cast<int>(fractionalPart.size()) - 2; i >= 0; --i) {
         accumulatedDuration.at(i) = accumulatedDuration.at(i + 1) + timedWord.getDurations().at(i);
         fractionalPart.at(i) = accumulatedDuration.at(i);
-        fractionalPart.at(i) -= double(long(fractionalPart.at(i)));
+        fractionalPart.at(i) -= std::floor(fractionalPart.at(i));
       }
 
       return {ElementaryLanguage{timedWord.getWord(), TimedCondition{accumulatedDuration}},
@@ -159,10 +159,10 @@ namespace learnta {
       // Construct the fractional order
       std::vector<double> suffixDurationsFractional;
       suffixDurationsFractional.resize(suffixDurations.size());
-      suffixDurationsFractional.front() = suffixDurations.front() - int(suffixDurations.front());
+      suffixDurationsFractional.front() = suffixDurations.front() - std::floor(suffixDurations.front());
       for (std::size_t i = 1; i < suffixDurationsFractional.size(); ++i) {
         suffixDurationsFractional.at(i) = suffixDurationsFractional.at(i - 1) + suffixDurations.at(i);
-        suffixDurationsFractional.at(i) -= int(suffixDurationsFractional.at(i));
+        suffixDurationsFractional.at(i) -= std::floor(suffixDurationsFractional.at(i));
       }
       assert(std::all_of(suffixDurationsFractional.begin(), suffixDurationsFractional.end(), [] (const double fractional) {
         return 0 <= fractional && fractional < 1;
