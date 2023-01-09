@@ -15,7 +15,32 @@
 namespace learnta {
   class RenamingRelation : public std::vector<std::pair<std::size_t, std::size_t>> {
   public:
-    // TODO: Probably we will have to change this function.
+    /*!
+     * @brief Construct a valuation from a timed condition
+     *
+     * @pre condition is simple
+     */
+    static std::vector<double> toValuation(TimedCondition condition) {
+      std::vector<double> result;
+      result.resize(condition.size());
+      for (std::size_t i = 0; i < condition.size(); ++i) {
+        const auto lowerBound = condition.getLowerBound(i, condition.size() - 1);
+        const auto upperBound = condition.getUpperBound(i, condition.size() - 1);
+        if (lowerBound.first == -upperBound.first && lowerBound.second && upperBound.second) {
+          // When the bound is a point
+          result.at(i) = upperBound.first;
+        } else {
+          // When the bound is not a point
+          auto middlePoint = (upperBound.first - lowerBound.first) / 2.0;
+          result.at(i) = middlePoint;
+          condition.restrictLowerBound(i, condition.size() - 1, Bounds{-middlePoint, true}, false);
+          condition.restrictUpperBound(i, condition.size() - 1, Bounds{middlePoint, true}, false);
+        }
+      }
+
+      return result;
+    }
+
     [[nodiscard]] std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>>
     toReset(const TimedCondition &sourceCondition, const TimedCondition &targetCondition) const {
       // Construct the reset from the renaming relation
@@ -25,42 +50,20 @@ namespace learnta {
         return std::make_pair(renamingPair.second, static_cast<ClockVariables>(renamingPair.first));
       });
 
-#if 0
       // Construct the reset from the timed conditions
-      // TODO: I am not too sure if we need this part
-      std::size_t j = 0;
-      for (std::size_t i = 0; i < targetCondition.size(); ++i) {
-        // We skip if we already have i := foo for some foo
-        if (std::find_if(result.begin(), result.end(), [&](const auto p) { return p.first == i; }) != result.end()) {
-          continue;
-        }
-        if (j >= sourceCondition.size()) {
-          return result;
-        }
-        while (targetCondition.getUpperBound(i, targetCondition.size() - 1) !=
-               sourceCondition.getUpperBound(j, sourceCondition.size() - 1) ||
-               targetCondition.getLowerBound(i, targetCondition.size() - 1) !=
-               sourceCondition.getLowerBound(j, sourceCondition.size() - 1) ||
-               // The value of j should not be modified by the transition
-               (j < targetCondition.size() &&
-                targetCondition.getUpperBound(j, targetCondition.size() - 1) !=
-                sourceCondition.getUpperBound(j, sourceCondition.size() - 1)) ||
-               (j < targetCondition.size() &&
-                targetCondition.getLowerBound(j, targetCondition.size() - 1) !=
-                sourceCondition.getLowerBound(j, sourceCondition.size() - 1))) {
-          j++;
-          if (j >= sourceCondition.size()) {
-            return result;
-          }
-        }
-        if (i != j) {
-          result.emplace_back(i, static_cast<ClockVariables>(j));
-        }
-        if (i + 1 < targetCondition.size() && targetCondition.getLowerBound(i, i + 1) != Bounds{0, true}) {
-          j++;
+      const auto targetValuation = toValuation(targetCondition);
+      // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
+      for (std::size_t resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
+        auto it = std::find_if(result.begin(), result.end(), [&](const auto &pair) {
+          return pair.first == resetVariable;
+        });
+        if (it == result.end()) {
+          result.emplace_back(resetVariable, targetValuation.at(resetVariable));
+        } else if (targetValuation.at(resetVariable) == std::floor(targetValuation.at(resetVariable))) {
+          // We overwrite the assigned value if it is a constant
+          it->second = targetValuation.at(resetVariable);
         }
       }
-#endif
 
       return result;
     }

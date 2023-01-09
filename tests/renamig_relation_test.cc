@@ -191,7 +191,10 @@ BOOST_AUTO_TEST_SUITE(RecognizableLanguagesTest)
     // Make the renaming relation
     RenamingRelation renaming;
     auto reset = renaming.toReset(sourceCondition, targetCondition);
-    BOOST_TEST(reset.empty());
+    BOOST_TEST(reset.size() == 3);
+    stream << reset;
+    BOOST_CHECK_EQUAL(stream.str(), "x0 := 1.5, x1 := 1.25, x2 := 0");
+    stream.str("");
   }
 
   // codomain: (abb, 1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && -0 <= T_{2, 2}  <= 0 && -0 <= T_{2, 3}  <= 0 && -0 <= T_{3, 3}  <= 0) renaming: {t0 == t'1}

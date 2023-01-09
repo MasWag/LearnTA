@@ -80,13 +80,6 @@ namespace learnta {
 
     /*!
      * @brief Generate transitions
-     *
-     * @todo There is an issue in reset generation
-     * domain: (ab, 1 <= T_{0, 0}  <= 1 && 1 <= T_{0, 1}  <= 1 && 1 < T_{0, 2}  < 2 && -0 <= T_{1, 1}  <= 0 && -0 < T_{1, 2}  < 1 && -0 < T_{2, 2}  < 1)
-     * codomain: (ab, -0 < T_{0, 0}  < 1 && 1 <= T_{0, 1}  <= 1 && 1 < T_{0, 2}  < 2 && -0 < T_{1, 1}  < 1 && -0 < T_{1, 2}  < 1 && -0 < T_{2, 2}  < 1)
-     * renaming: {t1 == t'1}
-     * loc6->loc5 [label="ε", guard="{x0 > 1, x1 > 0, x2 > 0}", reset="{x0 := 1.5, x2 := 0.5}"]
-     * The order gets broken
      */
     [[nodiscard]] std::vector<TATransition> make() const {
       std::vector<TATransition> result;
@@ -117,20 +110,6 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(debug) << "target condition: " << targetCondition;
           // Generate transitions
           auto resets = newRenamingRelation.toReset(sourceCondition, targetCondition);
-          BOOST_LOG_TRIVIAL(debug) << "Resets from renaming: " << resets;
-          auto targetValuation = learnta::ExternalTransitionMaker::toValuation(targetCondition);
-          // Map the clock variables to the target timed condition if it is not mapped with the renaming relation
-          for (std::size_t resetVariable = 0; resetVariable < targetCondition.size(); ++resetVariable) {
-            auto it = std::find_if(resets.begin(), resets.end(), [&](const auto &pair) {
-              return pair.first == resetVariable;
-            });
-            if (it == resets.end()) {
-              resets.emplace_back(resetVariable, targetValuation.at(resetVariable));
-            } else if (targetValuation.at(resetVariable) == std::floor(targetValuation.at(resetVariable))) {
-              // We overwrite the assigned value if it is a constant
-              it->second = targetValuation.at(resetVariable);
-            }
-          }
           BOOST_LOG_TRIVIAL(debug) << "Resets: " << resets;
           result.emplace_back(target.get(), clean(resets), sourceCondition.toGuard());
         }
