@@ -158,6 +158,42 @@ BOOST_AUTO_TEST_SUITE(RecognizableLanguagesTest)
                                   expectedValuation.begin(), expectedValuation.end());
   }
 
+  BOOST_AUTO_TEST_CASE(toResetTest20230109) {
+    std::stringstream stream;
+    // Make the source condition
+    TimedCondition sourceCondition = TimedCondition{Zone::top(3)};
+    sourceCondition.restrictLowerBound(0, 0, Bounds{0, false});
+    sourceCondition.restrictUpperBound(0, 0, Bounds{1, false});
+    sourceCondition.restrictLowerBound(0, 1, Bounds{-2, true});
+    sourceCondition.restrictUpperBound(0, 1, Bounds{2, true});
+    stream << sourceCondition;
+    BOOST_CHECK_EQUAL(stream.str(),
+                      "-0 < T_{0, 0}  < 1 && 2 <= T_{0, 1}  <= 2 && 1 < T_{1, 1}  < 2");
+    stream.str("");
+
+    // Make the target condition
+    TimedCondition targetCondition = TimedCondition{Zone::top(4)};
+    targetCondition.restrictLowerBound(0, 0, Bounds{0, false});
+    targetCondition.restrictUpperBound(0, 0, Bounds{1, false});
+    targetCondition.restrictLowerBound(0, 1, Bounds{-1, false});
+    targetCondition.restrictUpperBound(0, 1, Bounds{2, false});
+    targetCondition.restrictLowerBound(0, 2, Bounds{-1, false});
+    targetCondition.restrictUpperBound(0, 2, Bounds{2, false});
+    targetCondition.restrictLowerBound(1, 1, Bounds{-1, false});
+    targetCondition.restrictUpperBound(1, 1, Bounds{2, false});
+    targetCondition.restrictLowerBound(2, 2, Bounds{0, true});
+    targetCondition.restrictUpperBound(2, 2, Bounds{0, true});
+    stream << targetCondition;
+    BOOST_CHECK_EQUAL(stream.str(),
+                      "-0 < T_{0, 0}  < 1 && 1 < T_{0, 1}  < 2 && 1 < T_{0, 2}  < 2 && 1 < T_{1, 1}  < 2 && 1 < T_{1, 2}  < 2 && -0 <= T_{2, 2}  <= 0");
+    stream.str("");
+
+    // Make the renaming relation
+    RenamingRelation renaming;
+    auto reset = renaming.toReset(sourceCondition, targetCondition);
+    BOOST_TEST(reset.empty());
+  }
+
   // codomain: (abb, 1 <= T_{0, 0}  <= 1 && 3 < T_{0, 1}  < 4 && 3 < T_{0, 2}  < 4 && 3 < T_{0, 3}  < 4 && 2 < T_{1, 1}  < 3 && 2 < T_{1, 2}  < 3 && 2 < T_{1, 3}  < 3 && -0 <= T_{2, 2}  <= 0 && -0 <= T_{2, 3}  <= 0 && -0 <= T_{3, 3}  <= 0) renaming: {t0 == t'1}
   BOOST_AUTO_TEST_CASE(fullAndEmpty) {
     std::stringstream stream;

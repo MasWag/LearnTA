@@ -25,10 +25,12 @@ namespace learnta {
         return std::make_pair(renamingPair.second, static_cast<ClockVariables>(renamingPair.first));
       });
 
+#if 0
       // Construct the reset from the timed conditions
       // TODO: I am not too sure if we need this part
       std::size_t j = 0;
       for (std::size_t i = 0; i < targetCondition.size(); ++i) {
+        // We skip if we already have i := foo for some foo
         if (std::find_if(result.begin(), result.end(), [&](const auto p) { return p.first == i; }) != result.end()) {
           continue;
         }
@@ -58,6 +60,7 @@ namespace learnta {
           j++;
         }
       }
+#endif
 
       return result;
     }
