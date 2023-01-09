@@ -18,6 +18,8 @@ namespace learnta {
   private:
     std::unique_ptr<MembershipOracle> membershipOracle;
     boost::unordered_map<ElementaryLanguage, TimedConditionSet> cache;
+    std::size_t countSymbolic = 0;
+    std::size_t countSymbolicWithCache = 0;
 
     [[nodiscard]] bool included(const ElementaryLanguage &elementary) {
       return this->membershipOracle->answerQuery(elementary.sample());
@@ -33,10 +35,12 @@ namespace learnta {
      * @returns A list representing the resulting timed conditions
      */
     TimedConditionSet query(const ElementaryLanguage &elementary) {
+      ++countSymbolic;
       auto it = cache.find(elementary);
       if (it != cache.end()) {
         return it->second;
       }
+      ++countSymbolicWithCache;
       std::list<ElementaryLanguage> includedLanguages;
       bool allIncluded = true;
       // Check if each of the simple elementary language is in the target language
@@ -76,6 +80,12 @@ namespace learnta {
 
     [[nodiscard]] bool answerQuery(const TimedWord &timedWord) override {
       return this->membershipOracle->answerQuery(timedWord);
+    }
+
+    std::ostream &printStatistics(std::ostream &stream) const override {
+      stream << "Number of symbolic membership queries: " << countSymbolic << "\n";
+      stream << "Number of symbolic membership queries (with cache): " << countSymbolicWithCache << "\n";
+      return this->membershipOracle->printStatistics(stream);
     }
   };
 }

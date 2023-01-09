@@ -1031,10 +1031,7 @@ namespace learnta {
       stream << "|ext(P)| = " << this->prefixes.size() - this->pIndices.size() << "\n";
       stream << "|S| = " << this->suffixes.size() << "\n";
 
-      stream << "Number of membership queries: " << this->memOracle->count() << "\n";
-
-      return stream;
+      return this->memOracle->printStatistics(stream);
     }
-
   };
 }

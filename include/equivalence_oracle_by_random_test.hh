@@ -37,6 +37,7 @@ namespace learnta {
      * @brief Make an equivalence query
      */
     [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) override {
+      ++eqQueryCount;
       static std::random_device rng;
       std::mt19937 engine(rng());
 

@@ -19,6 +19,12 @@ namespace learnta {
     virtual bool answerQuery(const TimedWord &timedWord) = 0;
     [[nodiscard]] virtual std::size_t count() const = 0;
     virtual ~MembershipOracle() = default;
+
+    virtual std::ostream &printStatistics(std::ostream &stream) const {
+      stream << "Number of membership queries: " << this->count() << "\n";
+
+      return stream;
+    }
   };
 
   /*!
@@ -55,11 +61,13 @@ namespace learnta {
   class MembershipOracleCache final : public MembershipOracle {
     std::unique_ptr<MembershipOracle> oracle;
     boost::unordered_map<TimedWord, bool> membershipCache;
+    std::size_t countNoCache = 0;
 
   public:
     explicit MembershipOracleCache(std::unique_ptr<MembershipOracle> &&oracle) : oracle(std::move(oracle)) {}
 
     bool answerQuery(const TimedWord &timedWord) override {
+      ++countNoCache;
       auto it = this->membershipCache.find(timedWord);
       if (it != membershipCache.end()) {
         return it->second;
@@ -72,6 +80,13 @@ namespace learnta {
 
     [[nodiscard]] size_t count() const override {
       return this->oracle->count();
+    }
+
+    std::ostream &printStatistics(std::ostream &stream) const override {
+      stream << "Number of membership queries: " << countNoCache << "\n";
+      stream << "Number of membership queries (with cache): " << this->count() << "\n";
+
+      return stream;
     }
   };
 }

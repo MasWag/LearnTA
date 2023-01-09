@@ -15,6 +15,8 @@ namespace learnta {
    * @brief Interface of the equivalence oracle
    */
   class EquivalenceOracle {
+  protected:
+    std::size_t eqQueryCount = 0;
   public:
     virtual ~EquivalenceOracle() = default;
 
@@ -22,5 +24,17 @@ namespace learnta {
      * @brief Make an equivalence query
      */
     [[nodiscard]] virtual std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) = 0;
+
+    //! @brief Return the number of the executed equivalence queries
+    [[nodiscard]] std::size_t numEqQueries() const {
+      return eqQueryCount;
+    }
+
+    //! @brief Print the statistics
+    virtual std::ostream &printStatistics(std::ostream &stream) const {
+      stream << "Number of equivalence queries: " << this->numEqQueries() << "\n";
+
+      return stream;
+    }
   };
 }

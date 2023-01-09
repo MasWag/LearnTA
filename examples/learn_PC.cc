@@ -121,38 +121,9 @@ void run() {
   targetAutomaton.maxConstraints.resize(1);
   targetAutomaton.maxConstraints[0] = 10;
 
-  // Generate the complement of the target DTA
-  complementTargetAutomaton = targetAutomaton.complement(alphabet);
-
-  // Construct the learner
-  auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
-  auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
-  auto eqOracle = std::make_unique<learnta::EquivalenceOracleChain>();
-  auto eqOracleByTest = std::make_unique<learnta::EquivalenceOracleByTest>(targetAutomaton);
-  // Equivalence query by static string to make the evaluation stable
-  // These strings are generated in macOS but the equivalence query returns a different set of counter examples.
-  // This deviation is probably because of the difference in the address handling, which is used in sorting.
-  // eqOracleByTest->push_back(learnta::TimedWord{"claubcl", {0, 0, 2, 0, 0, 0, 0, 0}});
-  // eqOracleByTest->push_back(learnta::TimedWord{"claubcf", {0, 0, 2, 0, 0, 0, 0, 0}});
-
-  eqOracle->push_back(std::move(eqOracleByTest));
-  eqOracle->push_back(
-          std::make_unique<learnta::ComplementTimedAutomataEquivalenceOracle>(
-                  targetAutomaton, complementTargetAutomaton, alphabet));
-  learnta::Learner learner{alphabet, std::move(memOracle),
-                           std::make_unique<learnta::EquivalenceOracleMemo>(std::move(eqOracle), targetAutomaton)};
-
-  // Run the learning
-  std::cout << "Start Learning!!" << std::endl;
-  const auto startTime = std::chrono::system_clock::now(); // Current time
-  const auto hypothesis = learner.run();
-  const auto endTime = std::chrono::system_clock::now(); // End time
-
-  std::cout << "Learning Finished!!" << std::endl;
-  std::cout << "The learned DTA is as follows\n" << hypothesis << std::endl;
-  learner.printStatistics(std::cout);
-  std::cout << "Execution Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
-            << " [ms]" << std::endl;
+  // Execute the learning
+  learnta::ExperimentRunner runner {alphabet, targetAutomaton};
+  runner.run();
 }
 
 int main(int argc, const char *argv[]) {

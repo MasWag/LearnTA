@@ -10,7 +10,10 @@
 
 namespace learnta {
   /*!
-   * @brief Memoization of the equivalence oracle
+   * @brief Wrapper of an equivalence oracle to cache the queries.
+   *
+   * This class memorizes all the previous counterexamples returned by the wrapped equivalence oracle.
+   * The memorized inputs are used to check the equivalence by testing before using the actual equivalence oracle.
    */
   class EquivalenceOracleMemo : public EquivalenceOracle {
   private:
@@ -23,6 +26,7 @@ namespace learnta {
      * @brief Make an equivalence query
      */
     [[nodiscard]] std::optional<TimedWord> findCounterExample(const TimedAutomaton &hypothesis) override {
+      ++eqQueryCount;
       auto result = oracleByTest.findCounterExample(hypothesis);
       if (result) {
         return result;
@@ -34,6 +38,14 @@ namespace learnta {
 
         return result;
       }
+    }
+
+    //! @brief Print the statistics
+    std::ostream &printStatistics(std::ostream &stream) const override {
+      stream << "Number of equivalence queries: " << this->numEqQueries() << "\n";
+      stream << "Number of equivalence queries (with cache): " << this->oracle->numEqQueries() << "\n";
+
+      return stream;
     }
   };
 }

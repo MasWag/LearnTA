@@ -9,6 +9,7 @@
 #include "learner.hh"
 #include "timed_automata_equivalence_oracle.hh"
 #include "timed_automaton_runner.hh"
+#include "experiment_runner.hh"
 
 void run(int scale) {
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
@@ -64,24 +65,10 @@ void run(int scale) {
   complementTargetAutomaton.simplifyWithZones();
   BOOST_LOG_TRIVIAL(info) << "complementTargetAutomaton:\n" << complementTargetAutomaton;
 
-  // Construct the learner
+  // Execute the learning
   const std::vector<learnta::Alphabet> alphabet = {'a'};
-  auto sul = std::unique_ptr<learnta::SUL>(new learnta::TimedAutomatonRunner(targetAutomaton));
-  auto memOracle = std::make_unique<learnta::SymbolicMembershipOracle>(std::move(sul));
-  auto eqOracle = std::unique_ptr<learnta::EquivalenceOracle>(
-          new learnta::ComplementTimedAutomataEquivalenceOracle(targetAutomaton, complementTargetAutomaton, alphabet));
-  learnta::Learner learner{alphabet, std::move(memOracle), std::move(eqOracle)};
-
-  // Run the learning
-  const auto startTime = std::chrono::system_clock::now(); // Current time
-  const auto hypothesis = learner.run();
-  const auto endTime = std::chrono::system_clock::now(); // End time
-
-  std::cout << "Learning Finished!!" << std::endl;
-  std::cout << "The learned DTA is as follows\n" << hypothesis << std::endl;
-  learner.printStatistics(std::cout);
-  std::cout << "Execution Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
-            << " [ms]" << std::endl;
+  learnta::ExperimentRunner runner {alphabet, targetAutomaton};
+  runner.run();
 }
 
 int main(int argc, const char *argv[]) {

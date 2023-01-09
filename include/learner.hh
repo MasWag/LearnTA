@@ -19,7 +19,6 @@ namespace learnta {
   private:
     std::unique_ptr<EquivalenceOracle> eqOracle;
     ObservationTable observationTable;
-    std::size_t eqQueryCount = 0;
   public:
     Learner(const std::vector<Alphabet> &alphabet,
             std::unique_ptr<SymbolicMembershipOracle> memOracle,
@@ -43,7 +42,6 @@ namespace learnta {
         BOOST_LOG_TRIVIAL(info) << "The learner generated a hypothesis\n" << hypothesis;
         assert(hypothesis.deterministic());
         const auto counterExample = eqOracle->findCounterExample(hypothesis);
-        eqQueryCount++;
 
         if (counterExample) {
           BOOST_LOG_TRIVIAL(info) << "Equivalence oracle returned a counter example: " << counterExample.value();
@@ -56,13 +54,13 @@ namespace learnta {
 
     std::ostream &printStatistics(std::ostream &stream) const {
       this->observationTable.printStatistics(stream);
-      stream << "Number of equivalence queries: " << this->eqQueryCount << "\n";
+      this->eqOracle->printStatistics(stream);
 
       return stream;
     }
 
     [[nodiscard]] std::size_t numEqQueries() const {
-      return this->eqQueryCount;
+      return this->eqOracle->numEqQueries();
     }
   };
 }
