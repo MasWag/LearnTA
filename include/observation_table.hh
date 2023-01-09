@@ -830,8 +830,7 @@ namespace learnta {
                                      << composition(transitionIt->resetVars, resetByContinuousExterior);
 #endif
             const auto newReset = composition(transitionIt->resetVars, resetByContinuousExterior);
-            // TODO: addNeighbors(transitionIt->target, it->second, this->prefixes.at(jumpedSourceIndex));
-            /*
+            // Add neighbors if we have imprecise clocks
             RenamingRelation renaming;
             renaming.reserve(newReset.size());
             for (const auto &[target, value]: newReset) {
@@ -841,19 +840,21 @@ namespace learnta {
             }
             if (this->inP(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)))) {
               addNeighbors(transitionIt->target, renaming,
+                           this->prefixes.at(jumpedSourceIndex),
                            this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action))));
             } else {
               const auto &map = this->closedRelation.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
               for (const auto &[mappedIndex, relation]: map) {
                 if (this->inP(mappedIndex)) {
-                  addNeighbors(transitionIt->target, renaming, this->prefixes.at(mappedIndex));
+                  addNeighbors(transitionIt->target, renaming,
+                               this->prefixes.at(jumpedSourceIndex), this->prefixes.at(mappedIndex));
                   break;
                 }
               }
-            }*/
+            }
             sourceState->next.at(action).emplace_back(transitionIt->target, newReset,
-                                                      this->prefixes.at(
-                                                              continuousSuccessor).removeUpperBound().getTimedCondition().toGuard());
+                                                      this->prefixes.at(continuousSuccessor)
+                                                      .removeUpperBound().getTimedCondition().toGuard());
           }
         } else {
           ExternalTransitionMaker maker;
@@ -861,6 +862,7 @@ namespace learnta {
                     this->prefixes.at(continuousSuccessor).removeUpperBound().getTimedCondition(),
                     jumpedSourceCondition);
           assert(maker.make().size() == 1);
+          // TODO: Consider adding neighbors
           sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
         }
       }
