@@ -310,6 +310,7 @@ namespace learnta {
           newNeighborConditions.preciseClocks.insert(updatedVariable);
         } else {
           // This case is not supported
+          BOOST_LOG_TRIVIAL(error) << "Unimplemented case";
           abort();
         }
       }
