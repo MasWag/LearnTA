@@ -61,7 +61,7 @@ namespace learnta {
               // Check if the imprecise clock is updated
               auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
                                      [&] (const auto &pair) {
-                                       return pair.first == clock;
+                                       return pair.first == clock && pair.second.index() == 1;
                                      });
               // Check if the imprecise clock is used
               auto it2 = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
