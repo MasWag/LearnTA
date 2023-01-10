@@ -26,10 +26,12 @@ namespace learnta {
     BOOST_LOG_TRIVIAL(debug) << "hypothesis: " << hypothesis;
     std::vector<TimedWord> mappedWords = {word};
     std::vector<TimedWord> suffixes = {TimedWord{}};
+    std::vector<SingleMorphism> morphisms;
     while (!hypothesis.inPrefixes(mappedWords.back())) {
       const auto tripleOpt = hypothesis.split(mappedWords.back());
       assert(tripleOpt);
       suffixes.push_back(tripleOpt->suffix);
+      morphisms.push_back(tripleOpt->morphism);
       mappedWords.push_back(tripleOpt->apply());
     }
     // Conduct binary search
@@ -39,6 +41,16 @@ namespace learnta {
     };
     assert(eval(mappedWords.back()));
     assert(!eval(mappedWords.front()));
+    if (eval(mappedWords.front())) {
+      BOOST_LOG_TRIVIAL(error) << "Something is wrong with the hypothesis: " << hypothesis;
+      for (const auto &morphism: morphisms) {
+        BOOST_LOG_TRIVIAL(error) << "Morphism: " << morphism;
+      }
+      for (const auto &mappedWord: mappedWords) {
+        BOOST_LOG_TRIVIAL(error) << "mappedWord: " << mappedWord;
+      }
+      abort();
+    }
     for (std::size_t index = 0; index + 1 < mappedWords.size(); ++index) {
       if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {
         if (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&](const ElementaryLanguage &suffix) {
