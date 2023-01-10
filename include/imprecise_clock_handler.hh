@@ -63,6 +63,7 @@ namespace learnta {
               std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&] (const Constraint &constraint) {
                 targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
               });
+              BOOST_LOG_TRIVIAL(error) << "guard: " << cTransition.guard;
             }
           }
           // Check if there are imprecise clocks after transition
