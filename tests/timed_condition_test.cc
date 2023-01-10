@@ -357,4 +357,34 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
     stream << left.convexHull(right);
     BOOST_CHECK_EQUAL("-0 <= T_{0, 0}  < 1", stream.str());
   }
+
+  BOOST_AUTO_TEST_CASE(applyResetsTest) {
+    std::stringstream stream;
+    TimedCondition condition {Zone::top(4)};
+    condition.restrictLowerBound(0, 0, Bounds{-6, false});
+    condition.restrictUpperBound(0, 0, Bounds{7, false});
+    condition.restrictLowerBound(0, 1, Bounds{-8, true});
+    condition.restrictUpperBound(0, 1, Bounds{8, true});
+    condition.restrictLowerBound(0, 2, Bounds{-12, false});
+    condition.restrictUpperBound(0, 2, Bounds{13, false});
+    condition.restrictLowerBound(1, 1, Bounds{-1, false});
+    condition.restrictUpperBound(1, 1, Bounds{2, false});
+    condition.restrictLowerBound(1, 2, Bounds{-6, false});
+    condition.restrictUpperBound(1, 2, Bounds{7, false});
+    condition.restrictLowerBound(2, 2, Bounds{-4, false});
+    condition.restrictUpperBound(2, 2, Bounds{5, false});
+    stream << condition;
+    BOOST_CHECK_EQUAL(stream.str(),
+                      "6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 12 < T_{0, 2}  < 13 && 1 < T_{1, 1}  < 2 && 6 < T_{1, 2}  < 7 && 4 < T_{2, 2}  < 5");
+    stream.str("");
+
+    TATransition::Resets resets;
+    resets.emplace_back(static_cast<ClockVariables>(1), 5.75);
+    resets.emplace_back(static_cast<ClockVariables>(3), 0.0);
+    const auto resetCondition = condition.extendN().applyResets(resets);
+    stream << resetCondition;
+    BOOST_CHECK_EQUAL(stream.str(),
+                      "6 < T_{0, 0}  < 8 && 8 <= T_{0, 1}  <= 8 && 12 < T_{0, 2}  < 13 && 12 < T_{0, 3}  < 13 && -0 < T_{1, 1}  < 2 && 5 < T_{1, 2}  < 6 && 5 < T_{1, 3}  < 6 && 4 < T_{2, 2}  < 5 && 4 < T_{2, 3}  < 5 && 0 <= T_{3, 3}  <= 0");
+    stream.str("");
+  }
 BOOST_AUTO_TEST_SUITE_END()

@@ -172,6 +172,10 @@ namespace learnta {
                                                 FractionalOrder(suffixDurationsFractional)};
     }
 
+    [[nodiscard]] ForwardRegionalElementaryLanguage applyResets(const TATransition::Resets &resets) const {
+      return fromTimedWord(ElementaryLanguage{this->word, this->timedCondition.applyResets(resets)}.sample());
+    }
+
     bool operator==(const ForwardRegionalElementaryLanguage &another) const {
       return this->getWord() == another.getWord() && this->getTimedCondition() == another.getTimedCondition() &&
              this->fractionalOrder == another.fractionalOrder;

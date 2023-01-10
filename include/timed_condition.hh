@@ -6,6 +6,7 @@
 
 #include "zone.hh"
 #include "juxtaposed_zone.hh"
+#include "timed_automaton.hh"
 
 namespace learnta {
   /*!
@@ -630,6 +631,29 @@ namespace learnta {
      */
     [[nodiscard]] explicit operator bool() {
       return this->zone.isSatisfiable();
+    }
+
+    [[nodiscard]] TimedCondition applyResets(const TATransition::Resets &resets) const {
+      auto newCondition = *this;
+      for (const auto &[updatedVariable, assignedValue]: resets) {
+        // We do not support renaming here.
+        assert(assignedValue.index() == 0);
+        // Unconstrain the assigned variable
+        newCondition.zone.unconstrain(updatedVariable);
+        if (std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
+          newCondition.restrictLowerBound(updatedVariable, newCondition.size() - 1,
+                                          Bounds{-std::get<double>(assignedValue), true}, true);
+          newCondition.restrictUpperBound(updatedVariable, newCondition.size() - 1,
+                                          Bounds{std::get<double>(assignedValue), true}, true);
+        } else {
+          newCondition.restrictLowerBound(updatedVariable, newCondition.size() - 1,
+                                          Bounds{-std::floor(std::get<double>(assignedValue)), false}, true);
+          newCondition.restrictUpperBound(updatedVariable, newCondition.size() - 1,
+                                          Bounds{std::ceil(std::get<double>(assignedValue)), false}, true);
+        }
+      }
+
+      return newCondition;
     }
 
     [[nodiscard]] std::size_t hash_value() const {

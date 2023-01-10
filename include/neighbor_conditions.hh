@@ -279,6 +279,44 @@ namespace learnta {
       neighbors = updateNeighborsWithContinuousSuccessors(original);
     }
 
+    /*!
+     * @brief Returns the list of imprecise clocks
+     *
+     * @post The result is sorted
+     */
+     [[nodiscard]] std::vector<ClockVariables> impreciseClocks() const {
+      std::vector<ClockVariables> impreciseClockVec;
+      impreciseClockVec.reserve(this->clockSize);
+      for (std::size_t clock = 0; clock < this->clockSize; ++clock) {
+        if (this->preciseClocks.find(clock) == this->preciseClocks.end()) {
+          impreciseClockVec.push_back(clock);
+        }
+      }
+
+      return impreciseClockVec;
+    }
+
+    /*!
+     * @brief Return the neighbor conditions after applying the given resets
+     */
+    [[nodiscard]] NeighborConditions applyResets(const TATransition::Resets &resets) const {
+      auto newNeighborConditions = *this;
+      newNeighborConditions.original = newNeighborConditions.original.applyResets(resets);
+      for (auto &neighbor: newNeighborConditions.neighbors) {
+        neighbor = neighbor.applyResets(resets);
+      }
+      for (const auto &[updatedVariable, assignedValue]: resets) {
+        if (assignedValue.index() == 0) {
+          newNeighborConditions.preciseClocks.insert(updatedVariable);
+        } else {
+          // This case is not supported
+          abort();
+        }
+      }
+
+      return newNeighborConditions;
+    }
+
     std::ostream &print(std::ostream &os) const {
       os << this->original << " {";
       bool initial = true;
