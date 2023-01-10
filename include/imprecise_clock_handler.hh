@@ -6,6 +6,7 @@
 #pragma once
 
 #include <stack>
+#include <boost/unordered_set.hpp>
 
 #include "timed_automaton.hh"
 #include "renaming_relation.hh"
@@ -18,7 +19,7 @@ namespace learnta {
    */
   class ImpreciseClockHandler {
   private:
-    std::stack<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
+    boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
 
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
     handleOne(const NeighborConditions &neighbor,
@@ -112,8 +113,8 @@ namespace learnta {
      */
     void run() {
       while (!impreciseNeighbors.empty()) {
-        auto [state, neighbor] = impreciseNeighbors.top();
-        impreciseNeighbors.pop();
+        auto [state, neighbor] = *impreciseNeighbors.begin();
+        impreciseNeighbors.erase(impreciseNeighbors.end());
         bool matchBounded;
         bool noMatch = true;
         do {
@@ -128,7 +129,7 @@ namespace learnta {
             for (const auto &transition: transitions) {
               const auto result = handleOne(neighbor, transition, neighborSuccessor, newTransitions, matchBounded, noMatch);
               if (result) {
-                this->impreciseNeighbors.push(*result);
+                this->impreciseNeighbors.insert(*result);
               }
             }
             std::move(newTransitions.begin(), newTransitions.end(), std::back_inserter(transitions));

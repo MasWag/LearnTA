@@ -336,9 +336,28 @@ namespace learnta {
 
       return os;
     }
+
+    bool operator==(const NeighborConditions &conditions) const {
+      return original == conditions.original &&
+             preciseClocks == conditions.preciseClocks &&
+             neighbors == conditions.neighbors &&
+             clockSize == conditions.clockSize;
+    }
+
+    bool operator!=(const NeighborConditions &conditions) const {
+      return !(conditions == *this);
+    }
+
+    [[nodiscard]] std::size_t hash_value() const {
+      return boost::hash_value(std::make_tuple(original, preciseClocks, neighbors, clockSize));
+    }
   };
 
   static inline std::ostream &operator<<(std::ostream &os, const learnta::NeighborConditions &conditions) {
     return conditions.print(os);
+  }
+
+  static inline std::size_t hash_value(const NeighborConditions &conditions) {
+    return conditions.hash_value();
   }
 }
