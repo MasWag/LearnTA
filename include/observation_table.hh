@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <stack>
+#include <list>
 #include <queue>
 #include <unordered_map>
 
@@ -27,6 +28,7 @@
 #include "external_transition_maker.hh"
 #include "counterexample_analyzer.hh"
 #include "neighbor_conditions.hh"
+#include "imprecise_clock_handler.hh"
 
 namespace learnta {
   /*!
@@ -709,19 +711,7 @@ namespace learnta {
         }
       }
 
-      std::stack<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
-      const auto addNeighbors = [&](TAState *jumpedState, const RenamingRelation &renamingRelation,
-                                    const ForwardRegionalElementaryLanguage &sourceElementary,
-                                    const ForwardRegionalElementaryLanguage &targetElementary) {
-        // There are imprecise clocks
-        if (renamingRelation.impreciseClocks(sourceElementary.getTimedCondition(),
-                                             targetElementary.getTimedCondition())) {
-          BOOST_LOG_TRIVIAL(debug) << "new imprecise neighbors set is added: " << jumpedState << ", "
-                                   << targetElementary << ", " << renamingRelation;
-          impreciseNeighbors.emplace(jumpedState,
-                                     NeighborConditions{targetElementary, renamingRelation.rightVariables()});
-        }
-      };
+      ImpreciseClockHandler impreciseNeighbors;
       //! Construct transitions by discrete immediate exteriors
       std::sort(discreteBoundaries.begin(), discreteBoundaries.end());
       discreteBoundaries.erase(std::unique(discreteBoundaries.begin(), discreteBoundaries.end()),
@@ -738,7 +728,7 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
-          addNeighbors(jumpedState.get(), renamingRelation, this->prefixes.at(source), this->prefixes.at(jumpedTarget));
+          impreciseNeighbors.push(jumpedState.get(), renamingRelation, this->prefixes.at(source), this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -801,8 +791,8 @@ namespace learnta {
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
-        addNeighbors(jumpedSourceState.get(), it->second,
-                     this->prefixes.at(continuousSuccessor), this->prefixes.at(jumpedSourceIndex));
+        impreciseNeighbors.push(jumpedSourceState.get(), it->second,
+                                this->prefixes.at(continuousSuccessor), this->prefixes.at(jumpedSourceIndex));
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -839,15 +829,16 @@ namespace learnta {
               }
             }
             if (this->inP(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)))) {
-              addNeighbors(transitionIt->target, renaming,
-                           this->prefixes.at(jumpedSourceIndex),
-                           this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action))));
+              impreciseNeighbors.push(transitionIt->target, renaming,
+                                      this->prefixes.at(jumpedSourceIndex),
+                                      this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex,
+                                                                                                   action))));
             } else {
               const auto &map = this->closedRelation.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
               for (const auto &[mappedIndex, relation]: map) {
                 if (this->inP(mappedIndex)) {
-                  addNeighbors(transitionIt->target, renaming,
-                               this->prefixes.at(jumpedSourceIndex), this->prefixes.at(mappedIndex));
+                  impreciseNeighbors.push(transitionIt->target, renaming,
+                                          this->prefixes.at(jumpedSourceIndex), this->prefixes.at(mappedIndex));
                   break;
                 }
               }
@@ -872,60 +863,7 @@ namespace learnta {
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
 #endif
-      while (!impreciseNeighbors.empty()) {
-        auto [state, neighbor] = impreciseNeighbors.top();
-        impreciseNeighbors.pop();
-        bool matchBounded = false;
-        bool noMatch = true;
-        do {
-#ifdef DEBUG
-          BOOST_LOG_TRIVIAL(debug) << "current imprecise neighbors: " << state << ", " << neighbor;
-#endif
-          matchBounded = false;
-          // Loop over successors
-          for (auto &[action, transitions]: state->next) {
-            const auto neighborSuccessor = neighbor.successor(action);
-            std::vector<TATransition> newTransitions;
-            for (auto &transition: transitions) {
-              // Relax the guard if it matches
-              if (neighbor.match(transition)) {
-                noMatch = false;
-#ifdef DEBUG
-                BOOST_LOG_TRIVIAL(debug) << "matched! " << "guard: " << transition.guard;
-#endif
-                const bool upperBounded = std::any_of(transition.guard.begin(), transition.guard.end(),
-                                                      std::mem_fn(&Constraint::isUpperBound));
-                matchBounded = matchBounded || upperBounded;
-                BOOST_LOG_TRIVIAL(debug) << "matchBounded: " << matchBounded;
-                auto relaxedGuard = neighbor.toRelaxedGuard();
-                if (!upperBounded) {
-                  // Remove upper bound if the matched guard has no upper bound
-                  relaxedGuard.erase(std::remove_if(relaxedGuard.begin(), relaxedGuard.end(),
-                                                    [] (const auto &constraint) {
-                    return constraint.isUpperBound();
-                  }), relaxedGuard.end());
-                }
-                BOOST_LOG_TRIVIAL(debug) << "relaxed guard: " << relaxedGuard;
-                if (isWeaker(relaxedGuard, transition.guard) && !isWeaker(transition.guard, relaxedGuard)) {
-#ifdef DEBUG
-                  BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
-#endif
-                  newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
-                  // Follow the transition if it is internal
-                  if (transition.resetVars.size() == 1 &&
-                      transition.resetVars.front().first == neighbor.getClockSize() &&
-                      transition.resetVars.front().second.index() == 0 &&
-                      std::get<double>(transition.resetVars.front().second) == 0.0) {
-                    impreciseNeighbors.emplace(transition.target, neighborSuccessor);
-                  }
-                }
-              }
-            }
-            std::move(newTransitions.begin(), newTransitions.end(), std::back_inserter(transitions));
-          }
-          neighbor.successorAssign();
-        } while (matchBounded || noMatch);
-      }
+      impreciseNeighbors.run();
 #ifdef DEBUG
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling imprecise clocks\n" <<
                                TimedAutomaton{{states, {initialState}},

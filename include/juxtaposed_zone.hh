@@ -109,8 +109,8 @@ namespace learnta {
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
       for (const auto &[leftClock, rightClock]: renaming) {
         // Assert the pre-condition
-        assert(leftClock < leftSize);
-        assert(rightClock < rightSize);
+        assert(leftClock < static_cast<std::size_t>(leftSize));
+        assert(rightClock < static_cast<std::size_t>(rightSize));
         // add T[first][N] == T[second][N]
         Eigen::Index leftIndex = static_cast<Eigen::Index>(leftClock) + 1;
         Eigen::Index rightIndex = static_cast<Eigen::Index>(rightClock) + leftSize + 1;

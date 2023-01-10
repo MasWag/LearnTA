@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include <ostream>
+#include <list>
 
 #include "timed_condition.hh"
 #include "timed_word.hh"
