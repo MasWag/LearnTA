@@ -349,7 +349,10 @@ namespace learnta {
     }
 
     [[nodiscard]] std::size_t hash_value() const {
-      return boost::hash_value(std::make_tuple(original, preciseClocks, neighbors, clockSize));
+      return boost::hash_value(std::make_tuple(original,
+                                               std::vector<ClockVariables>{preciseClocks.begin(),
+                                                                           preciseClocks.end()},
+                                               neighbors, clockSize));
     }
   };
 
