@@ -93,6 +93,7 @@ namespace learnta {
             return std::nullopt;
           }
           BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
+                                   << "target clock size: " << targetClockSize << ", "
                                    << "neighbor: " << neighbor << ", "
                                    << "Reset: " << transition.resetVars;
           abort();
