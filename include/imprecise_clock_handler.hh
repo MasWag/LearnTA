@@ -114,7 +114,7 @@ namespace learnta {
     void run() {
       while (!impreciseNeighbors.empty()) {
         auto [state, neighbor] = *impreciseNeighbors.begin();
-        impreciseNeighbors.erase(impreciseNeighbors.end());
+        impreciseNeighbors.erase(impreciseNeighbors.begin());
         bool matchBounded;
         bool noMatch = true;
         do {
