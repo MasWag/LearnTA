@@ -55,7 +55,10 @@ namespace learnta {
               transition.resetVars.front().second.index() == 0 &&
               std::get<double>(transition.resetVars.front().second) == 0.0) {
             return std::make_pair(transition.target, neighborSuccessor);
-          } else {
+          }
+          // Propagate imprecise clocks also to external transitions
+#if 0
+          else {
             const auto impreciseClocks = neighborSuccessor.impreciseClocks();
             if (!std::all_of(impreciseClocks.begin(), impreciseClocks.end(), [&] (const auto &clock) {
               // Check if the imprecise clock is updated
@@ -86,6 +89,7 @@ namespace learnta {
               }
             }
           }
+#endif
         }
       }
 
