@@ -77,6 +77,7 @@ namespace learnta {
                 return std::make_pair(transition.target, neighborSuccessor.applyResets(transition.resetVars));
               } else {
                 // Such a case is not supported
+                BOOST_LOG_TRIVIAL(error) << "Unimplemented case. Reset: " << transition.resetVars;
                 abort();
                 return std::make_pair(transition.target, neighborSuccessor);
               }
