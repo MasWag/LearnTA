@@ -55,41 +55,64 @@ namespace learnta {
               transition.resetVars.front().second.index() == 0 &&
               std::get<double>(transition.resetVars.front().second) == 0.0) {
             return std::make_pair(transition.target, neighborSuccessor);
-          }
+          } else {
           // Propagate imprecise clocks also to external transitions
-#if 0
-          else {
-            const auto impreciseClocks = neighborSuccessor.impreciseClocks();
-            if (!std::all_of(impreciseClocks.begin(), impreciseClocks.end(), [&] (const auto &clock) {
-              // Check if the imprecise clock is updated
-              auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
-                                     [&] (const auto &pair) {
-                                       return pair.first == clock && pair.second.index() == 1;
-                                     });
-              // Check if the imprecise clock is used
-              auto it2 = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
-                                      [&] (const auto &pair) {
-                                        return pair.second.index() == 1 && std::get<ClockVariables>(pair.second) == clock;
-                                      });
-              return it != transition.resetVars.end() && it2 == transition.resetVars.end();
-            })) {
-              // There are imprecise clock variables after external transition
-              // Construct the neighbor successor after external transition
-              if (transition.resetVars.back().first == neighbor.getClockSize() &&
-                  transition.resetVars.back().second.index() == 0 &&
-                  std::get<double>(transition.resetVars.back().second) == 0.0) {
-                return std::make_pair(transition.target, neighborSuccessor.applyResets(transition.resetVars));
-              } else {
-                // Such a case is not supported
-                BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
-                                         << "neighbor clock size: " << neighbor.getClockSize() << ", "
-                                         << "Reset: " << transition.resetVars;
-                // abort();
-                // return std::make_pair(transition.target, neighborSuccessor);
-              }
+          std::size_t targetClockSize = 0;
+          for (const auto &[action, transitions]: transition.target->next) {
+            for (const auto &cTransition: transitions) {
+              std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&] (const Constraint &constraint) {
+                targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
+              });
             }
           }
+          // Check if there are imprecise clocks after transition
+          if (transition.resetVars.size() == targetClockSize &&
+              std::all_of(transition.resetVars.begin(), transition.resetVars.end(), [&] (const auto &pair) {
+                return pair.second.index() == 0;
+              })) {
+            // If constant values are assigned to all the clock variables
+            return std::nullopt;
+          }
+          const auto impreciseClocks = neighbor.impreciseClocks();
+          if (std::all_of(impreciseClocks.begin(), impreciseClocks.end(), [&] (const auto &clock) {
+            // Check if the imprecise clock is updated to a precise value
+            auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
+                                   [&] (const auto &pair) {
+              return pair.first == clock &&
+                     (pair.second.index() == 1 ||
+                      std::get<double>(pair.second) == std::floor(std::get<double>(pair.second)));
+            });
+            // Check if the imprecise clock is used
+            auto it2 = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
+                                    [&] (const auto &pair) {
+              return pair.second.index() == 1 && std::get<ClockVariables>(pair.second) == clock;
+            });
+            return it != transition.resetVars.end() && it2 == transition.resetVars.end();
+          })) {
+            // If all the imprecise clocks are overwritten to a precise value
+            return std::nullopt;
+          }
+          BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
+                                   << "neighbor clock size: " << neighbor.getClockSize() << ", "
+                                   << "Reset: " << transition.resetVars;
+          abort();
+#if 0
+          // There are imprecise clock variables after external transition
+          // Construct the neighbor successor after external transition
+          if (transition.resetVars.back().first == neighbor.getClockSize() &&
+              transition.resetVars.back().second.index() == 0 &&
+              std::get<double>(transition.resetVars.back().second) == 0.0) {
+            return std::make_pair(transition.target, neighborSuccessor.applyResets(transition.resetVars));
+          } else {
+            // Such a case is not supported
+            BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
+                                     << "neighbor clock size: " << neighbor.getClockSize() << ", "
+                                     << "Reset: " << transition.resetVars;
+            // abort();
+            // return std::make_pair(transition.target, neighborSuccessor);
+            }
 #endif
+          }
         }
       }
 
