@@ -34,7 +34,7 @@ namespace learnta {
       morphisms.push_back(tripleOpt->morphism);
       mappedWords.push_back(tripleOpt->apply());
     }
-    // Conduct binary search
+    // Conduct linear search
     bool hypothesisResult = hypothesis.contains(mappedWords.back());
     const auto eval = [&] (const TimedWord &w) -> bool {
       return oracle.answerQuery(w) == hypothesisResult;
