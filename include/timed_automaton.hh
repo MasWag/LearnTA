@@ -88,6 +88,20 @@ namespace learnta {
     }
 
     ~TATransition() = default;
+
+    /*!
+     * @brief Return the number of imprecise constant assignments
+     */
+    static std::size_t impreciseConstantAssignSize(const Resets &resets) {
+      std::size_t count = 0;
+      for (const auto &[targetVariable, assignedValue]: resets) {
+        if (assignedValue.index() == 0 &&
+            std::get<double>(assignedValue) != std::floor(std::get<double>(assignedValue))) {
+          ++count;
+        }
+      }
+      return count;
+    }
   };
 
   inline std::size_t hash_value(const TATransition &transition) {

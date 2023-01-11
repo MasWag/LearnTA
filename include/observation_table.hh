@@ -900,8 +900,9 @@ namespace learnta {
                   BOOST_LOG_TRIVIAL(debug) << "merge " << it2->target << " and " << it3->target;
                 }
 #endif
-                // Use more strict reset
-                if (it2->resetVars.size() < it3->resetVars.size()) {
+                // Use the reset and target causing more imprecise clocks
+                if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
+                    TATransition::impreciseConstantAssignSize(it3->resetVars)) {
                   it2->resetVars = it3->resetVars;
                   it2->target = it3->target;
                 }
