@@ -137,6 +137,40 @@ namespace learnta {
 
       return newNeighbors;
     }
+
+    /*!
+     * @brief Make precise clocks after applying a reset
+     */
+    static auto preciseClocksAfterReset(const std::unordered_set<ClockVariables>& preciseClocks,
+                                        const TATransition::Resets &resets) {
+      std::unordered_set<ClockVariables> newPreciseClocks;
+      for (const auto &[targetVariable, assignedValue]: resets) {
+        if (assignedValue.index() == 1 &&
+            preciseClocks.find(std::get<ClockVariables>(assignedValue)) != preciseClocks.end()) {
+          // targetVariable is precise if its value is updated to a precise variable
+          newPreciseClocks.insert(targetVariable);
+        } else if (assignedValue.index() == 0 &&
+                   std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
+          // targetVariable is precise if its value is updated to an integer
+          newPreciseClocks.insert(targetVariable);
+        }
+      }
+      for (const auto &preciseClock: preciseClocks) {
+        // Check if the precise clock is not updated
+        if (newPreciseClocks.find(preciseClock) != newPreciseClocks.end()) {
+          continue;
+        }
+        auto it = std::find_if(resets.begin(), resets.end(), [&] (const auto &reset) {
+          return reset.first == preciseClock;
+        });
+        if (it == resets.end()) {
+          newPreciseClocks.insert(preciseClock);
+        }
+      }
+
+      return newPreciseClocks;
+    }
+
   public:
     static auto makeNeighbors(const ForwardRegionalElementaryLanguage &original,
                               const std::unordered_set<ClockVariables> &preciseClocks) {
@@ -200,6 +234,26 @@ namespace learnta {
       addImplicitPreciseClocks();
       this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
       assertInvariants();
+    }
+
+    /*!
+     * @brief Construct the neighbor conditions after an external transition
+     *
+     * @param resets The resets of the external transition
+     * @param targetClockSize The clock size at the target state
+     */
+    [[nodiscard]] NeighborConditions makeAfterExternalTransition(const TATransition::Resets &resets,
+                                                                 const std::size_t targetClockSize) const {
+      // make words
+      std::string newWord = this->original.getWord();
+      newWord.resize(targetClockSize - 1, this->original.getWord().back());
+      // make precise clocks
+      auto newPreciseClocks = preciseClocksAfterReset(this->preciseClocks, resets);
+      // make original
+      // make neighbors
+
+      // TODO: Fix here
+      return *this;
     }
 
     /*!

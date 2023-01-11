@@ -63,11 +63,10 @@ namespace learnta {
               std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&] (const Constraint &constraint) {
                 targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
               });
-              BOOST_LOG_TRIVIAL(error) << "guard: " << cTransition.guard;
             }
           }
           // Check if there are imprecise clocks after transition
-          if (transition.resetVars.size() == targetClockSize &&
+          if (transition.resetVars.size() >= targetClockSize &&
               std::all_of(transition.resetVars.begin(), transition.resetVars.end(), [&] (const auto &pair) {
                 return pair.second.index() == 0;
               })) {
@@ -93,6 +92,22 @@ namespace learnta {
             // If all the imprecise clocks are overwritten to a precise value
             return std::nullopt;
           }
+          // There are imprecise clock variables after external transition
+          // TODO: Construct the neighbor successor after external transition
+          // The construction should be done by juxtaposition + renaming
+          // newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
+          // return std::make_pair(transition.target, newNeighbor);
+/*
+[2023-01-10 21:25:54.110183] [0x0000000113d62600] [error]   Unimplemented case. target clock size: 2, neighbor: (aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, }) {x2, x0} {
+(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, })
+(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 9 <= T_{1, 2}  <= 9 && 6 < T_{2, 2}  < 7, 0 <= {x1, }{x0, x2, })
+(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 8 <= T_{1, 2}  <= 8 && 6 < T_{2, 2}  < 7, 0 <= {x1, }{x0, x2, })
+(aa, 6 <= T_{0, 0}  <= 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 <= T_{1, 1}  <= 2 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x0, x1, x2, })
+(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 9 < T_{1, 2}  < 10 && 6 < T_{2, 2}  < 7, 0 < {x1, }{x0, x2, })
+(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, })
+(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x1, }{x0, x2, })
+}, Reset: x0 := x2, x1 := 0.25
+ */
           BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
                                    << "target clock size: " << targetClockSize << ", "
                                    << "neighbor: " << neighbor << ", "

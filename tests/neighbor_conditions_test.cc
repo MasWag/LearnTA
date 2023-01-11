@@ -363,4 +363,19 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     BOOST_TEST(isWeaker(relaxedGuard, transition.guard));
     BOOST_TEST(!isWeaker(transition.guard, relaxedGuard));
   }
+
+  BOOST_AUTO_TEST_CASE(preciseClocksAfterResetTest) {
+    std::unordered_set<ClockVariables> preciseClocks = {2};
+    TATransition::Resets resets;
+    resets.emplace_back(1, 5.75);
+    resets.emplace_back(3, 0.0);
+    std::unordered_set<ClockVariables> expected = {2, 3};
+    BOOST_TEST(expected == NeighborConditions::preciseClocksAfterReset(preciseClocks, resets));
+    resets.clear();
+    resets.emplace_back(0, 8.0);
+    resets.emplace_back(1, 1.5);
+    resets.emplace_back(2, 0.0);
+    std::unordered_set<ClockVariables> expectedSecond = {0, 2, 3};
+    BOOST_TEST(expectedSecond == NeighborConditions::preciseClocksAfterReset(expected, resets));
+  }
 BOOST_AUTO_TEST_SUITE_END()
