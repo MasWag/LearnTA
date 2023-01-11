@@ -250,10 +250,29 @@ namespace learnta {
       // make precise clocks
       auto newPreciseClocks = preciseClocksAfterReset(this->preciseClocks, resets);
       // make original
+      auto newOriginal = this->original.applyResets(newWord, resets, targetClockSize);
       // make neighbors
+      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
+      newNeighbors.reserve(this->neighbors.size());
+      for (const ForwardRegionalElementaryLanguage &neighbor: this->neighbors) {
+        const auto simpleConditionsAfterReset = neighbor.getTimedCondition().applyResets(resets,
+                                                                                         targetClockSize).enumerate();
+        std::transform(simpleConditionsAfterReset.begin(), simpleConditionsAfterReset.end(),
+                       std::back_inserter(newNeighbors),
+                       [&](const auto &simpleConditionAfterReset) {
+                         return ForwardRegionalElementaryLanguage::fromTimedWord(
+                                 ElementaryLanguage{newWord, simpleConditionAfterReset}.sample());
+                       });
+      }
+      // Construct the resulting neighbor conditions
+      NeighborConditions result = NeighborConditions{std::move(newOriginal),
+                                                     std::move(newNeighbors),
+                                                     std::move(newPreciseClocks),
+                                                     targetClockSize};
+      // Update the neighbors to include successors if the precise clocks match
+      result.neighbors = result.updateNeighborsWithContinuousSuccessors(result.original);
 
-      // TODO: Fix here
-      return *this;
+      return result;
     }
 
     /*!

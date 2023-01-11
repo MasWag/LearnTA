@@ -93,10 +93,9 @@ namespace learnta {
             return std::nullopt;
           }
           // There are imprecise clock variables after external transition
-          // TODO: Construct the neighbor successor after external transition
-          // The construction should be done by juxtaposition + renaming
-          // newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
-          // return std::make_pair(transition.target, newNeighbor);
+          // Construct the neighbor successor after external transition
+          const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
+          return std::make_pair(transition.target, newNeighbor);
 /*
 [2023-01-10 21:25:54.110183] [0x0000000113d62600] [error]   Unimplemented case. target clock size: 2, neighbor: (aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, }) {x2, x0} {
 (aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, })
