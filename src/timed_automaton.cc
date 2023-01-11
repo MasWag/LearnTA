@@ -114,4 +114,53 @@ namespace learnta {
       }
     }
   }
+
+  void TAState::mergeNondeterministicBranching() {
+    for (auto &[action, transitions]: this->next) {
+      // Remove weaker guards
+      for (auto it2 = transitions.begin(); it2 != transitions.end();) {
+        if (std::any_of(transitions.begin(), transitions.end(), [&](const TATransition &transition) -> bool {
+          return *it2 != transition && isWeaker(transition.guard, it2->guard) && transition.target == it2->target;
+        })) {
+          it2 = transitions.erase(it2);
+        } else {
+          ++it2;
+        }
+      }
+      for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
+        for (auto it3 = std::next(it2); it3 != transitions.end();) {
+          if (satisfiable(conjunction(it2->guard, it3->guard))) {
+#ifdef DEBUG
+            BOOST_LOG_TRIVIAL(debug) << "The conjunction of " << it2->guard << " and "
+                                     << it3->guard << " is satisfiable";
+#endif
+            // assert(it2->target == it3->target);
+            // It is fine to merge two transitions if their targets are "equivalent"
+            // However, it is not straightforward to check the equivalence.
+            // So, we tentatively weaken the requirement
+            assert(it2->target->isMatch == it3->target->isMatch);
+#ifdef DEBUG
+            if (it2->target != it3->target) {
+              BOOST_LOG_TRIVIAL(debug) << "merge " << it2->target << " and " << it3->target;
+            }
+#endif
+            // Use the reset and target causing more imprecise clocks
+            if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
+                TATransition::impreciseConstantAssignSize(it3->resetVars)) {
+              // it3->addPreciseConstantAssignments(it2->resetVars);
+              it2->resetVars = it3->resetVars;
+              it2->target = it3->target;
+            } else {
+              // it2->addPreciseConstantAssignments(it3->resetVars);
+            }
+            std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
+            it2->guard = unionHull(guards);
+            it3 = transitions.erase(it3);
+          } else {
+            ++it3;
+          }
+        }
+      }
+    }
+  }
 }
