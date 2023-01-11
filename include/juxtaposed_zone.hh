@@ -140,7 +140,7 @@ namespace learnta {
      * @pre There is no common variables
      */
     [[nodiscard]] Zone getRight() const {
-      if (this->getNumOfVar() != this->leftSize + this->rightSize) {
+      if (static_cast<Eigen::Index>(this->getNumOfVar()) != this->leftSize + this->rightSize) {
         BOOST_LOG_TRIVIAL(error) << "JuxtaposedZone::getRight assumes that there is no common variables";
         abort();
       }
