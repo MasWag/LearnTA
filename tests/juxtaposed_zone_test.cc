@@ -111,4 +111,22 @@ BOOST_AUTO_TEST_SUITE(JuxtaposedZoneTest)
     expectedRenaming.emplace_back(2, 2);
     BOOST_TEST(expectedRenaming == juxtaposition.makeRenaming(), boost::test_tools::per_element());
   }
+
+  BOOST_AUTO_TEST_CASE(getRightTest) {
+    Zone left = Zone::top(3);
+    left.tighten(0, 1, {1, false}); // x1 - x2 < 1
+    left.tighten(1, 0, {0, false}); // x2 - x1 < 0
+    left.tighten(0, -1, {1, true}); // x1 - x0 <= 1
+    left.tighten(-1, 0, {-1, true}); // x0 - x1 <= -1
+    left.tighten(1, -1, {1, false}); // x2 - x0 < 1
+    left.tighten(-1, 1, {0, false}); // x0 - x2 < 0
+
+    // right is \tau_0 \in (0,1)
+    Zone right = Zone::top(2);
+    right.tighten(0, -1, {1, false}); // x1 - x0 < 1
+    right.tighten(-1, 0, {0, false}); // x0 - x1 < 0
+
+    BOOST_CHECK_EQUAL(right, (JuxtaposedZone{left, right}).getRight());
+    BOOST_CHECK_EQUAL(left, (JuxtaposedZone{right, left}).getRight());
+  }
 BOOST_AUTO_TEST_SUITE_END()

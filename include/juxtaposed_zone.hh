@@ -134,6 +134,29 @@ namespace learnta {
       return renaming;
     }
 
+    /*!
+     * @brief Return the right side zone
+     *
+     * @pre There is no common variables
+     */
+    [[nodiscard]] Zone getRight() const {
+      if (this->getNumOfVar() != this->leftSize + this->rightSize) {
+        BOOST_LOG_TRIVIAL(error) << "JuxtaposedZone::getRight assumes that there is no common variables";
+        abort();
+      }
+      Zone right = Zone::top(this->rightSize + 1);
+
+      right.value.block(1, 1, right.value.cols() - 1, right.value.rows() - 1) =
+              this->value.block(leftSize + 1, leftSize + 1, right.value.cols() - 1, right.value.rows() - 1);
+      right.value.block(0, 1, 1, right.value.rows() - 1) =
+              this->value.block(0, leftSize + 1, 1, right.value.rows() - 1);
+      right.value.block(1, 0, right.value.cols() - 1, 1) =
+              this->value.block(leftSize + 1, 0, right.value.cols() - 1, 1);
+
+      right.canonize();
+      return right;
+    }
+
     [[nodiscard]] Eigen::Index getLeftSize() const {
       return leftSize;
     }

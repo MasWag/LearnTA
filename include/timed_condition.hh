@@ -656,6 +656,35 @@ namespace learnta {
       return newCondition;
     }
 
+    [[nodiscard]] TimedCondition applyResets(const TATransition::Resets &resets,
+                                             const std::size_t targetClockSize) const {
+      TimedCondition newCondition {Zone::top(targetClockSize + 1)};
+      std::vector<std::pair<std::size_t, std::size_t>> renaming;
+      for (const auto &[updatedVariable, assignedValue]: resets) {
+        if(assignedValue.index() == 0) {
+          // Apply non-renaming resets
+          if (std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
+            newCondition.restrictLowerBound(updatedVariable, newCondition.size() - 1,
+                                            Bounds{-std::get<double>(assignedValue), true}, true);
+            newCondition.restrictUpperBound(updatedVariable, newCondition.size() - 1,
+                                            Bounds{std::get<double>(assignedValue), true}, true);
+          } else {
+            newCondition.restrictLowerBound(updatedVariable, newCondition.size() - 1,
+                                            Bounds{-std::floor(std::get<double>(assignedValue)), false}, true);
+            newCondition.restrictUpperBound(updatedVariable, newCondition.size() - 1,
+                                            Bounds{std::ceil(std::get<double>(assignedValue)), false}, true);
+          }
+        } else {
+          // add to renaming
+          renaming.emplace_back(std::get<ClockVariables>(assignedValue), updatedVariable);
+        }
+      }
+      auto juxtaposed = *this ^ newCondition;
+      juxtaposed.addRenaming(renaming);
+
+      return TimedCondition{juxtaposed.getRight()};
+    }
+
     [[nodiscard]] std::size_t hash_value() const {
       return learnta::hash_value(this->zone);
     }

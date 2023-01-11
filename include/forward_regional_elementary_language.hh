@@ -176,6 +176,14 @@ namespace learnta {
       return fromTimedWord(ElementaryLanguage{this->word, this->timedCondition.applyResets(resets)}.sample());
     }
 
+    [[nodiscard]] ForwardRegionalElementaryLanguage applyResets(const std::string &newWord,
+                                                                const TATransition::Resets &resets,
+                                                                const std::size_t targetClockSize) const {
+      assert(newWord.size() + 1 == targetClockSize);
+      return fromTimedWord(ElementaryLanguage{newWord,
+                                              this->timedCondition.applyResets(resets, targetClockSize)}.sample());
+    }
+
     bool operator==(const ForwardRegionalElementaryLanguage &another) const {
       return this->getWord() == another.getWord() && this->getTimedCondition() == another.getTimedCondition() &&
              this->fractionalOrder == another.fractionalOrder;
