@@ -679,6 +679,15 @@ namespace learnta {
           renaming.emplace_back(std::get<ClockVariables>(assignedValue), updatedVariable);
         }
       }
+      // add implicit renaming
+      for (ClockVariables clock = 0; clock < targetClockSize; ++clock) {
+        auto it = std::find_if(resets.begin(), resets.end(), [&clock] (const auto &reset) {
+          return reset.first == clock;
+        });
+        if (it == resets.end()) {
+          renaming.emplace_back(clock, clock);
+        }
+      }
       auto juxtaposed = *this ^ newCondition;
       juxtaposed.addRenaming(renaming);
 

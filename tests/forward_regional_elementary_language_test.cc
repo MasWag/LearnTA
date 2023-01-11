@@ -261,4 +261,7 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
     BOOST_CHECK_EQUAL(left, right);
   }
 
+  BOOST_AUTO_TEST_CASE(applyResetsTest) {
+
+  }
 BOOST_AUTO_TEST_SUITE_END()
