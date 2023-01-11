@@ -895,9 +895,13 @@ namespace learnta {
                 // However, it is not straightforward to check the equivalence.
                 // So, we tentatively weaken the requirement
                 assert(it2->target->isMatch == it3->target->isMatch);
+                if (it2->target == it3->target) {
+                  BOOST_LOG_TRIVIAL(info) << "merge " << it2->target << " and " << it3->target;
+                }
                 // Use more strict reset
                 if (it2->resetVars.size() < it3->resetVars.size()) {
                   it2->resetVars = it3->resetVars;
+                  it2->target = it3->target;
                 }
                 std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
                 it2->guard = unionHull(guards);

@@ -20,7 +20,6 @@ namespace learnta {
   class ImpreciseClockHandler {
   private:
     boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
-    std::unordered_set<std::size_t> visitedImpreciseNeighborsHash;
 
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
     handleOne(const NeighborConditions &neighbor,
@@ -96,6 +95,8 @@ namespace learnta {
           // There are imprecise clock variables after external transition
           // Construct the neighbor successor after external transition
           const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
+          BOOST_LOG_TRIVIAL(info) << "New neighbor after external transition: " << transition.target<< ": "
+                                   << newNeighbor;
           return std::make_pair(transition.target, newNeighbor);
 /*
 [2023-01-10 21:25:54.110183] [0x0000000113d62600] [error]   Unimplemented case. target clock size: 2, neighbor: (aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, }) {x2, x0} {
@@ -156,7 +157,7 @@ namespace learnta {
      * @brief Relax the guards if necessary
      */
     void run() {
-      visitedImpreciseNeighborsHash.clear();
+      std::unordered_set<std::size_t> visitedImpreciseNeighborsHash;
       while (!impreciseNeighbors.empty()) {
         auto [state, neighbor] = *impreciseNeighbors.begin();
         const auto hash = boost::hash_value(*impreciseNeighbors.begin());
