@@ -95,41 +95,9 @@ namespace learnta {
           // There are imprecise clock variables after external transition
           // Construct the neighbor successor after external transition
           const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
-          BOOST_LOG_TRIVIAL(info) << "New neighbor after external transition: " << transition.target<< ": "
+          BOOST_LOG_TRIVIAL(debug) << "New neighbor after external transition: " << transition.target<< ": "
                                    << newNeighbor;
           return std::make_pair(transition.target, newNeighbor);
-/*
-[2023-01-10 21:25:54.110183] [0x0000000113d62600] [error]   Unimplemented case. target clock size: 2, neighbor: (aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, }) {x2, x0} {
-(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 7 < T_{1, 2}  < 8 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, })
-(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 9 <= T_{1, 2}  <= 9 && 6 < T_{2, 2}  < 7, 0 <= {x1, }{x0, x2, })
-(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 8 <= T_{1, 2}  <= 8 && 6 < T_{2, 2}  < 7, 0 <= {x1, }{x0, x2, })
-(aa, 6 <= T_{0, 0}  <= 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 <= T_{1, 1}  <= 2 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x0, x1, x2, })
-(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 9 < T_{1, 2}  < 10 && 6 < T_{2, 2}  < 7, 0 < {x1, }{x0, x2, })
-(aa, 5 < T_{0, 0}  < 6 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 2 < T_{1, 1}  < 3 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x0, x2, }{x1, })
-(aa, 6 < T_{0, 0}  < 7 && 8 <= T_{0, 1}  <= 8 && 14 < T_{0, 2}  < 15 && 1 < T_{1, 1}  < 2 && 8 < T_{1, 2}  < 9 && 6 < T_{2, 2}  < 7, 0 < {x1, }{x0, x2, })
-}, Reset: x0 := x2, x1 := 0.25
- */
-          BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
-                                   << "target clock size: " << targetClockSize << ", "
-                                   << "neighbor: " << neighbor << ", "
-                                   << "Reset: " << transition.resetVars;
-          abort();
-#if 0
-          // There are imprecise clock variables after external transition
-          // Construct the neighbor successor after external transition
-          if (transition.resetVars.back().first == neighbor.getClockSize() &&
-              transition.resetVars.back().second.index() == 0 &&
-              std::get<double>(transition.resetVars.back().second) == 0.0) {
-            return std::make_pair(transition.target, neighborSuccessor.applyResets(transition.resetVars));
-          } else {
-            // Such a case is not supported
-            BOOST_LOG_TRIVIAL(error) << "Unimplemented case. "
-                                     << "neighbor clock size: " << neighbor.getClockSize() << ", "
-                                     << "Reset: " << transition.resetVars;
-            // abort();
-            // return std::make_pair(transition.target, neighborSuccessor);
-            }
-#endif
           }
         }
       }
