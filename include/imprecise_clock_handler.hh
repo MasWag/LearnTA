@@ -20,6 +20,7 @@ namespace learnta {
   class ImpreciseClockHandler {
   private:
     boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
+    std::unordered_set<std::size_t> visitedImpreciseNeighborsHash;
 
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
     handleOne(const NeighborConditions &neighbor,
@@ -155,9 +156,16 @@ namespace learnta {
      * @brief Relax the guards if necessary
      */
     void run() {
+      visitedImpreciseNeighborsHash.clear();
       while (!impreciseNeighbors.empty()) {
         auto [state, neighbor] = *impreciseNeighbors.begin();
+        const auto hash = boost::hash_value(*impreciseNeighbors.begin());
         impreciseNeighbors.erase(impreciseNeighbors.begin());
+        // Skip if this pair is already visited
+        if (visitedImpreciseNeighborsHash.find(hash) != visitedImpreciseNeighborsHash.end()) {
+          continue;
+        }
+        visitedImpreciseNeighborsHash.insert(hash);
         bool matchBounded;
         bool noMatch = true;
         do {
