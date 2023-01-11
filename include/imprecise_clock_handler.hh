@@ -48,12 +48,14 @@ namespace learnta {
 #ifdef DEBUG
           BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
+          // TODO: Add resets to reduce the error in the imprecise clocks
           newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
           // Follow the transition if it is internal
           if (transition.resetVars.size() == 1 &&
               transition.resetVars.front().first == neighbor.getClockSize() &&
               transition.resetVars.front().second.index() == 0 &&
               std::get<double>(transition.resetVars.front().second) == 0.0) {
+            // TODO: instead of using neighborSuccessor, we should probably construct the successor with precise clocks
             return std::make_pair(transition.target, neighborSuccessor);
           } else {
           // Propagate imprecise clocks also to external transitions
@@ -92,7 +94,8 @@ namespace learnta {
             // If all the imprecise clocks are overwritten to a precise value
             return std::nullopt;
           }
-          // There are imprecise clock variables after external transition
+            // TODO: The situation is similar. Let's re-construct the neighbor using imprecise clocks
+            // There are imprecise clock variables after external transition
           // Construct the neighbor successor after external transition
           const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
           BOOST_LOG_TRIVIAL(debug) << "New neighbor after external transition: " << transition.target<< ": "
