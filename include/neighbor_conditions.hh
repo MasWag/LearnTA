@@ -249,6 +249,13 @@ namespace learnta {
       newWord.resize(targetClockSize - 1, this->original.getWord().back());
       // make precise clocks
       auto newPreciseClocks = preciseClocksAfterReset(this->preciseClocks, resets);
+      for (auto it = newPreciseClocks.begin(); it != newPreciseClocks.end();) {
+        if (*it >= targetClockSize) {
+          it = newPreciseClocks.erase(it);
+        } else {
+          ++it;
+        }
+      }
       // make original
       auto newOriginal = this->original.applyResets(newWord, resets, targetClockSize);
       // make neighbors
