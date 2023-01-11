@@ -89,6 +89,48 @@ namespace learnta {
 
     ~TATransition() = default;
 
+    void addPreciseConstantAssignments(const Resets &resets) {
+      std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> resetAsMap {this->resetVars.begin(),
+                                                                                           this->resetVars.end()};
+      for (const auto &[targetVariable, assignedValue]: resets) {
+        auto it = resetAsMap.find(targetVariable);
+        // Continue if it is already precise
+        if (it != resetAsMap.end() && it->second.index() == 0 &&
+            std::get<double>(it->second) == std::floor(std::get<double>(it->second))) {
+          continue;
+        }
+        if (assignedValue.index() == 0 &&
+            std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
+          resetAsMap[targetVariable] = assignedValue;
+        }
+      }
+
+      this->resetVars.clear();
+      this->resetVars.reserve(resetAsMap.size());
+      std::copy(resetAsMap.begin(), resetAsMap.end(), std::back_inserter(this->resetVars));
+    }
+
+    void addPreciseAssignments(const Resets &resets) {
+      std::unordered_map<ClockVariables, std::variant<double, ClockVariables>> resetAsMap {this->resetVars.begin(),
+                                                                                           this->resetVars.end()};
+      for (const auto &[targetVariable, assignedValue]: resets) {
+        auto it = resetAsMap.find(targetVariable);
+        // Continue if it is already precise
+        if (it != resetAsMap.end() && it->second.index() == 0 &&
+            std::get<double>(it->second) == std::floor(std::get<double>(it->second))) {
+          continue;
+        }
+        if (assignedValue.index() == 1 ||
+            std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
+          resetAsMap[targetVariable] = assignedValue;
+        }
+      }
+
+      this->resetVars.clear();
+      this->resetVars.reserve(resetAsMap.size());
+      std::copy(resetAsMap.begin(), resetAsMap.end(), std::back_inserter(this->resetVars));
+    }
+
     /*!
      * @brief Return the number of imprecise constant assignments
      */
@@ -96,6 +138,20 @@ namespace learnta {
       std::size_t count = 0;
       for (const auto &[targetVariable, assignedValue]: resets) {
         if (assignedValue.index() == 0 &&
+            std::get<double>(assignedValue) != std::floor(std::get<double>(assignedValue))) {
+          ++count;
+        }
+      }
+      return count;
+    }
+
+    /*!
+     * @brief Return the number of potentially imprecise constant assignments
+     */
+    static std::size_t impreciseAssignSize(const Resets &resets) {
+      std::size_t count = 0;
+      for (const auto &[targetVariable, assignedValue]: resets) {
+        if (assignedValue.index() == 1 ||
             std::get<double>(assignedValue) != std::floor(std::get<double>(assignedValue))) {
           ++count;
         }
