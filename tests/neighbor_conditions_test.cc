@@ -8,6 +8,7 @@
 #define private public
 
 #include "neighbor_conditions.hh"
+#include "simple_automaton_fixture.hh"
 
 BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
   using namespace learnta;
@@ -377,5 +378,21 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     resets.emplace_back(2, 0.0);
     std::unordered_set<ClockVariables> expectedSecond = {0, 2, 3};
     BOOST_TEST(expectedSecond == NeighborConditions::preciseClocksAfterReset(expected, resets));
+  }
+
+  BOOST_FIXTURE_TEST_CASE(computeTargetClockSizeTest, SimpleDTALearnedFixture) {
+    this->validate();
+    std::unordered_map<TAState*, std::size_t> expectedClockSize;
+    expectedClockSize[hypothesis.states.at(0).get()] = 1;
+    expectedClockSize[hypothesis.states.at(1).get()] = 2;
+
+    for (const auto &state: hypothesis.states) {
+      for (const auto &[action, transitions]: state->next) {
+        for (const auto &transition: transitions) {
+          BOOST_CHECK_EQUAL(expectedClockSize.at(transition.target),
+                            NeighborConditions::computeTargetClockSize(transition));
+        }
+      }
+    }
   }
 BOOST_AUTO_TEST_SUITE_END()

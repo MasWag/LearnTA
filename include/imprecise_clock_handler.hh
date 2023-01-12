@@ -49,13 +49,13 @@ namespace learnta {
 #ifdef DEBUG
           BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
+          const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition.resetVars);
           // Handle the internal transitions
           if (transition.resetVars.size() == 1 &&
               transition.resetVars.front().first == neighbor.getClockSize() &&
               transition.resetVars.front().second.index() == 0 &&
               std::get<double>(transition.resetVars.front().second) == 0.0) {
             // Embed imprecise clocks to the precise range to reduce the error
-            const auto preciseClocksAfterReset = neighborSuccessor.preciseClocksAfterReset(transition.resetVars);
             const auto originalValuation = TimedAutomatonRunner::applyReset(neighborSuccessor.toOriginalValuation(),
                                                                             transition.resetVars);
             auto resetVars = transition.resetVars;
@@ -115,8 +115,8 @@ namespace learnta {
             }
             // There are imprecise clock variables after external transition
             // Construct the neighbor successor after external transition
+            // TODO: This part is wrong
             const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
-            const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition.resetVars);
             const auto originalValuation = TimedAutomatonRunner::applyReset(
                     neighbor.toOriginalValuation(targetClockSize), transition.resetVars);
             auto resetVars = transition.resetVars;

@@ -183,8 +183,16 @@ namespace learnta {
     /*!
      * @brief Reconstruct the neighbor conditions with new precise clocks
      */
-    [[nodiscard]] NeighborConditions reconstruct(const std::unordered_set<ClockVariables> &preciseClocks) const {
-      return NeighborConditions{this->original, preciseClocks};
+    [[nodiscard]] NeighborConditions reconstruct(std::unordered_set<ClockVariables> currentPreciseClocks) const {
+      // Restrict the range of precise clocks
+      for (auto it = currentPreciseClocks.begin(); it != currentPreciseClocks.end();) {
+        if (*it > this->original.wordSize()) {
+          it = currentPreciseClocks.erase(it);
+        } else {
+          ++it;
+        }
+      }
+      return NeighborConditions{this->original, std::move(currentPreciseClocks)};
     }
 
     static auto makeNeighbors(const ForwardRegionalElementaryLanguage &original,
@@ -430,6 +438,43 @@ namespace learnta {
       }
 
       return newNeighborConditions;
+    }
+
+    /*!
+     * @brief Check if the transition from the current neighbor is internal
+     */
+    [[nodiscard]] bool isInternal(const TATransition &transition) const {
+      return transition.resetVars.size() == 1 &&
+             transition.resetVars.front().first == this->getClockSize() &&
+             transition.resetVars.front().second.index() == 0 &&
+             std::get<double>(transition.resetVars.front().second) == 0.0;
+    }
+
+    [[nodiscard]] ForwardRegionalElementaryLanguage constructOriginalAfterTransition(const Alphabet action,
+                                                                                     const TATransition &transition) const {
+      if (isInternal(transition)) {
+        return this->original.successor(action);
+      } else {
+        // make words
+        std::string newWord = this->original.getWord();
+        const auto targetClockSize = computeTargetClockSize(transition);
+        newWord.resize(targetClockSize - 1, this->original.getWord().back());
+
+        return this->original.applyResets(newWord, transition.resetVars, targetClockSize);
+      }
+    }
+
+    [[nodiscard]] static std::size_t computeTargetClockSize(const TATransition &transition) {
+      std::size_t targetClockSize = 0;
+      for (const auto &[action, transitions]: transition.target->next) {
+        for (const auto &cTransition: transitions) {
+          std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&](const Constraint &constraint) {
+            targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
+          });
+        }
+      }
+
+      return targetClockSize;
     }
 
     std::ostream &print(std::ostream &os) const {
