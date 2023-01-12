@@ -22,8 +22,24 @@ namespace learnta {
   private:
     boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
 
+    static TATransition::Resets embedIfImprecise(TATransition::Resets resets,
+                                                 const std::unordered_set<ClockVariables> &preciseClocks,
+                                                 const std::vector<double> &embeddedValuation) {
+      // Remove imprecise clocks
+      resets.erase(std::remove_if(resets.begin(), resets.end(), [&](const auto &reset) {
+        return preciseClocks.find(reset.first) == preciseClocks.end();
+      }), resets.end());
+      // Add valuations if imprecise
+      for (ClockVariables clock = 0; clock < static_cast<ClockVariables>(embeddedValuation.size()); ++clock) {
+        if (preciseClocks.find(clock) == preciseClocks.end()) {
+          resets.emplace_back(clock, embeddedValuation.at(clock));
+        }
+      }
+      return resets;
+    }
+
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
-    handleOne(const NeighborConditions &neighbor,
+    handleOne(const NeighborConditions &neighbor, const Alphabet action,
               const TATransition &transition, const NeighborConditions &neighborSuccessor,
               std::vector<TATransition> &newTransitions, bool &matchBounded, bool &noMatch) {
       // Relax the guard if it matches
@@ -50,6 +66,15 @@ namespace learnta {
           BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
           const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition.resetVars);
+          const auto neighborAfterTransition = neighbor.makeAfterTransition(action, transition);
+          const auto originalValuation = neighborAfterTransition.toOriginalValuation();
+          newTransitions.emplace_back(transition.target,
+                                      embedIfImprecise(transition.resetVars,
+                                                       preciseClocksAfterReset,
+                                                       originalValuation),
+                                      std::move(relaxedGuard));
+          return std::make_pair(transition.target, neighborAfterTransition);
+#if 0
           // Handle the internal transitions
           if (transition.resetVars.size() == 1 &&
               transition.resetVars.front().first == neighbor.getClockSize() &&
@@ -134,6 +159,7 @@ namespace learnta {
             // We reconstruct the successor with precise clocks
             return std::make_pair(transition.target, newNeighbor.reconstruct(preciseClocksAfterReset));
           }
+#endif
         }
       }
 
@@ -183,8 +209,8 @@ namespace learnta {
             const auto neighborSuccessor = neighbor.successor(action);
             std::vector<TATransition> newTransitions;
             for (const auto &transition: transitions) {
-              const auto result = handleOne(neighbor, transition, neighborSuccessor, newTransitions, matchBounded,
-                                            noMatch);
+              const auto result = handleOne(neighbor, action, transition, neighborSuccessor,
+                                            newTransitions, matchBounded, noMatch);
               if (result) {
                 this->impreciseNeighbors.insert(*result);
               }
