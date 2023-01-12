@@ -367,17 +367,47 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
 
   BOOST_AUTO_TEST_CASE(preciseClocksAfterResetTest) {
     std::unordered_set<ClockVariables> preciseClocks = {2};
-    TATransition::Resets resets;
-    resets.emplace_back(1, 5.75);
-    resets.emplace_back(3, 0.0);
+    const auto state = new TAState();
+    state->next['a'].emplace_back(state, TATransition::Resets{},
+                                  std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                           ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                           ConstraintMaker(2) > 0, ConstraintMaker(2) < 1,
+                                                           ConstraintMaker(3) > 0, ConstraintMaker(3) < 1});
+    TATransition transition {state,
+                             TATransition::Resets{},
+                             std::vector<Constraint>{}};
+    transition.resetVars.emplace_back(1, 5.75);
+    transition.resetVars.emplace_back(3, 0.0);
     std::unordered_set<ClockVariables> expected = {2, 3};
-    BOOST_TEST(expected == NeighborConditions::preciseClocksAfterReset(preciseClocks, resets));
-    resets.clear();
-    resets.emplace_back(0, 8.0);
-    resets.emplace_back(1, 1.5);
-    resets.emplace_back(2, 0.0);
+    BOOST_TEST(expected == NeighborConditions::preciseClocksAfterReset(preciseClocks, transition));
+    transition.resetVars.clear();
+    transition.resetVars.emplace_back(0, 8.0);
+    transition.resetVars.emplace_back(1, 1.5);
+    transition.resetVars.emplace_back(2, 0.0);
     std::unordered_set<ClockVariables> expectedSecond = {0, 2, 3};
-    BOOST_TEST(expectedSecond == NeighborConditions::preciseClocksAfterReset(expected, resets));
+    BOOST_TEST(expectedSecond == NeighborConditions::preciseClocksAfterReset(expected, transition));
+  }
+
+  BOOST_AUTO_TEST_CASE(preciseClocksAfterResetReduceTest) {
+    std::unordered_set<ClockVariables> preciseClocks = {2};
+    const auto state = new TAState();
+    state->next['a'].emplace_back(state, TATransition::Resets{},
+                                  std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                           ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                           ConstraintMaker(2) > 0, ConstraintMaker(2) < 1});
+    TATransition transition {state,
+                             TATransition::Resets{},
+                             std::vector<Constraint>{}};
+    transition.resetVars.emplace_back(1, 5.75);
+    transition.resetVars.emplace_back(3, 0.0);
+    std::unordered_set<ClockVariables> expected = {2};
+    BOOST_TEST(expected == NeighborConditions::preciseClocksAfterReset(preciseClocks, transition));
+    transition.resetVars.clear();
+    transition.resetVars.emplace_back(0, 8.0);
+    transition.resetVars.emplace_back(1, 1.5);
+    transition.resetVars.emplace_back(2, 0.0);
+    std::unordered_set<ClockVariables> expectedSecond = {0, 2};
+    BOOST_TEST(expectedSecond == NeighborConditions::preciseClocksAfterReset(expected, transition));
   }
 
   BOOST_FIXTURE_TEST_CASE(computeTargetClockSizeTest, SimpleDTALearnedFixture) {
@@ -434,7 +464,13 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
   BOOST_FIXTURE_TEST_CASE(makeAfterTransitionInternal, NeighborConditionsFixture) {
     TATransition::Resets resets;
     resets.emplace_back(neighborConditions.getClockSize(), 0.0);
-    const TATransition transition {new TAState(),
+    const auto state = std::make_unique<TAState>();
+    state->next['a'].emplace_back(state.get(), TATransition::Resets{},
+                                  std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                           ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                           ConstraintMaker(2) > 0, ConstraintMaker(2) < 1,
+                                                           ConstraintMaker(3) > 0, ConstraintMaker(3) < 1});
+    const TATransition transition {state.get(),
                                    resets,
                                    std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
                                                             ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,

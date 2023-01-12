@@ -143,9 +143,13 @@ namespace learnta {
      * @brief Make precise clocks after applying a reset
      */
     static auto preciseClocksAfterReset(const std::unordered_set<ClockVariables>& preciseClocks,
-                                        const TATransition::Resets &resets) {
+                                        const TATransition &transition) {
       std::unordered_set<ClockVariables> newPreciseClocks;
-      for (const auto &[targetVariable, assignedValue]: resets) {
+      const auto targetClockSize = computeTargetClockSize(transition);
+      for (const auto &[targetVariable, assignedValue]: transition.resetVars) {
+        if (targetVariable >= targetClockSize) {
+          continue;
+        }
         if (assignedValue.index() == 1 &&
             preciseClocks.find(std::get<ClockVariables>(assignedValue)) != preciseClocks.end()) {
           // targetVariable is precise if its value is updated to a precise variable
@@ -157,18 +161,19 @@ namespace learnta {
         }
       }
       for (const auto &preciseClock: preciseClocks) {
-        // Check if the precise clock is not updated
-        if (newPreciseClocks.find(preciseClock) != newPreciseClocks.end()) {
+        // Check if the precise clock is in the range and not updated
+        if (preciseClock >= targetClockSize || newPreciseClocks.find(preciseClock) != newPreciseClocks.end()) {
           continue;
         }
-        auto it = std::find_if(resets.begin(), resets.end(), [&] (const auto &reset) {
+        auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(), [&] (const auto &reset) {
           return reset.first == preciseClock;
         });
-        if (it == resets.end()) {
+        if (it == transition.resetVars.end()) {
           newPreciseClocks.insert(preciseClock);
         }
       }
 
+      assert(newPreciseClocks.size() <= targetClockSize);
       return newPreciseClocks;
     }
 
@@ -176,8 +181,8 @@ namespace learnta {
     /*!
      * @brief Make precise clocks after applying a reset
      */
-    [[nodiscard]] auto preciseClocksAfterReset(const TATransition::Resets &resets) const {
-      return NeighborConditions::preciseClocksAfterReset(this->preciseClocks, resets);
+    [[nodiscard]] auto preciseClocksAfterReset(const TATransition &transition) const {
+      return NeighborConditions::preciseClocksAfterReset(this->preciseClocks, transition);
     }
 
     /*!
@@ -259,6 +264,7 @@ namespace learnta {
       assertInvariants();
     }
 
+#if 0
     /*!
      * @brief Construct the neighbor conditions after an external transition
      *
@@ -304,13 +310,14 @@ namespace learnta {
 
       return result;
     }
+#endif
 
     /*!
      * @brief Construct the neighbor conditions after a transition
      */
     [[nodiscard]] NeighborConditions makeAfterTransition(const Alphabet action, const TATransition &transition) const {
       return NeighborConditions{this->constructOriginalAfterTransition(action, transition),
-                                this->preciseClocksAfterReset(transition.resetVars)};
+                                this->preciseClocksAfterReset(transition)};
     }
 
     /*!

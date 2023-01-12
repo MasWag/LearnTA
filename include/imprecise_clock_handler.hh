@@ -22,22 +22,6 @@ namespace learnta {
   private:
     boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
 
-    static TATransition::Resets embedIfImprecise(TATransition::Resets resets,
-                                                 const std::unordered_set<ClockVariables> &preciseClocks,
-                                                 const std::vector<double> &embeddedValuation) {
-      // Remove imprecise clocks
-      resets.erase(std::remove_if(resets.begin(), resets.end(), [&](const auto &reset) {
-        return preciseClocks.find(reset.first) == preciseClocks.end();
-      }), resets.end());
-      // Add valuations if imprecise
-      for (ClockVariables clock = 0; clock < static_cast<ClockVariables>(embeddedValuation.size()); ++clock) {
-        if (preciseClocks.find(clock) == preciseClocks.end()) {
-          resets.emplace_back(clock, embeddedValuation.at(clock));
-        }
-      }
-      return resets;
-    }
-
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
     handleOne(const NeighborConditions &neighbor, const Alphabet action,
               const TATransition &transition, const NeighborConditions &neighborSuccessor,
@@ -65,7 +49,7 @@ namespace learnta {
 #ifdef DEBUG
           BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
-          const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition.resetVars);
+          const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition);
           const auto neighborAfterTransition = neighbor.makeAfterTransition(action, transition);
           const auto originalValuation = neighborAfterTransition.toOriginalValuation();
           newTransitions.emplace_back(transition.target,
@@ -220,6 +204,23 @@ namespace learnta {
           neighbor.successorAssign();
         } while (matchBounded || noMatch);
       }
+    }
+
+
+    static TATransition::Resets embedIfImprecise(TATransition::Resets resets,
+                                                 const std::unordered_set<ClockVariables> &preciseClocks,
+                                                 const std::vector<double> &embeddedValuation) {
+      // Remove imprecise clocks
+      resets.erase(std::remove_if(resets.begin(), resets.end(), [&](const auto &reset) {
+        return preciseClocks.find(reset.first) == preciseClocks.end();
+      }), resets.end());
+      // Add valuations if imprecise
+      for (ClockVariables clock = 0; clock < static_cast<ClockVariables>(embeddedValuation.size()); ++clock) {
+        if (preciseClocks.find(clock) == preciseClocks.end()) {
+          resets.emplace_back(clock, embeddedValuation.at(clock));
+        }
+      }
+      return resets;
     }
   };
 }

@@ -77,6 +77,7 @@ add_executable(unit_test EXCLUDE_FROM_ALL
   tests/external_transition_maker_test.cc
   tests/neighbor_conditions_test.cc
   tests/equivalence_oracle_by_test_test.cc
+  tests/imprecise_clock_handler_test.cc
   )
 
 target_link_libraries(unit_test
