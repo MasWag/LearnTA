@@ -106,6 +106,7 @@ namespace learnta {
     }
 
     [[nodiscard]] auto updateNeighborsWithContinuousSuccessors(const ForwardRegionalElementaryLanguage &originalSuccessor) const {
+      BOOST_LOG_TRIVIAL(debug) << "originalSuccessor: " << originalSuccessor;
       // The neighbor elementary languages due to imprecise clocks
       std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
       newNeighbors.reserve(neighbors.size());
@@ -245,7 +246,9 @@ namespace learnta {
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
       addImplicitPreciseClocks();
-      this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
+      if (!this->preciseClocks.empty()) {
+        this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
+      }
       assertInvariants();
     }
 
@@ -260,7 +263,9 @@ namespace learnta {
                                                                            clockSize(
                                                                                    this->original.getTimedCondition().size()) {
       addImplicitPreciseClocks();
-      this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
+      if (!this->preciseClocks.empty()) {
+        this->neighbors = updateNeighborsWithContinuousSuccessors(this->original);
+      }
       assertInvariants();
     }
 

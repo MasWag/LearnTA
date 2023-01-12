@@ -23,8 +23,7 @@ namespace learnta {
     boost::unordered_set<std::pair<TAState *, NeighborConditions>> impreciseNeighbors;
 
     [[nodiscard]] static std::optional<std::pair<TAState *, NeighborConditions>>
-    handleOne(const NeighborConditions &neighbor, const Alphabet action,
-              const TATransition &transition, const NeighborConditions &neighborSuccessor,
+    handleOne(const NeighborConditions &neighbor, const Alphabet action, const TATransition &transition,
               std::vector<TATransition> &newTransitions, bool &matchBounded, bool &noMatch) {
       // Relax the guard if it matches
       if (neighbor.match(transition)) {
@@ -57,7 +56,11 @@ namespace learnta {
                                                        preciseClocksAfterReset,
                                                        originalValuation),
                                       std::move(relaxedGuard));
-          return std::make_pair(transition.target, neighborAfterTransition);
+          if (preciseClocksAfterReset.empty() || neighborAfterTransition.precise()) {
+            return std::nullopt;
+          } else {
+            return std::make_pair(transition.target, neighborAfterTransition);
+          }
 #if 0
           // Handle the internal transitions
           if (transition.resetVars.size() == 1 &&
@@ -173,6 +176,8 @@ namespace learnta {
     void run() {
       std::unordered_set<std::size_t> visitedImpreciseNeighborsHash;
       while (!impreciseNeighbors.empty()) {
+        BOOST_LOG_TRIVIAL(debug) << "visitedImpreciseNeighborsHash size: " << visitedImpreciseNeighborsHash.size();
+        BOOST_LOG_TRIVIAL(debug) << "impreciseNeighbors size: " << this->impreciseNeighbors.size();
         auto [state, neighbor] = *impreciseNeighbors.begin();
         const auto hash = boost::hash_value(*impreciseNeighbors.begin());
         impreciseNeighbors.erase(impreciseNeighbors.begin());
@@ -193,7 +198,7 @@ namespace learnta {
             const auto neighborSuccessor = neighbor.successor(action);
             std::vector<TATransition> newTransitions;
             for (const auto &transition: transitions) {
-              const auto result = handleOne(neighbor, action, transition, neighborSuccessor,
+              const auto result = handleOne(neighbor, action, transition,
                                             newTransitions, matchBounded, noMatch);
               if (result) {
                 this->impreciseNeighbors.insert(*result);
@@ -204,6 +209,7 @@ namespace learnta {
           neighbor.successorAssign();
         } while (matchBounded || noMatch);
       }
+      BOOST_LOG_TRIVIAL(debug) << "ImpreciseClockHandler: finished!";
     }
 
 
