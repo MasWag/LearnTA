@@ -661,6 +661,9 @@ namespace learnta {
       TimedCondition newCondition {Zone::top(targetClockSize + 1)};
       std::vector<std::pair<std::size_t, std::size_t>> renaming;
       for (const auto &[updatedVariable, assignedValue]: resets) {
+        if (updatedVariable >= targetClockSize) {
+          continue;
+        }
         if(assignedValue.index() == 0) {
           // Apply non-renaming resets
           if (std::get<double>(assignedValue) == std::floor(std::get<double>(assignedValue))) {
