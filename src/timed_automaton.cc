@@ -147,11 +147,11 @@ namespace learnta {
             // Use the reset and target causing more imprecise clocks
             if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
                 TATransition::impreciseConstantAssignSize(it3->resetVars)) {
-              // it3->addPreciseConstantAssignments(it2->resetVars);
+              it3->addPreciseConstantAssignments(it2->resetVars);
               it2->resetVars = it3->resetVars;
               it2->target = it3->target;
             } else {
-              // it2->addPreciseConstantAssignments(it3->resetVars);
+              it2->addPreciseConstantAssignments(it3->resetVars);
             }
             std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
             it2->guard = unionHull(guards);
