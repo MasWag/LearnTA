@@ -145,6 +145,7 @@ namespace learnta {
             }
 #endif
             // Use the reset and target causing more imprecise clocks
+            //if (it2->resetVars.size() < it3->resetVars.size()) {
             if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
                 TATransition::impreciseConstantAssignSize(it3->resetVars)) {
               it3->addPreciseConstantAssignments(it2->resetVars);

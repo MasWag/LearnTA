@@ -269,53 +269,6 @@ namespace learnta {
       assertInvariants();
     }
 
-#if 0
-    /*!
-     * @brief Construct the neighbor conditions after an external transition
-     *
-     * @param resets The resets of the external transition
-     * @param targetClockSize The clock size at the target state
-     */
-    [[nodiscard]] NeighborConditions makeAfterExternalTransition(const TATransition::Resets &resets,
-                                                                 const std::size_t targetClockSize) const {
-      // make words
-      std::string newWord = this->original.getWord();
-      newWord.resize(targetClockSize - 1, this->original.getWord().back());
-      // make precise clocks
-      auto newPreciseClocks = preciseClocksAfterReset(this->preciseClocks, resets);
-      for (auto it = newPreciseClocks.begin(); it != newPreciseClocks.end();) {
-        if (*it >= targetClockSize) {
-          it = newPreciseClocks.erase(it);
-        } else {
-          ++it;
-        }
-      }
-      // make original
-      auto newOriginal = this->original.applyResets(newWord, resets, targetClockSize);
-      // make neighbors
-      std::vector<ForwardRegionalElementaryLanguage> newNeighbors;
-      newNeighbors.reserve(this->neighbors.size());
-      for (const ForwardRegionalElementaryLanguage &neighbor: this->neighbors) {
-        const auto simpleConditionsAfterReset = neighbor.getTimedCondition().applyResets(resets,
-                                                                                         targetClockSize).enumerate();
-        std::transform(simpleConditionsAfterReset.begin(), simpleConditionsAfterReset.end(),
-                       std::back_inserter(newNeighbors),
-                       [&](const auto &simpleConditionAfterReset) {
-                         return ForwardRegionalElementaryLanguage::fromTimedWord(
-                                 ElementaryLanguage{newWord, simpleConditionAfterReset}.sample());
-                       });
-      }
-      // Construct the resulting neighbor conditions
-      NeighborConditions result = NeighborConditions{std::move(newOriginal),
-                                                     std::move(newNeighbors),
-                                                     std::move(newPreciseClocks),
-                                                     targetClockSize};
-      // Update the neighbors to include successors if the precise clocks match
-      result.neighbors = result.updateNeighborsWithContinuousSuccessors(result.original);
-
-      return result;
-    }
-#endif
 
     /*!
      * @brief Construct the neighbor conditions after a transition

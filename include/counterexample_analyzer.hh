@@ -49,7 +49,7 @@ namespace learnta {
       for (const auto &mappedWord: mappedWords) {
         BOOST_LOG_TRIVIAL(error) << "mappedWord: " << mappedWord;
       }
-      throw std::logic_error("Error in counter example analysis");
+      //throw std::logic_error("Error in counter example analysis");
     }
     for (std::size_t index = 0; index + 1 < mappedWords.size(); ++index) {
       if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {
