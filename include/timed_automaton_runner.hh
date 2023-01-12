@@ -57,15 +57,24 @@ namespace learnta {
     /*!
      * @brief Apply the given reset to the clock valuation
      */
-    void applyReset(const TATransition::Resets &resets) {
-      const auto oldValuation = this->clockValuation;
+    static std::vector<double> applyReset(const std::vector<double> &oldValuation, const TATransition::Resets &resets) {
+      auto valuation = oldValuation;
       for (const auto &[resetVariable, targetVariable]: resets) {
         if (targetVariable.index() == 1) {
-          this->clockValuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
+          valuation.at(resetVariable) = oldValuation.at(std::get<ClockVariables>(targetVariable));
         } else {
-          this->clockValuation.at(resetVariable) = std::get<double>(targetVariable);
+          valuation.at(resetVariable) = std::get<double>(targetVariable);
         }
       }
+
+      return valuation;
+    }
+
+    /*!
+     * @brief Apply the given reset to the clock valuation
+     */
+    void applyReset(const TATransition::Resets &resets) {
+      this->clockValuation = applyReset(this->clockValuation, resets);
     }
 
     bool step(char action) override {

@@ -12,6 +12,7 @@
 #include "common_types.hh"
 #include "timed_automaton.hh"
 #include "forward_regional_elementary_language.hh"
+#include "external_transition_maker.hh"
 
 namespace learnta {
 
@@ -172,6 +173,20 @@ namespace learnta {
     }
 
   public:
+    /*!
+     * @brief Make precise clocks after applying a reset
+     */
+    [[nodiscard]] auto preciseClocksAfterReset(const TATransition::Resets &resets) const {
+      return NeighborConditions::preciseClocksAfterReset(this->preciseClocks, resets);
+    }
+
+    /*!
+     * @brief Reconstruct the neighbor conditions with new precise clocks
+     */
+    [[nodiscard]] NeighborConditions reconstruct(const std::unordered_set<ClockVariables> &preciseClocks) const {
+      return NeighborConditions{this->original, preciseClocks};
+    }
+
     static auto makeNeighbors(const ForwardRegionalElementaryLanguage &original,
                               const std::unordered_set<ClockVariables> &preciseClocks) {
       const auto clockSize = original.getTimedCondition().size();
@@ -374,6 +389,25 @@ namespace learnta {
       }
 
       return impreciseClockVec;
+    }
+
+    /*!
+     * @brief Construct the reset to embed to the target condition
+     */
+    [[nodiscard]] std::vector<double> toOriginalValuation() const {
+      return ExternalTransitionMaker::toValuation(this->original.getTimedCondition());
+    }
+
+    /*!
+     * @brief Construct the reset to embed to the target condition
+     */
+    [[nodiscard]] std::vector<double> toOriginalValuation(const std::size_t minSize) const {
+      auto valuation = ExternalTransitionMaker::toValuation(this->original.getTimedCondition());
+      if (valuation.size() < minSize) {
+        valuation.resize(minSize);
+      }
+
+      return valuation;
     }
 
     /*!

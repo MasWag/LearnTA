@@ -12,6 +12,7 @@
 #include "renaming_relation.hh"
 #include "forward_regional_elementary_language.hh"
 #include "neighbor_conditions.hh"
+#include "timed_automaton_runner.hh"
 
 namespace learnta {
   /*!
@@ -48,65 +49,97 @@ namespace learnta {
 #ifdef DEBUG
           BOOST_LOG_TRIVIAL(debug) << "Relaxed!!";
 #endif
-          // TODO: Add resets to reduce the error in the imprecise clocks
-          newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
-          // Follow the transition if it is internal
+          // Handle the internal transitions
           if (transition.resetVars.size() == 1 &&
               transition.resetVars.front().first == neighbor.getClockSize() &&
               transition.resetVars.front().second.index() == 0 &&
               std::get<double>(transition.resetVars.front().second) == 0.0) {
-            // TODO: instead of using neighborSuccessor, we should probably construct the successor with precise clocks
-            return std::make_pair(transition.target, neighborSuccessor);
-          } else {
-          // Propagate imprecise clocks also to external transitions
-          std::size_t targetClockSize = 0;
-          for (const auto &[action, transitions]: transition.target->next) {
-            for (const auto &cTransition: transitions) {
-              std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&] (const Constraint &constraint) {
-                targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
-              });
+            // Embed imprecise clocks to the precise range to reduce the error
+            const auto preciseClocksAfterReset = neighborSuccessor.preciseClocksAfterReset(transition.resetVars);
+            const auto originalValuation = TimedAutomatonRunner::applyReset(neighborSuccessor.toOriginalValuation(),
+                                                                            transition.resetVars);
+            auto resetVars = transition.resetVars;
+            // Remove imprecise clocks
+            resetVars.erase(std::remove_if(resetVars.begin(), resetVars.end(), [&](const auto &reset) {
+              return preciseClocksAfterReset.find(reset.first) == preciseClocksAfterReset.end();
+            }), resetVars.end());
+            // Add valuations if imprecise
+            for (ClockVariables clock = 0; clock < static_cast<ClockVariables>(originalValuation.size()); ++clock) {
+              if (preciseClocksAfterReset.find(clock) == preciseClocksAfterReset.end()) {
+                resetVars.emplace_back(clock, originalValuation.at(clock));
+              }
             }
-          }
-          // Check if there are imprecise clocks after transition
-          if (transition.resetVars.size() >= targetClockSize &&
-              std::all_of(transition.resetVars.begin(), transition.resetVars.end(), [&] (const auto &pair) {
-                return pair.second.index() == 0;
-              })) {
-            // If constant values are assigned to all the clock variables
-            return std::nullopt;
-          }
-          const auto impreciseClocks = neighbor.impreciseClocks();
-          if (std::all_of(impreciseClocks.begin(), impreciseClocks.end(), [&] (const auto &clock) {
-            // Check if the imprecise clock is updated to a precise value
-            auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
-                                   [&] (const auto &pair) {
-              return pair.first == clock &&
-                     (pair.second.index() == 1 ||
-                      std::get<double>(pair.second) == std::floor(std::get<double>(pair.second)));
-            });
-            // Check if the imprecise clock is used
-            auto it2 = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
-                                    [&] (const auto &pair) {
-              return pair.second.index() == 1 && std::get<ClockVariables>(pair.second) == clock;
-            });
-            return it != transition.resetVars.end() && it2 == transition.resetVars.end();
-          })) {
-            // If all the imprecise clocks are overwritten to a precise value
-            return std::nullopt;
-          }
-            // TODO: The situation is similar. Let's re-construct the neighbor using imprecise clocks
+            newTransitions.emplace_back(transition.target, resetVars, std::move(relaxedGuard));
+            // We reconstruct the successor with precise clocks
+            return std::make_pair(transition.target, neighborSuccessor.reconstruct(preciseClocksAfterReset));
+          } else {
+            // Handle the external transitions
+            std::size_t targetClockSize = 0;
+            for (const auto &[action, transitions]: transition.target->next) {
+              for (const auto &cTransition: transitions) {
+                std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&](const Constraint &constraint) {
+                  targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
+                });
+              }
+            }
+            // Check if there are imprecise clocks after transition
+            if (transition.resetVars.size() >= targetClockSize &&
+                std::all_of(transition.resetVars.begin(), transition.resetVars.end(), [&](const auto &pair) {
+                  return pair.second.index() == 0;
+                })) {
+              // If constant values are assigned to all the clock variables
+              newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
+              return std::nullopt;
+            }
+            const auto impreciseClocks = neighbor.impreciseClocks();
+            if (std::all_of(impreciseClocks.begin(), impreciseClocks.end(), [&](const auto &clock) {
+              // Check if the imprecise clock is updated to a precise value
+              auto it = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
+                                     [&](const auto &pair) {
+                                       return pair.first == clock &&
+                                              (pair.second.index() == 1 ||
+                                               std::get<double>(pair.second) ==
+                                               std::floor(std::get<double>(pair.second)));
+                                     });
+              // Check if the imprecise clock is used
+              auto it2 = std::find_if(transition.resetVars.begin(), transition.resetVars.end(),
+                                      [&](const auto &pair) {
+                                        return pair.second.index() == 1 &&
+                                               std::get<ClockVariables>(pair.second) == clock;
+                                      });
+              return it != transition.resetVars.end() && it2 == transition.resetVars.end();
+            })) {
+              // If all the imprecise clocks are overwritten to a precise value
+              newTransitions.emplace_back(transition.target, transition.resetVars, std::move(relaxedGuard));
+              return std::nullopt;
+            }
             // There are imprecise clock variables after external transition
-          // Construct the neighbor successor after external transition
-          const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
-          BOOST_LOG_TRIVIAL(debug) << "New neighbor after external transition: " << transition.target<< ": "
-                                   << newNeighbor;
-          return std::make_pair(transition.target, newNeighbor);
+            // Construct the neighbor successor after external transition
+            const auto newNeighbor = neighbor.makeAfterExternalTransition(transition.resetVars, targetClockSize);
+            const auto preciseClocksAfterReset = neighbor.preciseClocksAfterReset(transition.resetVars);
+            const auto originalValuation = TimedAutomatonRunner::applyReset(
+                    neighbor.toOriginalValuation(targetClockSize), transition.resetVars);
+            auto resetVars = transition.resetVars;
+            // Remove imprecise clocks
+            resetVars.erase(std::remove_if(resetVars.begin(), resetVars.end(), [&](const auto &reset) {
+              return preciseClocksAfterReset.find(reset.first) == preciseClocksAfterReset.end();
+            }), resetVars.end());
+            // Add valuations if imprecise
+            for (ClockVariables clock = 0; clock < static_cast<ClockVariables>(originalValuation.size()); ++clock) {
+              if (preciseClocksAfterReset.find(clock) == preciseClocksAfterReset.end()) {
+                resetVars.emplace_back(clock, originalValuation.at(clock));
+              }
+            }
+            newTransitions.emplace_back(transition.target, resetVars, std::move(relaxedGuard));
+            // We reconstruct the successor with precise clocks
+            return std::make_pair(transition.target, newNeighbor.reconstruct(preciseClocksAfterReset));
           }
         }
       }
 
       return std::nullopt;
     }
+
   public:
     /*!
      * @brief Add new transition with imprecise clocks
@@ -150,7 +183,8 @@ namespace learnta {
             const auto neighborSuccessor = neighbor.successor(action);
             std::vector<TATransition> newTransitions;
             for (const auto &transition: transitions) {
-              const auto result = handleOne(neighbor, transition, neighborSuccessor, newTransitions, matchBounded, noMatch);
+              const auto result = handleOne(neighbor, transition, neighborSuccessor, newTransitions, matchBounded,
+                                            noMatch);
               if (result) {
                 this->impreciseNeighbors.insert(*result);
               }
