@@ -139,11 +139,9 @@ namespace learnta {
             // However, it is not straightforward to check the equivalence.
             // So, we tentatively weaken the requirement
             assert(it2->target->isMatch == it3->target->isMatch);
-#ifdef DEBUG
             if (it2->target != it3->target) {
-              BOOST_LOG_TRIVIAL(debug) << "merge " << it2->target << " and " << it3->target;
+              BOOST_LOG_TRIVIAL(warning) << "We merge transitions with different targets. This is unstable";
             }
-#endif
             // Use the reset and target causing more imprecise clocks
             //if (it2->resetVars.size() < it3->resetVars.size()) {
             if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
