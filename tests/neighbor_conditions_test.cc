@@ -430,4 +430,32 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
     BOOST_CHECK_EQUAL(neighborConditions.original.getTimedCondition().getLowerBound(2, 3),
                       originalAfterTransition.getTimedCondition().getLowerBound(2, 2));
   }
+
+  BOOST_FIXTURE_TEST_CASE(makeAfterTransitionInternal, NeighborConditionsFixture) {
+    TATransition::Resets resets;
+    resets.emplace_back(neighborConditions.getClockSize(), 0.0);
+    const TATransition transition {new TAState(),
+                                   resets,
+                                   std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                            ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1,
+                                                            ConstraintMaker(3) > 0, ConstraintMaker(3) < 1}};
+
+    const auto successor = neighborConditions.makeAfterTransition('a', transition);
+    BOOST_TEST(successor.original.isSimple());
+    // The clock size increases by one
+    BOOST_TEST(successor.clockSize == neighborConditions.clockSize + 1);
+    // The precise clock increases by one
+    BOOST_TEST(successor.preciseClocks.size() == neighborConditions.preciseClocks.size() + 1);
+    // All the neighbors should have the same clock valuations
+    for (const auto &neighbor: successor.neighbors) {
+      BOOST_TEST(neighbor.isSimple());
+      for (ClockVariables clock = 0; clock < successor.clockSize; ++clock) {
+        BOOST_CHECK_EQUAL(successor.original.getTimedCondition().getUpperBound(clock, successor.clockSize - 1),
+                          neighbor.getTimedCondition().getUpperBound(clock, successor.clockSize - 1));
+        BOOST_CHECK_EQUAL(successor.original.getTimedCondition().getLowerBound(clock, successor.clockSize - 1),
+                          neighbor.getTimedCondition().getLowerBound(clock, successor.clockSize - 1));
+      }
+    }
+  }
 BOOST_AUTO_TEST_SUITE_END()

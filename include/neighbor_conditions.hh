@@ -306,6 +306,14 @@ namespace learnta {
     }
 
     /*!
+     * @brief Construct the neighbor conditions after a transition
+     */
+    [[nodiscard]] NeighborConditions makeAfterTransition(const Alphabet action, const TATransition &transition) const {
+      return NeighborConditions{this->constructOriginalAfterTransition(action, transition),
+                                this->preciseClocksAfterReset(transition.resetVars)};
+    }
+
+    /*!
      * @brief Return the guard of the original elementary language.
      *
      * This is intended to be used to match with a transition
