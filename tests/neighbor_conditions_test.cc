@@ -395,4 +395,39 @@ BOOST_AUTO_TEST_SUITE(NeighborConditionsTest)
       }
     }
   }
+
+  BOOST_FIXTURE_TEST_CASE(constructOriginalAfterTransitionTest20230106, NeighborConditionsFixture20230106) {
+    TATransition::Resets resets;
+    resets.emplace_back(static_cast<ClockVariables>(0), 8.0);
+    resets.emplace_back(static_cast<ClockVariables>(1), 7.5);
+    const auto state = new TAState();
+    const TATransition transition {state,
+                                   resets,
+                                   std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                            ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1,
+                                                            ConstraintMaker(3) > 0, ConstraintMaker(3) < 1}};
+    state->next['a'].emplace_back(state, TATransition::Resets{},
+                                  std::vector<Constraint> {ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+                                                           ConstraintMaker(1) >= 3, ConstraintMaker(1) <= 3,
+                                                           ConstraintMaker(2) > 0, ConstraintMaker(2) < 1});
+    BOOST_TEST(!neighborConditions.match(transition));
+    neighborConditions.successorAssign();
+    BOOST_TEST(!neighborConditions.match(transition));
+    neighborConditions.successorAssign();
+    BOOST_TEST(neighborConditions.match(transition));
+    std::cout << neighborConditions.original << std::endl;
+    const auto originalAfterTransition = neighborConditions.constructOriginalAfterTransition('a', transition);
+    BOOST_CHECK_EQUAL(4, neighborConditions.original.getTimedCondition().size());
+    BOOST_CHECK_EQUAL(3, originalAfterTransition.getTimedCondition().size());
+    BOOST_TEST(originalAfterTransition.isSimple());
+    BOOST_CHECK_EQUAL(Bounds(8, true), originalAfterTransition.getTimedCondition().getUpperBound(0, 2));
+    BOOST_CHECK_EQUAL(Bounds(-8, true), originalAfterTransition.getTimedCondition().getLowerBound(0, 2));
+    BOOST_CHECK_EQUAL(Bounds(8, false), originalAfterTransition.getTimedCondition().getUpperBound(1, 2));
+    BOOST_CHECK_EQUAL(Bounds(-7, false), originalAfterTransition.getTimedCondition().getLowerBound(1, 2));
+    BOOST_CHECK_EQUAL(neighborConditions.original.getTimedCondition().getUpperBound(2, 3),
+                      originalAfterTransition.getTimedCondition().getUpperBound(2, 2));
+    BOOST_CHECK_EQUAL(neighborConditions.original.getTimedCondition().getLowerBound(2, 3),
+                      originalAfterTransition.getTimedCondition().getLowerBound(2, 2));
+  }
 BOOST_AUTO_TEST_SUITE_END()

@@ -458,6 +458,7 @@ namespace learnta {
         // make words
         std::string newWord = this->original.getWord();
         const auto targetClockSize = computeTargetClockSize(transition);
+        assert(targetClockSize > 0);
         newWord.resize(targetClockSize - 1, this->original.getWord().back());
 
         return this->original.applyResets(newWord, transition.resetVars, targetClockSize);
