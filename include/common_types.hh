@@ -31,4 +31,19 @@ namespace learnta {
       return initialStates == A.initialStates && states == A.states;
     }
   };
+
+  /*!
+   * @brief Check if the elements are sorted in the ascending order.
+   */
+  template<class T>
+  bool is_ascending(const std::vector<T> &container) {
+    static_assert(std::is_arithmetic<T>::value, "The elements must be arithmetic.");
+    for (auto it = container.begin(); it != container.end() && std::next(it) != container.end(); ++it) {
+      if (*it > *std::next(it)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

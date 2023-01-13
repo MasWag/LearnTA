@@ -177,4 +177,14 @@ x0 >= 2 && x1 < 0 && x1 < 1 &&
     BOOST_TEST(isWeaker(expected, unionHull(guards)));
     BOOST_TEST(isWeaker(unionHull(guards), expected));
   }
+
+  BOOST_AUTO_TEST_CASE(simpleVariablesTest) {
+    std::vector<Constraint> guard = {
+            ConstraintMaker(0) > 2, ConstraintMaker(1) > 2,
+            ConstraintMaker(2) <= 0, ConstraintMaker(0) < 4, ConstraintMaker(1) < 3
+    };
+    std::vector<ClockVariables> expected = {1, 2};
+
+    BOOST_TEST(expected == simpleVariables(guard), boost::test_tools::per_element());
+  }
 BOOST_AUTO_TEST_SUITE_END()

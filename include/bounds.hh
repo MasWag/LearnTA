@@ -10,6 +10,24 @@
 
 namespace learnta {
   using Bounds = std::pair<double, bool>;
+
+  static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
+    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
+    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
+    lowerConstant = -lowerConstant;
+    return lowerConstant == upperConstant and upperEq and lowerEq;
+  }
+
+  static inline bool isUnitOpen(const Bounds &upperBound, const Bounds &lowerBound) {
+    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
+    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
+    lowerConstant = -lowerConstant;
+    return lowerConstant + 1 == upperConstant and (not upperEq) and (not lowerEq);
+  }
+
+  static inline bool isSimple(const Bounds &upperBound, const Bounds &lowerBound) {
+    return isPoint(upperBound, lowerBound) || isUnitOpen(upperBound, lowerBound);
+  }
 }
 
 static inline learnta::Bounds operator+(const learnta::Bounds &a, const learnta::Bounds &b) {

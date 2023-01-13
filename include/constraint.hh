@@ -290,6 +290,26 @@ namespace learnta {
     return std::make_pair(upperBounds, lowerBounds);
   }
 
+  /*!
+   * @brief Return the variables that are bounded by a simple constraint, i.e., c < x < c + 1 or x = c
+   *
+   * @return list of variables with simple bounds in the ascending order
+   */
+  inline std::vector<ClockVariables> simpleVariables(const std::vector<Constraint> &constraints) {
+    std::vector<ClockVariables> result;
+    const auto &[upperBounds, lowerBounds] = toBounds(constraints);
+    assert(upperBounds.size() == lowerBounds.size());
+    result.reserve(upperBounds.size());
+    for (std::size_t i = 0; i < upperBounds.size(); ++i) {
+      if (isSimple(upperBounds.at(i), -lowerBounds.at(i))) {
+        result.push_back(i);
+      }
+    }
+
+    assert(is_ascending(result));
+    return result;
+  }
+
   inline bool satisfiable(const std::vector<Constraint> &constraints) {
     const auto &[upperBounds, lowerBounds] = toBounds(constraints);
 

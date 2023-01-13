@@ -15,19 +15,6 @@
 #include <utility>
 
 namespace learnta {
-  static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
-    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
-    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
-    lowerConstant = -lowerConstant;
-    return lowerConstant == upperConstant and upperEq and lowerEq;
-  }
-
-  static inline bool isUnitOpen(const Bounds &upperBound, const Bounds &lowerBound) {
-    auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
-    auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)
-    lowerConstant = -lowerConstant;
-    return lowerConstant + 1 == upperConstant and (not upperEq) and (not lowerEq);
-  }
 
   /*!
     @brief Implementation of a zone with DBM
