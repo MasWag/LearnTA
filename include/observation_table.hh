@@ -217,6 +217,16 @@ namespace learnta {
       return this->continuousSuccessors.find(i) != this->continuousSuccessors.end();
     }
 
+    /*!
+     * @brief Split the states based on the imprecise clocks if necessary
+     *
+     * @param [inout] originalStates The states
+     * @param [in] needSplit The states need to be split
+     */
+    void splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
+                     const std::shared_ptr<TAState> &initialState,
+                     const std::vector<TAState*> &needSplit) const;
+
   public:
     /*!
      * @brief Initialize the observation table
@@ -522,18 +532,23 @@ namespace learnta {
       } else {
         BOOST_LOG_TRIVIAL(debug) << "Failed to find a new suffix. We add prefixes to P";
         const auto newPrefixes = ForwardRegionalElementaryLanguage::fromTimedWord(cex).prefixes();
+        bool updated = false;
         for (const auto &newPrefix: newPrefixes) {
           auto it = std::find(this->prefixes.begin(), this->prefixes.end(), newPrefix);
           assert(it != this->prefixes.end());
           if (this->inP(std::distance(this->prefixes.begin(), it))) {
             continue;
           } else {
+            updated = true;
             this->moveToP(std::distance(this->prefixes.begin(), it));
             if (!this->close()) {
               // The observation table is refined
               return;
             }
           }
+        }
+        if (!updated) {
+          BOOST_LOG_TRIVIAL(error) << "Learning has got stuck!!";
         }
       }
     }
@@ -871,6 +886,14 @@ namespace learnta {
       BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 #endif
       // Make the transitions deterministic
+      std::vector<TAState*> needSplit;
+      needSplit.reserve(states.size());
+      for (const auto &state: states) {
+        state->removeTransitionsWithWeakerGuards();
+        needSplit.push_back(state.get());
+      }
+      // Conduct state splitting if necessary
+      this->splitStates(states, initialState, needSplit);
       for (const auto &state: states) {
         state->mergeNondeterministicBranching();
       }

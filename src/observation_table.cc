@@ -106,4 +106,105 @@ namespace learnta {
       }
     }
   }
+
+  void ObservationTable::splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
+                                     const std::shared_ptr<TAState> &initialState,
+                                     const std::vector<TAState *> &needSplit) const {
+    if (needSplit.empty()) {
+      return;
+    }
+    using PreciseClocks = std::unordered_set<ClockVariables>;
+    using State = TAState*;
+    using EnhancedState = std::pair<State, PreciseClocks>;
+    struct StateMap {
+      std::vector<std::shared_ptr<TAState>> states;
+      boost::unordered_map<EnhancedState, State> forwardMap;
+      boost::unordered_map<State, EnhancedState> reverseMap;
+      [[nodiscard]] std::optional<State> map(const EnhancedState &state) const {
+        auto it = forwardMap.find(state);
+        if (it == forwardMap.end()) {
+          return std::nullopt;
+        } else {
+          return it->second;
+        }
+      }
+
+      [[nodiscard]] std::optional<EnhancedState> map(const State &state) const {
+        auto it = reverseMap.find(state);
+        if (it == reverseMap.end()) {
+          return std::nullopt;
+        } else {
+          return it->second;
+        }
+      }
+
+      void add(const EnhancedState &state, const State &newState) {
+        forwardMap[state] = newState;
+        reverseMap[newState] = state;
+      }
+
+      State make(const EnhancedState &state) {
+        states.push_back(std::make_shared<TAState>(state.first->isMatch));
+        add(state, states.back().get());
+
+        return *map(state);
+      }
+    };
+    // Initialize stateMap
+    StateMap stateMap;
+    stateMap.states = originalStates;
+    for (const auto& state: originalStates) {
+      const auto clockSize = NeighborConditions::computeClockSize(state.get());
+      std::vector<ClockVariables> preciseClocks;
+      preciseClocks.resize(clockSize);
+      std::iota(preciseClocks.begin(), preciseClocks.end(), 0);
+
+      stateMap.add(EnhancedState{state.get(), PreciseClocks{preciseClocks.begin(), preciseClocks.end()}}, state.get());
+    }
+    boost::unordered_set<EnhancedState> visitedStates;
+    const auto isVisited = [&] (const auto& state) {
+      return visitedStates.find(state) != visitedStates.end();
+    };
+    std::queue<EnhancedState> statesToVisit;
+    statesToVisit.emplace(initialState.get(), PreciseClocks{0});
+    const auto requiresSplit = [&] (const auto& state) {
+      return std::find(needSplit.begin(), needSplit.end(), state) != needSplit.end();
+    };
+
+    // The main loop. We conduct BFS over the DTA
+    while (!statesToVisit.empty()) {
+      const EnhancedState enhancedState = statesToVisit.front();
+      const auto &[originalState, preciseClocks] = enhancedState;
+      const auto state = stateMap.map(enhancedState).value_or(originalState);
+      statesToVisit.pop();
+      if (isVisited(enhancedState)) {
+        continue;
+      }
+      visitedStates.insert(enhancedState);
+      for (auto &[action, transitions]: state->next) {
+        for (auto &transition: transitions) {
+          const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(preciseClocks, transition);
+          const EnhancedState nextEnhancedState{transition.target, nextPreciseClocks};
+          if (!isVisited(nextEnhancedState)) {
+            if (requiresSplit(transition.target)) {
+              auto newState = stateMap.make(nextEnhancedState);
+              statesToVisit.push(nextEnhancedState);
+              newState->next = transition.target->next;
+              // At the locations to split, we merge the transitions prioritizing the precise clocks
+              newState->mergeNondeterministicBranching(nextPreciseClocks);
+              // When we reach a location to split, we make new location and change the target location
+              transition.target = newState;
+            } else {
+              statesToVisit.push(nextEnhancedState);
+            }
+          } else if (requiresSplit(transition.target)) {
+            // When we reach a location to split, we change the target location
+            transition.target = stateMap.map(nextEnhancedState).value_or(transition.target);
+          }
+        }
+      }
+    }
+
+    originalStates = stateMap.states;
+  }
 }

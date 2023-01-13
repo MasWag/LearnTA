@@ -139,6 +139,7 @@ namespace learnta {
 
       return newNeighbors;
     }
+  public:
 
     /*!
      * @brief Make precise clocks after applying a reset
@@ -178,7 +179,6 @@ namespace learnta {
       return newPreciseClocks;
     }
 
-  public:
     /*!
      * @brief Make precise clocks after applying a reset
      */
@@ -438,9 +438,9 @@ namespace learnta {
       }
     }
 
-    [[nodiscard]] static std::size_t computeTargetClockSize(const TATransition &transition) {
+    [[nodiscard]] static std::size_t computeClockSize(const TAState* state) {
       std::size_t targetClockSize = 0;
-      for (const auto &[action, transitions]: transition.target->next) {
+      for (const auto &[action, transitions]: state->next) {
         for (const auto &cTransition: transitions) {
           std::for_each(cTransition.guard.begin(), cTransition.guard.end(), [&](const Constraint &constraint) {
             targetClockSize = std::max(targetClockSize, static_cast<std::size_t>(constraint.x + 1));
@@ -449,6 +449,10 @@ namespace learnta {
       }
 
       return targetClockSize;
+    }
+
+      [[nodiscard]] static std::size_t computeTargetClockSize(const TATransition &transition) {
+      return computeClockSize(transition.target);
     }
 
     std::ostream &print(std::ostream &os) const {

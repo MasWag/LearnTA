@@ -115,7 +115,7 @@ namespace learnta {
     }
   }
 
-  void TAState::mergeNondeterministicBranching() {
+  void TAState::removeTransitionsWithWeakerGuards() {
     for (auto &[action, transitions]: this->next) {
       // Remove weaker guards
       for (auto it2 = transitions.begin(); it2 != transitions.end();) {
@@ -127,6 +127,55 @@ namespace learnta {
           ++it2;
         }
       }
+    }
+  }
+
+  void TAState::mergeNondeterministicBranchingWithSameTarget() {
+    for (auto &[action, transitions]: this->next) {
+      for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
+        for (auto it3 = std::next(it2); it3 != transitions.end();) {
+          if (it2->target == it3->target && satisfiable(conjunction(it2->guard, it3->guard))) {
+#ifdef DEBUG
+            BOOST_LOG_TRIVIAL(debug) << "The conjunction of " << it2->guard << " and "
+                                     << it3->guard << " is satisfiable";
+#endif
+            // Use the reset and target causing more imprecise clocks
+            //if (it2->resetVars.size() < it3->resetVars.size()) {
+            if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
+                TATransition::impreciseConstantAssignSize(it3->resetVars)) {
+              it3->addPreciseConstantAssignments(it2->resetVars);
+              it2->resetVars = it3->resetVars;
+            } else {
+              it2->addPreciseConstantAssignments(it3->resetVars);
+            }
+            std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
+            it2->guard = unionHull(guards);
+            it3 = transitions.erase(it3);
+          } else {
+            ++it3;
+          }
+        }
+      }
+    }
+  }
+
+  bool TAState::needSplitting() const {
+    for (auto &[action, transitions]: this->next) {
+      for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
+        for (auto it3 = std::next(it2); it3 != transitions.end();) {
+          if (it2->target != it3->target && satisfiable(conjunction(it2->guard, it3->guard)) &&
+              simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  void TAState::mergeNondeterministicBranching() {
+    for (auto &[action, transitions]: this->next) {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end();) {
           if (satisfiable(conjunction(it2->guard, it3->guard))) {
@@ -159,6 +208,52 @@ namespace learnta {
             std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
             it2->guard = unionHull(guards);
             it3 = transitions.erase(it3);
+          } else {
+            ++it3;
+          }
+        }
+      }
+    }
+  }
+
+  void TAState::mergeNondeterministicBranching(const std::unordered_set<ClockVariables> &preciseClocks) {
+    for (auto &[action, transitions]: this->next) {
+      for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
+        for (auto it3 = std::next(it2); it3 != transitions.end();) {
+          if (satisfiable(conjunction(it2->guard, it3->guard))) {
+            if (it2->target != it3->target) {
+              const auto preciseVariables2 = simpleVariables(it2->guard);
+              const auto preciseVariables3 = simpleVariables(it3->guard);
+              bool use3 = false;
+              for (const auto &preciseClock: preciseClocks) {
+                bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
+                                  preciseVariables2.end();
+                bool preciseIn3 = std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) !=
+                                  preciseVariables3.end();
+                if (preciseIn2 != preciseIn3) {
+                  use3 = preciseIn3;
+                  break;
+                }
+              }
+              if (use3) {
+                it2->guard = it3->guard;
+                it2->resetVars = it3->resetVars;
+                it2->target = it3->target;
+              }
+              it3 = transitions.erase(it3);
+            } else {
+              if (TATransition::impreciseConstantAssignSize(it2->resetVars) <
+                  TATransition::impreciseConstantAssignSize(it3->resetVars)) {
+                it3->addPreciseConstantAssignments(it2->resetVars);
+                it2->resetVars = it3->resetVars;
+                it2->target = it3->target;
+              } else {
+                it2->addPreciseConstantAssignments(it3->resetVars);
+              }
+              std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
+              it2->guard = unionHull(guards);
+              it3 = transitions.erase(it3);
+            }
           } else {
             ++it3;
           }
