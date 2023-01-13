@@ -113,7 +113,7 @@ namespace learnta {
     if (needSplit.empty()) {
       return;
     }
-    using PreciseClocks = std::unordered_set<ClockVariables>;
+    using PreciseClocks = std::vector<ClockVariables>;
     using State = TAState*;
     using EnhancedState = std::pair<State, PreciseClocks>;
     struct StateMap {
@@ -183,8 +183,10 @@ namespace learnta {
       visitedStates.insert(enhancedState);
       for (auto &[action, transitions]: state->next) {
         for (auto &transition: transitions) {
-          const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(preciseClocks, transition);
-          const EnhancedState nextEnhancedState{transition.target, nextPreciseClocks};
+          const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(std::unordered_set<ClockVariables>{
+            preciseClocks.begin(), preciseClocks.end()}, transition);
+          const EnhancedState nextEnhancedState{transition.target, PreciseClocks{nextPreciseClocks.begin(),
+                                                                                 nextPreciseClocks.end()}};
           if (!isVisited(nextEnhancedState)) {
             if (requiresSplit(transition.target)) {
               auto newState = stateMap.make(nextEnhancedState);
