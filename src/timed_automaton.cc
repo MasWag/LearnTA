@@ -141,6 +141,12 @@ namespace learnta {
             assert(it2->target->isMatch == it3->target->isMatch);
             if (it2->target != it3->target) {
               BOOST_LOG_TRIVIAL(warning) << "We merge transitions with different targets. This is unstable";
+              // Check if this happens only when the imprecise clocks are different
+              if (simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
+                BOOST_LOG_TRIVIAL(error) << "it2->guard: " << it2->guard;
+                BOOST_LOG_TRIVIAL(error) << "it3->guard: " << it3->guard;
+                throw std::logic_error("Unexpected reason of non deterministic branching");
+              }
             }
             // Use the reset and target causing more imprecise clocks
             //if (it2->resetVars.size() < it3->resetVars.size()) {
