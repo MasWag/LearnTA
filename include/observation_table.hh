@@ -864,21 +864,21 @@ namespace learnta {
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
 #endif
       impreciseNeighbors.run();
-//#ifdef DEBUG
-      BOOST_LOG_TRIVIAL(info) << "Hypothesis after handling imprecise clocks\n" <<
+#ifdef DEBUG
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after handling imprecise clocks\n" <<
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
       BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
-//#endif
+#endif
       // Make the transitions deterministic
       for (const auto &state: states) {
         state->mergeNondeterministicBranching();
       }
-//#ifdef DEBUG
+#ifdef DEBUG
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after making transitions deterministic\n" <<
                                TimedAutomaton{{states, {initialState}},
                                               TimedAutomaton::makeMaxConstants(states)}.simplify();
-//#endif
+#endif
 
       // Assert the totality of the constructed DTA
       assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](std::size_t pIndex) {

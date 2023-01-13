@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include "recognizable_languages.hh"
 #include "membership_oracle.hh"
 
@@ -42,7 +44,7 @@ namespace learnta {
     assert(eval(mappedWords.back()));
     assert(!eval(mappedWords.front()));
     if (eval(mappedWords.front())) {
-      BOOST_LOG_TRIVIAL(error) << "Something is wrong with the hypothesis: " << hypothesis;
+      BOOST_LOG_TRIVIAL(error) << "DTA construction is not working well. hypothesis: " << hypothesis;
       for (const auto &morphism: morphisms) {
         BOOST_LOG_TRIVIAL(error) << "Morphism: " << morphism;
       }
@@ -50,6 +52,19 @@ namespace learnta {
         BOOST_LOG_TRIVIAL(error) << "mappedWord: " << mappedWord;
       }
       //throw std::logic_error("Error in counter example analysis");
+      // The DTA construction is not working well. This happens only if the suffix is not refined enough
+      const auto elementary = ForwardRegionalElementaryLanguage::fromTimedWord(word);
+      const auto prefixes = elementary.prefixes();
+      for (const auto &prefix: boost::adaptors::reverse(prefixes)) {
+        const auto suffix = elementary.suffix(prefix).sample();
+        auto it = std::find_if(currentSuffixes.begin(), currentSuffixes.end(), [&] (const auto &suffixLang) {
+          return suffixLang.contains(suffix);
+        });
+        if (it == currentSuffixes.end()) {
+          return suffix;
+        }
+      }
+      return std::nullopt;
     }
     for (std::size_t index = 0; index + 1 < mappedWords.size(); ++index) {
       if (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {

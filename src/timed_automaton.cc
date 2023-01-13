@@ -143,9 +143,7 @@ namespace learnta {
               BOOST_LOG_TRIVIAL(warning) << "We merge transitions with different targets. This is unstable";
               // Check if this happens only when the imprecise clocks are different
               if (simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
-                BOOST_LOG_TRIVIAL(error) << "it2->guard: " << it2->guard;
-                BOOST_LOG_TRIVIAL(error) << "it3->guard: " << it3->guard;
-                throw std::logic_error("Unexpected reason of non deterministic branching");
+                BOOST_LOG_TRIVIAL(warning) << "Moreover, the merged transition have the same set of imprecise clocks";
               }
             }
             // Use the reset and target causing more imprecise clocks
