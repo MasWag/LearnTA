@@ -225,7 +225,7 @@ namespace learnta {
      */
     void splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
                      const std::shared_ptr<TAState> &initialState,
-                     const std::vector<TAState*> &needSplit) const;
+                     const std::vector<TAState *> &needSplit) const;
 
   public:
     /*!
@@ -306,12 +306,12 @@ namespace learnta {
       }
 
       // Assert that we have prefixes for any successors
-      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto &pIndex) {
         const auto successor = this->continuousSuccessors.at(pIndex);
         return successor < this->prefixes.size();
       }));
-      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
-        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&] (const auto &action) {
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto &pIndex) {
+        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&](const auto &action) {
           const auto successor = this->discreteSuccessors.at(std::make_pair(pIndex, action));
           return successor < this->prefixes.size();
         });
@@ -320,25 +320,26 @@ namespace learnta {
       for (std::size_t pIndex = 0; pIndex < this->prefixes.size(); ++pIndex) {
         assert(this->inP(pIndex) || std::any_of(this->closedRelation.at(pIndex).begin(),
                                                 this->closedRelation.at(pIndex).end(),
-                                                [&] (const auto& rPair) {
-          return this->inP(rPair.first);
-        }));
+                                                [&](const auto &rPair) {
+                                                  return this->inP(rPair.first);
+                                                }));
       }
-      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto &pIndex) {
         return this->pIndices.find(this->continuousSuccessors.at(pIndex)) != this->pIndices.end() ||
-        std::any_of(this->closedRelation.at(this->continuousSuccessors.at(pIndex)).begin(),
-                    this->closedRelation.at(this->continuousSuccessors.at(pIndex)).end(), [&] (const auto& rPair) {
-          return this->inP(rPair.first);
-        });
+               std::any_of(this->closedRelation.at(this->continuousSuccessors.at(pIndex)).begin(),
+                           this->closedRelation.at(this->continuousSuccessors.at(pIndex)).end(),
+                           [&](const auto &rPair) {
+                             return this->inP(rPair.first);
+                           });
       }));
-      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&] (const auto &pIndex) {
-        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&] (const auto &action) {
+      assert(std::all_of(this->pIndices.begin(), this->pIndices.end(), [&](const auto &pIndex) {
+        return std::all_of(this->alphabet.begin(), this->alphabet.end(), [&](const auto &action) {
           const auto successor = this->discreteSuccessors.at(std::make_pair(pIndex, action));
           return this->inP(successor) || std::any_of(this->closedRelation.at(successor).begin(),
                                                      this->closedRelation.at(successor).end(),
                                                      [&](const std::pair<std::size_t, RenamingRelation> &rPair) {
-            return this->inP(rPair.first);
-          });
+                                                       return this->inP(rPair.first);
+                                                     });
         });
       }));
       return true;
@@ -368,6 +369,35 @@ namespace learnta {
       this->refreshTable();
       // i and j should not be equivalent after adding the new suffix
       assert(!this->equivalentWithMemo(i, j));
+    }
+
+    /*!
+     * @brief Try to resolve an inconsistency due to continuous successors
+     *
+     * @pre equivalent(i, j)
+     * @pre !equivalent(continuousSuccessors(i), continuousSuccessors(j))
+     * @post !equivalent(i, j)
+     *
+     * @return If the inconsistency is resolved
+     */
+    [[nodiscard]] bool resolveContinuousInconsistency(std::size_t i, std::size_t j) {
+      // Find a single witness of the inconsistency
+      auto it = std::find_if_not(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
+        return equivalent(i, j, suffix.predecessor());
+      });
+      // we assume that we have such a suffix
+      if (it == suffixes.end()) {
+        return false;
+      }
+      const auto newSuffix = it->predecessor();
+      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      suffixes.push_back(newSuffix);
+
+      this->refreshTable();
+      // i and j should not be equivalent after adding the new suffix
+      assert(!this->equivalentWithMemo(i, j));
+
+      return true;
     }
 
     /*!
@@ -439,6 +469,12 @@ namespace learnta {
                 return false;
               }
             }
+            if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))
+                && resolveContinuousInconsistency(i, j)) {
+              BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the continuous successors of "
+                                       << this->prefixes.at(i) << " and " << this->prefixes.at(j);
+              return false;
+            }
           }
         }
       }
@@ -485,7 +521,7 @@ namespace learnta {
      *
      * @returns If the observation table is already exterior-saturated
      */
-     bool exteriorSaturate() {
+    bool exteriorSaturate() {
       std::vector<std::size_t> newP;
       newP.reserve(pIndices.size());
       for (const std::size_t pIndex: pIndices) {
@@ -516,7 +552,7 @@ namespace learnta {
       this->refreshTable();
 
       return false;
-     }
+    }
 
     /*!
      * @brief Refine the suffixes by the given counterexample
@@ -743,7 +779,8 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
-          impreciseNeighbors.push(jumpedState.get(), renamingRelation, this->prefixes.at(source), this->prefixes.at(jumpedTarget));
+          impreciseNeighbors.push(jumpedState.get(), renamingRelation, this->prefixes.at(source),
+                                  this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -849,7 +886,8 @@ namespace learnta {
                                       this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex,
                                                                                                    action))));
             } else {
-              const auto &map = this->closedRelation.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
+              const auto &map = this->closedRelation.at(
+                      this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
               for (const auto &[mappedIndex, relation]: map) {
                 if (this->inP(mappedIndex)) {
                   impreciseNeighbors.push(transitionIt->target, renaming,
@@ -860,7 +898,7 @@ namespace learnta {
             }
             sourceState->next.at(action).emplace_back(transitionIt->target, newReset,
                                                       this->prefixes.at(continuousSuccessor)
-                                                      .removeUpperBound().getTimedCondition().toGuard());
+                                                              .removeUpperBound().getTimedCondition().toGuard());
           }
         } else {
           ExternalTransitionMaker maker;
@@ -886,7 +924,7 @@ namespace learnta {
       BOOST_LOG_TRIVIAL(debug) << "as recognizable: " << this->toRecognizable();
 #endif
       // Make the transitions deterministic
-      std::vector<TAState*> needSplit;
+      std::vector<TAState *> needSplit;
       needSplit.reserve(states.size());
       for (const auto &state: states) {
         state->removeTransitionsWithWeakerGuards();
