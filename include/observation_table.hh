@@ -928,8 +928,15 @@ namespace learnta {
       needSplit.reserve(states.size());
       for (const auto &state: states) {
         state->removeTransitionsWithWeakerGuards();
-        needSplit.push_back(state.get());
+        if (state->needSplitting()) {
+          needSplit.push_back(state.get());
+        }
       }
+#ifdef DEBUG
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis before state splitting\n"
+                               << TimedAutomaton{{states, {initialState}},
+                                                 TimedAutomaton::makeMaxConstants(states)}.simplify();
+#endif
       // Conduct state splitting if necessary
       this->splitStates(states, initialState, needSplit);
       for (const auto &state: states) {

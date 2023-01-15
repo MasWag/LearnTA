@@ -162,7 +162,7 @@ namespace learnta {
   bool TAState::needSplitting() const {
     for (auto &[action, transitions]: this->next) {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
-        for (auto it3 = std::next(it2); it3 != transitions.end();) {
+        for (auto it3 = std::next(it2); it3 != transitions.end(); ++it3) {
           if (it2->target != it3->target && satisfiable(conjunction(it2->guard, it3->guard)) &&
               simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
             return true;
@@ -192,7 +192,9 @@ namespace learnta {
               BOOST_LOG_TRIVIAL(warning) << "We merge transitions with different targets. This is unstable";
               // Check if this happens only when the imprecise clocks are different
               if (simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
-                BOOST_LOG_TRIVIAL(warning) << "Moreover, the merged transition have the same set of imprecise clocks";
+                BOOST_LOG_TRIVIAL(warning) << "Moreover, the merged transitions have the same set of imprecise clocks";
+                BOOST_LOG_TRIVIAL(warning) << it2->guard;
+                BOOST_LOG_TRIVIAL(warning) << it3->guard;
               }
             }
             // Use the reset and target causing more imprecise clocks
