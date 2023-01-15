@@ -56,7 +56,7 @@ namespace learnta {
      *
      * Let this be \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} \f$ and another be \f$\tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m} \f$. The result is \f$\tau_0 a_1 \tau_1 \dots \tau_{n-1} a_{n} \tau_{n} + \tau'_0 a'_1 \tau'_1 \dots \tau'_{m-1} a'_{m} \tau'_{m}\f$.
      */
-    TimedWord operator+(const TimedWord &another) {
+    TimedWord operator+(const TimedWord &another) const {
       TimedWord result = *this;
       result.word += another.word;
       auto it = another.durations.begin();

@@ -554,6 +554,95 @@ namespace learnta {
       return false;
     }
 
+    bool renameConsistent() {
+      for (auto &[i, mapping]: this->closedRelation) {
+        if (!this->inP(i) && !mapping.empty()) {
+          for (auto it = mapping.begin(); it != mapping.end();) {
+            if (this->inP(it->first) && this->equivalentWithMemo(i, it->first)) {
+              // find a variable that gets imprecise after morphism
+              std::vector<ClockVariables> impreciseAfterMorphism;
+              const auto rootIndex = it->first;
+              const auto rootLanguage = this->prefixes.at(rootIndex);
+              const auto clockSize = rootLanguage.getTimedCondition().size();
+              for (ClockVariables clock = 0; clock < clockSize; ++clock) {
+                if(!isPoint(this->prefixes.at(it->first).getTimedCondition().getUpperBound(clock, clockSize - 1),
+                            this->prefixes.at(it->first).getTimedCondition().getLowerBound(clock, clockSize - 1)) &&
+                   std::none_of(it->second.begin(), it->second.end(), [&] (const auto &pair) {
+                     return pair.second == clock;
+                   })) {
+                  impreciseAfterMorphism.push_back(clock);
+                }
+              }
+              ++it;
+              if (impreciseAfterMorphism.empty()) {
+                continue;
+              }
+              // Confirm that such variables are not used in the renaming relation later
+              std::stack<std::size_t> toSearch;
+              toSearch.push(rootIndex);
+              while(!toSearch.empty()) {
+                const auto currentIndex = toSearch.top();
+                toSearch.pop();
+                if (this->inP(currentIndex)) {
+                  // Add the successors
+                  toSearch.push(this->continuousSuccessors.at(currentIndex));
+                  for (const auto action: this->alphabet) {
+                    toSearch.push(this->discreteSuccessors.at(std::make_pair(currentIndex, action)));
+                  }
+                } else {
+                  const auto currentMapping = this->closedRelation.at(currentIndex);
+                  const auto currentLanguage = this->prefixes.at(currentIndex);
+                  const auto& currentCondition = currentLanguage.getTimedCondition();
+                  const auto currentClockSize = currentCondition.size();
+                  for (const auto &[indexAfterMap, renaming]: currentMapping) {
+                    if (this->inP(indexAfterMap) && this->equivalentWithMemo(currentIndex, indexAfterMap)) {
+                      // confirm that such variables are not used
+                      for (const ClockVariables clock: impreciseAfterMorphism) {
+                        if (!isPoint(currentCondition.getUpperBound(clock, currentClockSize - 1),
+                                     currentCondition.getLowerBound(clock, currentClockSize - 1)) &&
+                            std::any_of(renaming.begin(), renaming.end(), [&](const auto &pair) {
+                              return pair.second == clock;
+                            })) {
+                          // clock is imprecise but used!!
+                          BOOST_LOG_TRIVIAL(debug) << "Observation table is renaming inconsistent";
+                          // Try to extend the suffixes
+                          const TimedWord extension = currentLanguage.suffix(rootLanguage).sample();
+                          for (const auto &suffix: this->suffixes) {
+                            const auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(extension + suffix.sample());
+                            if (!equivalent(i, rootIndex, newSuffix) ||
+                                !equivalent(currentIndex, indexAfterMap, newSuffix)) {
+                              BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix << " is added";
+                              this->suffixes.push_back(newSuffix);
+                              this->refreshTable();
+                              return false;
+                            }
+                            for (const auto &simple: (currentLanguage + suffix).enumerate()) {
+                              const auto newSuffix2 = ForwardRegionalElementaryLanguage::fromTimedWord(simple.sample()).suffix(rootLanguage);
+                              if (!equivalent(i, rootIndex, newSuffix2) ||
+                                  !equivalent(currentIndex, indexAfterMap, newSuffix2)) {
+                                BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix2
+                                                         << " is added";
+                                this->suffixes.push_back(newSuffix2);
+                                this->refreshTable();
+                                return false;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            } else {
+              it = mapping.erase(it);
+            }
+          }
+        }
+      }
+      return true;
+    }
+
     /*!
      * @brief Refine the suffixes by the given counterexample
      *

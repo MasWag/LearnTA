@@ -33,6 +33,7 @@ namespace learnta {
           notUpdated = notUpdated && observationTable.consistent();
           notUpdated = notUpdated && observationTable.exteriorConsistent();
           notUpdated = notUpdated && observationTable.exteriorSaturate();
+          notUpdated = notUpdated && observationTable.renameConsistent();
         } while (!notUpdated);
         auto hypothesis = observationTable.generateHypothesis();
         BOOST_LOG_TRIVIAL(debug) << "Hypothesis before simplification\n" << hypothesis;
