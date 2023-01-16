@@ -695,6 +695,7 @@ namespace learnta {
         }
         if (!updated) {
           BOOST_LOG_TRIVIAL(error) << "Learning has got stuck!!";
+          abort();
         }
       }
     }
