@@ -150,20 +150,38 @@ namespace learnta {
 
     boost::unordered_map<std::tuple<std::size_t, std::size_t, BackwardRegionalElementaryLanguage>, std::pair<std::size_t, bool>> equivalentWithColumnCache;
 
-    [[nodiscard]] bool
-    equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix) {
+    /*!
+     * @brief Check if the given rows remain equivalent with a new suffix
+     */
+    [[nodiscard]] bool equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix) {
+      // First, we use the cache
       auto key = std::make_tuple(i, j, newSuffix);
-      auto it = equivalentWithColumnCache.find(key);
-      if (it != equivalentWithColumnCache.end() && this->suffixes.size() == it->second.first) {
-        return it->second.second;
+      {
+        auto it = equivalentWithColumnCache.find(key);
+        if (it != equivalentWithColumnCache.end() && this->suffixes.size() == it->second.first) {
+          return it->second.second;
+        }
       }
+      // Then, we try the known renaming relations
+      {
+        auto equivalentPrefixesIT = this->closedRelation.find(i);
+        if (equivalentPrefixesIT != this->closedRelation.end()) {
+          auto it = equivalentPrefixesIT->second.find(j);
+          if (it != this->closedRelation.at(i).end()) {
+            if (equivalent(i, j, newSuffix, it->second)) {
+              equivalentWithColumnCache[key] = std::make_pair(this->suffixes.size(), true);
+              return true;
+            }
+          }
+        }
+      }
+      // Finally, we try to find an equivalent renaming
       auto leftRow = this->table.at(i);
       leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
       auto rightRow = this->table.at(j);
       rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
       auto newSuffixes = this->suffixes;
       newSuffixes.push_back(newSuffix);
-
       const auto result = findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
                                                  newSuffixes).has_value();
       equivalentWithColumnCache[key] = std::make_pair(this->suffixes.size(), result);
@@ -402,7 +420,7 @@ namespace learnta {
       auto it = std::find_if_not(suffixes.begin(), suffixes.end(), [&](const auto &suffix) {
         return equivalent(i, j, suffix.predecessor());
       });
-      // we assume that we have such a suffix
+      // We may fail to resolve continuous inconsistency
       if (it == suffixes.end()) {
         return false;
       }
