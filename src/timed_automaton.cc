@@ -164,7 +164,7 @@ namespace learnta {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end(); ++it3) {
           if (it2->target != it3->target && satisfiable(conjunction(it2->guard, it3->guard)) &&
-              simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
+              simpleVariables(it2->guard) != simpleVariables(it3->guard)) {
             return true;
           }
         }
