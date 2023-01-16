@@ -11,6 +11,9 @@
 namespace learnta {
   using Bounds = std::pair<double, bool>;
 
+  /*!
+   * @brief Check if the upper and lower bounds define a point.
+   */
   static inline bool isPoint(const Bounds &upperBound, const Bounds &lowerBound) {
     auto [upperConstant, upperEq] = upperBound; // i - j \le (c, s)
     auto [lowerConstant, lowerEq] = lowerBound; // j - i \le (c, s)

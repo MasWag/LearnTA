@@ -101,7 +101,7 @@ namespace learnta {
           // Note: zone.value(i, j) is not larger than zone.value(i, j)
           Bounds upperBound = zone.value(i, j); // i - j \le (c, s)
           Bounds lowerBound = zone.value(j, i); // j - i \le (c, s)
-          if ((!isPoint(upperBound, lowerBound)) and (!isUnitOpen(upperBound, lowerBound))) {
+          if ((!learnta::isPoint(upperBound, lowerBound)) and (!isUnitOpen(upperBound, lowerBound))) {
             return false;
           }
         }
@@ -311,7 +311,7 @@ namespace learnta {
             }
             auto lowerBound = timedCondition.getLowerBound(i, j);
             const auto upperBound = timedCondition.getUpperBound(i, j);
-            if (isPoint(upperBound, lowerBound) or isUnitOpen(upperBound, lowerBound)) {
+            if (learnta::isPoint(upperBound, lowerBound) or isUnitOpen(upperBound, lowerBound)) {
               nextConditions.push_back(timedCondition);
             } else {
               Bounds currentUpperBound = lowerBound.second ? -lowerBound : std::make_pair(-lowerBound.first + 1, false);
@@ -438,7 +438,7 @@ namespace learnta {
         // Bound of \f$\mathbb{T}_{0, i} = \mathbb{T}_{0, N} - \mathbb{T}_{i + 1, N}\f$
         Bounds &upperBound = result.value(1, (i + 2) % result.value.cols());
         Bounds &lowerBound = result.value((i + 2) % result.value.cols(), 1);
-        if (isPoint(upperBound, lowerBound)) {
+        if (learnta::isPoint(upperBound, lowerBound)) {
           upperBound.first++;
           upperBound.second = false;
           lowerBound.second = false;
@@ -462,7 +462,7 @@ namespace learnta {
         // Bound of \f$\mathbb{T}_{i, N}
         Bounds &upperBound = result.value(i + 1, 0);
         Bounds &lowerBound = result.value(0, i + 1);
-        if (isPoint(upperBound, lowerBound)) {
+        if (learnta::isPoint(upperBound, lowerBound)) {
           upperBound.second = false;
           lowerBound.first++;
           lowerBound.second = false;
@@ -486,7 +486,7 @@ namespace learnta {
         // Bound of \f$\mathbb{T}_{0, i}
         Bounds &upperBound = (i == this->size() - 1) ? result.value(1, 0) : result.value(1, i + 2);
         Bounds &lowerBound = (i == this->size() - 1) ? result.value(0, 1) : result.value(i + 2, 1);
-        if (isPoint(upperBound, lowerBound)) {
+        if (learnta::isPoint(upperBound, lowerBound)) {
           upperBound.second = false;
           lowerBound.first++;
           lowerBound.second = false;
@@ -740,6 +740,13 @@ namespace learnta {
       juxtaposed.addRenaming(renaming);
 
       return TimedCondition{juxtaposed.getRight()};
+    }
+
+    /*!
+     * @brief Check if T_{i, |T|} is a point
+     */
+    [[nodiscard]] bool isPoint(std::size_t i) const {
+      return learnta::isPoint(this->getUpperBound(i, this->size() - 1), this->getLowerBound(i, this->size() - 1));
     }
 
     [[nodiscard]] std::size_t hash_value() const {

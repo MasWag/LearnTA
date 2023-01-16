@@ -46,4 +46,55 @@ namespace learnta {
 
     return true;
   }
+
+  /*!
+   * @brief Check if the elements are sorted in the strict ascending order.
+   */
+  template<class T>
+  bool is_strict_ascending(const std::vector<T> &container) {
+    static_assert(std::is_arithmetic<T>::value, "The elements must be arithmetic.");
+    for (auto it = container.begin(); it != container.end() && std::next(it) != container.end(); ++it) {
+      if (*it >= *std::next(it)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /*!
+   * @brief Return the first element of a pair
+   */
+  template<class T, class U>
+  T first(const std::pair<T, U> &pair) {
+    return pair.first;
+  }
+
+  /*!
+   * @brief Return the second element of a pair
+   */
+  template<class T, class U>
+  U second(const std::pair<T, U> &pair) {
+    return pair.second;
+  }
+
+  /*!
+   * @brief Return a function checking if the first element equal to the given value
+   */
+  template<class T, class U>
+  auto is_first(const T &value) {
+    return [&] (const std::pair<T, U> &pair) {
+      return pair.first == value;
+    };
+  }
+
+  /*!
+   * @brief Return a function checking if the second element equal to the given value
+   */
+  template<class T, class U>
+  auto is_second(const U &value) {
+    return [&] (const std::pair<T, U> &pair) {
+      return pair.second == value;
+    };
+  }
 }

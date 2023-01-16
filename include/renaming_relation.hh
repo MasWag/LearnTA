@@ -86,15 +86,16 @@ namespace learnta {
 
     /*!
      * @brief The clock variables on the right hand side of the renaming relation
+     *
+     * @post The result is ascending and with no duplication.
      */
     [[nodiscard]] auto rightVariables() const {
       std::vector<ClockVariables> result;
       result.reserve(this->size());
-      std::transform(this->begin(), this->end(), std::back_inserter(result), [] (const auto &pair) {
-        return pair.second;
-      });
-      // Assert that the right variables have no duplications
-      assert(result.size() == std::unordered_set<size_t>(result.begin(), result.end()).size());
+      std::transform(this->begin(), this->end(), std::back_inserter(result), second<std::size_t, std::size_t>);
+      std::sort(result.begin(), result.end());
+      result.erase(std::unique(result.begin(), result.end()), result.end());
+      assert(is_strict_ascending(result));
       return result;
     }
 
@@ -102,17 +103,13 @@ namespace learnta {
      * @brief Erase pairs such that (left, right) for some right
      */
      void eraseLeft(std::size_t left) {
-       this->erase(std::remove_if(this->begin(), this->end(), [&] (const auto &pair) {
-         return pair.first == left;
-       }), this->end());
+       this->erase(std::remove_if(this->begin(), this->end(), is_first<std::size_t, std::size_t>(left)), this->end());
     }
 
     /*!
-     * @brief Check if the renaming relation contains only trivial equation from the timed conditions
+     * @brief Check if the renaming relation contains only the trivial equations from the timed conditions
      */
     [[nodiscard]] bool onlyTrivial(const TimedCondition &sourceCondition, const TimedCondition &targetCondition) const {
-      const auto juxtaposedCondition = sourceCondition ^ targetCondition;
-
       return std::all_of(this->begin(), this->end(), [&] (const auto &renamingPair) {
         const auto &[sourceClock, targetClock] = renamingPair;
         const auto sourceUpperBound = sourceCondition.getUpperBound(sourceClock, sourceCondition.size() - 1);
@@ -126,10 +123,53 @@ namespace learnta {
     }
 
     /*!
-     * @brief Check if the renaming relation is full, i.e., all the right variables are bounded
+     * @brief Check if the renaming relation contains all the trivial equations from the timed conditions
+     */
+    [[nodiscard]] bool containsAllTrivial(const TimedCondition &sourceCondition,
+                                          const TimedCondition &targetCondition) const {
+      for (auto targetClock = 0; targetClock < static_cast<ClockVariables>(targetCondition.size()); ++targetClock) {
+        const auto targetUpperBound = targetCondition.getUpperBound(targetClock, targetCondition.size() - 1);
+        const auto targetLowerBound = targetCondition.getLowerBound(targetClock, targetCondition.size() - 1);
+        if (isPoint(targetUpperBound, targetLowerBound)) {
+          bool hasEqual = false;
+          for (auto sourceClock = 0; sourceClock < static_cast<ClockVariables>(sourceCondition.size()); ++sourceClock) {
+            const auto sourceUpperBound = sourceCondition.getUpperBound(sourceClock, sourceCondition.size() - 1);
+            const auto sourceLowerBound = sourceCondition.getLowerBound(sourceClock, sourceCondition.size() - 1);
+            if (isPoint(sourceUpperBound, sourceLowerBound) &&
+                sourceUpperBound == targetUpperBound && sourceLowerBound == targetLowerBound) {
+              hasEqual = true;
+            }
+          }
+          if (hasEqual) {
+            auto it = std::find_if(this->begin(), this->end(), [&] (const auto &pair) {
+              return pair.second == static_cast<std::size_t>(targetClock);
+            });
+            if (it == this->end()) {
+              return false;
+            }
+          }
+        }
+      }
+
+      return true;
+    }
+
+    /*!
+     * @brief Check if the renaming relation is full, i.e., all the right variables are restricted
      */
     [[nodiscard]] bool full(const TimedCondition &condition) const {
-      return this->size() == condition.size();
+      std::vector<ClockVariables> restrictedVariables = this->rightVariables();
+      restrictedVariables.reserve(condition.size());
+      for (std::size_t clock = 0; clock < condition.size(); ++clock) {
+        if (condition.isPoint(clock)) {
+          restrictedVariables.push_back(clock);
+        }
+      }
+      std::sort(restrictedVariables.begin(), restrictedVariables.end());
+      restrictedVariables.erase(std::unique(restrictedVariables.begin(), restrictedVariables.end()),
+                                restrictedVariables.end());
+
+      return restrictedVariables.size() == condition.size();
     }
 
     /*!
@@ -161,6 +201,13 @@ namespace learnta {
      void addImplicitConstraints(const TimedCondition &source, const TimedCondition &target) {
       addImplicitConstraints(source ^ target);
      }
+
+     /*!
+      * @brief Check if the renaming relation is right unique, i.e, (i, k) and (j, k) in this implies i == j.
+      */
+      [[nodiscard]] bool isRightUnique() const {
+        return this->rightVariables().size() == this->size();
+      }
 
     friend std::ostream &operator<<(std::ostream &os, const RenamingRelation &relation) {
       bool isFirst = true;
