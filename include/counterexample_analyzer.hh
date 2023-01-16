@@ -42,7 +42,7 @@ namespace learnta {
       return oracle.answerQuery(w) == hypothesisResult;
     };
     assert(eval(mappedWords.back()));
-    assert(!eval(mappedWords.front()));
+    // assert(!eval(mappedWords.front()));
     if (eval(mappedWords.front())) {
       BOOST_LOG_TRIVIAL(error) << "DTA construction is not working well. hypothesis: " << hypothesis;
       for (const auto &morphism: morphisms) {
@@ -51,6 +51,7 @@ namespace learnta {
       for (const auto &mappedWord: mappedWords) {
         BOOST_LOG_TRIVIAL(error) << "mappedWord: " << mappedWord;
       }
+      assert(!eval(mappedWords.front()));
       //throw std::logic_error("Error in counter example analysis");
       // The DTA construction is not working well. This happens only if the suffix is not refined enough
       const auto elementary = ForwardRegionalElementaryLanguage::fromTimedWord(word);

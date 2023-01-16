@@ -75,4 +75,49 @@ BOOST_AUTO_TEST_SUITE(TimedAutomatonTest)
     BOOST_CHECK_EQUAL(original.stateSize() + 1, this->hypothesis.stateSize());
     BOOST_CHECK_EQUAL(original.initialStates.size(), this->hypothesis.initialStates.size());
   }
+
+  BOOST_AUTO_TEST_CASE(mergeNondeterministicBranchingTest) {
+    std::stringstream stream;
+    std::vector<std::shared_ptr<TAState>> states;
+    for (int i = 0; i < 3; ++i) {
+      states.push_back(std::make_shared<TAState>(i % 2));
+    }
+    std::array<TATransition::Resets, 2> resets;
+    resets.at(0).emplace_back(0, 6.0);
+    resets.at(0).emplace_back(2, 0.0);
+    resets.at(1).emplace_back(2, 0.0);
+    resets.at(1).emplace_back(0, 5.5);
+
+    states.at(0)->next['b'].emplace_back(states.at(1).get(), resets.at(0),
+                                         std::vector<Constraint>{ConstraintMaker(1) > 5, ConstraintMaker(0) < 8,
+                                                                  ConstraintMaker(0) > 6, ConstraintMaker(1) < 6});
+    states.at(0)->next['b'].emplace_back(states.at(2).get(), resets.at(1),
+                                         std::vector<Constraint>{ConstraintMaker(1) > 5, ConstraintMaker(0) < 7,
+                                                                 ConstraintMaker(0) > 5, ConstraintMaker(1) < 6});
+
+    std::cout << TimedAutomaton{{states, {states.front()}}, TimedAutomaton::makeMaxConstants(states)};
+    stream << TimedAutomaton{{states, {states.front()}}, TimedAutomaton::makeMaxConstants(states)};
+    BOOST_CHECK_EQUAL("digraph G {\n"
+                      "        loc0 [init=1, match=0]\n"
+                      "        loc1 [init=0, match=1]\n"
+                      "        loc2 [init=0, match=0]\n"
+                      "        loc0->loc1 [label=\"b\", guard=\"{x1 > 5, x0 < 8, x0 > 6, x1 < 6}\", reset=\"{x0 := 6, x2 := 0}\"]\n"
+                      "        loc0->loc2 [label=\"b\", guard=\"{x1 > 5, x0 < 7, x0 > 5, x1 < 6}\", reset=\"{x2 := 0, x0 := 5.5}\"]\n"
+                      "}\n", stream.str());
+    stream.str("");
+    const std::unordered_set<ClockVariables> preciseClocks = {1};
+    states.at(0)->mergeNondeterministicBranching(preciseClocks);
+    BOOST_CHECK_EQUAL(1, states.at(0)->next.at('b').size());
+    BOOST_CHECK_EQUAL(states.at(1).get(), states.at(0)->next.at('b').front().target);
+    BOOST_CHECK_EQUAL(resets.at(0), states.at(0)->next.at('b').front().resetVars);
+    const auto sort = [] (std::vector<Constraint> guard) -> std::vector<Constraint> {
+      std::sort(guard.begin(), guard.end(), [] (const Constraint &left, const Constraint &right) -> bool {
+        return std::make_pair(left.x, left.toDBMBound()) <= std::make_pair(right.x, right.toDBMBound());
+      });
+      return guard;
+    };
+    std::vector<Constraint> expectedGuards{ConstraintMaker(1) > 5, ConstraintMaker(0) < 8,
+                                           ConstraintMaker(0) > 5, ConstraintMaker(1) < 6};
+    BOOST_CHECK_EQUAL(sort(expectedGuards), sort(states.at(0)->next.at('b').front().guard));
+  }
 BOOST_AUTO_TEST_SUITE_END()

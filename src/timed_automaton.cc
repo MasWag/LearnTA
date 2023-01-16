@@ -238,10 +238,11 @@ namespace learnta {
                 }
               }
               if (use3) {
-                it2->guard = it3->guard;
                 it2->resetVars = it3->resetVars;
                 it2->target = it3->target;
               }
+              std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
+              it2->guard = unionHull(guards);
               it3 = transitions.erase(it3);
             } else {
               if (TATransition::impreciseConstantAssignSize(it2->resetVars) <

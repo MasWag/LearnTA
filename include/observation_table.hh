@@ -1049,12 +1049,12 @@ namespace learnta {
         BOOST_LOG_TRIVIAL(info) << "# of states before splitting: " << states.size();
         this->splitStates(states, initialState, needSplit);
         BOOST_LOG_TRIVIAL(info) << "# of states after splitting: " << states.size();
+#ifdef DEBUG
+        BOOST_LOG_TRIVIAL(debug) << "Hypothesis after state splitting\n"
+                                 << TimedAutomaton{{states, {initialState}},
+                                                   TimedAutomaton::makeMaxConstants(states)}.simplify();
+#endif
       }
-      #ifdef DEBUG
-      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after state splitting\n"
-                               << TimedAutomaton{{states, {initialState}},
-                                                 TimedAutomaton::makeMaxConstants(states)}.simplify();
-      #endif
       for (const auto &state: states) {
         state->mergeNondeterministicBranching();
       }
