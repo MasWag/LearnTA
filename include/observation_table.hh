@@ -595,20 +595,9 @@ namespace learnta {
           for (auto it = mapping.begin(); it != mapping.end();) {
             if (this->inP(it->first) && this->equivalentWithMemo(i, it->first)) {
               // find a variable that gets imprecise after morphism
-              std::vector<ClockVariables> impreciseAfterMorphism;
-              const auto rootIndex = it->first;
+              const auto &[rootIndex, rootRenaming] = *it;
               const auto rootLanguage = this->prefixes.at(rootIndex);
-              const auto rootRenaming = it->second;
-              const auto clockSize = rootLanguage.getTimedCondition().size();
-              for (ClockVariables clock = 0; clock < clockSize; ++clock) {
-                if(!isPoint(this->prefixes.at(it->first).getTimedCondition().getUpperBound(clock, clockSize - 1),
-                            this->prefixes.at(it->first).getTimedCondition().getLowerBound(clock, clockSize - 1)) &&
-                   std::none_of(it->second.begin(), it->second.end(), [&] (const auto &pair) {
-                     return pair.second == clock;
-                   })) {
-                  impreciseAfterMorphism.push_back(clock);
-                }
-              }
+              const auto impreciseAfterMorphism = rootRenaming.impreciseClocks(rootLanguage.getTimedCondition());
               ++it;
               if (impreciseAfterMorphism.empty()) {
                 continue;
@@ -626,21 +615,16 @@ namespace learnta {
                     toSearch.push(this->discreteSuccessors.at(std::make_pair(currentIndex, action)));
                   }
                 } else {
-                  const auto currentMapping = this->closedRelation.at(currentIndex);
                   const auto currentLanguage = this->prefixes.at(currentIndex);
                   const auto& currentCondition = currentLanguage.getTimedCondition();
-                  const auto currentClockSize = currentCondition.size();
-                  for (const auto &[indexAfterMap, renaming]: currentMapping) {
+                  for (const auto &[indexAfterMap, renaming]: this->closedRelation.at(currentIndex)) {
                     if (this->inP(indexAfterMap) && this->equivalentWithMemo(currentIndex, indexAfterMap)) {
-                      // confirm that such variables are not used
+                      // confirm that imprecise variables are not used
                       for (const ClockVariables clock: impreciseAfterMorphism) {
-                        if (!isPoint(currentCondition.getUpperBound(clock, currentClockSize - 1),
-                                     currentCondition.getLowerBound(clock, currentClockSize - 1)) &&
-                            std::any_of(renaming.begin(), renaming.end(), [&](const auto &pair) {
-                              return pair.second == clock;
-                            })) {
+                        if (!currentCondition.isPoint(clock) &&
+                            std::any_of(renaming.begin(), renaming.end(), is_second<std::size_t, std::size_t>(clock))) {
                           // clock is imprecise but used!!
-                          BOOST_LOG_TRIVIAL(info) << "Observation table is renaming inconsistent";
+                          BOOST_LOG_TRIVIAL(info) << "Observation table is renaming inconsistent: " << clock;
                           // Try to extend the suffixes
                           const TimedWord extension = currentLanguage.suffix(rootLanguage).sample();
                           for (const auto &suffix: this->suffixes) {
@@ -905,8 +889,7 @@ namespace learnta {
           transitionMaker.add(jumpedState, renamingRelation,
                               this->prefixes.at(source).getTimedCondition(),
                               this->prefixes.at(jumpedTarget).getTimedCondition());
-          impreciseNeighbors.push(jumpedState.get(), renamingRelation, this->prefixes.at(source),
-                                  this->prefixes.at(jumpedTarget));
+          impreciseNeighbors.push(jumpedState.get(), renamingRelation, this->prefixes.at(jumpedTarget));
           if (stateManager.isNew(target)) {
             stateManager.add(jumpedState, target);
           }
@@ -969,8 +952,7 @@ namespace learnta {
         const auto jumpedSourceState = stateManager.toState(jumpedSourceIndex);
         const auto jumpedSourceCondition = this->prefixes.at(jumpedSourceIndex).getTimedCondition();
         // addInactiveClocks(jumpedSourceState.get(), it->second, jumpedSourceCondition);
-        impreciseNeighbors.push(jumpedSourceState.get(), it->second,
-                                this->prefixes.at(continuousSuccessor), this->prefixes.at(jumpedSourceIndex));
+        impreciseNeighbors.push(jumpedSourceState.get(), it->second, this->prefixes.at(jumpedSourceIndex));
         // We project to the non-exterior area
         const auto nonExteriorValuation = ExternalTransitionMaker::toValuation(jumpedSourceCondition);
         TATransition::Resets resetByContinuousExterior;
@@ -1008,7 +990,6 @@ namespace learnta {
             }
             if (this->inP(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)))) {
               impreciseNeighbors.push(transitionIt->target, renaming,
-                                      this->prefixes.at(jumpedSourceIndex),
                                       this->prefixes.at(this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex,
                                                                                                    action))));
             } else {
@@ -1016,8 +997,7 @@ namespace learnta {
                       this->discreteSuccessors.at(std::make_pair(jumpedSourceIndex, action)));
               for (const auto &[mappedIndex, relation]: map) {
                 if (this->inP(mappedIndex)) {
-                  impreciseNeighbors.push(transitionIt->target, renaming,
-                                          this->prefixes.at(jumpedSourceIndex), this->prefixes.at(mappedIndex));
+                  impreciseNeighbors.push(transitionIt->target, renaming, this->prefixes.at(mappedIndex));
                   break;
                 }
               }
@@ -1065,7 +1045,9 @@ namespace learnta {
 #endif
       // Conduct state splitting if necessary
       if (!needSplit.empty()) {
+        BOOST_LOG_TRIVIAL(info) << "# of states before splitting: " << states.size();
         this->splitStates(states, initialState, needSplit);
+        BOOST_LOG_TRIVIAL(info) << "# of states after splitting: " << states.size();
       }
       #ifdef DEBUG
       BOOST_LOG_TRIVIAL(debug) << "Hypothesis after state splitting\n"

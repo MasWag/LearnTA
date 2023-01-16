@@ -109,16 +109,9 @@ namespace learnta {
     /*!
      * @brief Check if the renaming relation contains only the trivial equations from the timed conditions
      */
-    [[nodiscard]] bool onlyTrivial(const TimedCondition &sourceCondition, const TimedCondition &targetCondition) const {
+    [[nodiscard]] bool onlyTrivial(const TimedCondition &targetCondition) const {
       return std::all_of(this->begin(), this->end(), [&] (const auto &renamingPair) {
-        const auto &[sourceClock, targetClock] = renamingPair;
-        const auto sourceUpperBound = sourceCondition.getUpperBound(sourceClock, sourceCondition.size() - 1);
-        const auto sourceLowerBound = sourceCondition.getLowerBound(sourceClock, sourceCondition.size() - 1);
-        const auto targetUpperBound = targetCondition.getUpperBound(targetClock, targetCondition.size() - 1);
-        const auto targetLowerBound = targetCondition.getLowerBound(targetClock, targetCondition.size() - 1);
-
-        return isPoint(sourceUpperBound, sourceLowerBound) && isPoint(targetUpperBound, targetLowerBound) &&
-               sourceUpperBound == targetUpperBound && sourceLowerBound == targetLowerBound;
+        return targetCondition.isPoint(renamingPair.second);
       });
     }
 
@@ -175,8 +168,25 @@ namespace learnta {
     /*!
      * @brief Check if the application of this renaming causes implicit clocks
      */
-    [[nodiscard]] bool impreciseClocks(const TimedCondition &source, const TimedCondition &target) const {
-      return !this->empty() && !this->full(target) && !this->onlyTrivial(source, target);
+    [[nodiscard]] bool hasImpreciseClocks(const TimedCondition &target) const {
+      return !this->empty() && !this->full(target) && !this->onlyTrivial(target);
+    }
+
+    /*!
+     * @brief Return the imprecise clocks by this renaming
+     */
+    [[nodiscard]] std::vector<ClockVariables> impreciseClocks(const TimedCondition &target) const {
+      if (!hasImpreciseClocks(target)) {
+        return {};
+      }
+      std::vector<ClockVariables> result;
+      for (std::size_t clock = 0; clock < target.size(); ++clock) {
+        if(!target.isPoint(clock) && std::none_of(begin(), end(), is_second<std::size_t, std::size_t>(clock))) {
+          result.push_back(clock);
+        }
+      }
+
+      return result;
     }
 
     /*!

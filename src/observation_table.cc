@@ -144,6 +144,7 @@ namespace learnta {
       }
 
       State make(const EnhancedState &state) {
+        BOOST_LOG_TRIVIAL(info) << "StateMap: new state is created";
         states.push_back(std::make_shared<TAState>(state.first->isMatch));
         add(state, states.back().get());
 

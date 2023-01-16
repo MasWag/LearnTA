@@ -72,15 +72,12 @@ namespace learnta {
      * @brief Add new transition with imprecise clocks
      */
     void push(TAState *jumpedState, const RenamingRelation &renamingRelation,
-              const ForwardRegionalElementaryLanguage &sourceElementary,
               const ForwardRegionalElementaryLanguage &targetElementary) {
       // There are imprecise clocks
-      if (renamingRelation.impreciseClocks(sourceElementary.getTimedCondition(),
-                                           targetElementary.getTimedCondition())) {
+      if (renamingRelation.hasImpreciseClocks(targetElementary.getTimedCondition())) {
         BOOST_LOG_TRIVIAL(debug) << "new imprecise neighbors set is added: " << jumpedState << ", "
                                  << targetElementary << ", " << renamingRelation;
-        impreciseNeighbors.emplace(jumpedState,
-                                   NeighborConditions{targetElementary, renamingRelation.rightVariables()});
+        impreciseNeighbors.emplace(jumpedState, NeighborConditions{targetElementary, renamingRelation.rightVariables()});
       }
     }
 
