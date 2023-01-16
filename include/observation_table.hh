@@ -171,6 +171,23 @@ namespace learnta {
       return result;
     }
 
+    /*!
+     * @brief Check if the given renaming relation remains an evidence of the equivalence with a new suffix
+     */
+    [[nodiscard]] bool equivalent(std::size_t i, std::size_t j, const BackwardRegionalElementaryLanguage &newSuffix,
+                                  const RenamingRelation &renaming) const {
+      const auto leftPrefix = this->prefixes.at(i);
+      auto leftRow = this->table.at(i);
+      leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
+      const auto rightPrefix = this->prefixes.at(j);
+      auto rightRow = this->table.at(j);
+      rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
+      auto newSuffixes = this->suffixes;
+      newSuffixes.push_back(newSuffix);
+
+      return equivalence(leftPrefix, leftRow, rightPrefix, rightRow, newSuffixes, renaming);
+    }
+
     [[nodiscard]] bool
     equivalent(std::size_t i, std::size_t j, const std::list<BackwardRegionalElementaryLanguage> &newSuffixes) const {
       auto leftRow = this->table.at(i);
@@ -563,6 +580,7 @@ namespace learnta {
               std::vector<ClockVariables> impreciseAfterMorphism;
               const auto rootIndex = it->first;
               const auto rootLanguage = this->prefixes.at(rootIndex);
+              const auto rootRenaming = it->second;
               const auto clockSize = rootLanguage.getTimedCondition().size();
               for (ClockVariables clock = 0; clock < clockSize; ++clock) {
                 if(!isPoint(this->prefixes.at(it->first).getTimedCondition().getUpperBound(clock, clockSize - 1),
@@ -604,23 +622,23 @@ namespace learnta {
                               return pair.second == clock;
                             })) {
                           // clock is imprecise but used!!
-                          BOOST_LOG_TRIVIAL(debug) << "Observation table is renaming inconsistent";
+                          BOOST_LOG_TRIVIAL(info) << "Observation table is renaming inconsistent";
                           // Try to extend the suffixes
                           const TimedWord extension = currentLanguage.suffix(rootLanguage).sample();
                           for (const auto &suffix: this->suffixes) {
                             const auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(extension + suffix.sample());
-                            if (!equivalent(i, rootIndex, newSuffix) ||
-                                !equivalent(currentIndex, indexAfterMap, newSuffix)) {
-                              BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix << " is added";
+                            if (!equivalent(i, rootIndex, newSuffix, rootRenaming) ||
+                                !equivalent(currentIndex, indexAfterMap, newSuffix, renaming)) {
+                              BOOST_LOG_TRIVIAL(info) << "renameConsistent: New suffix " << newSuffix << " is added";
                               this->suffixes.push_back(newSuffix);
                               this->refreshTable();
                               return false;
                             }
                             for (const auto &simple: (currentLanguage + suffix).enumerate()) {
                               const auto newSuffix2 = ForwardRegionalElementaryLanguage::fromTimedWord(simple.sample()).suffix(rootLanguage);
-                              if (!equivalent(i, rootIndex, newSuffix2) ||
-                                  !equivalent(currentIndex, indexAfterMap, newSuffix2)) {
-                                BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix2
+                              if (!equivalent(i, rootIndex, newSuffix2, rootRenaming) ||
+                                  !equivalent(currentIndex, indexAfterMap, newSuffix2, renaming)) {
+                                BOOST_LOG_TRIVIAL(info) << "renameConsistent: New suffix " << newSuffix2
                                                          << " is added";
                                 this->suffixes.push_back(newSuffix2);
                                 this->refreshTable();
@@ -628,6 +646,7 @@ namespace learnta {
                               }
                             }
                           }
+                          BOOST_LOG_TRIVIAL(info) << "Failed to resolve the renaming inconsistency!!";
                         }
                       }
                     }
@@ -1027,7 +1046,14 @@ namespace learnta {
                                                  TimedAutomaton::makeMaxConstants(states)}.simplify();
 #endif
       // Conduct state splitting if necessary
-      this->splitStates(states, initialState, needSplit);
+      if (!needSplit.empty()) {
+        this->splitStates(states, initialState, needSplit);
+      }
+      #ifdef DEBUG
+      BOOST_LOG_TRIVIAL(debug) << "Hypothesis after state splitting\n"
+                               << TimedAutomaton{{states, {initialState}},
+                                                 TimedAutomaton::makeMaxConstants(states)}.simplify();
+      #endif
       for (const auto &state: states) {
         state->mergeNondeterministicBranching();
       }

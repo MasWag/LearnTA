@@ -68,6 +68,49 @@ namespace learnta {
               fractionalOrder.predecessor()};
     }
 
+    /*!
+ * @brief Return the immediate suffix if exists
+ */
+    [[nodiscard]] std::optional<BackwardRegionalElementaryLanguage> immediateSuffix() const {
+      if (this->getWord().empty() && !this->getTimedCondition().hasSuffix()) {
+        // When no prefix exists
+        return std::nullopt;
+      } else if (this->getTimedCondition().hasSuffix()) {
+        // return the continuous prefix
+        return std::make_optional(BackwardRegionalElementaryLanguage{
+                {this->getWord(), this->getTimedCondition().suffix(this->fractionalOrder.predecessorVariables())},
+                this->fractionalOrder.predecessor()});
+      } else {
+        // TODO: return the discrete suffix
+        auto word = this->getWord();
+        word.erase(word.begin());
+        return std::make_optional(BackwardRegionalElementaryLanguage{
+                {word, this->timedCondition.removeN()}, this->fractionalOrder.removeN()});
+      }
+    }
+
+    /*!
+     * @brief Return the suffixes in the shorter to the longer order
+     */
+    [[nodiscard]] std::vector<BackwardRegionalElementaryLanguage> prefixes() const {
+      std::list<BackwardRegionalElementaryLanguage> resultList;
+      auto language = *this;
+      resultList.push_front(language);
+      auto next = language.immediateSuffix();
+
+      while (next.has_value()) {
+        language = *next;
+        resultList.push_front(language);
+        next = language.immediateSuffix();
+      }
+
+      std::vector<BackwardRegionalElementaryLanguage> result;
+      result.resize(resultList.size());
+      std::move(resultList.begin(), resultList.end(), result.begin());
+
+      return result;
+    }
+
     std::ostream &print(std::ostream &os) const {
       os << "(" << this->getWord() << ", " << this->getTimedCondition() << ", " << this->fractionalOrder;
 

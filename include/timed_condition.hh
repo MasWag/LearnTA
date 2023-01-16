@@ -477,6 +477,30 @@ namespace learnta {
     }
 
     /*!
+     * @brief Make a continuous suffix
+     */
+    [[nodiscard]] TimedCondition suffix(const std::deque<ClockVariables> &variables) const {
+      Zone result = this->zone;
+
+      for (const auto i: variables) {
+        // Bound of \f$\mathbb{T}_{0, i}
+        Bounds &upperBound = (i == this->size() - 1) ? result.value(1, 0) : result.value(1, i + 2);
+        Bounds &lowerBound = (i == this->size() - 1) ? result.value(0, 1) : result.value(i + 2, 1);
+        if (isPoint(upperBound, lowerBound)) {
+          upperBound.second = false;
+          lowerBound.first++;
+          lowerBound.second = false;
+        } else {
+          lowerBound.second = true;
+          upperBound.first--;
+          upperBound.second = true;
+        }
+      }
+
+      return TimedCondition(std::move(result));
+    }
+
+    /*!
      * @brief Add another variable \f$x_{n+1}\f$ such that \f$x_n = x_{n+1}\f$.
      */
     [[nodiscard]] TimedCondition extendN() const {
@@ -496,6 +520,18 @@ namespace learnta {
      * @brief Remove \f$x_{N}\f$
      */
     [[nodiscard]] TimedCondition removeN() const {
+      TimedCondition result = *this;
+      const auto N = result.zone.value.cols();
+      result.zone.value.conservativeResize(N - 1, N - 1);
+
+      return result;
+    }
+
+    /*!
+     * @brief Remove \f$x_{0}\f$
+     * TODO: Implement it
+     */
+    [[nodiscard]] TimedCondition removeZero() const {
       TimedCondition result = *this;
       const auto N = result.zone.value.cols();
       result.zone.value.conservativeResize(N - 1, N - 1);
@@ -603,6 +639,15 @@ namespace learnta {
 
       return !(this->getUpperBound(N - 1, N - 1) == Bounds{0, true} &&
                this->getLowerBound(N - 1, N - 1) == Bounds{0, true});
+    }
+
+    /*!
+     * @brief Return if this timed condition has a (continuous) suffix
+     */
+    [[nodiscard]] bool hasSuffix() const {
+
+      return !(this->getUpperBound(0, 0) == Bounds{0, true} &&
+               this->getLowerBound(0, 0) == Bounds{0, true});
     }
 
     /*!
