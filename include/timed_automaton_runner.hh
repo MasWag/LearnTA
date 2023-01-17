@@ -143,7 +143,7 @@ namespace learnta {
           assert(candidateTransition != unobservableIt->second.end());
           this->applyReset(candidateTransition->resetVars);
           this->state = candidateTransition->target;
-          return this->step(duration - ((minDuration.first == 0 && !minDuration.second) ? 0.00001 : -minDuration.first));
+          return this->step(duration - ((minDuration.first == 0 && !minDuration.second) ? 1.0e-10 : -minDuration.first));
         } else {
           BOOST_LOG_TRIVIAL(debug) << "Unobservable transitions are skipped";
           BOOST_LOG_TRIVIAL(debug) << "std::isfinite(-minDuration): " << std::isfinite(-minDuration.first);

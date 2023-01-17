@@ -78,8 +78,7 @@ struct UnbalancedHypothesis20221219Fixture {
                                                       learnta::ConstraintMaker(2) <= 0};
     // loc5->loc8 [label="c", guard="{x1 >= 1, x1 <= 1, x2 > 0}"]
     hypothesis.states.at(5)->next['c'].at(0).target = hypothesis.states.at(8).get();
-    hypothesis.states.at(5)->next['c'].at(0).guard = {learnta::ConstraintMaker(1) >= 1,
-                                                      learnta::ConstraintMaker(1) <= 1,
+    hypothesis.states.at(5)->next['c'].at(0).guard = {learnta::ConstraintMaker(1) < 1,
                                                       learnta::ConstraintMaker(2) > 0};
     // loc6->loc5 [label="ε", guard="{x0 > 1, x1 > 0, x2 > 0}", reset="{x0 := 1.5, x2 := 0.5}"]
     hypothesis.states.at(6)->next[learnta::UNOBSERVABLE].at(0).target = hypothesis.states.at(5).get();

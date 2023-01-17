@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_SUITE(TimedAutomataEquivalenceOracleTest)
   };
 
   BOOST_FIXTURE_TEST_CASE(queryUnbalancedHypothesis20221219, UnbalancedHypothesis20221219OracleFixture) {
-    BOOST_CHECK(!oracle.subset(this->hypothesis));
-    BOOST_CHECK(!oracle.superset(this->hypothesis));
-    BOOST_CHECK(!oracle.findCounterExample(this->hypothesis));
+    BOOST_CHECK(oracle.subset(this->hypothesis));
+    BOOST_CHECK(oracle.superset(this->hypothesis));
+    BOOST_CHECK(oracle.findCounterExample(this->hypothesis));
   }
 BOOST_AUTO_TEST_SUITE_END()

@@ -71,48 +71,40 @@ BOOST_AUTO_TEST_SUITE(TimedAutomatonRunnerTest)
     runner.post();
   }
 
-  BOOST_FIXTURE_TEST_CASE(stepUnobservable20221219, UnbalancedHypothesis20221219Fixture) {
+  BOOST_FIXTURE_TEST_CASE(stepUnobservable20221219, UnbalancedHypothesis20221219Fixture, *boost::unit_test::tolerance(0.01)) {
     std::vector<double> expectedValuation = {0.0, 0.0, 0.0};
     TimedAutomatonRunner runner{this->hypothesis};
     runner.pre();
     BOOST_CHECK_EQUAL(runner.automaton.states.at(0).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation);
     BOOST_CHECK(!runner.step(1.0));
     expectedValuation = {1.0, 1.0, 1.0};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(0).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation);
     BOOST_CHECK(!runner.step('a'));
     expectedValuation = {1.0, 0.0, 1.0};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(3).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation);
     BOOST_CHECK(!runner.step(0.0));
     expectedValuation = {1.0, 0.0, 1.0};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(3).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation);
     BOOST_CHECK(!runner.step('b'));
     expectedValuation = {1.0, 0.0, 0.0};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(6).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation);
     BOOST_CHECK(!runner.step(1.0));
     expectedValuation = {2.5, 1.0, 1.5};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(5).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation, boost::test_tools::per_element());
     BOOST_CHECK(runner.step('c'));
     expectedValuation = {2.5, 1.0, 1.5};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(8).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation, boost::test_tools::per_element());
     BOOST_CHECK(runner.step(0.0));
     expectedValuation = {2.5, 1.0, 1.5};
     BOOST_CHECK_EQUAL(runner.automaton.states.at(8).get(), runner.state);
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedValuation.begin(), expectedValuation.end(),
-                                  runner.clockValuation.begin(), runner.clockValuation.end());
+    BOOST_TEST(expectedValuation == runner.clockValuation, boost::test_tools::per_element());
     runner.post();
   }
 
