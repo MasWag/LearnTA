@@ -41,7 +41,7 @@ namespace learnta {
    * - The guard is the union of the guards of the given transitions.
    */
   TATransition mergeTransitions(const TATransition &left, const TATransition &right) {
-    if (impreciseClocksAfterTransition(left) < impreciseClocksAfterTransition(right)) {
+    if (impreciseClocksAfterTransition(left) <= impreciseClocksAfterTransition(right)) {
       return TATransition{left.target, left.resetVars, unionHull(left.guard, right.guard)};
     } else {
       return TATransition{right.target, right.resetVars, unionHull(left.guard, right.guard)};
