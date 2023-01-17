@@ -23,7 +23,7 @@ namespace learnta {
     const auto preciseClocksAfterJump = NeighborConditions::preciseClocksAfterReset(preciseClocks, transition);
     std::vector<ClockVariables> result;
     result.reserve(targetClockSize);
-    for (int i = 0; i < targetClockSize; ++i) {
+    for (std::size_t i = 0; i < targetClockSize; ++i) {
       if (preciseClocksAfterJump.find(i) == preciseClocksAfterJump.end()) {
         result.push_back(i);
       }
