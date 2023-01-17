@@ -13,8 +13,6 @@
 namespace learnta {
   /*!
    * @brief Returns the imprecise clocks after transition
-   *
-   * TODO: Write a test
    */
   std::vector<ClockVariables> impreciseClocksAfterTransition(const TATransition &transition) {
     const auto asSet = [] (const auto&& container) {
@@ -38,7 +36,7 @@ namespace learnta {
    * @brief Merge two TATransitions
    *
    * The construction is as follows.
-   * - We basically use the transition with more imprecise clocks after it.
+   * - We basically use the transition with less imprecise clocks after it.
    * - The target state and the reset is the ones of the above transition.
    * - The guard is the union of the guards of the given transitions.
    */
