@@ -624,14 +624,15 @@ namespace learnta {
                         if (!currentCondition.isPoint(clock) &&
                             std::any_of(renaming.begin(), renaming.end(), is_second<std::size_t, std::size_t>(clock))) {
                           // clock is imprecise but used!!
-                          BOOST_LOG_TRIVIAL(info) << "Observation table is renaming inconsistent: " << clock;
+                          BOOST_LOG_TRIVIAL(debug) << "Observation table is renaming inconsistent: x"
+                                                  << static_cast<int>(clock);
                           // Try to extend the suffixes
                           const TimedWord extension = currentLanguage.suffix(rootLanguage).sample();
                           for (const auto &suffix: this->suffixes) {
                             const auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(extension + suffix.sample());
                             if (!equivalent(i, rootIndex, newSuffix, rootRenaming) ||
                                 !equivalent(currentIndex, indexAfterMap, newSuffix, renaming)) {
-                              BOOST_LOG_TRIVIAL(info) << "renameConsistent: New suffix " << newSuffix << " is added";
+                              BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix << " is added";
                               this->suffixes.push_back(newSuffix);
                               this->refreshTable();
                               return false;
@@ -640,7 +641,7 @@ namespace learnta {
                               const auto newSuffix2 = ForwardRegionalElementaryLanguage::fromTimedWord(simple.sample()).suffix(rootLanguage);
                               if (!equivalent(i, rootIndex, newSuffix2, rootRenaming) ||
                                   !equivalent(currentIndex, indexAfterMap, newSuffix2, renaming)) {
-                                BOOST_LOG_TRIVIAL(info) << "renameConsistent: New suffix " << newSuffix2
+                                BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix2
                                                          << " is added";
                                 this->suffixes.push_back(newSuffix2);
                                 this->refreshTable();
@@ -648,7 +649,7 @@ namespace learnta {
                               }
                             }
                           }
-                          BOOST_LOG_TRIVIAL(info) << "Failed to resolve the renaming inconsistency!!";
+                          BOOST_LOG_TRIVIAL(debug) << "Failed to resolve the renaming inconsistency!!";
                         }
                       }
                     }
@@ -715,10 +716,10 @@ namespace learnta {
           if (this->inP(target) && !renaming.hasImpreciseClocks(this->prefixes.at(target).getTimedCondition())) {
             withPreciseMapping = true;
             if (std::make_pair(target, renaming) != std::make_pair(mapping.begin()->first, mapping.begin()->second)) {
-              BOOST_LOG_TRIVIAL(info) << "Optimized the target: " << renaming;
-              BOOST_LOG_TRIVIAL(info) << "Before: " << this->closedRelation.at(source).begin()->second;
+              BOOST_LOG_TRIVIAL(debug) << "Optimized the target: " << renaming;
+              BOOST_LOG_TRIVIAL(debug) << "Before: " << this->closedRelation.at(source).begin()->second;
               this->closedRelation.at(source) = {std::make_pair(target, renaming)};
-              BOOST_LOG_TRIVIAL(info) << "After: " << this->closedRelation.at(source).begin()->second;
+              BOOST_LOG_TRIVIAL(debug) << "After: " << this->closedRelation.at(source).begin()->second;
             }
             break;
           }
@@ -729,14 +730,14 @@ namespace learnta {
         for (const auto target: pIndices) {
           const auto renaming = this->equivalentWithMemo(source, target);
           if (renaming && !renaming->hasImpreciseClocks(this->prefixes.at(target).getTimedCondition())) {
-            BOOST_LOG_TRIVIAL(info) << "Optimized the target: " << *renaming;
-            BOOST_LOG_TRIVIAL(info) << "Before: " << this->closedRelation.at(source).begin()->second;
+            BOOST_LOG_TRIVIAL(debug) << "Optimized the target: " << *renaming;
+            BOOST_LOG_TRIVIAL(debug) << "Before: " << this->closedRelation.at(source).begin()->second;
             this->closedRelation.at(source) = {std::make_pair(target, *renaming)};
-            BOOST_LOG_TRIVIAL(info) << "After: " << this->closedRelation.at(source).begin()->second;
+            BOOST_LOG_TRIVIAL(debug) << "After: " << this->closedRelation.at(source).begin()->second;
             break;
           }
         }
-        BOOST_LOG_TRIVIAL(info) << "Failed to optimize the target";
+        BOOST_LOG_TRIVIAL(debug) << "Failed to optimize the target";
       }
     }
 

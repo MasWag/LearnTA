@@ -109,12 +109,20 @@ namespace learnta {
             const auto neighborSuccessor = neighbor.successor(action);
             std::vector<TATransition> newTransitions;
             for (const auto &transition: transitions) {
-              const auto result = handleOne(neighbor, action, transition,
-                                            newTransitions, matchBounded, noMatch);
+              const auto result = handleOne(neighbor, action, transition, newTransitions, matchBounded, noMatch);
               if (result) {
+                BOOST_LOG_TRIVIAL(debug) << "New imprecise neighbors by recursion: " << *result;
                 this->impreciseNeighbors.insert(*result);
               }
             }
+            const auto dummy = transitions; // Hack for C++17. Unnecessary after C++20.
+            // Any new transition must be a relaxation of an original transition
+            assert(std::all_of(newTransitions.begin(), newTransitions.end(), [&] (const auto &newTransition) {
+              return std::any_of(dummy.begin(), dummy.end(), [&] (const auto &transition) {
+                return transition.target == newTransition.target && isWeaker(newTransition.guard, transition.guard);
+              });
+            }));
+            transitions.reserve(transitions.size() + newTransitions.size());
             std::move(newTransitions.begin(), newTransitions.end(), std::back_inserter(transitions));
           }
           neighbor.successorAssign();

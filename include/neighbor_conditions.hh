@@ -425,7 +425,9 @@ namespace learnta {
 
     [[nodiscard]] ForwardRegionalElementaryLanguage constructOriginalAfterTransition(const Alphabet action,
                                                                                      const TATransition &transition) const {
+      BOOST_LOG_TRIVIAL(debug) << "original before transition: " << this->original;
       if (isInternal(transition)) {
+        BOOST_LOG_TRIVIAL(debug) << "original after transition: " << this->original.successor(action);
         return this->original.successor(action);
       } else {
         // make words
@@ -434,6 +436,11 @@ namespace learnta {
         assert(targetClockSize > 0);
         newWord.resize(targetClockSize - 1, this->original.getWord().back());
 
+        BOOST_LOG_TRIVIAL(debug) << "newWord: " << newWord;
+        BOOST_LOG_TRIVIAL(debug) << "resetVars: " << transition.resetVars;
+        BOOST_LOG_TRIVIAL(debug) << "targetClockSize: " << targetClockSize;
+        BOOST_LOG_TRIVIAL(debug) << "original after transition: "
+                                 << this->original.applyResets(newWord, transition.resetVars, targetClockSize);
         return this->original.applyResets(newWord, transition.resetVars, targetClockSize);
       }
     }

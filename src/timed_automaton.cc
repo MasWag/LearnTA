@@ -233,8 +233,8 @@ namespace learnta {
               // Check if this happens only when the imprecise clocks are different
               if (simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
                 BOOST_LOG_TRIVIAL(warning) << "Moreover, the merged transitions have the same set of imprecise clocks";
-                BOOST_LOG_TRIVIAL(warning) << it2->guard;
-                BOOST_LOG_TRIVIAL(warning) << it3->guard;
+                BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars;
+                BOOST_LOG_TRIVIAL(warning) << it3->guard << " " << it3->resetVars;
               }
             }
             *it2 = mergeTransitions(*it2, *it3);
