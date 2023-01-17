@@ -489,6 +489,13 @@ namespace learnta {
     return result;
   }
 
+  /*!
+   * @brief Return the strongest guard that is weaker than the given guards
+   */
+  static inline auto unionHull(const std::vector<Constraint> &left, const std::vector<Constraint> &right) {
+    return unionHull(std::vector<std::vector<Constraint>>{left, right});
+  }
+
   inline void addUpperBound(std::vector<Constraint> &guard) {
     std::unordered_map<ClockVariables, std::vector<Constraint>> mapFromClock;
     for (const auto &constraint: guard) {

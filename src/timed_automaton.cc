@@ -8,8 +8,48 @@
 #include "timed_automaton.hh"
 #include "zone_automaton.hh"
 #include "ta2za.hh"
+#include "neighbor_conditions.hh"
 
 namespace learnta {
+  /*!
+   * @brief Returns the imprecise clocks after transition
+   *
+   * TODO: Write a test
+   */
+  std::vector<ClockVariables> impreciseClocksAfterTransition(const TATransition &transition) {
+    const auto asSet = [] (const auto&& container) {
+      return std::unordered_set<ClockVariables>{container.begin(), container.end()};
+    };
+    const auto targetClockSize = NeighborConditions::computeTargetClockSize(transition);
+    const auto preciseClocks = asSet(simpleVariables(transition.guard));
+    const auto preciseClocksAfterJump = NeighborConditions::preciseClocksAfterReset(preciseClocks, transition);
+    std::vector<ClockVariables> result;
+    result.reserve(targetClockSize);
+    for (int i = 0; i < targetClockSize; ++i) {
+      if (preciseClocksAfterJump.find(i) == preciseClocksAfterJump.end()) {
+        result.push_back(i);
+      }
+    }
+
+    return result;
+  }
+
+  /*!
+   * @brief Merge two TATransitions
+   *
+   * The construction is as follows.
+   * - We basically use the transition with more imprecise clocks after it.
+   * - The target state and the reset is the ones of the above transition.
+   * - The guard is the union of the guards of the given transitions.
+   */
+  TATransition mergeTransitions(const TATransition &left, const TATransition &right) {
+    if (impreciseClocksAfterTransition(left) < impreciseClocksAfterTransition(right)) {
+      return TATransition{left.target, left.resetVars, unionHull(left.guard, right.guard)};
+    } else {
+      return TATransition{right.target, right.resetVars, unionHull(left.guard, right.guard)};
+    }
+  }
+
   TimedAutomaton learnta::TimedAutomaton::simplifyWithZones() {
     ZoneAutomaton zoneAutomaton;
     ta2za(*this, zoneAutomaton, false);
@@ -197,6 +237,8 @@ namespace learnta {
                 BOOST_LOG_TRIVIAL(warning) << it3->guard;
               }
             }
+            *it2 = mergeTransitions(*it2, *it3);
+#if 0
             // Use the reset and target causing more imprecise clocks
             //if (it2->resetVars.size() < it3->resetVars.size()) {
             if (TATransition::impreciseConstantAssignSize(it2->resetVars) >
@@ -204,8 +246,8 @@ namespace learnta {
               it2->resetVars = it3->resetVars;
               it2->target = it3->target;
             }
-            std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
-            it2->guard = unionHull(guards);
+              it2->guard = unionHull(it2->guard, it3->guard);
+#endif
             it3 = transitions.erase(it3);
           } else {
             ++it3;
@@ -220,10 +262,14 @@ namespace learnta {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end();) {
           if (satisfiable(conjunction(it2->guard, it3->guard))) {
-            if (it2->target != it3->target) {
+//            if (it2->target != it3->target) {
+              BOOST_LOG_TRIVIAL(warning) << "Try to merge the following";
+              BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars;
+              BOOST_LOG_TRIVIAL(warning) << it3->guard << " " << it3->resetVars;
               const auto preciseVariables2 = simpleVariables(it2->guard);
               const auto preciseVariables3 = simpleVariables(it3->guard);
               bool use3 = false;
+              bool same = true;
               for (const auto &preciseClock: preciseClocks) {
                 bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
                                   preciseVariables2.end();
@@ -231,26 +277,34 @@ namespace learnta {
                                   preciseVariables3.end();
                 if (preciseIn2 != preciseIn3) {
                   use3 = preciseIn3;
+                  same = false;
                   break;
                 }
               }
-              if (use3) {
-                it2->resetVars = it3->resetVars;
-                it2->target = it3->target;
+              if (same) {
+                *it2 = mergeTransitions(*it2, *it3);
+              } else {
+                if (use3) {
+                  it2->resetVars = it3->resetVars;
+                  it2->target = it3->target;
+                } else {
+                }
+                it2->guard = unionHull(it2->guard, it3->guard);
               }
-              std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
-              it2->guard = unionHull(guards);
-              it3 = transitions.erase(it3);
+            BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars << " is generated";
+            it3 = transitions.erase(it3);
+#if 0
             } else {
+              *it2 = mergeTransitions(*it2, *it3);
               if (TATransition::impreciseConstantAssignSize(it2->resetVars) >
                   TATransition::impreciseConstantAssignSize(it3->resetVars)) {
                 it2->resetVars = it3->resetVars;
                 it2->target = it3->target;
               }
-              std::vector<std::vector<Constraint>> guards = {it2->guard, it3->guard};
-              it2->guard = unionHull(guards);
+              it2->guard = unionHull(it2->guard, it3->guard);
               it3 = transitions.erase(it3);
             }
+#endif
           } else {
             ++it3;
           }

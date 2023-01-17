@@ -116,24 +116,24 @@ namespace learnta {
       }
     }
 
-    bool equivalent(std::size_t i, std::size_t j) {
+    std::optional<RenamingRelation> equivalent(std::size_t i, std::size_t j) {
       auto renamingRelation = findEquivalentRenaming(this->prefixes.at(i), this->table.at(i),
                                                      this->prefixes.at(j), this->table.at(j), this->suffixes);
       if (renamingRelation) {
         this->closedRelation[i][j] = renamingRelation.value();
-        return true;
+        return renamingRelation;
       } else {
         this->distinguishedPrefix.insert(std::make_pair(i, j));
-        return false;
+        return std::nullopt;
       }
     }
 
-    bool equivalentWithMemo(std::size_t i, std::size_t j) {
+    std::optional<RenamingRelation> equivalentWithMemo(std::size_t i, std::size_t j) {
       if (this->distinguishedPrefix.find(std::make_pair(i, j)) != this->distinguishedPrefix.end() ||
           this->distinguishedPrefix.find(std::make_pair(j, i)) != this->distinguishedPrefix.end()) {
         // we already know that they are not equivalent
         assert(!this->equivalent(i, j));
-        return false;
+        return std::nullopt;
       }
       auto equivalentPrefixesIT = this->closedRelation.find(i);
       if (equivalentPrefixesIT != this->closedRelation.end()) {
@@ -141,7 +141,7 @@ namespace learnta {
         if (it != this->closedRelation.at(i).end()) {
           if (equivalence(this->prefixes.at(i), this->table.at(i),
                           this->prefixes.at(j), this->table.at(j), this->suffixes, it->second)) {
-            return true;
+            return it->second;
           }
         }
       }
@@ -701,6 +701,46 @@ namespace learnta {
     }
 
     /*!
+     * @brief Optimize the morphisms to reduce the imprecise clocks
+     */
+    void optimizeTarget() {
+      for (std::size_t source = 0; source < this->prefixes.size(); ++source) {
+        if (this->inP(source)) {
+          continue;
+        }
+        const auto mapping = this->closedRelation.at(source);
+        bool withPreciseMapping = false;
+        // Find a mapping with no imprecise clocks
+        for (const auto &[target, renaming]: mapping) {
+          if (this->inP(target) && !renaming.hasImpreciseClocks(this->prefixes.at(target).getTimedCondition())) {
+            withPreciseMapping = true;
+            if (std::make_pair(target, renaming) != std::make_pair(mapping.begin()->first, mapping.begin()->second)) {
+              BOOST_LOG_TRIVIAL(info) << "Optimized the target: " << renaming;
+              BOOST_LOG_TRIVIAL(info) << "Before: " << this->closedRelation.at(source).begin()->second;
+              this->closedRelation.at(source) = {std::make_pair(target, renaming)};
+              BOOST_LOG_TRIVIAL(info) << "After: " << this->closedRelation.at(source).begin()->second;
+            }
+            break;
+          }
+        }
+        if (withPreciseMapping) {
+          continue;
+        }
+        for (const auto target: pIndices) {
+          const auto renaming = this->equivalentWithMemo(source, target);
+          if (renaming && !renaming->hasImpreciseClocks(this->prefixes.at(target).getTimedCondition())) {
+            BOOST_LOG_TRIVIAL(info) << "Optimized the target: " << *renaming;
+            BOOST_LOG_TRIVIAL(info) << "Before: " << this->closedRelation.at(source).begin()->second;
+            this->closedRelation.at(source) = {std::make_pair(target, *renaming)};
+            BOOST_LOG_TRIVIAL(info) << "After: " << this->closedRelation.at(source).begin()->second;
+            break;
+          }
+        }
+        BOOST_LOG_TRIVIAL(info) << "Failed to optimize the target";
+      }
+    }
+
+    /*!
      * @brief The class to manage the correspondence between states and indices.
      */
     class StateManager {
@@ -744,6 +784,7 @@ namespace learnta {
      * @note We currently construct only the DTAs without unobservable transitions.
      */
     TimedAutomaton generateHypothesis() {
+      this->optimizeTarget();
       StateManager stateManager;
       std::vector<std::shared_ptr<TAState>> states;
 
