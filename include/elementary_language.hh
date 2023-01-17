@@ -137,6 +137,8 @@ namespace learnta {
         }
       }
 
+      // The resulting timed word must be in this language.
+      assert(this->contains(TimedWord{this->word, durations}));
       return {this->word, durations};
     }
 

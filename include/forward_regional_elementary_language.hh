@@ -33,9 +33,12 @@ namespace learnta {
     }
 
     ForwardRegionalElementaryLanguage(const ForwardRegionalElementaryLanguage &language) = default;
+
     ForwardRegionalElementaryLanguage(ForwardRegionalElementaryLanguage &&language) = default;
-    ForwardRegionalElementaryLanguage& operator=(const ForwardRegionalElementaryLanguage& language) = default;
-    ForwardRegionalElementaryLanguage& operator=(ForwardRegionalElementaryLanguage&& language) = default;
+
+    ForwardRegionalElementaryLanguage &operator=(const ForwardRegionalElementaryLanguage &language) = default;
+
+    ForwardRegionalElementaryLanguage &operator=(ForwardRegionalElementaryLanguage &&language) = default;
 
     /*!
      * @brief Construct the fractional elementary language containing the given timed word
@@ -164,9 +167,10 @@ namespace learnta {
         suffixDurationsFractional.at(i) = suffixDurationsFractional.at(i - 1) + suffixDurations.at(i);
         suffixDurationsFractional.at(i) -= std::floor(suffixDurationsFractional.at(i));
       }
-      assert(std::all_of(suffixDurationsFractional.begin(), suffixDurationsFractional.end(), [] (const double fractional) {
-        return 0 <= fractional && fractional < 1;
-      }));
+      assert(std::all_of(suffixDurationsFractional.begin(), suffixDurationsFractional.end(),
+                         [](const double fractional) {
+                           return 0 <= fractional && fractional < 1;
+                         }));
 
       return BackwardRegionalElementaryLanguage{ElementaryLanguage{forward.getWord(), forward.getTimedCondition()},
                                                 FractionalOrder(suffixDurationsFractional)};
@@ -176,6 +180,16 @@ namespace learnta {
       return fromTimedWord(ElementaryLanguage{this->word, this->timedCondition.applyResets(resets)}.sample());
     }
 
+    /*!
+     * @brief Return the language after applying the given reset
+     *
+     * @param newWord The word of the generated elementary language
+     * @param resets The applies reset
+     * @param targetClockSize The number of the clock variables in the target language
+     *
+     * @pre newWord.size() + 1 == targetClockSize
+     * @post There is a clock valuation corresponding to a word in this language such that its value after reset corresponds to a word in the resulting language.
+     */
     [[nodiscard]] ForwardRegionalElementaryLanguage applyResets(const std::string &newWord,
                                                                 const TATransition::Resets &resets,
                                                                 const std::size_t targetClockSize) const {

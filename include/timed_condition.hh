@@ -701,6 +701,14 @@ namespace learnta {
       return newCondition;
     }
 
+    /*!
+     * @brief Return the timed condition after applying the given reset
+     *
+     * @param resets The applied reset
+     * @param targetClockSize The number of the clock variables in the target language
+     *
+     * @post There is a clock valuation in this condition such that its value after reset is in the resulting condition.
+     */
     [[nodiscard]] TimedCondition applyResets(const TATransition::Resets &resets,
                                              const std::size_t targetClockSize) const {
       TimedCondition newCondition {Zone::top(targetClockSize + 1)};
@@ -721,6 +729,23 @@ namespace learnta {
                                             Bounds{-std::floor(std::get<double>(assignedValue)), false}, true);
             newCondition.restrictUpperBound(updatedVariable, newCondition.size() - 1,
                                             Bounds{std::ceil(std::get<double>(assignedValue)), false}, true);
+          }
+          for (const auto &[updatedVariable2, assignedValue2]: resets) {
+            if (updatedVariable2 < updatedVariable && assignedValue2.index() == 0) {
+              double difference = std::get<double>(assignedValue2) - std::get<double>(assignedValue);
+              // Apply non-renaming resets
+              if (difference == std::floor(difference)) {
+                newCondition.restrictLowerBound(updatedVariable2, updatedVariable - 1,
+                                                Bounds{-difference, true}, true);
+                newCondition.restrictUpperBound(updatedVariable2, updatedVariable - 1,
+                                                Bounds{difference, true}, true);
+              } else {
+                newCondition.restrictLowerBound(updatedVariable2, updatedVariable - 1,
+                                                Bounds{-std::floor(difference), false}, true);
+                newCondition.restrictUpperBound(updatedVariable2, updatedVariable - 1,
+                                                Bounds{std::ceil(difference), false}, true);
+              }
+            }
           }
         } else {
           // add to renaming

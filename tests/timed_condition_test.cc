@@ -417,4 +417,38 @@ BOOST_AUTO_TEST_SUITE(TimedConditionTest)
                       "6 < T_{0, 0}  < 8 && 8 <= T_{0, 1}  <= 8 && 12 < T_{0, 2}  < 13 && 12 < T_{0, 3}  < 13 && -0 < T_{1, 1}  < 2 && 5 < T_{1, 2}  < 6 && 5 < T_{1, 3}  < 6 && 4 < T_{2, 2}  < 5 && 4 < T_{2, 3}  < 5 && 0 <= T_{3, 3}  <= 0");
     stream.str("");
   }
+
+  BOOST_AUTO_TEST_CASE(applyResetsTest20230117) {
+    std::stringstream stream;
+    TimedCondition original {Zone::top(3)};
+    original.restrictUpperBound(0, 0, Bounds{1, false});
+    original.restrictLowerBound(0, 0, Bounds{0, false});
+    original.restrictUpperBound(0, 1, Bounds{6, false});
+    original.restrictLowerBound(0, 1, Bounds{-5, false});
+    original.restrictUpperBound(1, 1, Bounds{6, false});
+    original.restrictLowerBound(1, 1, Bounds{-5, false});
+    stream << original;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1 && 5 < T_{0, 1}  < 6 && 5 < T_{1, 1}  < 6", stream.str());
+    stream.str("");
+    TATransition::Resets  resets;
+    resets.emplace_back(0, 1.5);
+    resets.emplace_back(1, 1.25);
+    resets.emplace_back(2, 0.0);
+    stream << resets;
+    BOOST_CHECK_EQUAL("x0 := 1.5, x1 := 1.25, x2 := 0", stream.str());
+    stream.str("");
+
+    auto result = original.applyResets(resets, 3);
+    // Since the clock valuation after the given reset is unique, the result should be simple.
+    BOOST_TEST(result.isSimple());
+
+    // The reset value must be satisfiable at least
+    result.restrictUpperBound(0, 2, Bounds{1.5, true});
+    result.restrictLowerBound(0, 2, Bounds{-1.5, true});
+    result.restrictUpperBound(1, 2, Bounds{1.25, true});
+    result.restrictLowerBound(1, 2, Bounds{-1.25, true});
+    result.restrictUpperBound(2, 2, Bounds{0, true});
+    result.restrictLowerBound(2, 2, Bounds{-0, true});
+    BOOST_TEST(result.zone.isSatisfiable());
+  }
 BOOST_AUTO_TEST_SUITE_END()

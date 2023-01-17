@@ -262,6 +262,39 @@ BOOST_AUTO_TEST_SUITE(ForwardRegionalElementaryLanguageTest)
   }
 
   BOOST_AUTO_TEST_CASE(applyResetsTest) {
+    std::stringstream stream;
+    TimedCondition condition {Zone::top(3)};
+    condition.restrictUpperBound(0, 0, Bounds{1, false});
+    condition.restrictLowerBound(0, 0, Bounds{0, false});
+    condition.restrictUpperBound(0, 1, Bounds{6, false});
+    condition.restrictLowerBound(0, 1, Bounds{-5, false});
+    condition.restrictUpperBound(1, 1, Bounds{6, false});
+    condition.restrictLowerBound(1, 1, Bounds{-5, false});
+    ForwardRegionalElementaryLanguage original {ElementaryLanguage{"b", condition},
+                                                FractionalOrder({0.5, 0.3})};
+    stream << original;
+    BOOST_CHECK_EQUAL("(b, -0 < T_{0, 0}  < 1 && 5 < T_{0, 1}  < 6 && 5 < T_{1, 1}  < 6, 0 < {x1, }{x0, })",
+                      stream.str());
+    stream.str("");
+    TATransition::Resets  resets;
+    resets.emplace_back(0, 1.5);
+    resets.emplace_back(1, 1.25);
+    resets.emplace_back(2, 0.0);
+    stream << resets;
+    BOOST_CHECK_EQUAL("x0 := 1.5, x1 := 1.25, x2 := 0", stream.str());
+    stream.str("");
 
+    const auto result = original.applyResets("bb", resets, 3);
+
+    // The reset value must be satisfiable at least
+    condition = result.getTimedCondition();
+    BOOST_TEST(condition.zone.isSatisfiable());
+    condition.restrictUpperBound(0, 2, Bounds{1.5, true});
+    condition.restrictLowerBound(0, 2, Bounds{-1.5, true});
+    condition.restrictUpperBound(1, 2, Bounds{1.25, true});
+    condition.restrictLowerBound(1, 2, Bounds{-1.25, true});
+    condition.restrictUpperBound(2, 2, Bounds{0, true});
+    condition.restrictLowerBound(2, 2, Bounds{-0, true});
+    BOOST_TEST(condition.zone.isSatisfiable());
   }
 BOOST_AUTO_TEST_SUITE_END()
