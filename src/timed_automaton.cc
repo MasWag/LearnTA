@@ -15,7 +15,7 @@ namespace learnta {
    * @brief Returns the imprecise clocks after transition
    */
   std::vector<ClockVariables> impreciseClocksAfterTransition(const TATransition &transition) {
-    const auto asSet = [] (const auto&& container) {
+    const auto asSet = [](const auto &&container) {
       return std::unordered_set<ClockVariables>{container.begin(), container.end()};
     };
     const auto targetClockSize = NeighborConditions::computeTargetClockSize(transition);
@@ -260,49 +260,52 @@ namespace learnta {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end();) {
           if (satisfiable(conjunction(it2->guard, it3->guard))) {
-//            if (it2->target != it3->target) {
-              BOOST_LOG_TRIVIAL(warning) << "Try to merge the following";
-              BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars;
-              BOOST_LOG_TRIVIAL(warning) << it3->guard << " " << it3->resetVars;
-              const auto preciseVariables2 = simpleVariables(it2->guard);
-              const auto preciseVariables3 = simpleVariables(it3->guard);
-              bool use3 = false;
-              bool same = true;
-              for (const auto &preciseClock: preciseClocks) {
-                bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
-                                  preciseVariables2.end();
-                bool preciseIn3 = std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) !=
-                                  preciseVariables3.end();
-                if (preciseIn2 != preciseIn3) {
-                  use3 = preciseIn3;
-                  same = false;
-                  break;
-                }
+            BOOST_LOG_TRIVIAL(warning) << "Try to merge the following";
+            BOOST_LOG_TRIVIAL(warning) << it2->guard << " / " << it2->resetVars;
+            BOOST_LOG_TRIVIAL(warning) << it3->guard << " / " << it3->resetVars;
+            const auto preciseVariables2 = simpleVariables(it2->guard);
+            const auto preciseVariables3 = simpleVariables(it3->guard);
+            bool use3 = false;
+            bool same = true;
+            bool allPrecise = true;
+            for (const auto &preciseClock: preciseClocks) {
+              bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
+                                preciseVariables2.end();
+              bool preciseIn3 = std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) !=
+                                preciseVariables3.end();
+              if (preciseIn2 != preciseIn3) {
+                use3 = preciseIn3;
+                same = false;
+                break;
+              } else if (!preciseIn2) {
+                allPrecise = false;
               }
-              if (same) {
-                *it2 = mergeTransitions(*it2, *it3);
-              } else {
-                if (use3) {
-                  it2->resetVars = it3->resetVars;
-                  it2->target = it3->target;
-                } else {
-                }
-                it2->guard = unionHull(it2->guard, it3->guard);
-              }
-            BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars << " is generated";
-            it3 = transitions.erase(it3);
-#if 0
-            } else {
+            }
+            if (same) {
               *it2 = mergeTransitions(*it2, *it3);
-              if (TATransition::impreciseConstantAssignSize(it2->resetVars) >
-                  TATransition::impreciseConstantAssignSize(it3->resetVars)) {
+            } else if (allPrecise || (!isWeaker(it2->guard, it3->guard) && !isWeaker(it3->guard, it2->guard))) {
+              if (use3) {
                 it2->resetVars = it3->resetVars;
                 it2->target = it3->target;
               }
-              it2->guard = unionHull(it2->guard, it3->guard);
-              it3 = transitions.erase(it3);
+              // We take the union if some precise clocks are not simply bounded in the guard
+              if (std::any_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
+                if (use3) {
+                  return std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) ==
+                         preciseVariables3.end();
+                } else {
+                  return std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) ==
+                         preciseVariables2.end();
+                }
+              })) {
+                it2->guard = unionHull(it2->guard, it3->guard);
+              }
             }
-#endif
+            if (isWeaker(it3->guard, it2->guard)) {
+              *it2 = *it3;
+            }
+            BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars << " is generated";
+            it3 = transitions.erase(it3);
           } else {
             ++it3;
           }

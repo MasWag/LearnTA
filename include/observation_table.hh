@@ -258,9 +258,9 @@ namespace learnta {
      * @param [inout] originalStates The states
      * @param [in] needSplit The states need to be split
      */
-    void splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
-                     const std::shared_ptr<TAState> &initialState,
-                     const std::vector<TAState *> &needSplit) const;
+    static void splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
+                            const std::shared_ptr<TAState> &initialState,
+                            const std::vector<TAState *> &needSplit);
 
   public:
     /*!
@@ -1078,7 +1078,6 @@ namespace learnta {
       std::vector<TAState *> needSplit;
       needSplit.reserve(states.size());
       for (const auto &state: states) {
-        state->removeTransitionsWithWeakerGuards();
         if (state->needSplitting()) {
           needSplit.push_back(state.get());
         }
@@ -1100,6 +1099,7 @@ namespace learnta {
 #endif
       }
       for (const auto &state: states) {
+        state->removeTransitionsWithWeakerGuards();
         state->mergeNondeterministicBranching();
       }
 #ifdef DEBUG

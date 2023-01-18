@@ -107,103 +107,158 @@ namespace learnta {
     }
   }
 
-  void ObservationTable::splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
-                                     const std::shared_ptr<TAState> &initialState,
-                                     const std::vector<TAState *> &needSplit) const {
-    if (needSplit.empty()) {
-      return;
-    }
+  namespace InternalSplitStates {
     using PreciseClocks = std::vector<ClockVariables>;
     using State = TAState*;
+    // A pair of the original state and the precise clocks
     using EnhancedState = std::pair<State, PreciseClocks>;
+    std::unordered_set<ClockVariables> asSet(const std::vector<ClockVariables> &vector) {
+      return std::unordered_set<ClockVariables>{vector.begin(), vector.end()};
+    }
     struct StateMap {
       std::vector<std::shared_ptr<TAState>> states;
+      const std::vector<std::shared_ptr<TAState>> originalStates;
       boost::unordered_map<EnhancedState, State> forwardMap;
       boost::unordered_map<State, EnhancedState> reverseMap;
-      [[nodiscard]] std::optional<State> map(const EnhancedState &state) const {
-        auto it = forwardMap.find(state);
-        if (it == forwardMap.end()) {
-          return std::nullopt;
-        } else {
-          return it->second;
+
+      explicit StateMap(const std::vector<std::shared_ptr<TAState>> &states) :originalStates(states) {
+        for (const auto& state: states) {
+          this->states.push_back(std::make_shared<TAState>(*state));
+          const auto clockSize = NeighborConditions::computeClockSize(state.get());
+          std::vector<ClockVariables> preciseClocks;
+          preciseClocks.resize(clockSize);
+          std::iota(preciseClocks.begin(), preciseClocks.end(), 0);
+
+          this->add(EnhancedState{state.get(), PreciseClocks{preciseClocks.begin(), preciseClocks.end()}},
+                    this->states.back().get());
         }
+        for (auto& state: this->states) {
+          for (auto &[action, transitions]: state->next) {
+            for (auto &transition: transitions) {
+              transition.target = this->fromOriginalState(transition.target);
+            }
+          }
+        }
+        assert(this->forwardMap.size() == this->states.size());
+        assert(this->reverseMap.size() == this->states.size());
       }
 
-      [[nodiscard]] std::optional<EnhancedState> map(const State &state) const {
+      [[nodiscard]] State map(const EnhancedState &state) const {
+        auto it = forwardMap.find(state);
+        assert(it != forwardMap.end());
+
+        return it->second;
+      }
+
+      [[nodiscard]] EnhancedState map(const State &state) const {
         auto it = reverseMap.find(state);
-        if (it == reverseMap.end()) {
-          return std::nullopt;
-        } else {
-          return it->second;
-        }
+        assert(it != reverseMap.end());
+
+        return it->second;
+      }
+
+      [[nodiscard]] State toOriginalState(const State &state) const {
+        return this->map(state).first;
+      }
+
+      [[nodiscard]] State fromOriginalState(const State &state) const {
+        assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
+          return s.get() != state;
+        }) != originalStates.end());
+        auto it = std::find_if(forwardMap.begin(), forwardMap.end(), [&] (const auto &pair) {
+          return pair.first.first == state;
+        });
+        assert(it != forwardMap.end());
+
+        return it->second;
       }
 
       void add(const EnhancedState &state, const State &newState) {
+        assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
+          return s.get() == state.first;
+        }) != originalStates.end());
         forwardMap[state] = newState;
         reverseMap[newState] = state;
       }
 
+      void useDefault(const EnhancedState &state) {
+        assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
+          return s.get() == state.first;
+        }) != originalStates.end());
+        forwardMap[state] = this->fromOriginalState(state.first);
+      }
+
       State make(const EnhancedState &state) {
         BOOST_LOG_TRIVIAL(info) << "StateMap: new state is created";
-        states.push_back(std::make_shared<TAState>(state.first->isMatch));
-        add(state, states.back().get());
+        assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
+          return s.get() == state.first;
+        }) != originalStates.end());
+        auto it = this->forwardMap.find(state);
+        if (it == this->forwardMap.end()) {
+          states.push_back(std::make_shared<TAState>(state.first->isMatch));
+          add(state, states.back().get());
+        }
 
-        return *map(state);
+        return map(state);
       }
     };
-    // Initialize stateMap
-    StateMap stateMap;
-    stateMap.states = originalStates;
-    for (const auto& state: originalStates) {
-      const auto clockSize = NeighborConditions::computeClockSize(state.get());
-      std::vector<ClockVariables> preciseClocks;
-      preciseClocks.resize(clockSize);
-      std::iota(preciseClocks.begin(), preciseClocks.end(), 0);
+  }
 
-      stateMap.add(EnhancedState{state.get(), PreciseClocks{preciseClocks.begin(), preciseClocks.end()}}, state.get());
+  void ObservationTable::splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
+                                     const std::shared_ptr<TAState> &initialState,
+                                     const std::vector<TAState *> &needSplit) {
+    using namespace InternalSplitStates;
+    if (needSplit.empty()) {
+      return;
     }
+
+    // Initialize stateMap
+    StateMap stateMap{originalStates};
+    // Set of the visited states
     boost::unordered_set<EnhancedState> visitedStates;
     const auto isVisited = [&] (const auto& state) {
       return visitedStates.find(state) != visitedStates.end();
     };
+#ifdef DEBUG
+    const auto inOriginalStates = [&] (const auto& state) {
+      return std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto& s) {
+        return s.get() == state;
+      }) != originalStates.end();
+    };
+#endif
+    // Queue of the states to explore
     std::queue<EnhancedState> statesToVisit;
     statesToVisit.emplace(initialState.get(), PreciseClocks{0});
-    const auto requiresSplit = [&] (const auto& state) {
-      return std::find(needSplit.begin(), needSplit.end(), state) != needSplit.end();
-    };
 
     // The main loop. We conduct BFS over the DTA
     while (!statesToVisit.empty()) {
       const EnhancedState enhancedState = statesToVisit.front();
       const auto &[originalState, preciseClocks] = enhancedState;
-      const auto state = stateMap.map(enhancedState).value_or(originalState);
+      assert(inOriginalStates(originalState));
+      const auto state = stateMap.map(enhancedState);
+      assert(!inOriginalStates(state));
       statesToVisit.pop();
       if (isVisited(enhancedState)) {
         continue;
       }
       visitedStates.insert(enhancedState);
+      originalState->mergeNondeterministicBranching(asSet(preciseClocks));
       for (auto &[action, transitions]: state->next) {
         for (auto &transition: transitions) {
-          const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(std::unordered_set<ClockVariables>{
-            preciseClocks.begin(), preciseClocks.end()}, transition);
-          const EnhancedState nextEnhancedState{transition.target, PreciseClocks{nextPreciseClocks.begin(),
-                                                                                 nextPreciseClocks.end()}};
+          const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(asSet(preciseClocks), transition);
+          const auto targetAsOriginal = stateMap.toOriginalState(transition.target);
+          assert(inOriginalStates(targetAsOriginal));
+          const EnhancedState nextEnhancedState{targetAsOriginal,
+                                                PreciseClocks{nextPreciseClocks.begin(), nextPreciseClocks.end()}};
           if (!isVisited(nextEnhancedState)) {
-            if (requiresSplit(transition.target)) {
-              auto newState = stateMap.make(nextEnhancedState);
-              statesToVisit.push(nextEnhancedState);
-              newState->next = transition.target->next;
-              // At the locations to split, we merge the transitions prioritizing the precise clocks
-              newState->mergeNondeterministicBranching(nextPreciseClocks);
-              // When we reach a location to split, we make new location and change the target location
-              transition.target = newState;
-            } else {
-              statesToVisit.push(nextEnhancedState);
-            }
-          } else if (requiresSplit(transition.target)) {
-            // When we reach a location to split, we change the target location
-            transition.target = stateMap.map(nextEnhancedState).value_or(transition.target);
+            statesToVisit.push(nextEnhancedState);
+            assert(inOriginalStates(nextEnhancedState.first));
+            auto newState = stateMap.make(nextEnhancedState);
+            newState->next = transition.target->next;
+            newState->mergeNondeterministicBranching(nextPreciseClocks);
           }
+          // We update the target location
+          transition.target = stateMap.map(nextEnhancedState);
         }
       }
     }

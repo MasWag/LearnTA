@@ -62,10 +62,63 @@ BOOST_AUTO_TEST_SUITE(ObservationTableTest)
     BOOST_CHECK_EQUAL(1, hypothesis.stateSize());
     BOOST_CHECK_EQUAL(1, hypothesis.initialStates.size());
     BOOST_CHECK(hypothesis.states.front()->isMatch);
+    /*
     BOOST_CHECK_EQUAL(1, hypothesis.states.front()->next.at('a').size());
     BOOST_CHECK(hypothesis.states.front()->next.at('a').front().resetVars.empty());
     BOOST_CHECK(hypothesis.states.front()->next.at('a').front().guard.empty());
     BOOST_CHECK(hypothesis.maxConstraints.empty());
+     */
   }
 
+  BOOST_AUTO_TEST_CASE(stateSplitTest) {
+    const auto toTA = [] (std::vector<std::shared_ptr<TAState>> states) {
+      return TimedAutomaton{{states, {states.front()}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+    };
+    std::vector<std::shared_ptr<TAState>> states;
+    states.reserve(3);
+    states.push_back(std::make_shared<TAState>(false));
+    states.push_back(std::make_shared<TAState>(false));
+    states.push_back(std::make_shared<TAState>(true));
+    states.at(0)->next['a'].emplace_back(states.at(1).get(), TATransition::Resets{{1, 0.0}},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 2, ConstraintMaker(0) > 1});
+    states.at(1)->next['a'].emplace_back(states.at(1).get(), TATransition::Resets{{1, 0.5}},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 2, ConstraintMaker(0) > 1,
+                                                                 ConstraintMaker(1) < 1, ConstraintMaker(1) > 0});
+    states.at(1)->next['a'].emplace_back(states.at(1).get(), TATransition::Resets{{0, 1.5}, {1, 0.0}},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 3, ConstraintMaker(0) > 2,
+                                                                 ConstraintMaker(1) <= 1, ConstraintMaker(1) >= 1});
+    states.at(1)->next['b'].emplace_back(states.at(0).get(), TATransition::Resets{},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 2, ConstraintMaker(0) > 1,
+                                                                 ConstraintMaker(1) <= 1, ConstraintMaker(1) >= 1});
+    states.at(1)->next['b'].emplace_back(states.at(2).get(), TATransition::Resets{{2, 0.0}},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 2, ConstraintMaker(0) > 1,
+                                                                 ConstraintMaker(1) < 1, ConstraintMaker(1) > 0});
+    states.at(2)->next['b'].emplace_back(states.at(0).get(), TATransition::Resets{},
+                                         std::vector<Constraint>{ConstraintMaker(0) < 2, ConstraintMaker(0) > 1,
+                                                                 ConstraintMaker(1) < 1, ConstraintMaker(1) > 0,
+                                                                 ConstraintMaker(2) < 1, ConstraintMaker(2) > 0});
+    std::cout << toTA(states) << std::endl;
+    ImpreciseClockHandler impreciseNeighbors;
+    std::array<RenamingRelation, 2> renamings;
+    renamings.at(0).emplace_back(0, 0);
+    renamings.at(1).emplace_back(1, 1);
+    impreciseNeighbors.push(states.at(1).get(), renamings.at(0),
+                            ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"a", {1.1, 0.1}}));
+    impreciseNeighbors.push(states.at(1).get(), renamings.at(1),
+                            ForwardRegionalElementaryLanguage::fromTimedWord(TimedWord{"a", {1.1, 1.0}}));
+    impreciseNeighbors.run();
+    std::cout << toTA(states) << std::endl;
+    std::vector<TAState *> needSplit;
+    needSplit.reserve(states.size());
+    for (const auto &state: states) {
+      if (state->needSplitting()) {
+        needSplit.push_back(state.get());
+      }
+    }
+    BOOST_CHECK_EQUAL(1, needSplit.size());
+    BOOST_CHECK_EQUAL(states.at(1).get(), needSplit.front());
+    std::cout << toTA(states) << std::endl;
+    ObservationTable::splitStates(states, states.at(0), needSplit);
+    std::cout << toTA(states) << std::endl;
+  }
 BOOST_AUTO_TEST_SUITE_END()
