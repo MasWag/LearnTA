@@ -571,6 +571,8 @@ namespace learnta {
           auto it2 = it->second.find(pIndex);
           assert(it2 != it->second.end());
           if (it2->second.empty()) {
+            // Modify the cache to jump to pIndex to construct a DTA without unobservable transitions
+            it->second = {*it2};
             continue;
           }
         }
