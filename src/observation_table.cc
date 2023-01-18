@@ -118,10 +118,11 @@ namespace learnta {
     struct StateMap {
       std::vector<std::shared_ptr<TAState>> states;
       const std::vector<std::shared_ptr<TAState>> originalStates;
+      std::shared_ptr<TAState> initialState;
       boost::unordered_map<EnhancedState, State> forwardMap;
       boost::unordered_map<State, EnhancedState> reverseMap;
 
-      explicit StateMap(const std::vector<std::shared_ptr<TAState>> &states) :originalStates(states) {
+      StateMap(const std::vector<std::shared_ptr<TAState>> &states, const std::shared_ptr<TAState> &initialState) :originalStates(states) {
         for (const auto& state: states) {
           this->states.push_back(std::make_shared<TAState>(*state));
           const auto clockSize = NeighborConditions::computeClockSize(state.get());
@@ -131,6 +132,9 @@ namespace learnta {
 
           this->add(EnhancedState{state.get(), PreciseClocks{preciseClocks.begin(), preciseClocks.end()}},
                     this->states.back().get());
+          if (state == initialState) {
+            this->initialState = this->states.back();
+          }
         }
         for (auto& state: this->states) {
           for (auto &[action, transitions]: state->next) {
@@ -205,7 +209,7 @@ namespace learnta {
   }
 
   void ObservationTable::splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
-                                     const std::shared_ptr<TAState> &initialState,
+                                     std::shared_ptr<TAState> &initialState,
                                      const std::vector<TAState *> &needSplit) {
     using namespace InternalSplitStates;
     if (needSplit.empty()) {
@@ -213,7 +217,7 @@ namespace learnta {
     }
 
     // Initialize stateMap
-    StateMap stateMap{originalStates};
+    StateMap stateMap{originalStates, initialState};
     // Set of the visited states
     boost::unordered_set<EnhancedState> visitedStates;
     const auto isVisited = [&] (const auto& state) {
@@ -264,5 +268,6 @@ namespace learnta {
     }
 
     originalStates = stateMap.states;
+    initialState = stateMap.initialState;
   }
 }

@@ -259,7 +259,7 @@ namespace learnta {
      * @param [in] needSplit The states need to be split
      */
     static void splitStates(std::vector<std::shared_ptr<TAState>> &originalStates,
-                            const std::shared_ptr<TAState> &initialState,
+                            std::shared_ptr<TAState> &initialState,
                             const std::vector<TAState *> &needSplit);
 
   public:
@@ -840,7 +840,7 @@ namespace learnta {
         }
       };
 
-      const auto initialState = addState(0);
+      auto initialState = addState(0);
       // construct the initial state
       mergeContinuousSuccessors(0);
       // vector of states and actions such that the discrete successor is not in P

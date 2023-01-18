@@ -118,7 +118,21 @@ BOOST_AUTO_TEST_SUITE(ObservationTableTest)
     BOOST_CHECK_EQUAL(1, needSplit.size());
     BOOST_CHECK_EQUAL(states.at(1).get(), needSplit.front());
     std::cout << toTA(states) << std::endl;
-    ObservationTable::splitStates(states, states.at(0), needSplit);
+    auto initialState = states.at(0);
+    const auto originalInitialState = initialState;
+    ObservationTable::splitStates(states, initialState, needSplit);
+    BOOST_TEST(originalInitialState != initialState);
+    BOOST_TEST(states.front() == initialState);
+    for (const auto& state: states) {
+      for (const auto& [action, transitions]: state->next) {
+        for (const auto& transition: transitions) {
+          auto it = std::find_if(states.begin(), states.end(), [&] (const auto& state) {
+            return state.get() == transition.target;
+          });
+          BOOST_TEST((it != states.end()));
+        }
+      }
+    }
     std::cout << toTA(states) << std::endl;
   }
 BOOST_AUTO_TEST_SUITE_END()
