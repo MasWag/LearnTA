@@ -32,7 +32,7 @@ namespace learnta {
           notUpdated = observationTable.close();
           notUpdated = notUpdated && observationTable.consistent();
           notUpdated = notUpdated && observationTable.exteriorConsistent();
-          notUpdated = notUpdated && observationTable.exteriorSaturate();
+          notUpdated = notUpdated && observationTable.timeSaturate();
           // notUpdated = notUpdated && observationTable.renameConsistent();
         } while (!notUpdated);
         BOOST_LOG_TRIVIAL(debug) << "Start DTA generation";

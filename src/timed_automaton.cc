@@ -267,27 +267,32 @@ namespace learnta {
             assert(is_ascending(preciseVariables2));
             const auto preciseVariables3 = simpleVariables(it3->guard);
             assert(is_ascending(preciseVariables3));
-            if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
+            const bool allPrecise2 = std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
               return std::binary_search(preciseVariables2.begin(), preciseVariables2.end(), preciseClock);
-            })) {
-              // We use it2 if it precisely capture the guard
+            });
+            const bool allPrecise3 = std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
+              return std::binary_search(preciseVariables3.begin(), preciseVariables3.end(), preciseClock);
+            });
+            if (allPrecise2 && !allPrecise3) {
+              // We use it2 if it precisely captures the guard
               it3 = transitions.erase(it3);
               continue;
-            } else if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
-              return std::binary_search(preciseVariables3.begin(), preciseVariables3.end(), preciseClock);
-            })) {
-              // We use it3 if it precisely capture the guard
+            } else if (!allPrecise2 && allPrecise3) {
+              // We use it3 if it precisely captures the guard
               *it2 = *it3;
+              it3 = transitions.erase(it3);
+              continue;
+            } else if (allPrecise2 && allPrecise3) {
+              // We merge them if both precisely capture the guard
+              *it2 = mergeTransitions(*it2, *it3);
               it3 = transitions.erase(it3);
               continue;
             }
             bool use3 = false;
             bool same = true;
             for (const auto &preciseClock: preciseClocks) {
-              bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
-                                preciseVariables2.end();
-              bool preciseIn3 = std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) !=
-                                preciseVariables3.end();
+              bool preciseIn2 = std::binary_search(preciseVariables2.begin(), preciseVariables2.end(), preciseClock);
+              bool preciseIn3 = std::binary_search(preciseVariables3.begin(), preciseVariables3.end(), preciseClock);
               if (preciseIn2 != preciseIn3) {
                 use3 = preciseIn3;
                 same = false;
@@ -300,26 +305,14 @@ namespace learnta {
               } else if (!isWeaker(it2->guard, it3->guard)) {
                 *it2 = mergeTransitions(*it2, *it3);
               }
+            } else if (isWeaker(it3->guard, it2->guard)) {
+              *it2 = *it3;
             } else if (!isWeaker(it2->guard, it3->guard) && !isWeaker(it3->guard, it2->guard)) {
               if (use3) {
                 it2->resetVars = it3->resetVars;
                 it2->target = it3->target;
               }
-              // We take the union if some precise clocks are not simply bounded in the guard
-              if (std::any_of(preciseClocks.begin(), preciseClocks.end(), [&](const auto &preciseClock) {
-                if (use3) {
-                  return std::find(preciseVariables3.begin(), preciseVariables3.end(), preciseClock) ==
-                         preciseVariables3.end();
-                } else {
-                  return std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) ==
-                         preciseVariables2.end();
-                }
-              })) {
-                it2->guard = unionHull(it2->guard, it3->guard);
-              }
-            }
-            if (isWeaker(it3->guard, it2->guard)) {
-              *it2 = *it3;
+              it2->guard = unionHull(it2->guard, it3->guard);
             }
             BOOST_LOG_TRIVIAL(debug) << it2->guard << " " << it2->resetVars << " is generated";
             it3 = transitions.erase(it3);

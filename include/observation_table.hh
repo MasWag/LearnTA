@@ -549,14 +549,14 @@ namespace learnta {
     }
 
     /*!
-     * @brief Make the observation table exterior-saturated
+     * @brief Make the observation table time-saturated
      *
-     * Observation table is exterior-saturated if for any \f$p \in P\f$, if \f$\mathrm{ext}^t(p) \not\in P\f$,
-     * we have \f$\mathrm{ext}^t(p) \sim^{S, \top} p\f$.
+     * Observation table is exterior-saturated if for any \f$p \in P\f$, if \f$\mathrm{succ}^t(p) \not\in P\f$,
+     * we have \f$\mathrm{suc}^t(p) \sim^{S, \top} p\f$.
      *
      * @returns If the observation table is already exterior-saturated
      */
-    bool exteriorSaturate() {
+    bool timeSaturate() {
       std::vector<std::size_t> newP;
       newP.reserve(pIndices.size());
       for (const std::size_t pIndex: pIndices) {
