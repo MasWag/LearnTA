@@ -227,12 +227,12 @@ namespace learnta {
             // So, we tentatively weaken the requirement
             assert(it2->target->isMatch == it3->target->isMatch);
             if (it2->target != it3->target) {
-              BOOST_LOG_TRIVIAL(warning) << "We merge transitions with different targets. This is unstable";
+              BOOST_LOG_TRIVIAL(debug) << "We merge transitions with different targets. This is unstable";
               // Check if this happens only when the imprecise clocks are different
               if (simpleVariables(it2->guard) == simpleVariables(it3->guard)) {
-                BOOST_LOG_TRIVIAL(warning) << "Moreover, the merged transitions have the same set of imprecise clocks";
-                BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars;
-                BOOST_LOG_TRIVIAL(warning) << it3->guard << " " << it3->resetVars;
+                BOOST_LOG_TRIVIAL(debug) << "Moreover, the merged transitions have the same set of imprecise clocks";
+                BOOST_LOG_TRIVIAL(debug) << it2->guard << " " << it2->resetVars;
+                BOOST_LOG_TRIVIAL(debug) << it3->guard << " " << it3->resetVars;
               }
             }
             *it2 = mergeTransitions(*it2, *it3);
@@ -260,9 +260,9 @@ namespace learnta {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end();) {
           if (satisfiable(conjunction(it2->guard, it3->guard))) {
-            BOOST_LOG_TRIVIAL(warning) << "Try to merge the following";
-            BOOST_LOG_TRIVIAL(warning) << it2->guard << " / " << it2->resetVars;
-            BOOST_LOG_TRIVIAL(warning) << it3->guard << " / " << it3->resetVars;
+            BOOST_LOG_TRIVIAL(debug) << "Try to merge the following";
+            BOOST_LOG_TRIVIAL(debug) << it2->guard << " / " << it2->resetVars;
+            BOOST_LOG_TRIVIAL(debug) << it3->guard << " / " << it3->resetVars;
             const auto preciseVariables2 = simpleVariables(it2->guard);
             const auto preciseVariables3 = simpleVariables(it3->guard);
             bool use3 = false;
@@ -304,7 +304,7 @@ namespace learnta {
             if (isWeaker(it3->guard, it2->guard)) {
               *it2 = *it3;
             }
-            BOOST_LOG_TRIVIAL(warning) << it2->guard << " " << it2->resetVars << " is generated";
+            BOOST_LOG_TRIVIAL(debug) << it2->guard << " " << it2->resetVars << " is generated";
             it3 = transitions.erase(it3);
           } else {
             ++it3;

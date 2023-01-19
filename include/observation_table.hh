@@ -1089,6 +1089,7 @@ namespace learnta {
 #endif
       // Conduct state splitting if necessary
       if (!needSplit.empty()) {
+        BOOST_LOG_TRIVIAL(info) << "We conduct state splitting to keep it deterministic";
         BOOST_LOG_TRIVIAL(info) << "# of states before splitting: " << states.size();
         this->splitStates(states, initialState, needSplit);
         BOOST_LOG_TRIVIAL(info) << "# of states after splitting: " << states.size();

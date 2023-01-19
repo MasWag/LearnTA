@@ -185,15 +185,8 @@ namespace learnta {
         reverseMap[newState] = state;
       }
 
-      void useDefault(const EnhancedState &state) {
-        assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
-          return s.get() == state.first;
-        }) != originalStates.end());
-        forwardMap[state] = this->fromOriginalState(state.first);
-      }
-
       State make(const EnhancedState &state) {
-        BOOST_LOG_TRIVIAL(info) << "StateMap: new state is created";
+        BOOST_LOG_TRIVIAL(debug) << "StateMap: new state is created";
         assert(std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto &s) {
           return s.get() == state.first;
         }) != originalStates.end());
