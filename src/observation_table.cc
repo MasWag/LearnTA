@@ -115,6 +115,11 @@ namespace learnta {
     std::unordered_set<ClockVariables> asSet(const std::vector<ClockVariables> &vector) {
       return std::unordered_set<ClockVariables>{vector.begin(), vector.end()};
     }
+    PreciseClocks asPreciseClocks(const std::unordered_set<ClockVariables> &set) {
+      auto vector = PreciseClocks{set.begin(), set.end()};
+      std::sort(vector.begin(), vector.end());
+      return vector;
+    }
     struct StateMap {
       std::vector<std::shared_ptr<TAState>> states;
       const std::vector<std::shared_ptr<TAState>> originalStates;
@@ -245,8 +250,7 @@ namespace learnta {
           const auto nextPreciseClocks = NeighborConditions::preciseClocksAfterReset(asSet(preciseClocks), transition);
           const auto targetAsOriginal = stateMap.toOriginalState(transition.target);
           assert(inOriginalStates(targetAsOriginal));
-          const EnhancedState nextEnhancedState{targetAsOriginal,
-                                                PreciseClocks{nextPreciseClocks.begin(), nextPreciseClocks.end()}};
+          const EnhancedState nextEnhancedState{targetAsOriginal, asPreciseClocks(nextPreciseClocks)};
           if (!isVisited(nextEnhancedState)) {
             statesToVisit.push(nextEnhancedState);
             assert(inOriginalStates(nextEnhancedState.first));

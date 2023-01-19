@@ -260,14 +260,29 @@ namespace learnta {
       for (auto it2 = transitions.begin(); it2 != transitions.end(); ++it2) {
         for (auto it3 = std::next(it2); it3 != transitions.end();) {
           if (satisfiable(conjunction(it2->guard, it3->guard))) {
-            BOOST_LOG_TRIVIAL(debug) << "Try to merge the following";
+            BOOST_LOG_TRIVIAL(debug) << "Try to merge the following with precise clocks: " << preciseClocks.size();
             BOOST_LOG_TRIVIAL(debug) << it2->guard << " / " << it2->resetVars;
             BOOST_LOG_TRIVIAL(debug) << it3->guard << " / " << it3->resetVars;
             const auto preciseVariables2 = simpleVariables(it2->guard);
+            assert(is_ascending(preciseVariables2));
             const auto preciseVariables3 = simpleVariables(it3->guard);
+            assert(is_ascending(preciseVariables3));
+            if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
+              return std::binary_search(preciseVariables2.begin(), preciseVariables2.end(), preciseClock);
+            })) {
+              // We use it2 if it precisely capture the guard
+              it3 = transitions.erase(it3);
+              continue;
+            } else if (std::all_of(preciseClocks.begin(), preciseClocks.end(), [&] (const auto& preciseClock) {
+              return std::binary_search(preciseVariables3.begin(), preciseVariables3.end(), preciseClock);
+            })) {
+              // We use it3 if it precisely capture the guard
+              *it2 = *it3;
+              it3 = transitions.erase(it3);
+              continue;
+            }
             bool use3 = false;
             bool same = true;
-            bool allPrecise = true;
             for (const auto &preciseClock: preciseClocks) {
               bool preciseIn2 = std::find(preciseVariables2.begin(), preciseVariables2.end(), preciseClock) !=
                                 preciseVariables2.end();
@@ -277,13 +292,15 @@ namespace learnta {
                 use3 = preciseIn3;
                 same = false;
                 break;
-              } else if (!preciseIn2) {
-                allPrecise = false;
               }
             }
             if (same) {
-              *it2 = mergeTransitions(*it2, *it3);
-            } else if (allPrecise || (!isWeaker(it2->guard, it3->guard) && !isWeaker(it3->guard, it2->guard))) {
+              if (isWeaker(it3->guard, it2->guard)) {
+                *it2 = *it3;
+              } else if (!isWeaker(it2->guard, it3->guard)) {
+                *it2 = mergeTransitions(*it2, *it3);
+              }
+            } else if (!isWeaker(it2->guard, it3->guard) && !isWeaker(it3->guard, it2->guard)) {
               if (use3) {
                 it2->resetVars = it3->resetVars;
                 it2->target = it3->target;
