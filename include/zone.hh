@@ -417,7 +417,7 @@ namespace learnta {
      *
      * @note We do not assume that the diagonal elements are equal.
      */
-    bool strictEqual(Zone z) const {
+    [[nodiscard]] bool strictEqual(Zone z) const {
       z.value.diagonal() = value.diagonal();
       return value == z.value;
     }

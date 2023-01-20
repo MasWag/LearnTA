@@ -374,6 +374,7 @@ namespace learnta {
     return os;
   }
 
+#ifdef NO_EIGEN_CONSTRAINT
   inline std::vector<std::vector<Constraint>> negate(const std::vector<std::vector<Constraint>> &dnfConstraints) {
     std::vector<std::vector<Constraint>> cnfNegated;
     cnfNegated.reserve(dnfConstraints.size());
@@ -404,14 +405,8 @@ namespace learnta {
         }
         for (auto it = newDnfNegated.begin(); it != newDnfNegated.end();) {
           if (std::any_of(it + 1, newDnfNegated.end(), [&](const auto &constraints) {
-            if (isWeaker(constraints, *it)) {
-              BOOST_LOG_TRIVIAL(trace) << constraints << " is weaker than " << *it;
-            }
             return isWeaker(constraints, *it);
           }) || std::any_of(newDnfNegated.begin(), it, [&](const auto &constraints) {
-            if (isWeaker(constraints, *it)) {
-              BOOST_LOG_TRIVIAL(trace) << constraints << " is weaker than " << *it;
-            }
             return isWeaker(constraints, *it);
           })) {
             it = newDnfNegated.erase(it);
@@ -425,6 +420,7 @@ namespace learnta {
 
     return dnfNegated;
   }
+#endif
 
   /*!
    * @brief Return the strongest guard that is weaker than all of the given guards

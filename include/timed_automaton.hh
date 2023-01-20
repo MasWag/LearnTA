@@ -17,6 +17,7 @@
 
 #include "common_types.hh"
 #include "constraint.hh"
+#include "conjunctive_constraint.hh"
 
 namespace learnta {
   struct TATransition;
@@ -249,7 +250,7 @@ namespace learnta {
       deepCopy(result, old2new);
       result.makeComplete(alphabet);
       assert(this->stateSize() + 1 == result.stateSize());
-      for (auto &state: result.states) {
+      for (const auto &state: result.states) {
         state->isMatch = !state->isMatch;
       }
 
@@ -260,12 +261,12 @@ namespace learnta {
      * @brief Add transitions to make it complete
      */
     void makeComplete(const std::vector<Alphabet> &alphabet) {
+      // We construct the sink state
       this->states.push_back(std::make_shared<TAState>(false));
       if (this->initialStates.empty()) {
         this->initialStates.push_back(this->states.back());
       }
-      // If the transition is empty, we make a transition to the sink state
-      for (auto &state: this->states) {
+      for (const auto &state: this->states) {
         // Construct the disjunctive guards of unobservable transitions
         std::vector<std::vector<Constraint>> disjunctiveGuardOfUnobservable;
         if (state->next.find(UNOBSERVABLE) != state->next.end()) {
@@ -281,9 +282,11 @@ namespace learnta {
         for (const auto &action: alphabet) {
           if (disjunctiveGuardOfUnobservable.empty() &&
               (state->next.find(action) == state->next.end() || state->next.at(action).empty())) {
+            // If the transition is empty, we make a transition to the sink state
             state->next[action].emplace_back();
             state->next.at(action).back().target = this->states.back().get();
           } else if (state->next.find(action) != state->next.end() && !state->next.at(action).empty()) {
+            // Take the union of the guards and complement it to obtain the condition to get stuck
             std::vector<std::vector<Constraint>> disjunctiveGuard = disjunctiveGuardOfUnobservable;
             disjunctiveGuard.reserve(state->next.at(action).size());
             for (const auto &transition: state->next.at(action)) {
@@ -296,12 +299,10 @@ namespace learnta {
             if (disjunctiveGuard.empty()) {
               continue;
             }
-            const auto complement = negate(disjunctiveGuard);
-            state->next.at(action).reserve(complement.size());
-            for (const auto &constraints: complement) {
-              state->next.at(action).emplace_back(this->states.back().get(),
-                                                  decltype(std::declval<learnta::TATransition>().resetVars){},
-                                                  constraints);
+            const auto complementGuards = negate(disjunctiveGuard);
+            state->next.at(action).reserve(complementGuards.size());
+            for (const auto &guard: complementGuards) {
+              state->next.at(action).emplace_back(this->states.back().get(), learnta::TATransition::Resets{}, guard);
             }
           }
         }

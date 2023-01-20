@@ -235,8 +235,8 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     auto candidates = generateDeterministicCandidates(right, graph);
     BOOST_CHECK_EQUAL(3, candidates.size());
     std::array<RenamingRelation, 3> expectedRelations;
-    expectedRelations.at(0).emplace_back(0, 0);
-    expectedRelations.at(1).emplace_back(1, 0);
+    expectedRelations.at(1).emplace_back(0, 0);
+    expectedRelations.at(2).emplace_back(1, 0);
     BOOST_TEST(candidates == expectedRelations, boost::test_tools::per_element());
   }
 
