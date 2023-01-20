@@ -1149,7 +1149,37 @@ namespace learnta {
         }
       }
 
-      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.mergeAdjacentTransitions().simplify();
+      for (const auto& state: states) {
+        for (auto& [action, transitions]: state->next) {
+          // Merge adjacent transitions
+          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != transitions.end();) {
+              if (it->mergeable(*it2)) {
+                *it = it->merge(*it2);
+                it2 = transitions.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+          }
+          // Take union hull
+          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != transitions.end();) {
+              if (satisfiable(conjunction(it->guard, it2->guard))) {
+                if (it->target != it2->target || it->resetVars != it2->resetVars) {
+                  throw std::logic_error("error in transition merging");
+                }
+                it->guard = unionHull(it->guard, it2->guard);
+                it2 = transitions.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+          }
+        }
+      }
+
+      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
     }
 
     std::ostream &printDetail(std::ostream &stream) const {
