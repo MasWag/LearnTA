@@ -187,6 +187,42 @@ namespace learnta {
       }
       return count;
     }
+
+    [[nodiscard]] bool mergeable(const TATransition& transition) const {
+      if (this->target != transition.target) {
+        return false;
+      }
+      const auto &[thisUpperBound, thisLowerBound] = toBounds(this->guard);
+      const auto &[anotherUpperBound, anotherLowerBound] = toBounds(transition.guard);
+      if (thisUpperBound.size() != anotherUpperBound.size()) {
+        return false;
+      }
+      for (std::size_t i = 0; i < thisUpperBound.size(); ++i) {
+        if (thisUpperBound.at(i) == anotherUpperBound.at(i) && thisLowerBound.at(i) == anotherLowerBound.at(i)) {
+          continue;
+        }
+        // Check if they are adjacent
+        if (thisUpperBound.at(i).first == anotherLowerBound.at(i).first) {
+          if (thisUpperBound.at(i).second == anotherLowerBound.at(i).second) {
+            return false;
+          }
+        } else if (anotherUpperBound.at(i).first == thisLowerBound.at(i).first) {
+          if (anotherUpperBound.at(i).second == thisLowerBound.at(i).second) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+      return this->resetVars == transition.resetVars;
+    }
+
+    [[nodiscard]] TATransition merge(const TATransition& transition) const {
+      TATransition result = transition;
+      result.guard = unionHull(transition.guard, this->guard);
+
+      return result;
+    }
   };
 
   inline std::size_t hash_value(const TATransition &transition) {
@@ -310,8 +346,28 @@ namespace learnta {
     };
 
     //! @brief simplify the transitions by reducing the duplications
+    TimedAutomaton mergeAdjacentTransitions() {
+      for (const auto &state: this->states) {
+        for (auto &[action, transitions]: state->next) {
+          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != transitions.end();) {
+              if (it->mergeable(*it2)) {
+                *it = it->merge(*it2);
+                it2 = transitions.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+          }
+        }
+      }
+
+      return *this;
+    }
+
+    //! @brief simplify the transitions by reducing the duplications
     void simplifyTransitions() {
-      for (auto &state: this->states) {
+      for (const auto &state: this->states) {
         std::unordered_map<Alphabet, std::vector<learnta::TATransition>> newNext;
         for (auto &[action, transitions]: state->next) {
           std::vector<learnta::TATransition> reducedTransitions;

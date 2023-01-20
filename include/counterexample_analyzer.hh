@@ -51,7 +51,7 @@ namespace learnta {
       for (const auto &mappedWord: mappedWords) {
         BOOST_LOG_TRIVIAL(error) << "mappedWord: " << mappedWord;
       }
-      // throw std::logic_error("Error in counter example analysis");
+      throw std::logic_error("Error in counter example analysis");
       // The DTA construction is not working well. This happens only if the suffix is not refined enough
       const auto elementary = ForwardRegionalElementaryLanguage::fromTimedWord(word);
       const auto prefixes = elementary.prefixes();

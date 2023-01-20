@@ -1147,7 +1147,7 @@ namespace learnta {
         }
       }
 
-      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.simplify();
+      return TimedAutomaton{{states, {initialState}}, TimedAutomaton::makeMaxConstants(states)}.mergeAdjacentTransitions().simplify();
     }
 
     std::ostream &printDetail(std::ostream &stream) const {

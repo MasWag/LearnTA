@@ -443,14 +443,12 @@ namespace learnta {
           it->second = std::max(it->second, constraint.toDBMBound());
         }
       }
-      if (boundedKeys.size() < guardsAsBounds.size()) {
-        // We have unbounded variables
-        for (auto it = guardsAsBounds.begin(); it!= guardsAsBounds.end(); ) {
-          if (boundedKeys.find(it->first) == boundedKeys.end()) {
-            it = guardsAsBounds.erase(it);
-          } else {
-            ++it;
-          }
+      // We have unbounded variables
+      for (auto it = guardsAsBounds.begin(); it!= guardsAsBounds.end(); ) {
+        if (boundedKeys.find(it->first) == boundedKeys.end()) {
+          it = guardsAsBounds.erase(it);
+        } else {
+          ++it;
         }
       }
       initial = false;
