@@ -240,13 +240,18 @@ namespace learnta {
       return std::nullopt;
     }
 
-    // 1. Construct the bipartite graph based on the timed conditions.
+    // 1. Try the empty relation
+    if (equivalence(left, leftRow, right, rightRow, suffixes, RenamingRelation{})) {
+      return RenamingRelation{};
+    }
+
+    // 2. Construct the bipartite graph based on the timed conditions.
     const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
 
-    // 2. Construct the candidate renaming equations
+    // 3. Construct the candidate renaming equations
     auto candidates = generateDeterministicCandidates(right.getTimedCondition(), graph);
 
-    // 3. Find an equivalent renaming equation
+    // 4. Find an equivalent renaming equation
     const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
     // Add implicit constraints
     std::for_each(candidates.begin(), candidates.end(), [&] (auto &candidate) {
