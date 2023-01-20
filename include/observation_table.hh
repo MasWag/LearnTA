@@ -130,12 +130,14 @@ namespace learnta {
     }
 
     std::optional<RenamingRelation> equivalentWithMemo(std::size_t i, std::size_t j) {
+#if 0
       if (this->distinguishedPrefix.find(std::make_pair(i, j)) != this->distinguishedPrefix.end() ||
           this->distinguishedPrefix.find(std::make_pair(j, i)) != this->distinguishedPrefix.end()) {
         // we already know that they are not equivalent
         assert(!this->equivalent(i, j));
         return std::nullopt;
       }
+#endif
       auto equivalentPrefixesIT = this->closedRelation.find(i);
       if (equivalentPrefixesIT != this->closedRelation.end()) {
         auto it = equivalentPrefixesIT->second.find(j);
