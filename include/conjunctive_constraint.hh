@@ -9,6 +9,7 @@
 #include "constraint.hh"
 
 namespace learnta {
+#ifndef NO_EIGEN_CONSTRAINT
   /*!
    * @brief Conjunction of inequality constraints represented by a vector
    *
@@ -19,8 +20,8 @@ namespace learnta {
     //! The number of variables
     Eigen::Index dimension;
     //! The actual container
-    Eigen::Vector<IntBounds, Eigen::Dynamic> value;
-    explicit ConjunctiveInequalities(Eigen::Vector<IntBounds, Eigen::Dynamic> &&value):
+    Eigen::VectorX<IntBounds> value;
+    explicit ConjunctiveInequalities(Eigen::VectorX<IntBounds> &&value):
               dimension (value.size() / 2), value(value) {}
   public:
     // We do not use std::numeric_limits<int>::max() to avoid overflow
@@ -150,7 +151,6 @@ namespace learnta {
     }
   };
 
-#ifndef NO_EIGEN_CONSTRAINT
   inline std::vector<std::vector<Constraint>> negate(const std::vector<std::vector<Constraint>> &dnfConstraints) {
     Eigen::Index dimension = 0;
     for (const auto& disjunct: dnfConstraints) {

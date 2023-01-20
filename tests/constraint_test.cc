@@ -66,10 +66,17 @@ BOOST_AUTO_TEST_SUITE(ConstraintTest)
     const auto negated = negate(dnfConstraints);
     BOOST_CHECK_EQUAL(6, negated.size());
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(0) < 2}), negated.at(0));
+#ifndef NO_EIGEN_CONSTRAINT
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(0) <= 2, ConstraintMaker(1) > 0}), negated.at(1));
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(0) < 3, ConstraintMaker(1) >= 1}), negated.at(2));
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(0) <= 3, ConstraintMaker(1) > 1}), negated.at(3));
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(0) < 4, ConstraintMaker(1) >= 2}), negated.at(4));
+#else
+    BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) > 0, ConstraintMaker(0) <= 2}), negated.at(1));
+    BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) >= 1, ConstraintMaker(0) < 3}), negated.at(2));
+    BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) > 1, ConstraintMaker(0) <= 3}), negated.at(3));
+    BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) >= 2, ConstraintMaker(0) < 4}), negated.at(4));
+#endif
     BOOST_CHECK_EQUAL((std::vector<Constraint>{ConstraintMaker(1) > 2}), negated.at(5));
   }
 

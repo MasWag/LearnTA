@@ -15,6 +15,8 @@
 #include "common_types.hh"
 #include "bounds.hh"
 
+#define NO_EIGEN_CONSTRAINT
+
 namespace learnta {
 
 //! @brief The return values of comparison of two values. Similar to strcmp.
