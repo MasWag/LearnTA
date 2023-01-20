@@ -199,6 +199,10 @@ namespace learnta {
      candidates.erase(std::remove_if(candidates.begin(), candidates.end(), [&] (const auto& renaming) {
        return renaming.hasImpreciseClocks(right);
      }), candidates.end());
+     std::cout << candidates.size() << " ";
+     std::sort(candidates.begin(), candidates.end());
+     candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
+     std::cout << candidates.size() << std::endl;
 
      return candidates;
    }

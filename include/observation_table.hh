@@ -800,7 +800,7 @@ namespace learnta {
      * @note We currently construct only the DTAs without unobservable transitions.
      */
     TimedAutomaton generateHypothesis() {
-      this->optimizeTarget();
+      // this->optimizeTarget();
       StateManager stateManager;
       std::vector<std::shared_ptr<TAState>> states;
 
