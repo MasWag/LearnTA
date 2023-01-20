@@ -15,7 +15,7 @@
 
 namespace learnta {
   /*!
-   * Return if two elementary languages are equivalent
+   * @brief Return if two elementary languages are equivalent
    *
    * @pre leftRow.size() == rightRow.size() == suffixes.size()
    */
@@ -62,13 +62,17 @@ namespace learnta {
   }
 
   /*!
-   * Return if two elementary languages are equivalent
+   * @brief Return if two elementary languages are equivalent
+   *
+   * @param leftRightJuxtaposition juxtaposition of left and right prefixes
+   * @param leftJuxtapositions list of juxtaposition of mem(left + suffix) and (right + suffix)
+   * @param rightJuxtapositions list of juxtaposition of (left + suffix) and mem(right + suffix)
    *
    * @pre leftJuxtapositions.size() == rightJuxtapositions.size()
    */
    static bool equivalence(JuxtaposedZone leftRightJuxtaposition,
-                           std::vector<JuxtaposedZoneSet> leftJuxtapositions,
-                           std::vector<JuxtaposedZoneSet> rightJuxtapositions,
+                           const std::vector<JuxtaposedZoneSet> &leftJuxtapositions,
+                           const std::vector<JuxtaposedZoneSet> &rightJuxtapositions,
                            const RenamingRelation &renaming) {
      assert(leftJuxtapositions.size() == rightJuxtapositions.size());
      // Check the compatibility of prefixes up to renaming
@@ -77,15 +81,79 @@ namespace learnta {
        return false;
      }
      // Check the compatibility of symbolic membership up to renaming
-     for (std::size_t i = 0; i < leftJuxtapositions.size(); ++i) {
-       leftJuxtapositions.at(i).addRenaming(renaming);
-       rightJuxtapositions.at(i).addRenaming(renaming);
-       if (leftJuxtapositions.at(i) != rightJuxtapositions.at(i)) {
-         return false;
+     return std::equal(leftJuxtapositions.begin(), leftJuxtapositions.end(),
+                       rightJuxtapositions.begin(), rightJuxtapositions.end(),
+                       [&renaming] (JuxtaposedZoneSet left, JuxtaposedZoneSet right) {
+       left.addRenaming(renaming);
+       right.addRenaming(renaming);
+       return left == right;
+     });
+   }
+
+   using RenamingGraph = std::pair<std::vector<std::vector<std::size_t>>, std::vector<std::vector<std::size_t>>>;
+
+   /*!
+    * @brief Construct the intermediate bipartite graph for candidate generation from timed conditions
+    *
+    * The constructed graph has an edge between v1.at(i) and v2.at(j) if and only if
+    *  left.getUpperBound(i, N - 1) == right.getUpperBound(j, M - 1)
+    *
+    * @pre left and right are simple
+    */
+   static RenamingGraph toGraph(const TimedCondition &left, const TimedCondition &right) {
+     // Assert the precondition
+     assert(left.isSimple());
+     assert(right.isSimple());
+     std::vector<std::vector<std::size_t>> v1Edges, v2Edges;
+
+     const auto N = left.size();
+     const auto M = right.size();
+     v1Edges.resize(N);
+     v2Edges.resize(M);
+     std::size_t v1 = 0, v2 = 0;
+     std::vector<std::size_t> currentSameV1, currentSameV2;
+     while (v1 < v1Edges.size() && v2 < v2Edges.size()) {
+       if (left.getUpperBound(v1, N - 1) == right.getUpperBound(v2, M - 1)) {
+         v1Edges.reserve(currentSameV2.size());
+         v2Edges.reserve(currentSameV1.size());
+         std::copy(currentSameV2.begin(), currentSameV2.end(), std::back_inserter(v1Edges.at(v1)));
+         std::for_each(currentSameV2.begin(), currentSameV2.end(), [&](const auto oldV2) {
+           v2Edges.at(oldV2).push_back(v1);
+         });
+         std::copy(currentSameV1.begin(), currentSameV1.end(), std::back_inserter(v2Edges.at(v2)));
+         std::for_each(currentSameV1.begin(), currentSameV1.end(), [&](const auto oldV1) {
+           v1Edges.at(oldV1).push_back(v2);
+         });
+         v1Edges.at(v1).push_back(v2);
+         v2Edges.at(v2).push_back(v1);
+         currentSameV1.push_back(v1);
+         currentSameV2.push_back(v2);
+         if (v1 + 1 < v1Edges.size() && left.getUpperBound(v1, N - 1) == left.getUpperBound(v1 + 1, N - 1)) {
+           v1++;
+         } else {
+           v2++;
+         }
+       } else {
+         currentSameV1.clear();
+         currentSameV2.clear();
+         if (left.getUpperBound(v1, N - 1) < right.getUpperBound(v2, M - 1)) {
+           v2++;
+         } else {
+           v1++;
+         }
        }
      }
 
-     return true;
+     // Sort and remove duplication
+     for (auto& v1Edge: v1Edges) {
+       std::sort(v1Edge.begin(), v1Edge.end());
+       v1Edge.erase(std::unique(v1Edge.begin(), v1Edge.end()), v1Edge.end());
+     }
+     for (auto& v2Edge: v2Edges) {
+       std::sort(v2Edge.begin(), v2Edge.end());
+       v2Edge.erase(std::unique(v2Edge.begin(), v2Edge.end()), v2Edge.end());
+     }
+     return RenamingGraph{v1Edges, v2Edges};
    }
 
   /*!
@@ -122,42 +190,17 @@ namespace learnta {
     assert(left.isSimple());
     assert(right.isSimple());
 
+    // 0.5. Try the empty relation
+    if (equivalence(left, leftRow, right, rightRow, suffixes, RenamingRelation{})) {
+      return RenamingRelation{};
+    }
+
     // 1. Construct the bipartite graph based on the timed conditions.
-    std::vector<std::vector<std::size_t>> v1Edges, v2Edges;
+    const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
+    const auto &v1Edges = graph.first;
+    const auto &v2Edges = graph.second;
     const auto N = left.wordSize() + 1;
     const auto M = right.wordSize() + 1;
-    v1Edges.resize(N);
-    v2Edges.resize(M);
-    std::size_t v1 = 0, v2 = 0;
-    std::vector<std::size_t> currentSameV1, currentSameV2;
-    while (v1 < v1Edges.size() && v2 < v2Edges.size()) {
-      if (left.getTimedCondition().getUpperBound(v1, N - 1) == right.getTimedCondition().getUpperBound(v2, M - 1)) {
-        v1Edges.reserve(currentSameV2.size());
-        v2Edges.reserve(currentSameV1.size());
-        std::copy(currentSameV2.begin(), currentSameV2.end(), std::back_inserter(v1Edges.at(v1)));
-        std::for_each(currentSameV2.begin(), currentSameV2.end(), [&](const auto oldV2) {
-          v2Edges.at(oldV2).push_back(v1);
-        });
-        std::copy(currentSameV1.begin(), currentSameV1.end(), std::back_inserter(v2Edges.at(v2)));
-        std::for_each(currentSameV1.begin(), currentSameV1.end(), [&](const auto oldV1) {
-          v1Edges.at(oldV1).push_back(v2);
-        });
-        v1Edges.at(v1).push_back(v2);
-        v2Edges.at(v2).push_back(v1);
-        currentSameV1.push_back(v1);
-        currentSameV2.push_back(v2);
-        v1++;
-        v2++;
-      } else {
-        currentSameV1.clear();
-        currentSameV2.clear();
-        if (left.getTimedCondition().getUpperBound(v1, N - 1) < right.getTimedCondition().getUpperBound(v2, M - 1)) {
-          v2++;
-        } else {
-          v1++;
-        }
-      }
-    }
 
     std::vector<TimedCondition> leftConcatenations, rightConcatenations;
     leftConcatenations.resize(leftRow.size());
@@ -198,8 +241,8 @@ namespace learnta {
     {
       std::size_t v1Index = 0, v2Index = 0;
       while (v1Index < constrainedV1.size() && v2Index < constrainedV2.size()) {
-        v1 = constrainedV1.at(v1Index);
-        v2 = constrainedV2.at(v2Index);
+        std::size_t v1 = constrainedV1.at(v1Index);
+        std::size_t v2 = constrainedV2.at(v2Index);
         // 3-1. We check if we cannot include these vertices
         if (v1Edges.at(v1).empty()) {
           v1Index++;

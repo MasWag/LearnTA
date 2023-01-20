@@ -175,6 +175,37 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     BOOST_CHECK_EQUAL(0, renamingOpt->front().second);
   }
 
+  void assertGraph(const TimedCondition& left, const TimedCondition& right, const RenamingGraph& graph) {
+    const auto &v1Edges = graph.first;
+    const auto &v2Edges = graph.second;
+    const auto N = left.size();
+    const auto M = right.size();
+
+    for (std::size_t i = 0; i < left.size(); ++i) {
+      BOOST_TEST(is_strict_ascending(v1Edges.at(i)));
+      for (std::size_t j = 0; j < right.size(); ++j) {
+        BOOST_TEST(is_strict_ascending(v2Edges.at(j)));
+        if (left.getUpperBound(i, N - 1) == right.getUpperBound(j, M - 1)) {
+          BOOST_TEST(std::binary_search(v1Edges.at(i).begin(), v1Edges.at(i).end(), j));
+          BOOST_TEST(std::binary_search(v2Edges.at(j).begin(), v2Edges.at(j).end(), i));
+        } else {
+          BOOST_TEST(!std::binary_search(v1Edges.at(i).begin(), v1Edges.at(i).end(), j));
+          BOOST_TEST(!std::binary_search(v2Edges.at(j).begin(), v2Edges.at(j).end(), i));
+        }
+      }
+    }
+  }
+
+  BOOST_FIXTURE_TEST_CASE(toGraphFixtureTest, Fixture) {
+    const std::vector<ForwardRegionalElementaryLanguage> prefixes = {p1, p2, p3, p4, p5, p6, p7, p9, p10, p13};
+    for (const auto& left: prefixes) {
+      for (const auto& right: prefixes) {
+        assertGraph(left.getTimedCondition(), right.getTimedCondition(),
+                    toGraph(left.getTimedCondition(), right.getTimedCondition()));
+      }
+    }
+  }
+
   BOOST_AUTO_TEST_CASE(equivalenceBug20220928) {
     std::stringstream stream;
     //         [0] = (first = 2, second = 2)
