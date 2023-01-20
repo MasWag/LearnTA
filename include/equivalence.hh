@@ -100,7 +100,7 @@ namespace learnta {
     *
     * @pre left and right are simple
     */
-   static RenamingGraph toGraph(const TimedCondition &left, const TimedCondition &right) {
+   static inline RenamingGraph toGraph(const TimedCondition &left, const TimedCondition &right) {
      // Assert the precondition
      assert(left.isSimple());
      assert(right.isSimple());
@@ -156,13 +156,60 @@ namespace learnta {
      return RenamingGraph{v1Edges, v2Edges};
    }
 
+   /*!
+    * @brief Construct candidate renaming relations that are deterministic, i.e., the corresponding reset only makes precise clocks
+    *
+    * @param right The right timed condition in the renaming
+    * @param graph The renaming graph
+    */
+   static inline std::vector<RenamingRelation> generateDeterministicCandidates(const TimedCondition& right,
+                                                                               const RenamingGraph& graph) {
+     std::vector<RenamingRelation> candidates;
+     // We first generate full candidates
+     candidates.emplace_back();
+     for (std::size_t j = 0; j < right.size(); ++j) {
+       if (graph.second.at(j).empty()) {
+         continue;
+       }
+       std::vector<RenamingRelation> newCandidates;
+       for (auto candidate: candidates) {
+         if (j > 0 && right.getUpperBound(j - 1, j - 1) == Bounds{0, true}) {
+           candidate.push_back(candidate.back());
+           newCandidates.emplace_back(std::move(candidate));
+           continue;
+         } else {
+           // The least value of the corresponding node
+           const std::size_t lowerBound =
+                   (candidate.empty() || candidate.back().second != j - 1) ? 0 : (candidate.back().first + 1);
+           for (const auto& i: graph.second.at(j)) {
+             if (i >= lowerBound) {
+               auto tmpCandidate = candidate;
+               tmpCandidate.emplace_back(i, j);
+               newCandidates.emplace_back(std::move(tmpCandidate));
+             }
+           }
+         }
+       }
+       candidates = std::move(newCandidates);
+     }
+
+     // Then, we add empty renaming
+     candidates.emplace_back();
+     // Finally, erase non-deterministic renaming
+     candidates.erase(std::remove_if(candidates.begin(), candidates.end(), [&] (const auto& renaming) {
+       return renaming.hasImpreciseClocks(right);
+     }), candidates.end());
+
+     return candidates;
+   }
+
   /*!
-   * Construct a renaming constraint if two elementary languages are equivalent
+   * @brief Return a renaming constraint if two elementary languages are equivalent
    *
    * The outline of our construction is as follows.
    * 1. We construct the bipartite graph based on the timed conditions.
-   * 2. We make the set of the strictly constrained variables in the symbolic membership.
-   * 3. We generate a candidate of renaming constraints and return it if it witnesses the equivalence
+   * 2. We generate deterministic candidate renaming equations
+   * 3. We return a renaming equation witnessing the equivalence, if exists
    *
    * In the first part, we construct a bipartite graph \f$(V_1, V_2, E)\f$ such that:
    * - \f$V_1\f$ and \f$V_2\f$ consists of the variables in left and right, respectively, and
@@ -170,20 +217,92 @@ namespace learnta {
    *
    * We note that each disjoint part of this bipartite graph is complete.
    *
-   * In the second part, we list the variables strictly constrained in the symbolic membership.
-   * We do this simply by comparing the coefficients in the zone thanks to the canonicity of the zones.
-   * Since these strictly constrained variables must also be constrained by the renaming constraints, they are the candidates in the construction of the renaming constraints.
-   *
-   * In the third part, we construct the renaming constraints by taking the largest or smallest edges in each disjoint part of the bipartite graph.
    *
    * @pre leftRow.size() == rightRow.size() == suffixes.size()
    * @pre left and right are simple
    */
-  static std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
-                                                                const std::vector<TimedConditionSet> &leftRow,
-                                                                const ElementaryLanguage &right,
-                                                                const std::vector<TimedConditionSet> &rightRow,
-                                                                const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
+  static inline std::optional<RenamingRelation> findDeterministicEquivalentRenaming(const ElementaryLanguage &left,
+                                                                                    const std::vector<TimedConditionSet> &leftRow,
+                                                                                    const ElementaryLanguage &right,
+                                                                                    const std::vector<TimedConditionSet> &rightRow,
+                                                                                    const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
+    // 0. Asserts the preconditions
+    assert(leftRow.size() == rightRow.size());
+    assert(rightRow.size() == suffixes.size());
+    assert(left.isSimple());
+    assert(right.isSimple());
+
+    // 0.5. We quickly check if they are clearly not equivalent.
+    if (!std::equal(leftRow.begin(), leftRow.end(), rightRow.begin(), rightRow.end(),
+                   [&] (const auto& leftCell, const auto& rightCell) {
+      return leftCell.empty() == rightCell.empty();
+    })) {
+      return std::nullopt;
+    }
+
+    // 1. Construct the bipartite graph based on the timed conditions.
+    const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
+
+    // 2. Construct the candidate renaming equations
+    auto candidates = generateDeterministicCandidates(right.getTimedCondition(), graph);
+
+    // 3. Find an equivalent renaming equation
+    const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+    // Add implicit constraints
+    std::for_each(candidates.begin(), candidates.end(), [&] (auto &candidate) {
+      if (!candidate.empty()) {
+        candidate.addImplicitConstraints(leftRightJuxtaposition);
+      }
+    });
+    std::vector<JuxtaposedZoneSet> leftJuxtapositions, rightJuxtapositions;
+    leftJuxtapositions.reserve(leftRow.size());
+    rightJuxtapositions.reserve(rightRow.size());
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
+      const auto rightConcatenation = (right + suffixes.at(i)).getTimedCondition();
+      leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenation, suffixes.at(i).wordSize());
+      const auto leftConcatenation = (left + suffixes.at(i)).getTimedCondition();
+      rightJuxtapositions.emplace_back(leftConcatenation, rightRow.at(i), suffixes.at(i).wordSize());
+    }
+    auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
+      return equivalence(leftRightJuxtaposition, leftJuxtapositions, rightJuxtapositions, candidate);
+    });
+
+    if (it != candidates.end()) {
+      return *it;
+    } else {
+      return std::nullopt;
+    }
+  }
+
+
+    /*!
+     * @brief Construct a renaming constraint if two elementary languages are equivalent
+     *
+     * The outline of our construction is as follows.
+     * 1. We construct the bipartite graph based on the timed conditions.
+     * 2. We make the set of the strictly constrained variables in the symbolic membership.
+     * 3. We generate a candidate of renaming constraints and return it if it witnesses the equivalence
+     *
+     * In the first part, we construct a bipartite graph \f$(V_1, V_2, E)\f$ such that:
+     * - \f$V_1\f$ and \f$V_2\f$ consists of the variables in left and right, respectively, and
+     * - \f$(v_1, v_2) \in E\f$ if and only if \f$v_1 = v_2\f$ does not contradict to the given constraints.
+     *
+     * We note that each disjoint part of this bipartite graph is complete.
+     *
+     * In the second part, we list the variables strictly constrained in the symbolic membership.
+     * We do this simply by comparing the coefficients in the zone thanks to the canonicity of the zones.
+     * Since these strictly constrained variables must also be constrained by the renaming constraints, they are the candidates in the construction of the renaming constraints.
+     *
+     * In the third part, we construct the renaming constraints by taking the largest or smallest edges in each disjoint part of the bipartite graph.
+     *
+     * @pre leftRow.size() == rightRow.size() == suffixes.size()
+     * @pre left and right are simple
+     */
+  static inline std::optional<RenamingRelation> findEquivalentRenaming(const ElementaryLanguage &left,
+                                                                       const std::vector<TimedConditionSet> &leftRow,
+                                                                       const ElementaryLanguage &right,
+                                                                       const std::vector<TimedConditionSet> &rightRow,
+                                                                       const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
     // 0. Asserts the preconditions
     assert(leftRow.size() == rightRow.size());
     assert(rightRow.size() == suffixes.size());

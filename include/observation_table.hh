@@ -117,8 +117,9 @@ namespace learnta {
     }
 
     std::optional<RenamingRelation> equivalent(std::size_t i, std::size_t j) {
-      auto renamingRelation = findEquivalentRenaming(this->prefixes.at(i), this->table.at(i),
-                                                     this->prefixes.at(j), this->table.at(j), this->suffixes);
+      auto renamingRelation = findDeterministicEquivalentRenaming(this->prefixes.at(i), this->table.at(i),
+                                                                  this->prefixes.at(j), this->table.at(j),
+                                                                  this->suffixes);
       if (renamingRelation) {
         this->closedRelation[i][j] = renamingRelation.value();
         return renamingRelation;
@@ -182,8 +183,9 @@ namespace learnta {
       rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
       auto newSuffixes = this->suffixes;
       newSuffixes.push_back(newSuffix);
-      const auto result = findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
-                                                 newSuffixes).has_value();
+      const auto result = findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow,
+                                                              this->prefixes.at(j), rightRow,
+                                                              newSuffixes).has_value();
       equivalentWithColumnCache[key] = std::make_pair(this->suffixes.size(), result);
 
       return result;
@@ -220,8 +222,9 @@ namespace learnta {
         tmpSuffixes.push_back(newSuffix);
       }
 
-      return findEquivalentRenaming(this->prefixes.at(i), leftRow, this->prefixes.at(j), rightRow,
-                                    tmpSuffixes).has_value();
+      return findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow,
+                                                 this->prefixes.at(j), rightRow,
+                                                 tmpSuffixes).has_value();
     }
 
     /*!
@@ -534,6 +537,8 @@ namespace learnta {
         if (prefixes.at(pIndex).hasEqualityN()) {
           continue;
         }
+        BOOST_LOG_TRIVIAL(debug) << "Observation table is exterior-inconsistent because of "
+                                 << this->prefixes.at(successorIndex);
         newP.push_back(successorIndex);
       }
       if (newP.empty()) {
@@ -574,8 +579,16 @@ namespace learnta {
             // Modify the cache to jump to pIndex to construct a DTA without unobservable transitions
             it->second = {*it2};
             continue;
+          } else if (equivalence(this->prefixes.at(successorIndex), this->table.at(successorIndex),
+                                 this->prefixes.at(pIndex), this->table.at(pIndex),
+                                 suffixes, RenamingRelation{})) {
+            it->second.clear();
+            it->second[pIndex] = RenamingRelation{};
+            continue;
           }
         }
+        BOOST_LOG_TRIVIAL(debug) << "Observation table is not time-saturated because of "
+                                 << this->prefixes.at(successorIndex);
         newP.push_back(successorIndex);
       }
       if (newP.empty()) {

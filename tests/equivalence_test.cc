@@ -206,6 +206,40 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     }
   }
 
+  BOOST_AUTO_TEST_CASE(generateDeterministicCandidatesTest) {
+    std::stringstream stream;
+    TimedCondition left {Zone::top(3)};
+    left.restrictUpperBound(0, 0, Bounds{1, false});
+    left.restrictLowerBound(0, 0, Bounds{0, false});
+    left.restrictUpperBound(0, 1, Bounds{1, false});
+    left.restrictLowerBound(0, 1, Bounds{0, false});
+    left.restrictUpperBound(1, 1, Bounds{1, false});
+    left.restrictLowerBound(1, 1, Bounds{0, false});
+    stream << left;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 < T_{1, 1}  < 1",
+                      stream.str());
+    stream.str("");
+    TimedCondition right {Zone::top(3)};
+    right.restrictUpperBound(0, 0, Bounds{1, false});
+    right.restrictLowerBound(0, 0, Bounds{0, false});
+    right.restrictUpperBound(0, 1, Bounds{1, false});
+    right.restrictLowerBound(0, 1, Bounds{0, false});
+    right.restrictUpperBound(1, 1, Bounds{0, true});
+    right.restrictLowerBound(1, 1, Bounds{0, true});
+    stream << right;
+    BOOST_CHECK_EQUAL("-0 < T_{0, 0}  < 1 && -0 < T_{0, 1}  < 1 && -0 <= T_{1, 1}  <= 0",
+                      stream.str());
+    stream.str("");
+    const auto graph = toGraph(left, right);
+    assertGraph(left, right, graph);
+    auto candidates = generateDeterministicCandidates(right, graph);
+    BOOST_CHECK_EQUAL(3, candidates.size());
+    std::array<RenamingRelation, 3> expectedRelations;
+    expectedRelations.at(0).emplace_back(0, 0);
+    expectedRelations.at(1).emplace_back(1, 0);
+    BOOST_TEST(candidates == expectedRelations, boost::test_tools::per_element());
+  }
+
   BOOST_AUTO_TEST_CASE(equivalenceBug20220928) {
     std::stringstream stream;
     //         [0] = (first = 2, second = 2)
