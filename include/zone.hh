@@ -130,18 +130,23 @@ namespace learnta {
     }
 
     void applyResets(const std::vector<std::pair<ClockVariables, std::variant<double, ClockVariables>>> &resets) {
+      // We apply renaming first
       for (const auto &[resetVariable, updatedVariable]: resets) {
-        this->unconstrain(resetVariable);
-        if (updatedVariable.index() == 1) {
-          if (resetVariable != std::get<ClockVariables>(updatedVariable)) {
-            this->value(resetVariable + 1, std::get<ClockVariables>(updatedVariable) + 1) = Bounds{0.0, true};
-            this->value(std::get<ClockVariables>(updatedVariable) + 1, resetVariable + 1) = Bounds{0.0, true};
-          }
-        } else {
+        if (updatedVariable.index() == 1 && resetVariable != std::get<ClockVariables>(updatedVariable)) {
+          this->unconstrain(resetVariable);
+          this->value(resetVariable + 1, std::get<ClockVariables>(updatedVariable) + 1) = Bounds{0.0, true};
+          this->value(std::get<ClockVariables>(updatedVariable) + 1, resetVariable + 1) = Bounds{0.0, true};
+          canonize();
+        }
+      }
+      // Then, assign a value
+      for (const auto &[resetVariable, updatedVariable]: resets) {
+        if (updatedVariable.index() == 0) {
+          this->unconstrain(resetVariable);
           this->value(0, resetVariable + 1) = Bounds(-std::get<double>(updatedVariable), true);
           this->value(resetVariable + 1, 0) = Bounds(std::get<double>(updatedVariable), true);
+          canonize();
         }
-        canonize();
       }
     }
 
