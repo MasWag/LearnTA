@@ -1139,7 +1139,9 @@ namespace learnta {
               }
             }
           }
+#if 0
           // Take union hull
+          // We need to debug the handling of reset variables
           for (auto it = transitions.begin(); it != transitions.end(); ++it) {
             for (auto it2 = std::next(it); it2 != transitions.end();) {
               if (satisfiable(conjunction(it->guard, it2->guard))) {
@@ -1157,6 +1159,7 @@ namespace learnta {
               }
             }
           }
+#endif
         }
         state->removeTransitionsWithWeakerGuards();
         state->mergeNondeterministicBranching();
