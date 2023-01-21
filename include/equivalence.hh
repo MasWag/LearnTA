@@ -162,27 +162,30 @@ namespace learnta {
     * @param right The right timed condition in the renaming
     * @param graph The renaming graph
     */
-   static inline std::vector<RenamingRelation> generateDeterministicCandidates(const TimedCondition& right,
+   static inline std::vector<RenamingRelation> generateDeterministicCandidates(const TimedCondition& left,
+                                                                               const TimedCondition& right,
                                                                                const RenamingGraph& graph) {
      std::vector<RenamingRelation> candidates;
      // We first generate full candidates
      candidates.emplace_back();
      for (std::size_t j = 0; j < right.size(); ++j) {
-       if (graph.second.at(j).empty()) {
+       // We do not construct a renaming equation if there is no edge from the right node, or the target is already determined
+       if (graph.second.at(j).empty() || right.getUpperBound(j, right.size() - 1).second) {
          continue;
        }
        std::vector<RenamingRelation> newCandidates;
        for (auto candidate: candidates) {
+         // If j - 1 and j has the same value, we use the same left variable
          if (j > 0 && right.getUpperBound(j - 1, j - 1) == Bounds{0, true}) {
-           candidate.push_back(candidate.back());
+           candidate.emplace_back(candidate.back().first, j);
            newCandidates.emplace_back(std::move(candidate));
            continue;
          } else {
            // The least value of the corresponding node
-           const std::size_t lowerBound =
-                   (candidate.empty() || candidate.back().second != j - 1) ? 0 : (candidate.back().first + 1);
+           const std::size_t lowerBound = candidate.empty() ? 0 : (candidate.back().first + 1);
            for (const auto& i: graph.second.at(j)) {
-             if (i >= lowerBound) {
+             // We skip if i - 1 and i has the same value
+             if (i >= lowerBound && (i == 0 || left.getUpperBound(i - 1, i - 1) != Bounds{0, true})) {
                auto tmpCandidate = candidate;
                tmpCandidate.emplace_back(i, j);
                newCandidates.emplace_back(std::move(tmpCandidate));
@@ -251,7 +254,7 @@ namespace learnta {
     const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
 
     // 3. Construct the candidate renaming equations
-    auto candidates = generateDeterministicCandidates(right.getTimedCondition(), graph);
+    auto candidates = generateDeterministicCandidates(left.getTimedCondition(), right.getTimedCondition(), graph);
 
     // 4. Find an equivalent renaming equation
     const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
