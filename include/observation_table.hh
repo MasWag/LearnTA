@@ -1122,6 +1122,12 @@ namespace learnta {
       }
       for (const auto& state: states) {
         for (auto& [action, transitions]: state->next) {
+          // sort the order of the resets
+          for (TATransition& transition: transitions) {
+            std::sort(transition.resetVars.begin(), transition.resetVars.end(), [&] (const auto& left, const auto& right) {
+              return left.first < right.first;
+            });
+          }
           // Merge adjacent transitions
           for (auto it = transitions.begin(); it != transitions.end(); ++it) {
             for (auto it2 = std::next(it); it2 != transitions.end();) {
