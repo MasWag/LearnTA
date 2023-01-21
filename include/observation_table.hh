@@ -30,6 +30,12 @@
 #include "neighbor_conditions.hh"
 #include "imprecise_clock_handler.hh"
 
+#ifdef PRINT_REFINEMENT_INFO
+#define LOG_REFINEMENT_INFO BOOST_LOG_TRIVIAL(info)
+#else
+#define LOG_REFINEMENT_INFO BOOST_LOG_TRIVIAL(debug)
+#endif
+
 namespace learnta {
   /*!
    * @brief Timed observation table
@@ -339,7 +345,7 @@ namespace learnta {
 #endif
           this->moveToP(i);
           assert(prePSize < this->pIndices.size());
-          BOOST_LOG_TRIVIAL(debug) << "Observation table is not closed because of " << this->prefixes.at(i);
+          LOG_REFINEMENT_INFO << "Observation table is not closed because of " << this->prefixes.at(i);
           this->refreshTable();
           return false;
         }
@@ -403,7 +409,7 @@ namespace learnta {
         abort();
       }
       const auto newSuffix = it->predecessor(action);
-      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      LOG_REFINEMENT_INFO << "New suffix " << newSuffix << " is added";
       suffixes.push_back(newSuffix);
 
       this->refreshTable();
@@ -430,7 +436,7 @@ namespace learnta {
         return false;
       }
       const auto newSuffix = it->predecessor();
-      BOOST_LOG_TRIVIAL(debug) << "New suffix " << newSuffix << " is added";
+      LOG_REFINEMENT_INFO << "New suffix " << newSuffix << " is added";
       suffixes.push_back(newSuffix);
 
       this->refreshTable();
@@ -502,7 +508,7 @@ namespace learnta {
             for (const auto action: this->alphabet) {
               if (!this->equivalentWithMemo(this->discreteSuccessors.at({i, action}),
                                             this->discreteSuccessors.at({j, action}))) {
-                BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the discrete successors of "
+                LOG_REFINEMENT_INFO << "Observation table is inconsistent because of the discrete successors of "
                                          << this->prefixes.at(i) << " and " << this->prefixes.at(j)
                                          << " with action " << action;
                 resolveDiscreteInconsistency(i, j, action);
@@ -511,7 +517,7 @@ namespace learnta {
             }
             if (!this->equivalentWithMemo(this->continuousSuccessors.at(i), this->continuousSuccessors.at(j))
                 && resolveContinuousInconsistency(i, j)) {
-              BOOST_LOG_TRIVIAL(debug) << "Observation table is inconsistent because of the continuous successors of "
+              LOG_REFINEMENT_INFO << "Observation table is inconsistent because of the continuous successors of "
                                        << this->prefixes.at(i) << " and " << this->prefixes.at(j);
               return false;
             }
@@ -539,7 +545,7 @@ namespace learnta {
         if (prefixes.at(pIndex).hasEqualityN()) {
           continue;
         }
-        BOOST_LOG_TRIVIAL(debug) << "Observation table is exterior-inconsistent because of "
+        LOG_REFINEMENT_INFO << "Observation table is exterior-inconsistent because of "
                                  << this->prefixes.at(successorIndex);
         newP.push_back(successorIndex);
       }
@@ -589,7 +595,7 @@ namespace learnta {
             continue;
           }
         }
-        BOOST_LOG_TRIVIAL(debug) << "Observation table is not time-saturated because of "
+        LOG_REFINEMENT_INFO << "Observation table is not time-saturated because of "
                                  << this->prefixes.at(successorIndex);
         newP.push_back(successorIndex);
       }
@@ -641,7 +647,7 @@ namespace learnta {
                         if (!currentCondition.isPoint(clock) &&
                             std::any_of(renaming.begin(), renaming.end(), is_second<std::size_t, std::size_t>(clock))) {
                           // clock is imprecise but used!!
-                          BOOST_LOG_TRIVIAL(debug) << "Observation table is renaming inconsistent: x"
+                          LOG_REFINEMENT_INFO << "Observation table is renaming inconsistent: x"
                                                   << static_cast<int>(clock);
                           // Try to extend the suffixes
                           const TimedWord extension = currentLanguage.suffix(rootLanguage).sample();
@@ -649,7 +655,7 @@ namespace learnta {
                             const auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(extension + suffix.sample());
                             if (!equivalent(i, rootIndex, newSuffix, rootRenaming) ||
                                 !equivalent(currentIndex, indexAfterMap, newSuffix, renaming)) {
-                              BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix << " is added";
+                              LOG_REFINEMENT_INFO << "renameConsistent: New suffix " << newSuffix << " is added";
                               this->suffixes.push_back(newSuffix);
                               this->refreshTable();
                               return false;
@@ -658,7 +664,7 @@ namespace learnta {
                               const auto newSuffix2 = ForwardRegionalElementaryLanguage::fromTimedWord(simple.sample()).suffix(rootLanguage);
                               if (!equivalent(i, rootIndex, newSuffix2, rootRenaming) ||
                                   !equivalent(currentIndex, indexAfterMap, newSuffix2, renaming)) {
-                                BOOST_LOG_TRIVIAL(debug) << "renameConsistent: New suffix " << newSuffix2
+                                LOG_REFINEMENT_INFO << "renameConsistent: New suffix " << newSuffix2
                                                          << " is added";
                                 this->suffixes.push_back(newSuffix2);
                                 this->refreshTable();
@@ -666,7 +672,7 @@ namespace learnta {
                               }
                             }
                           }
-                          BOOST_LOG_TRIVIAL(debug) << "Failed to resolve the renaming inconsistency!!";
+                          LOG_REFINEMENT_INFO << "Failed to resolve the renaming inconsistency!!";
                         }
                       }
                     }
@@ -689,12 +695,12 @@ namespace learnta {
     void handleCEX(const TimedWord &cex) {
       auto newSuffixOpt = analyzeCEX(cex, *this->memOracle, this->toRecognizable(), this->suffixes);
       if (newSuffixOpt) {
-        BOOST_LOG_TRIVIAL(debug) << "New suffix " << *newSuffixOpt << " is added";
+        LOG_REFINEMENT_INFO << "New suffix " << *newSuffixOpt << " is added";
         auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(*newSuffixOpt);
         suffixes.push_back(std::move(newSuffix));
         this->refreshTable();
       } else {
-        BOOST_LOG_TRIVIAL(debug) << "Failed to find a new suffix. We add prefixes to P";
+        LOG_REFINEMENT_INFO << "Failed to find a new suffix. We add prefixes to P";
         const auto newPrefixes = ForwardRegionalElementaryLanguage::fromTimedWord(cex).prefixes();
         bool updated = false;
         for (const auto &newPrefix: newPrefixes) {
