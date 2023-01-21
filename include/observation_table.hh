@@ -1120,7 +1120,34 @@ namespace learnta {
                                                    TimedAutomaton::makeMaxConstants(states)}.simplify();
 #endif
       }
-      for (const auto &state: states) {
+      for (const auto& state: states) {
+        for (auto& [action, transitions]: state->next) {
+          // Merge adjacent transitions
+          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != transitions.end();) {
+              if (it->mergeable(*it2)) {
+                *it = it->merge(*it2);
+                it2 = transitions.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+          }
+          // Take union hull
+          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
+            for (auto it2 = std::next(it); it2 != transitions.end();) {
+              if (satisfiable(conjunction(it->guard, it2->guard))) {
+                if (it->target != it2->target || it->resetVars != it2->resetVars) {
+                  throw std::logic_error("error in transition merging");
+                }
+                it->guard = unionHull(it->guard, it2->guard);
+                it2 = transitions.erase(it2);
+              } else {
+                ++it2;
+              }
+            }
+          }
+        }
         state->removeTransitionsWithWeakerGuards();
         state->mergeNondeterministicBranching();
       }
@@ -1152,36 +1179,6 @@ namespace learnta {
         if (stateManager.isNew(index)) {
           BOOST_LOG_TRIVIAL(warning) << "Partial transitions is detected";
           abort();
-        }
-      }
-
-      for (const auto& state: states) {
-        for (auto& [action, transitions]: state->next) {
-          // Merge adjacent transitions
-          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
-            for (auto it2 = std::next(it); it2 != transitions.end();) {
-              if (it->mergeable(*it2)) {
-                *it = it->merge(*it2);
-                it2 = transitions.erase(it2);
-              } else {
-                ++it2;
-              }
-            }
-          }
-          // Take union hull
-          for (auto it = transitions.begin(); it != transitions.end(); ++it) {
-            for (auto it2 = std::next(it); it2 != transitions.end();) {
-              if (satisfiable(conjunction(it->guard, it2->guard))) {
-                if (it->target != it2->target || it->resetVars != it2->resetVars) {
-                  throw std::logic_error("error in transition merging");
-                }
-                it->guard = unionHull(it->guard, it2->guard);
-                it2 = transitions.erase(it2);
-              } else {
-                ++it2;
-              }
-            }
-          }
         }
       }
 
