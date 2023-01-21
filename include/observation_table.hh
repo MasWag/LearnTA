@@ -1144,6 +1144,10 @@ namespace learnta {
             for (auto it2 = std::next(it); it2 != transitions.end();) {
               if (satisfiable(conjunction(it->guard, it2->guard))) {
                 if (it->target != it2->target || it->resetVars != it2->resetVars) {
+                  BOOST_LOG_TRIVIAL(error) << "it->target: " << it->target;
+                  BOOST_LOG_TRIVIAL(error) << "it2->target: " << it2->target;
+                  BOOST_LOG_TRIVIAL(error) << "it->resetVars: " << it->resetVars;
+                  BOOST_LOG_TRIVIAL(error) << "it2->resetVars: " << it2->resetVars;
                   throw std::logic_error("error in transition merging");
                 }
                 it->guard = unionHull(it->guard, it2->guard);
