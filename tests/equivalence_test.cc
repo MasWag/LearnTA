@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_SUITE(EquivalenceTest)
     stream.str("");
     const auto graph = toGraph(left, right);
     assertGraph(left, right, graph);
-    auto candidates = generateDeterministicCandidates(right, graph);
+    auto candidates = generateDeterministicCandidates(left, right, graph);
     BOOST_CHECK_EQUAL(3, candidates.size());
     std::array<RenamingRelation, 3> expectedRelations;
     expectedRelations.at(1).emplace_back(0, 0);
