@@ -1,5 +1,5 @@
 <map id="SimpleAutomatonFixture" name="SimpleAutomatonFixture">
-<area shape="rect" id="node1" title="Fixture of the DTA in the paper." alt="" coords="196,5,380,32"/>
+<area shape="rect" id="node1" title="Fixture of the DTA in the paper." alt="" coords="101,5,285,32"/>
 <area shape="rect" id="node2" href="$structFixture.html" title=" " alt="" coords="65,80,132,107"/>
 <area shape="rect" id="node4" href="$structSimpleAutomatonOracleFixture.html" title=" " alt="" coords="156,80,420,107"/>
 <area shape="rect" id="node3" href="$structFixtureWithUnobservable.html" title=" " alt="" coords="5,155,192,181"/>

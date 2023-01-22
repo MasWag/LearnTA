@@ -112,14 +112,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac77bdf2f1bb867b976add94f0da6e887"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZone.html#ac77bdf2f1bb867b976add94f0da6e887">JuxtaposedZone</a> (const <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &amp;left, const <a class="el" href="structlearnta_1_1Zone.html">Zone</a> &amp;right, Eigen::Index commonVariableSize)</td></tr>
 <tr class="memdesc:ac77bdf2f1bb867b976add94f0da6e887"><td class="mdescLeft">&#160;</td><td class="mdescRight">Juxtapose two zones with shared variables.  <a href="classlearnta_1_1JuxtaposedZone.html#ac77bdf2f1bb867b976add94f0da6e887">More...</a><br /></td></tr>
 <tr class="separator:ac77bdf2f1bb867b976add94f0da6e887"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa4616af40d57029fa774ad5db9ec0f4"><td class="memItemLeft" align="right" valign="top"><a id="afa4616af40d57029fa774ad5db9ec0f4"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZone.html#afa4616af40d57029fa774ad5db9ec0f4">addRenaming</a> (const std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt;&gt; &amp;renaming)</td></tr>
-<tr class="memdesc:afa4616af40d57029fa774ad5db9ec0f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add renaming constraints. <br /></td></tr>
+<tr class="memitem:afa4616af40d57029fa774ad5db9ec0f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZone.html#afa4616af40d57029fa774ad5db9ec0f4">addRenaming</a> (const std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt;&gt; &amp;renaming)</td></tr>
+<tr class="memdesc:afa4616af40d57029fa774ad5db9ec0f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add renaming constraints.  <a href="classlearnta_1_1JuxtaposedZone.html#afa4616af40d57029fa774ad5db9ec0f4">More...</a><br /></td></tr>
 <tr class="separator:afa4616af40d57029fa774ad5db9ec0f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f75b7063dec8e5634189272ca031efc"><td class="memItemLeft" align="right" valign="top"><a id="a2f75b7063dec8e5634189272ca031efc"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZone.html#a2f75b7063dec8e5634189272ca031efc">makeRenaming</a> () const</td></tr>
 <tr class="memdesc:a2f75b7063dec8e5634189272ca031efc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make renaming constraints. <br /></td></tr>
 <tr class="separator:a2f75b7063dec8e5634189272ca031efc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14b1f8ab4f19351d1f38131af3b1920b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlearnta_1_1Zone.html">Zone</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1JuxtaposedZone.html#a14b1f8ab4f19351d1f38131af3b1920b">getRight</a> () const</td></tr>
+<tr class="memdesc:a14b1f8ab4f19351d1f38131af3b1920b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the right side zone.  <a href="classlearnta_1_1JuxtaposedZone.html#a14b1f8ab4f19351d1f38131af3b1920b">More...</a><br /></td></tr>
+<tr class="separator:a14b1f8ab4f19351d1f38131af3b1920b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeff7a89a079ac6cbd5c04a92fc69ce29"><td class="memItemLeft" align="right" valign="top"><a id="aeff7a89a079ac6cbd5c04a92fc69ce29"></a>
+Eigen::Index&#160;</td><td class="memItemRight" valign="bottom"><b>getLeftSize</b> () const</td></tr>
+<tr class="separator:aeff7a89a079ac6cbd5c04a92fc69ce29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_structlearnta_1_1Zone"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_structlearnta_1_1Zone')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="structlearnta_1_1Zone.html">learnta::Zone</a></td></tr>
 <tr class="memitem:a0a14ba2034793a159ef31687f724608a inherit pub_methods_structlearnta_1_1Zone"><td class="memItemLeft" align="right" valign="top"><a id="a0a14ba2034793a159ef31687f724608a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1Zone.html#a0a14ba2034793a159ef31687f724608a">Zone</a> (const Eigen::Matrix&lt; Bounds, Eigen::Dynamic, Eigen::Dynamic &gt; &amp;<a class="el" href="structlearnta_1_1Zone.html#a7c9073e4a9f2445ec6f2eb702e1b82e9">value</a>)</td></tr>
@@ -345,6 +350,70 @@ std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><
 <li>\(x_i = z_i\) if \(1 \le i \le N\) and</li>
 <li>\(y_{i - M} = z_i\) if \(N + 1 \le i \le N + M - L\). </li>
 </ul>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="afa4616af40d57029fa774ad5db9ec0f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa4616af40d57029fa774ad5db9ec0f4">&#9670;&nbsp;</a></span>addRenaming()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void learnta::JuxtaposedZone::addRenaming </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::pair&lt; std::size_t, std::size_t &gt;&gt; &amp;&#160;</td>
+          <td class="paramname"><em>renaming</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Add renaming constraints. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">renaming</td><td>The renaming relation to be added</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd>for any (left, right) \in renaming, we have 0 &lt;= left &lt; leftSize and 0 &lt;= right &lt; rightSize </dd></dl>
+
+</div>
+</div>
+<a id="a14b1f8ab4f19351d1f38131af3b1920b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14b1f8ab4f19351d1f38131af3b1920b">&#9670;&nbsp;</a></span>getRight()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structlearnta_1_1Zone.html">Zone</a> learnta::JuxtaposedZone::getRight </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the right side zone. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>There is no common variables </dd></dl>
 
 </div>
 </div>

@@ -76,6 +76,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structlearnta_1_1TATransition-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -120,6 +121,29 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const
 <tr class="memitem:afe28cc936bf30f1df3a697d5b723fe0e"><td class="memItemLeft" align="right" valign="top"><a id="afe28cc936bf30f1df3a697d5b723fe0e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a> &amp;rhs) const</td></tr>
 <tr class="separator:afe28cc936bf30f1df3a697d5b723fe0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a474812b5a69cccee6ab5dd2cf51ae0f4"><td class="memItemLeft" align="right" valign="top"><a id="a474812b5a69cccee6ab5dd2cf51ae0f4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addPreciseConstantAssignments</b> (const Resets &amp;resets)</td></tr>
+<tr class="separator:a474812b5a69cccee6ab5dd2cf51ae0f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad63d2e4dced5b5151c99c380345acf9e"><td class="memItemLeft" align="right" valign="top"><a id="ad63d2e4dced5b5151c99c380345acf9e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>addPreciseAssignments</b> (const Resets &amp;resets)</td></tr>
+<tr class="separator:ad63d2e4dced5b5151c99c380345acf9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa943bad4d84ed161bee4e1fddbb8c0bc"><td class="memItemLeft" align="right" valign="top"><a id="aa943bad4d84ed161bee4e1fddbb8c0bc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>mergeable</b> (const <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a> &amp;transition) const</td></tr>
+<tr class="separator:aa943bad4d84ed161bee4e1fddbb8c0bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b2680b85a450726d54aefafa460b16b"><td class="memItemLeft" align="right" valign="top"><a id="a2b2680b85a450726d54aefafa460b16b"></a>
+<a class="el" href="structlearnta_1_1TATransition.html">TATransition</a>&#160;</td><td class="memItemRight" valign="bottom"><b>merge</b> (const <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a> &amp;transition) const</td></tr>
+<tr class="separator:a2b2680b85a450726d54aefafa460b16b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ab0a76fbc227cd4223dfe0e11bfd86f73"><td class="memItemLeft" align="right" valign="top"><a id="ab0a76fbc227cd4223dfe0e11bfd86f73"></a>
+static std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1TATransition.html#ab0a76fbc227cd4223dfe0e11bfd86f73">impreciseConstantAssignSize</a> (const Resets &amp;resets)</td></tr>
+<tr class="memdesc:ab0a76fbc227cd4223dfe0e11bfd86f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of imprecise constant assignments. <br /></td></tr>
+<tr class="separator:ab0a76fbc227cd4223dfe0e11bfd86f73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14372c42e8b7be120680b78091fbd400"><td class="memItemLeft" align="right" valign="top"><a id="a14372c42e8b7be120680b78091fbd400"></a>
+static std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structlearnta_1_1TATransition.html#a14372c42e8b7be120680b78091fbd400">impreciseAssignSize</a> (const Resets &amp;resets)</td></tr>
+<tr class="memdesc:a14372c42e8b7be120680b78091fbd400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of potentially imprecise constant assignments. <br /></td></tr>
+<tr class="separator:a14372c42e8b7be120680b78091fbd400"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

@@ -96,41 +96,53 @@ $(function() {
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keyword">explicit</span> <a class="code" href="classlearnta_1_1EquivalenceOracleByTest.html">EquivalenceOracleByTest</a>(<a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> automaton) : automaton(std::move(automaton)) {}</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
 <div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classlearnta_1_1EquivalenceOracleByTest.html#a4cb4edb9097d521b96738a0e9441aceb">   29</a></span>&#160;    [[nodiscard]] std::optional&lt;TimedWord&gt; <a class="code" href="classlearnta_1_1EquivalenceOracleByTest.html#a4cb4edb9097d521b96738a0e9441aceb">findCounterExample</a>(<span class="keyword">const</span> <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis)<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> runner(automaton);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> hypothesisRunner(hypothesis);</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;     <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;word: words) {</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;       runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;       hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;       <span class="keywordflow">for</span> (std::size_t i = 0; i &lt; word.wordSize(); ++i) {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;         <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(i)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(i))) {</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;           <span class="keywordflow">return</span> word;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;         }</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;         <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getWord().at(i)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getWord().at(i))) {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;           <span class="keywordflow">return</span> word;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;         }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;       }</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;       <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(word.wordSize())) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(word.wordSize()))) {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;         <span class="keywordflow">return</span> word;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;       }</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;     }</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;     <span class="keywordflow">return</span> std::nullopt;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> push_back(<a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a> word) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      words.push_back(std::move(word));</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  };</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      ++eqQueryCount;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> runner(automaton);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> hypothesisRunner(hypothesis);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;word: words) {</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keywordflow">for</span> (std::size_t i = 0; i &lt; word.wordSize(); ++i) {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(i)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(i))) {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;            <span class="comment">// Minimize the counter example</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;            <span class="keyword">auto</span> cex = <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word.getWord().substr(0, i),</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;                                 std::vector&lt;double&gt;{word.getDurations().begin(), word.getDurations().begin() + i + 1}};</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;            BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;EquivalenceOracleByTest found a counter example: &quot;</span> &lt;&lt; cex;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;            <span class="keywordflow">return</span> cex;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;          }</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getWord().at(i)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getWord().at(i))) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            <span class="comment">// Minimize the counter example</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keyword">auto</span> durations = std::vector&lt;double&gt;{word.getDurations().begin(), word.getDurations().begin() + i + 1};</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            durations.push_back(0);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;            <span class="keyword">auto</span> cex = <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word.getWord().substr(0, i + 1), durations};</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;EquivalenceOracleByTest found a counter example: &quot;</span> &lt;&lt; cex;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;            <span class="keywordflow">return</span> cex;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;          }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(word.wordSize())) !=</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;            hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(word.getDurations().at(word.wordSize()))) {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; <span class="stringliteral">&quot;EquivalenceOracleByTest found a counter example: &quot;</span> &lt;&lt; word;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          <span class="keywordflow">return</span> word;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      }</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    }</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">void</span> push_back(<a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a> word) {</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;      words.push_back(std::move(word));</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    }</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  };</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;}</div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleByTest_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleByTest.html">learnta::EquivalenceOracleByTest</a></div><div class="ttdoc">Interface of the equivalence oracle.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle_by_test.hh:20</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleByTest_html_a4cb4edb9097d521b96738a0e9441aceb"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleByTest.html#a4cb4edb9097d521b96738a0e9441aceb">learnta::EquivalenceOracleByTest::findCounterExample</a></div><div class="ttdeci">std::optional&lt; TimedWord &gt; findCounterExample(const TimedAutomaton &amp;hypothesis) override</div><div class="ttdoc">Make an equivalence query.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle_by_test.hh:29</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracle_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracle.html">learnta::EquivalenceOracle</a></div><div class="ttdoc">Interface of the equivalence oracle.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle.hh:17</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html">learnta::TimedAutomatonRunner</a></div><div class="ttdoc">Class to execute a timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:22</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:71</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:80</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad89720c8b41899a4ac9fc86c012bd559"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">learnta::TimedAutomatonRunner::pre</a></div><div class="ttdeci">void pre() override</div><div class="ttdoc">Reset the configuration.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:41</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:25</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> experiment_runner.hh:23</div></div>
-<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:100</div></div>
+<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:235</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

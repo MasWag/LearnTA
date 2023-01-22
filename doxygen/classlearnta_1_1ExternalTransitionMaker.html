@@ -92,8 +92,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac880d96b3205ba531380f0ebbf2c14c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ExternalTransitionMaker.html#ac880d96b3205ba531380f0ebbf2c14c4">add</a> (const std::shared_ptr&lt; <a class="el" href="structlearnta_1_1TAState.html">TAState</a> &gt; &amp;targetState, const <a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> &amp;renamingRelation, const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;sourceCondition, const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;targetCondition)</td></tr>
 <tr class="memdesc:ac880d96b3205ba531380f0ebbf2c14c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a transition to targetState.  <a href="classlearnta_1_1ExternalTransitionMaker.html#ac880d96b3205ba531380f0ebbf2c14c4">More...</a><br /></td></tr>
 <tr class="separator:ac880d96b3205ba531380f0ebbf2c14c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a311c644ae9d9208ce1f02e619b3df533"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ExternalTransitionMaker.html#a311c644ae9d9208ce1f02e619b3df533">make</a> () const</td></tr>
-<tr class="memdesc:a311c644ae9d9208ce1f02e619b3df533"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate transitions.  <a href="classlearnta_1_1ExternalTransitionMaker.html#a311c644ae9d9208ce1f02e619b3df533">More...</a><br /></td></tr>
+<tr class="memitem:a311c644ae9d9208ce1f02e619b3df533"><td class="memItemLeft" align="right" valign="top"><a id="a311c644ae9d9208ce1f02e619b3df533"></a>
+std::vector&lt; <a class="el" href="structlearnta_1_1TATransition.html">TATransition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ExternalTransitionMaker.html#a311c644ae9d9208ce1f02e619b3df533">make</a> () const</td></tr>
+<tr class="memdesc:a311c644ae9d9208ce1f02e619b3df533"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate transitions. <br /></td></tr>
 <tr class="separator:a311c644ae9d9208ce1f02e619b3df533"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
@@ -159,37 +160,9 @@ static auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hre
 <p>Add a transition to targetState. </p>
 <p>The transition corresponds to a morphism \((u, \Lambda, u&#39;, \Lambda&#39;, R)\), where</p><ul>
 <li>\(\Lambda\) is sourceCondition,</li>
-<li>\(\Lambda\) is targetCondition, and</li>
+<li>\(\Lambda&#39;\) is targetCondition, and</li>
 <li>\(R\) is renamingRelation. </li>
 </ul>
-
-</div>
-</div>
-<a id="a311c644ae9d9208ce1f02e619b3df533"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a311c644ae9d9208ce1f02e619b3df533">&#9670;&nbsp;</a></span>make()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::vector&lt;<a class="el" href="structlearnta_1_1TATransition.html">TATransition</a>&gt; learnta::ExternalTransitionMaker::make </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Generate transitions. </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Todo:</a></b></dt><dd>There is an issue in reset generation domain: (ab, 1 &lt;= T_{0, 0} &lt;= 1 &amp;&amp; 1 &lt;= T_{0, 1} &lt;= 1 &amp;&amp; 1 &lt; T_{0, 2} &lt; 2 &amp;&amp; -0 &lt;= T_{1, 1} &lt;= 0 &amp;&amp; -0 &lt; T_{1, 2} &lt; 1 &amp;&amp; -0 &lt; T_{2, 2} &lt; 1) codomain: (ab, -0 &lt; T_{0, 0} &lt; 1 &amp;&amp; 1 &lt;= T_{0, 1} &lt;= 1 &amp;&amp; 1 &lt; T_{0, 2} &lt; 2 &amp;&amp; -0 &lt; T_{1, 1} &lt; 1 &amp;&amp; -0 &lt; T_{1, 2} &lt; 1 &amp;&amp; -0 &lt; T_{2, 2} &lt; 1) renaming: {t1 == t'1} loc6-&gt;loc5 [label="ε", guard="{x0 &gt; 1, x1 &gt; 0, x2 &gt; 0}", reset="{x0 := 1.5, x2 := 0.5}"] The order gets broken </dd></dl>
 
 </div>
 </div>

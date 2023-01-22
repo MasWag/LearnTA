@@ -75,6 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="classlearnta_1_1RenamingRelation-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -109,14 +110,51 @@ std::vector&lt; std::pair&lt; ClockVariables, std::variant&lt; double, ClockVari
 template&lt;class T &gt; </td></tr>
 <tr class="memitem:ac48cd207a4931b228d4ddab0db43d336"><td class="memTemplItemLeft" align="right" valign="top">std::vector&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><b>apply</b> (const std::vector&lt; T &gt; &amp;value) const</td></tr>
 <tr class="separator:ac48cd207a4931b228d4ddab0db43d336"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a117723ed13bbe7f6316436b6421cd2f3"><td class="memItemLeft" align="right" valign="top"><a id="a117723ed13bbe7f6316436b6421cd2f3"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a117723ed13bbe7f6316436b6421cd2f3">rightVariables</a> () const</td></tr>
-<tr class="memdesc:a117723ed13bbe7f6316436b6421cd2f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The clock variables on the right hand side of the renaming relation. <br /></td></tr>
+<tr class="memitem:a117723ed13bbe7f6316436b6421cd2f3"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a117723ed13bbe7f6316436b6421cd2f3">rightVariables</a> () const</td></tr>
+<tr class="memdesc:a117723ed13bbe7f6316436b6421cd2f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The clock variables on the right hand side of the renaming relation.  <a href="classlearnta_1_1RenamingRelation.html#a117723ed13bbe7f6316436b6421cd2f3">More...</a><br /></td></tr>
 <tr class="separator:a117723ed13bbe7f6316436b6421cd2f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5b3b321c457ca1050696c1302c1050"><td class="memItemLeft" align="right" valign="top"><a id="aba5b3b321c457ca1050696c1302c1050"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#aba5b3b321c457ca1050696c1302c1050">eraseLeft</a> (std::size_t left)</td></tr>
+<tr class="memdesc:aba5b3b321c457ca1050696c1302c1050"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erase pairs such that (left, right) for some right. <br /></td></tr>
+<tr class="separator:aba5b3b321c457ca1050696c1302c1050"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61dc61c50e4876627a743bea53fcdf28"><td class="memItemLeft" align="right" valign="top"><a id="a61dc61c50e4876627a743bea53fcdf28"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a61dc61c50e4876627a743bea53fcdf28">onlyTrivial</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;targetCondition) const</td></tr>
+<tr class="memdesc:a61dc61c50e4876627a743bea53fcdf28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the renaming relation contains only the trivial equations from the timed conditions. <br /></td></tr>
+<tr class="separator:a61dc61c50e4876627a743bea53fcdf28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c559bb39b54ef0fd77b912bc0972ba2"><td class="memItemLeft" align="right" valign="top"><a id="a1c559bb39b54ef0fd77b912bc0972ba2"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a1c559bb39b54ef0fd77b912bc0972ba2">containsAllTrivial</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;sourceCondition, const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;targetCondition) const</td></tr>
+<tr class="memdesc:a1c559bb39b54ef0fd77b912bc0972ba2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the renaming relation contains all the trivial equations from the timed conditions. <br /></td></tr>
+<tr class="separator:a1c559bb39b54ef0fd77b912bc0972ba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc291e761511c6c7542178b939ae78da"><td class="memItemLeft" align="right" valign="top"><a id="afc291e761511c6c7542178b939ae78da"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#afc291e761511c6c7542178b939ae78da">full</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;condition) const</td></tr>
-<tr class="memdesc:afc291e761511c6c7542178b939ae78da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the renaming relation is full, i.e., all the right variables are bounded. <br /></td></tr>
+<tr class="memdesc:afc291e761511c6c7542178b939ae78da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the renaming relation is full, i.e., all the right variables are restricted. <br /></td></tr>
 <tr class="separator:afc291e761511c6c7542178b939ae78da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a677aec92775aa6c460d1ee782aa1b5f9"><td class="memItemLeft" align="right" valign="top"><a id="a677aec92775aa6c460d1ee782aa1b5f9"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a677aec92775aa6c460d1ee782aa1b5f9">hasImpreciseClocks</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;target) const</td></tr>
+<tr class="memdesc:a677aec92775aa6c460d1ee782aa1b5f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the application of this renaming causes implicit clocks. <br /></td></tr>
+<tr class="separator:a677aec92775aa6c460d1ee782aa1b5f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac913e29de2d28f07c868a3a6d2b858d6"><td class="memItemLeft" align="right" valign="top"><a id="ac913e29de2d28f07c868a3a6d2b858d6"></a>
+std::vector&lt; ClockVariables &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#ac913e29de2d28f07c868a3a6d2b858d6">impreciseClocks</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;target) const</td></tr>
+<tr class="memdesc:ac913e29de2d28f07c868a3a6d2b858d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the imprecise clocks by this renaming. <br /></td></tr>
+<tr class="separator:ac913e29de2d28f07c868a3a6d2b858d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f6a2a55b9ae1971c2db567d8e05b470"><td class="memItemLeft" align="right" valign="top"><a id="a4f6a2a55b9ae1971c2db567d8e05b470"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#a4f6a2a55b9ae1971c2db567d8e05b470">addImplicitConstraints</a> (<a class="el" href="classlearnta_1_1JuxtaposedZone.html">JuxtaposedZone</a> juxtaposedCondition)</td></tr>
+<tr class="memdesc:a4f6a2a55b9ae1971c2db567d8e05b470"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add renaming equations from target and source conditions. <br /></td></tr>
+<tr class="separator:a4f6a2a55b9ae1971c2db567d8e05b470"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab57b7f1db39f06e6e2c01b8fcbc061f5"><td class="memItemLeft" align="right" valign="top"><a id="ab57b7f1db39f06e6e2c01b8fcbc061f5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#ab57b7f1db39f06e6e2c01b8fcbc061f5">addImplicitConstraints</a> (const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;source, const <a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> &amp;target)</td></tr>
+<tr class="memdesc:ab57b7f1db39f06e6e2c01b8fcbc061f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add renaming equations from target and source conditions. <br /></td></tr>
+<tr class="separator:ab57b7f1db39f06e6e2c01b8fcbc061f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5bbd993b996bae137d2b376f4bdcfb8"><td class="memItemLeft" align="right" valign="top"><a id="ab5bbd993b996bae137d2b376f4bdcfb8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#ab5bbd993b996bae137d2b376f4bdcfb8">isRightUnique</a> () const</td></tr>
+<tr class="memdesc:ab5bbd993b996bae137d2b376f4bdcfb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the renaming relation is right unique, i.e, (i, k) and (j, k) in this implies i == j. <br /></td></tr>
+<tr class="separator:ab5bbd993b996bae137d2b376f4bdcfb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:aa2745f883a8c9e2bcbb4715e94295996"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1RenamingRelation.html#aa2745f883a8c9e2bcbb4715e94295996">toValuation</a> (<a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a> condition)</td></tr>
+<tr class="memdesc:aa2745f883a8c9e2bcbb4715e94295996"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a valuation from a timed condition.  <a href="classlearnta_1_1RenamingRelation.html#aa2745f883a8c9e2bcbb4715e94295996">More...</a><br /></td></tr>
+<tr class="separator:aa2745f883a8c9e2bcbb4715e94295996"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -124,6 +162,64 @@ Friends</h2></td></tr>
 std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;&lt;</b> (std::ostream &amp;os, const <a class="el" href="classlearnta_1_1RenamingRelation.html">RenamingRelation</a> &amp;relation)</td></tr>
 <tr class="separator:acef72e8557c7a4f76a1e1ec3324c019b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a117723ed13bbe7f6316436b6421cd2f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a117723ed13bbe7f6316436b6421cd2f3">&#9670;&nbsp;</a></span>rightVariables()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto learnta::RenamingRelation::rightVariables </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The clock variables on the right hand side of the renaming relation. </p>
+<dl class="section post"><dt>Postcondition</dt><dd>The result is ascending and with no duplication. </dd></dl>
+
+</div>
+</div>
+<a id="aa2745f883a8c9e2bcbb4715e94295996"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2745f883a8c9e2bcbb4715e94295996">&#9670;&nbsp;</a></span>toValuation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::vector&lt;double&gt; learnta::RenamingRelation::toValuation </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classlearnta_1_1TimedCondition.html">TimedCondition</a>&#160;</td>
+          <td class="paramname"><em>condition</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Construct a valuation from a timed condition. </p>
+<dl class="section pre"><dt>Precondition</dt><dd>condition is simple </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/<a class="el" href="renaming__relation_8hh_source.html">renaming_relation.hh</a></li>
 </ul>

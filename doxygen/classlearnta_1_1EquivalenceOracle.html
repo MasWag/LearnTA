@@ -75,6 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classlearnta_1_1EquivalenceOracle-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">learnta::EquivalenceOracle Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
@@ -95,7 +96,7 @@ Inheritance diagram for learnta::EquivalenceOracle:</div>
 <area shape="rect" href="classlearnta_1_1EquivalenceOracleByRandomTest.html" title="The equivalence oracle by random test." alt="" coords="271,71,469,112"/>
 <area shape="rect" href="classlearnta_1_1EquivalenceOracleByTest.html" title="Interface of the equivalence oracle." alt="" coords="271,136,469,177"/>
 <area shape="rect" href="classlearnta_1_1EquivalenceOracleChain.html" title="A chain of the equivalence oracles." alt="" coords="271,201,469,243"/>
-<area shape="rect" href="classlearnta_1_1EquivalenceOracleMemo.html" title="Memoization of the equivalence oracle." alt="" coords="251,267,489,294"/>
+<area shape="rect" href="classlearnta_1_1EquivalenceOracleMemo.html" title="Wrapper of an equivalence oracle to cache the queries." alt="" coords="251,267,489,294"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -105,6 +106,20 @@ Public Member Functions</h2></td></tr>
 virtual std::optional&lt; <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html#a3bbb16989ada019f295d96c8cbd91e12">findCounterExample</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis)=0</td></tr>
 <tr class="memdesc:a3bbb16989ada019f295d96c8cbd91e12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make an equivalence query. <br /></td></tr>
 <tr class="separator:a3bbb16989ada019f295d96c8cbd91e12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa32ce4915d435fae8ce1dacf7881d69c"><td class="memItemLeft" align="right" valign="top"><a id="aa32ce4915d435fae8ce1dacf7881d69c"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html#aa32ce4915d435fae8ce1dacf7881d69c">numEqQueries</a> () const</td></tr>
+<tr class="memdesc:aa32ce4915d435fae8ce1dacf7881d69c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of the executed equivalence queries. <br /></td></tr>
+<tr class="separator:aa32ce4915d435fae8ce1dacf7881d69c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e50db0f0903f8d96bfc9371df005877"><td class="memItemLeft" align="right" valign="top"><a id="a3e50db0f0903f8d96bfc9371df005877"></a>
+virtual std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html#a3e50db0f0903f8d96bfc9371df005877">printStatistics</a> (std::ostream &amp;stream) const</td></tr>
+<tr class="memdesc:a3e50db0f0903f8d96bfc9371df005877"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the statistics. <br /></td></tr>
+<tr class="separator:a3e50db0f0903f8d96bfc9371df005877"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:aaa9611f89c712cce80f6633c9f1d6fb4"><td class="memItemLeft" align="right" valign="top"><a id="aaa9611f89c712cce80f6633c9f1d6fb4"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>eqQueryCount</b> = 0</td></tr>
+<tr class="separator:aaa9611f89c712cce80f6633c9f1d6fb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Interface of the equivalence oracle. </p>

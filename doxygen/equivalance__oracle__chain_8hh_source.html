@@ -89,26 +89,27 @@ $(function() {
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    std::vector&lt;std::unique_ptr&lt;EquivalenceOracle&gt;&gt; oracles;</div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;  <span class="keyword">public</span>:</div>
 <div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="classlearnta_1_1EquivalenceOracleChain.html#aa31c676325f138c46aab0586674d8edc">   22</a></span>&#160;    [[nodiscard]] std::optional&lt;TimedWord&gt; <a class="code" href="classlearnta_1_1EquivalenceOracleChain.html#aa31c676325f138c46aab0586674d8edc">findCounterExample</a>(<span class="keyword">const</span> <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis)<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;oracle: this-&gt;oracles) {</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;        <span class="keyword">auto</span> result = oracle-&gt;findCounterExample(hypothesis);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keywordflow">if</span> (result) {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;          <span class="keywordflow">return</span> result;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        }</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;      }</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160; </div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    }</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">void</span> push_back(std::unique_ptr&lt;EquivalenceOracle&gt; &amp;&amp;oracle) {</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;      oracles.push_back(std::move(oracle));</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    }</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  };</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;}</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;      ++eqQueryCount;</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;oracle: this-&gt;oracles) {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="keyword">auto</span> result = oracle-&gt;findCounterExample(hypothesis);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keywordflow">if</span> (result) {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;          <span class="keywordflow">return</span> result;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        }</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    }</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">void</span> push_back(std::unique_ptr&lt;EquivalenceOracle&gt; &amp;&amp;oracle) {</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      oracles.push_back(std::move(oracle));</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    }</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  };</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;}</div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleChain_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleChain.html">learnta::EquivalenceOracleChain</a></div><div class="ttdoc">A chain of the equivalence oracles.</div><div class="ttdef"><b>Definition:</b> equivalance_oracle_chain.hh:16</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleChain_html_aa31c676325f138c46aab0586674d8edc"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleChain.html#aa31c676325f138c46aab0586674d8edc">learnta::EquivalenceOracleChain::findCounterExample</a></div><div class="ttdeci">std::optional&lt; TimedWord &gt; findCounterExample(const TimedAutomaton &amp;hypothesis) override</div><div class="ttdoc">Make an equivalence query.</div><div class="ttdef"><b>Definition:</b> equivalance_oracle_chain.hh:22</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracle_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracle.html">learnta::EquivalenceOracle</a></div><div class="ttdoc">Interface of the equivalence oracle.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle.hh:17</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> experiment_runner.hh:23</div></div>
-<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:100</div></div>
+<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:235</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

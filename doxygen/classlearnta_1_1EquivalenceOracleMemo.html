@@ -81,7 +81,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Memoization of the equivalence oracle.  
+<p>Wrapper of an equivalence oracle to cache the queries.  
  <a href="classlearnta_1_1EquivalenceOracleMemo.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="equivalence__oracle__memo_8hh_source.html">equivalence_oracle_memo.hh</a>&gt;</code></p>
@@ -90,7 +90,7 @@ Inheritance diagram for learnta::EquivalenceOracleMemo:</div>
 <div class="dyncontent">
 <div class="center"><img src="classlearnta_1_1EquivalenceOracleMemo__inherit__graph.png" border="0" usemap="#alearnta_1_1EquivalenceOracleMemo_inherit__map" alt="Inheritance graph"/></div>
 <map name="alearnta_1_1EquivalenceOracleMemo_inherit__map" id="alearnta_1_1EquivalenceOracleMemo_inherit__map">
-<area shape="rect" title="Memoization of the equivalence oracle." alt="" coords="5,80,244,107"/>
+<area shape="rect" title="Wrapper of an equivalence oracle to cache the queries." alt="" coords="5,80,244,107"/>
 <area shape="rect" href="classlearnta_1_1EquivalenceOracle.html" title="Interface of the equivalence oracle." alt="" coords="26,5,223,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
@@ -99,7 +99,7 @@ Collaboration diagram for learnta::EquivalenceOracleMemo:</div>
 <div class="dyncontent">
 <div class="center"><img src="classlearnta_1_1EquivalenceOracleMemo__coll__graph.png" border="0" usemap="#alearnta_1_1EquivalenceOracleMemo_coll__map" alt="Collaboration graph"/></div>
 <map name="alearnta_1_1EquivalenceOracleMemo_coll__map" id="alearnta_1_1EquivalenceOracleMemo_coll__map">
-<area shape="rect" title="Memoization of the equivalence oracle." alt="" coords="5,80,244,107"/>
+<area shape="rect" title="Wrapper of an equivalence oracle to cache the queries." alt="" coords="5,80,244,107"/>
 <area shape="rect" href="classlearnta_1_1EquivalenceOracle.html" title="Interface of the equivalence oracle." alt="" coords="26,5,223,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
@@ -113,9 +113,26 @@ Public Member Functions</h2></td></tr>
 std::optional&lt; <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracleMemo.html#acae044f6bd7fe183cf8dae2fb2aa6813">findCounterExample</a> (const <a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis) override</td></tr>
 <tr class="memdesc:acae044f6bd7fe183cf8dae2fb2aa6813"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make an equivalence query. <br /></td></tr>
 <tr class="separator:acae044f6bd7fe183cf8dae2fb2aa6813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92cab7e97107cd41e81a536c68291427"><td class="memItemLeft" align="right" valign="top"><a id="a92cab7e97107cd41e81a536c68291427"></a>
+std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracleMemo.html#a92cab7e97107cd41e81a536c68291427">printStatistics</a> (std::ostream &amp;stream) const override</td></tr>
+<tr class="memdesc:a92cab7e97107cd41e81a536c68291427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the statistics. <br /></td></tr>
+<tr class="separator:a92cab7e97107cd41e81a536c68291427"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classlearnta_1_1EquivalenceOracle"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classlearnta_1_1EquivalenceOracle')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classlearnta_1_1EquivalenceOracle.html">learnta::EquivalenceOracle</a></td></tr>
+<tr class="memitem:aa32ce4915d435fae8ce1dacf7881d69c inherit pub_methods_classlearnta_1_1EquivalenceOracle"><td class="memItemLeft" align="right" valign="top"><a id="aa32ce4915d435fae8ce1dacf7881d69c"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1EquivalenceOracle.html#aa32ce4915d435fae8ce1dacf7881d69c">numEqQueries</a> () const</td></tr>
+<tr class="memdesc:aa32ce4915d435fae8ce1dacf7881d69c inherit pub_methods_classlearnta_1_1EquivalenceOracle"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of the executed equivalence queries. <br /></td></tr>
+<tr class="separator:aa32ce4915d435fae8ce1dacf7881d69c inherit pub_methods_classlearnta_1_1EquivalenceOracle"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_attribs_classlearnta_1_1EquivalenceOracle"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classlearnta_1_1EquivalenceOracle')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classlearnta_1_1EquivalenceOracle.html">learnta::EquivalenceOracle</a></td></tr>
+<tr class="memitem:aaa9611f89c712cce80f6633c9f1d6fb4 inherit pro_attribs_classlearnta_1_1EquivalenceOracle"><td class="memItemLeft" align="right" valign="top"><a id="aaa9611f89c712cce80f6633c9f1d6fb4"></a>
+std::size_t&#160;</td><td class="memItemRight" valign="bottom"><b>eqQueryCount</b> = 0</td></tr>
+<tr class="separator:aaa9611f89c712cce80f6633c9f1d6fb4 inherit pro_attribs_classlearnta_1_1EquivalenceOracle"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Memoization of the equivalence oracle. </p>
+<div class="textblock"><p>Wrapper of an equivalence oracle to cache the queries. </p>
+<p>This class memorizes all the previous counterexamples returned by the wrapped equivalence oracle. The memorized inputs are used to check the equivalence by testing before using the actual equivalence oracle. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/<a class="el" href="equivalence__oracle__memo_8hh_source.html">equivalence_oracle_memo.hh</a></li>
 </ul>

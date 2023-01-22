@@ -111,13 +111,20 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3ca2a3ed61d87d24973c2b355965d33e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">exteriorConsistent</a> ()</td></tr>
 <tr class="memdesc:a3ca2a3ed61d87d24973c2b355965d33e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make the observation table exterior-consistent.  <a href="classlearnta_1_1ObservationTable.html#a3ca2a3ed61d87d24973c2b355965d33e">More...</a><br /></td></tr>
 <tr class="separator:a3ca2a3ed61d87d24973c2b355965d33e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac995a3e640611bff1df42b9110ea2e96"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#ac995a3e640611bff1df42b9110ea2e96">exteriorSaturate</a> ()</td></tr>
-<tr class="memdesc:ac995a3e640611bff1df42b9110ea2e96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make the observation table exterior-saturated.  <a href="classlearnta_1_1ObservationTable.html#ac995a3e640611bff1df42b9110ea2e96">More...</a><br /></td></tr>
-<tr class="separator:ac995a3e640611bff1df42b9110ea2e96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e7832c2bf63ba2d36cd46405ec4fc0c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a3e7832c2bf63ba2d36cd46405ec4fc0c">timeSaturate</a> ()</td></tr>
+<tr class="memdesc:a3e7832c2bf63ba2d36cd46405ec4fc0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make the observation table time-saturated.  <a href="classlearnta_1_1ObservationTable.html#a3e7832c2bf63ba2d36cd46405ec4fc0c">More...</a><br /></td></tr>
+<tr class="separator:a3e7832c2bf63ba2d36cd46405ec4fc0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6505fb7203b80daaa7c9d49781725e91"><td class="memItemLeft" align="right" valign="top"><a id="a6505fb7203b80daaa7c9d49781725e91"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>renameConsistent</b> ()</td></tr>
+<tr class="separator:a6505fb7203b80daaa7c9d49781725e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ab8567ccec4de0ba47cdb9597f8c452"><td class="memItemLeft" align="right" valign="top"><a id="a7ab8567ccec4de0ba47cdb9597f8c452"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a7ab8567ccec4de0ba47cdb9597f8c452">handleCEX</a> (const <a class="el" href="classlearnta_1_1TimedWord.html">TimedWord</a> &amp;cex)</td></tr>
 <tr class="memdesc:a7ab8567ccec4de0ba47cdb9597f8c452"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refine the suffixes by the given counterexample. <br /></td></tr>
 <tr class="separator:a7ab8567ccec4de0ba47cdb9597f8c452"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8d02bf48b062059ac0f1f0108342fbc"><td class="memItemLeft" align="right" valign="top"><a id="ab8d02bf48b062059ac0f1f0108342fbc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#ab8d02bf48b062059ac0f1f0108342fbc">optimizeTarget</a> ()</td></tr>
+<tr class="memdesc:ab8d02bf48b062059ac0f1f0108342fbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optimize the morphisms to reduce the imprecise clocks. <br /></td></tr>
+<tr class="separator:ab8d02bf48b062059ac0f1f0108342fbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a421f0cfa34bd68cbea30e245016a05c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">generateHypothesis</a> ()</td></tr>
 <tr class="memdesc:a421f0cfa34bd68cbea30e245016a05c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a hypothesis DTA from the current timed observation table.  <a href="classlearnta_1_1ObservationTable.html#a421f0cfa34bd68cbea30e245016a05c3">More...</a><br /></td></tr>
 <tr class="separator:a421f0cfa34bd68cbea30e245016a05c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -216,35 +223,6 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>printSt
 
 </div>
 </div>
-<a id="ac995a3e640611bff1df42b9110ea2e96"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac995a3e640611bff1df42b9110ea2e96">&#9670;&nbsp;</a></span>exteriorSaturate()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool learnta::ObservationTable::exteriorSaturate </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Make the observation table exterior-saturated. </p>
-<p>Observation table is exterior-saturated if for any \(p \in P\), if \(\mathrm{ext}^t(p) \not\in P\), we have \(\mathrm{ext}^t(p) \sim^{S, \top} p\).</p>
-<dl class="section return"><dt>Returns</dt><dd>If the observation table is already exterior-saturated </dd></dl>
-
-</div>
-</div>
 <a id="a421f0cfa34bd68cbea30e245016a05c3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a421f0cfa34bd68cbea30e245016a05c3">&#9670;&nbsp;</a></span>generateHypothesis()</h2>
 
@@ -279,6 +257,35 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>printSt
 <dl class="section post"><dt>Postcondition</dt><dd>All the continuous successors corresponds to the same state as initialSourceIndex</dd></dl>
 <p>Construct transitions by discrete immediate exteriors</p>
 <p>Construct transitions by continuous immediate exteriors</p>
+
+</div>
+</div>
+<a id="a3e7832c2bf63ba2d36cd46405ec4fc0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e7832c2bf63ba2d36cd46405ec4fc0c">&#9670;&nbsp;</a></span>timeSaturate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool learnta::ObservationTable::timeSaturate </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Make the observation table time-saturated. </p>
+<p>Observation table is exterior-saturated if for any \(p \in P\), if \(\mathrm{succ}^t(p) \not\in P\), we have \(\mathrm{suc}^t(p) \sim^{S, \top} p\).</p>
+<dl class="section return"><dt>Returns</dt><dd>If the observation table is already exterior-saturated </dd></dl>
 
 </div>
 </div>

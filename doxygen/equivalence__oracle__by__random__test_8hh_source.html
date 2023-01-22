@@ -106,56 +106,57 @@ $(function() {
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            maxDuration(maxDuration) {}</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
 <div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="classlearnta_1_1EquivalenceOracleByRandomTest.html#adf93b5f07e442c6d6866aa448382f052">   39</a></span>&#160;    [[nodiscard]] std::optional&lt;TimedWord&gt; <a class="code" href="classlearnta_1_1EquivalenceOracleByRandomTest.html#adf93b5f07e442c6d6866aa448382f052">findCounterExample</a>(<span class="keyword">const</span> <a class="code" href="structlearnta_1_1TimedAutomaton.html">TimedAutomaton</a> &amp;hypothesis)<span class="keyword"> override </span>{</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      <span class="keyword">static</span> std::random_device rng;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      std::mt19937 engine(rng());</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> runner(automaton);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> hypothesisRunner(hypothesis);</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <span class="keyword">auto</span> durationDist = std::uniform_real_distribution&lt;double&gt;(0, maxDuration);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="keyword">auto</span> actionDist = std::uniform_int_distribution(0, <span class="keywordtype">int</span>(alphabet.size() - 1));</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160; </div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; maxTests; ++i) {</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        std::string word;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        std::vector&lt;double&gt; durations;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; maxLength; ++j) {</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;          <span class="keyword">const</span> <span class="keywordtype">double</span> duration = durationDist(engine);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;          durations.push_back(duration);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration)) {</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;          }</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;          <span class="keyword">const</span> <span class="keyword">auto</span> wordIndex = actionDist(engine);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;          word.push_back(alphabet.at(wordIndex));</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(alphabet.at(wordIndex)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(alphabet.at(wordIndex))) {</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;            durations.push_back(0);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          }</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        }</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <span class="keyword">const</span> <span class="keywordtype">double</span> duration = durationDist(engine);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        durations.push_back(duration);</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration)) {</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;          <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        }</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160; </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>();</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>();</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;      }</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; </div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  };</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      ++eqQueryCount;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;      <span class="keyword">static</span> std::random_device rng;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;      std::mt19937 engine(rng());</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> runner(automaton);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;      <a class="code" href="classlearnta_1_1TimedAutomatonRunner.html">TimedAutomatonRunner</a> hypothesisRunner(hypothesis);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;      <span class="keyword">auto</span> durationDist = std::uniform_real_distribution&lt;double&gt;(0, maxDuration);</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="keyword">auto</span> actionDist = std::uniform_int_distribution(0, <span class="keywordtype">int</span>(alphabet.size() - 1));</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; maxTests; ++i) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">pre</a>();</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        std::string word;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        std::vector&lt;double&gt; durations;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; maxLength; ++j) {</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;          <span class="keyword">const</span> <span class="keywordtype">double</span> duration = durationDist(engine);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;          durations.push_back(duration);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration)) {</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;          }</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;          <span class="keyword">const</span> <span class="keyword">auto</span> wordIndex = actionDist(engine);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          word.push_back(alphabet.at(wordIndex));</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;          <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(alphabet.at(wordIndex)) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(alphabet.at(wordIndex))) {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;            durations.push_back(0);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;            <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          }</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <span class="keyword">const</span> <span class="keywordtype">double</span> duration = durationDist(engine);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        durations.push_back(duration);</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        <span class="keywordflow">if</span> (runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration) != hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">step</a>(duration)) {</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;          <span class="keywordflow">return</span> <a class="code" href="classlearnta_1_1TimedWord.html">TimedWord</a>{word, durations};</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        }</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160; </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        runner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>();</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        hypothesisRunner.<a class="code" href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">post</a>();</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;      }</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    }</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  };</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;}</div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleByRandomTest_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleByRandomTest.html">learnta::EquivalenceOracleByRandomTest</a></div><div class="ttdoc">The equivalence oracle by random test.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle_by_random_test.hh:21</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracleByRandomTest_html_adf93b5f07e442c6d6866aa448382f052"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracleByRandomTest.html#adf93b5f07e442c6d6866aa448382f052">learnta::EquivalenceOracleByRandomTest::findCounterExample</a></div><div class="ttdeci">std::optional&lt; TimedWord &gt; findCounterExample(const TimedAutomaton &amp;hypothesis) override</div><div class="ttdoc">Make an equivalence query.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle_by_random_test.hh:39</div></div>
 <div class="ttc" id="aclasslearnta_1_1EquivalenceOracle_html"><div class="ttname"><a href="classlearnta_1_1EquivalenceOracle.html">learnta::EquivalenceOracle</a></div><div class="ttdoc">Interface of the equivalence oracle.</div><div class="ttdef"><b>Definition:</b> equivalence_oracle.hh:17</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html">learnta::TimedAutomatonRunner</a></div><div class="ttdoc">Class to execute a timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:22</div></div>
-<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:71</div></div>
+<div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_a57f45c08516c21de6b63496495a4b019"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#a57f45c08516c21de6b63496495a4b019">learnta::TimedAutomatonRunner::step</a></div><div class="ttdeci">bool step(char action) override</div><div class="ttdoc">Feed a discrete action.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:80</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad2d0b6c8280a8d667f12b98adf3f8331"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad2d0b6c8280a8d667f12b98adf3f8331">learnta::TimedAutomatonRunner::post</a></div><div class="ttdeci">void post() override</div><div class="ttdoc">The function should be called after feeding each timed word.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:51</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedAutomatonRunner_html_ad89720c8b41899a4ac9fc86c012bd559"><div class="ttname"><a href="classlearnta_1_1TimedAutomatonRunner.html#ad89720c8b41899a4ac9fc86c012bd559">learnta::TimedAutomatonRunner::pre</a></div><div class="ttdeci">void pre() override</div><div class="ttdoc">Reset the configuration.</div><div class="ttdef"><b>Definition:</b> timed_automaton_runner.hh:41</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:25</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> experiment_runner.hh:23</div></div>
-<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:100</div></div>
+<div class="ttc" id="astructlearnta_1_1TimedAutomaton_html"><div class="ttname"><a href="structlearnta_1_1TimedAutomaton.html">learnta::TimedAutomaton</a></div><div class="ttdoc">A timed automaton.</div><div class="ttdef"><b>Definition:</b> timed_automaton.hh:235</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

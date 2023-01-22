@@ -4,5 +4,5 @@
 <area shape="rect" id="node3" href="$classlearnta_1_1EquivalenceOracleByRandomTest.html" title="The equivalence oracle by random test." alt="" coords="271,71,469,112"/>
 <area shape="rect" id="node4" href="$classlearnta_1_1EquivalenceOracleByTest.html" title="Interface of the equivalence oracle." alt="" coords="271,136,469,177"/>
 <area shape="rect" id="node5" href="$classlearnta_1_1EquivalenceOracleChain.html" title="A chain of the equivalence oracles." alt="" coords="271,201,469,243"/>
-<area shape="rect" id="node6" href="$classlearnta_1_1EquivalenceOracleMemo.html" title="Memoization of the equivalence oracle." alt="" coords="251,267,489,294"/>
+<area shape="rect" id="node6" href="$classlearnta_1_1EquivalenceOracleMemo.html" title="Wrapper of an equivalence oracle to cache the queries." alt="" coords="251,267,489,294"/>
 </map>

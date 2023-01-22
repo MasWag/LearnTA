@@ -1,10 +1,10 @@
 <map id="FixtureWithUnobservable" name="FixtureWithUnobservable">
-<area shape="rect" id="node1" title=" " alt="" coords="609,130,796,157"/>
-<area shape="rect" id="node2" href="$structFixture.html" title=" " alt="" coords="385,71,452,98"/>
-<area shape="rect" id="node3" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="11,5,222,47"/>
-<area shape="rect" id="node4" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="25,71,209,98"/>
-<area shape="rect" id="node5" href="$structUniversalAutomatonFixture.html" title=" " alt="" coords="16,122,217,149"/>
-<area shape="rect" id="node6" href="$structComplementSimpleAutomatonFixture.html" title=" " alt="" coords="5,173,228,215"/>
-<area shape="rect" id="node7" href="$structSimpleAutomatonWithOneUnobservableFixture.html" title="Fixture of a DTA equivalent to the one in the paper but with an unobservable transition." alt="" coords="276,123,561,164"/>
-<area shape="rect" id="node8" href="$structSimpleAutomatonWithTwoUnobservableFixture.html" title="Fixture of a DTA equivalent to the one in the paper but with two unobservable transitions." alt="" coords="277,188,561,229"/>
+<area shape="rect" id="node1" title=" " alt="" coords="609,115,796,141"/>
+<area shape="rect" id="node2" href="$structFixture.html" title=" " alt="" coords="385,56,452,83"/>
+<area shape="rect" id="node3" href="$structSimpleAutomatonFixture.html" title="Fixture of the DTA in the paper." alt="" coords="25,5,209,32"/>
+<area shape="rect" id="node4" href="$structUniversalAutomatonFixture.html" title=" " alt="" coords="16,56,217,83"/>
+<area shape="rect" id="node5" href="$structComplementSimpleAutomatonFixture.html" title=" " alt="" coords="5,107,228,149"/>
+<area shape="rect" id="node6" href="$structSimpleObservationTableKeysFixture.html" title="Fixture of the keys of the observation table in the paper." alt="" coords="11,173,222,214"/>
+<area shape="rect" id="node7" href="$structSimpleAutomatonWithOneUnobservableFixture.html" title="Fixture of a DTA equivalent to the one in the paper but with an unobservable transition." alt="" coords="276,107,561,149"/>
+<area shape="rect" id="node8" href="$structSimpleAutomatonWithTwoUnobservableFixture.html" title="Fixture of a DTA equivalent to the one in the paper but with two unobservable transitions." alt="" coords="277,173,561,214"/>
 </map>
