@@ -221,7 +221,7 @@ namespace learnta {
     const auto isVisited = [&] (const auto& state) {
       return visitedStates.find(state) != visitedStates.end();
     };
-#ifdef DEBUG
+#ifndef NDEBUG
     const auto inOriginalStates = [&] (const auto& state) {
       return std::find_if(originalStates.begin(), originalStates.end(), [&] (const auto& s) {
         return s.get() == state;
