@@ -1,3 +1,6 @@
 [submodule "examples/OTALearning"]
 	path = examples/OTALearning
 	url = git@github.com:Leslieaj/OTALearning.git
+[submodule "examples/DOTALearningSMT"]
+	path = examples/DOTALearningSMT
+	url = git@github.com:Leslieaj/DOTALearningSMT.git
