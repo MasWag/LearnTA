@@ -82,3 +82,14 @@ target_link_libraries(learn_unbalanced_loop
   "-pthread"
   learnta
   )
+
+add_executable(learn_fddi EXCLUDE_FROM_ALL
+  learn_fddi.cc
+  )
+
+target_link_libraries(learn_fddi
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )

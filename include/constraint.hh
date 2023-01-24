@@ -213,20 +213,24 @@ namespace learnta {
   public:
     explicit ConstraintMaker(ClockVariables x) : x(x) {}
 
-    Constraint operator<(int c) {
+    Constraint operator<(int c) const {
       return Constraint{x, Constraint::Order::lt, c};
     }
 
-    Constraint operator<=(int c) {
+    Constraint operator<=(int c) const {
       return Constraint{x, Constraint::Order::le, c};
     }
 
-    Constraint operator>(int c) {
+    Constraint operator>(int c) const {
       return Constraint{x, Constraint::Order::gt, c};
     }
 
-    Constraint operator>=(int c) {
+    Constraint operator>=(int c) const {
       return Constraint{x, Constraint::Order::ge, c};
+    }
+
+    explicit operator ClockVariables() const {
+      return x;
     }
   };
 
