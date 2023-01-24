@@ -71,3 +71,14 @@ target_link_libraries(learn_ota_json
   "-pthread"
   learnta
   )
+
+add_executable(learn_unbalanced_loop EXCLUDE_FROM_ALL
+  learn_unbalanced_loop.cc
+  )
+
+target_link_libraries(learn_unbalanced_loop
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )
