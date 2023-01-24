@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['m_543',['M',['../structlearnta_1_1Zone.html#a70d5cc40c5bc923025fbb27efd8c28a3',1,'learnta::Zone']]],
-  ['maxconstraints_544',['maxConstraints',['../structlearnta_1_1TimedAutomaton.html#a53ca7f0fa2e0cfd6d91d17c303aa7047',1,'learnta::TimedAutomaton::maxConstraints()'],['../structlearnta_1_1Zone.html#a036aa1ce49913f0703d16f187061f35b',1,'learnta::Zone::maxConstraints()']]]
+  ['initialstates_546',['initialStates',['../structlearnta_1_1Automaton.html#a9a51c315fdeb5a193adb8305c9a2dde8',1,'learnta::Automaton']]],
+  ['ismatch_547',['isMatch',['../structlearnta_1_1TAState.html#af03881575eb601e62436f5594892ac36',1,'learnta::TAState::isMatch()'],['../structlearnta_1_1ZAState.html#ad815b7311af1f7695d501af279c4afdc',1,'learnta::ZAState::isMatch()']]]
 ];

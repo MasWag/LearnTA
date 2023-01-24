@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['value_550',['value',['../structlearnta_1_1Zone.html#a7c9073e4a9f2445ec6f2eb702e1b82e9',1,'learnta::Zone']]]
+  ['target_553',['target',['../structlearnta_1_1TATransition.html#aaa1664f4e116b73fa861e674ead5bbbc',1,'learnta::TATransition']]],
+  ['tastate_554',['taState',['../structlearnta_1_1ZAState.html#a7d20fe01501397cd7da0e6fc55f598a3',1,'learnta::ZAState']]]
 ];
