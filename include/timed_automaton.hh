@@ -189,30 +189,8 @@ namespace learnta {
     }
 
     [[nodiscard]] bool mergeable(const TATransition& transition) const {
-      if (this->target != transition.target) {
+      if (this->target != transition.target || !adjacent(this->guard, transition.guard)) {
         return false;
-      }
-      const auto &[thisUpperBound, thisLowerBound] = toBounds(this->guard);
-      const auto &[anotherUpperBound, anotherLowerBound] = toBounds(transition.guard);
-      if (thisUpperBound.size() != anotherUpperBound.size()) {
-        return false;
-      }
-      for (std::size_t i = 0; i < thisUpperBound.size(); ++i) {
-        if (thisUpperBound.at(i) == anotherUpperBound.at(i) && thisLowerBound.at(i) == anotherLowerBound.at(i)) {
-          continue;
-        }
-        // Check if they are adjacent
-        if (thisUpperBound.at(i).first == anotherLowerBound.at(i).first) {
-          if (thisUpperBound.at(i).second == anotherLowerBound.at(i).second) {
-            return false;
-          }
-        } else if (anotherUpperBound.at(i).first == thisLowerBound.at(i).first) {
-          if (anotherUpperBound.at(i).second == thisLowerBound.at(i).second) {
-            return false;
-          }
-        } else {
-          return false;
-        }
       }
       return this->resetVars == transition.resetVars;
     }

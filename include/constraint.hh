@@ -19,7 +19,7 @@
 
 namespace learnta {
 
-//! @brief The return values of comparison of two values. Similar to strcmp.
+  //! @brief The return values of comparison of two values. Similar to strcmp.
   enum class Order {
     LT, EQ, GT
   };
@@ -114,7 +114,8 @@ namespace learnta {
         case Order::lt:
         case Order::le:
           // Bounded from above
-          return valuation.at(this->x) <= this->c ? Bounds{0.0, true} : Bounds{-std::numeric_limits<double>::infinity(), false};
+          return valuation.at(this->x) <= this->c ? Bounds{0.0, true} :
+                 Bounds{-std::numeric_limits<double>::infinity(), false};
         case Order::ge:
           // Bounded from below
           return std::min(Bounds{0.0, true}, Bounds{-this->c + valuation.at(this->x), true});
@@ -229,9 +230,9 @@ namespace learnta {
     }
   };
 
-/*!
-  @brief remove any inequality x > c or x >= c
- */
+  /*!
+    @brief remove any inequality x > c or x >= c
+   */
   static inline void widen(std::vector<Constraint> &guard) {
     guard.erase(std::remove_if(guard.begin(), guard.end(),
                                [](Constraint g) {
@@ -251,7 +252,8 @@ namespace learnta {
     return result;
   }
 
-  inline std::vector<Constraint> conjunction(const std::vector<Constraint> &left, const std::vector<Constraint> &right) {
+  inline std::vector<Constraint> conjunction(const std::vector<Constraint> &left,
+                                             const std::vector<Constraint> &right) {
     std::vector<Constraint> result = left;
     result.reserve(left.size() + right.size());
     result.insert(result.end(), right.begin(), right.end());
@@ -317,7 +319,8 @@ namespace learnta {
 
     for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
       if (lowerBounds.at(i).first > upperBounds.at(i).first ||
-          (lowerBounds.at(i).first == upperBounds.at(i).first && !(lowerBounds.at(i).second && upperBounds.at(i).second))) {
+          (lowerBounds.at(i).first == upperBounds.at(i).first &&
+           !(lowerBounds.at(i).second && upperBounds.at(i).second))) {
         return false;
       }
     }
@@ -325,7 +328,7 @@ namespace learnta {
     return true;
   }
 
-    inline std::vector<Constraint> simplify(const std::vector<Constraint> &constraints) {
+  inline std::vector<Constraint> simplify(const std::vector<Constraint> &constraints) {
     const auto &[upperBounds, lowerBounds] = toBounds(constraints);
     std::vector<Constraint> result;
     result.reserve(upperBounds.size() + lowerBounds.size());
@@ -353,10 +356,11 @@ namespace learnta {
     return result;
   }
 
-  [[nodiscard]] inline Bounds lowerBoundDurationToSatisfy(const std::vector<Constraint> &guard, const std::vector<double> &valuation) {
+  [[nodiscard]] inline Bounds lowerBoundDurationToSatisfy(const std::vector<Constraint> &guard,
+                                                          const std::vector<double> &valuation) {
     std::vector<Bounds> lowerBoundDurations;
     lowerBoundDurations.reserve(guard.size());
-    std::transform(guard.begin(), guard.end(), std::back_inserter(lowerBoundDurations), [&] (const auto &constraint) {
+    std::transform(guard.begin(), guard.end(), std::back_inserter(lowerBoundDurations), [&](const auto &constraint) {
       return constraint.lowerBoundDurationToSatisfy(valuation);
     });
 
@@ -377,6 +381,7 @@ namespace learnta {
   }
 
 #ifdef NO_EIGEN_CONSTRAINT
+
   inline std::vector<std::vector<Constraint>> negate(const std::vector<std::vector<Constraint>> &dnfConstraints) {
     std::vector<std::vector<Constraint>> cnfNegated;
     cnfNegated.reserve(dnfConstraints.size());
@@ -422,6 +427,7 @@ namespace learnta {
 
     return dnfNegated;
   }
+
 #endif
 
   /*!
@@ -430,7 +436,7 @@ namespace learnta {
   static inline auto unionHull(const std::vector<std::vector<Constraint>> &guards) {
     boost::unordered_map<std::pair<ClockVariables, bool>, Bounds> guardsAsBounds;
     bool initial = true;
-    for (const auto& guard: guards) {
+    for (const auto &guard: guards) {
       boost::unordered_set<std::pair<ClockVariables, bool>> boundedKeys;
       for (const auto &constraint: guard) {
         const auto clock = constraint.x;
@@ -446,7 +452,7 @@ namespace learnta {
         }
       }
       // We have unbounded variables
-      for (auto it = guardsAsBounds.begin(); it!= guardsAsBounds.end(); ) {
+      for (auto it = guardsAsBounds.begin(); it != guardsAsBounds.end();) {
         if (boundedKeys.find(it->first) == boundedKeys.end()) {
           it = guardsAsBounds.erase(it);
         } else {
@@ -458,7 +464,7 @@ namespace learnta {
 
     std::vector<Constraint> result;
     result.reserve(guardsAsBounds.size());
-    std::transform(guardsAsBounds.begin(), guardsAsBounds.end(), std::back_inserter(result), [] (const auto p) {
+    std::transform(guardsAsBounds.begin(), guardsAsBounds.end(), std::back_inserter(result), [](const auto p) {
       const auto clock = p.first.first;
       const auto upperBound = p.first.second;
       const auto bound = p.second;
@@ -478,7 +484,7 @@ namespace learnta {
     });
 
     // Assert the weakness
-    assert(std::all_of(guards.begin(), guards.end(), [&] (const auto guard) {
+    assert(std::all_of(guards.begin(), guards.end(), [&](const auto guard) {
       return isWeaker(result, guard);
     }));
 
@@ -502,7 +508,7 @@ namespace learnta {
         mapFromClock.at(constraint.x).push_back(constraint);
       }
     }
-    for (const auto&[clock, constraints]: mapFromClock) {
+    for (const auto &[clock, constraints]: mapFromClock) {
       // assume that the guard is non-redundant
       if (constraints.size() == 1 && !constraints.front().isUpperBound()) {
         if (constraints.front().odr == Constraint::Order::le) {
@@ -512,5 +518,87 @@ namespace learnta {
         }
       }
     }
+  }
+
+  /*!
+   * @brief Check if two guards are adjacent
+   */
+  static inline bool adjacent(const std::vector<Constraint> &left, const std::vector<Constraint> &right) {
+    auto [leftUpperBound, leftLowerBound] = toBounds(left);
+    auto [rightUpperBound, rightLowerBound] = toBounds(right);
+    if (leftUpperBound.size() != rightUpperBound.size()) {
+      return false;
+    }
+    std::vector<std::size_t> differentIndices;
+    const auto maxBound = IntBounds{std::numeric_limits<int>::max(), false};
+    for (std::size_t i = 0; i < leftUpperBound.size(); ++i) {
+      if (leftUpperBound.at(i) == maxBound && rightUpperBound.at(i) != maxBound) {
+        leftUpperBound.at(i) = leftLowerBound.at(i).second ? leftLowerBound.at(i) :
+                               IntBounds{leftLowerBound.at(i).first + 1, leftLowerBound.at(i).second};
+      } else if (leftUpperBound.at(i) != maxBound && rightUpperBound.at(i) == maxBound) {
+        rightUpperBound.at(i) = rightLowerBound.at(i).second ? rightLowerBound.at(i) :
+                                IntBounds{rightLowerBound.at(i).first + 1, rightLowerBound.at(i).second};
+      }
+      if (leftUpperBound.at(i) == rightUpperBound.at(i) && leftLowerBound.at(i) == rightLowerBound.at(i)) {
+        continue;
+      }
+      differentIndices.push_back(i);
+      // Check if they are adjacent
+      if (leftUpperBound.at(i).first == rightLowerBound.at(i).first) {
+        if (leftUpperBound.at(i).second == rightLowerBound.at(i).second) {
+          return false;
+        }
+      } else if (rightUpperBound.at(i).first == leftLowerBound.at(i).first) {
+        if (rightUpperBound.at(i).second == leftLowerBound.at(i).second) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    if (differentIndices.size() <= 1) {
+      return true;
+    }
+
+    // Check the consistency of the adjacent kinds
+    enum class Kinds {
+      DEFAULT,
+      LEFT_LOWER_EQ,
+      RIGHT_LOWER_EQ,
+      LEFT_UPPER_EQ,
+      RIGHT_UPPER_EQ
+    };
+
+    Kinds kind = Kinds::DEFAULT;
+
+    for (const auto index: differentIndices) {
+      if (leftLowerBound.at(index).second) {
+        if (kind == Kinds::DEFAULT) {
+          kind = Kinds::LEFT_LOWER_EQ;
+        } else if (kind != Kinds::LEFT_LOWER_EQ) {
+          return false;
+        }
+      } else if (rightLowerBound.at(index).second) {
+        if (kind == Kinds::DEFAULT) {
+          kind = Kinds::RIGHT_LOWER_EQ;
+        } else if (kind != Kinds::RIGHT_LOWER_EQ) {
+          return false;
+        }
+      } else if (leftUpperBound.at(index).second) {
+        if (kind == Kinds::DEFAULT) {
+          kind = Kinds::LEFT_UPPER_EQ;
+        } else if (kind != Kinds::LEFT_UPPER_EQ) {
+          return false;
+        }
+      } else if (rightUpperBound.at(index).second) {
+        if (kind == Kinds::DEFAULT) {
+          kind = Kinds::RIGHT_UPPER_EQ;
+        } else if (kind != Kinds::RIGHT_UPPER_EQ) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }

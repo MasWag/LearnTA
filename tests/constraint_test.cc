@@ -195,4 +195,80 @@ x0 >= 2 && x1 < 0 && x1 < 1 &&
 
     BOOST_TEST(expected == simpleVariables(guard), boost::test_tools::per_element());
   }
+
+  BOOST_AUTO_TEST_CASE(adjacentTest) {
+    std::stringstream stream;
+    std::vector<std::vector<Constraint>> guards;
+    guards.emplace_back(std::vector<Constraint>{
+      ConstraintMaker(0) > 2, ConstraintMaker(0) < 3,
+      ConstraintMaker(1) > 1, ConstraintMaker(1) < 2,
+      ConstraintMaker(2) <= 0
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 2, ConstraintMaker(0) < 3,
+            ConstraintMaker(1) > 1, ConstraintMaker(1) < 2,
+            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) >= 3, ConstraintMaker(0) <= 3,
+            ConstraintMaker(1) > 1, ConstraintMaker(1) < 2,
+            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 3, ConstraintMaker(0) < 4,
+            ConstraintMaker(1) > 1, ConstraintMaker(1) < 2,
+            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 3, ConstraintMaker(0) < 4,
+            ConstraintMaker(1) >= 2, ConstraintMaker(1) <= 2,
+            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 3, ConstraintMaker(0) < 4,
+            ConstraintMaker(1) > 2, ConstraintMaker(1) < 3,
+            ConstraintMaker(2) > 0, ConstraintMaker(2) < 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 3, ConstraintMaker(0) < 4,
+            ConstraintMaker(1) > 2, ConstraintMaker(1) < 3,
+            ConstraintMaker(2) >= 1, ConstraintMaker(2) <= 1
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 3, ConstraintMaker(0) < 4,
+            ConstraintMaker(1) > 2, ConstraintMaker(1) < 3,
+            ConstraintMaker(2) > 1, ConstraintMaker(2) < 2
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) >= 4, ConstraintMaker(0) <= 4,
+            ConstraintMaker(1) > 2, ConstraintMaker(1) < 3,
+            ConstraintMaker(2) > 1, ConstraintMaker(2) < 2
+    });
+    guards.emplace_back(std::vector<Constraint>{
+            ConstraintMaker(0) > 4, ConstraintMaker(1) > 2, ConstraintMaker(2) > 1
+    });
+    std::vector<std::string> expected;
+    expected.emplace_back("x0 > 2, x0 < 3, x1 > 1, x1 < 2, x2 <= 0");
+    expected.emplace_back("x0 > 2, x0 < 3, x1 > 1, x1 < 2, x2 > 0, x2 < 1");
+    expected.emplace_back("x0 >= 3, x0 <= 3, x1 > 1, x1 < 2, x2 > 0, x2 < 1");
+    expected.emplace_back("x0 > 3, x0 < 4, x1 > 1, x1 < 2, x2 > 0, x2 < 1");
+    expected.emplace_back("x0 > 3, x0 < 4, x1 >= 2, x1 <= 2, x2 > 0, x2 < 1");
+    expected.emplace_back("x0 > 3, x0 < 4, x1 > 2, x1 < 3, x2 > 0, x2 < 1");
+    expected.emplace_back("x0 > 3, x0 < 4, x1 > 2, x1 < 3, x2 >= 1, x2 <= 1");
+    expected.emplace_back("x0 > 3, x0 < 4, x1 > 2, x1 < 3, x2 > 1, x2 < 2");
+    expected.emplace_back("x0 >= 4, x0 <= 4, x1 > 2, x1 < 3, x2 > 1, x2 < 2");
+    expected.emplace_back("x0 > 4, x1 > 2, x2 > 1");
+    BOOST_CHECK_EQUAL(expected.size(), guards.size());
+    for (int i = 0; i < expected.size(); ++i) {
+      stream << guards.at(i);
+      BOOST_CHECK_EQUAL(expected.at(i), stream.str());
+      stream.str("");
+    }
+
+    for (int i = 0; i < guards.size(); ++i) {
+      for (int j = 0; j < guards.size(); ++j) {
+        BOOST_CHECK_EQUAL(abs(i - j) <= 1, adjacent(guards.at(i), guards.at(j)));
+      }
+    }
+  }
 BOOST_AUTO_TEST_SUITE_END()
