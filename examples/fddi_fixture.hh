@@ -38,13 +38,13 @@ struct FDDIFixture {
   /*!
    * @brief The constructor
    */
-  explicit FDDIFixture() {
+  explicit FDDIFixture(int scale = 20) {
     using namespace learnta;
     const std::size_t processSize = 8;
     const std::size_t ringSize = 4;
     // Generate the states
     targetAutomaton.states.reserve(processSize * processSize * ringSize);
-    for (int i = 0; i < processSize * processSize * ringSize; ++i) {
+    for (std::size_t i = 0; i < processSize * processSize * ringSize; ++i) {
       targetAutomaton.states.push_back(std::make_shared<learnta::TAState>(true));
     }
     const auto toState = [&](const std::size_t p1, const std::size_t p2, const std::size_t ring) {
@@ -82,9 +82,9 @@ struct FDDIFixture {
         resets.emplace_back(xB1, 0.0);
         toState(p1, p2, ring)->next[P1TT].reserve(2);
         toState(p1, p2, ring)->next[P1TT].emplace_back(toState(1, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt1 >= 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt1 >= scale * 5, t <= 0, t >= 0});
         toState(p1, p2, ring)->next[P1TT].emplace_back(toState(2, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt1 < 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt1 < scale * 5, t <= 0, t >= 0});
       }
       {
         const auto p1 = 4;
@@ -93,9 +93,9 @@ struct FDDIFixture {
         resets.emplace_back(xA1, 0.0);
         toState(p1, p2, ring)->next[P1TT].reserve(2);
         toState(p1, p2, ring)->next[P1TT].emplace_back(toState(5, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt1 >= 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt1 >= scale * 5, t <= 0, t >= 0});
         toState(p1, p2, ring)->next[P1TT].emplace_back(toState(6, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt1 < 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt1 < scale * 5, t <= 0, t >= 0});
       }
     }
 
@@ -108,7 +108,7 @@ struct FDDIFixture {
         learnta::TATransition::Resets resets;
         resets.emplace_back(t, 0.0);
         toState(p1, p2, ring)->next[P1RT].emplace_back(toState(nextP1, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt1 >= 20, trt1 <= 20});
+                                                       std::vector<learnta::Constraint>{trt1 >= scale, trt1 <= scale});
       }
       // Transitions from P1@q3 and P1@q7
       for (const auto p1: {3, 7}) {
@@ -116,7 +116,7 @@ struct FDDIFixture {
         learnta::TATransition::Resets resets;
         resets.emplace_back(t, 0.0);
         toState(p1, p2, ring)->next[P1RT].emplace_back(toState(nextP1, p2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{(p1 == 3 ? xA1 : xB1) <= 120});
+                                                       std::vector<learnta::Constraint>{(p1 == 3 ? xA1 : xB1) <= scale * 6});
       }
     }
 
@@ -128,7 +128,7 @@ struct FDDIFixture {
         const auto nextP1 = p1 + 1;
         learnta::TATransition::Resets resets;
         toState(p1, p2, ring)->next[P1tau].emplace_back(toState(nextP1, p2, ring).get(), resets,
-                                                        std::vector<learnta::Constraint>{trt1 >= 20, trt1 <= 20});
+                                                        std::vector<learnta::Constraint>{trt1 >= scale, trt1 <= scale});
       }
     }
 
@@ -142,9 +142,9 @@ struct FDDIFixture {
         resets.emplace_back(xB2, 0.0);
         toState(p1, p2, ring)->next[P2TT].reserve(2);
         toState(p1, p2, ring)->next[P2TT].emplace_back(toState(p1, 1, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt2 >= 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt2 >= scale * 5, t <= 0, t >= 0});
         toState(p1, p2, ring)->next[P2TT].emplace_back(toState(p1, 2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt2 < 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt2 < scale * 5, t <= 0, t >= 0});
       }
       {
         const auto p2 = 4;
@@ -153,9 +153,9 @@ struct FDDIFixture {
         resets.emplace_back(xA2, 0.0);
         toState(p1, p2, ring)->next[P2TT].reserve(2);
         toState(p1, p2, ring)->next[P2TT].emplace_back(toState(p1, 5, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt2 >= 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt2 >= scale * 5, t <= 0, t >= 0});
         toState(p1, p2, ring)->next[P2TT].emplace_back(toState(p1, 6, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt2 < 100, t <= 0, t >= 0});
+                                                       std::vector<learnta::Constraint>{trt2 < scale * 5, t <= 0, t >= 0});
       }
     }
 
@@ -168,7 +168,7 @@ struct FDDIFixture {
         learnta::TATransition::Resets resets;
         resets.emplace_back(t, 0.0);
         toState(p1, p2, ring)->next[P2RT].emplace_back(toState(p1, nextP2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{trt2 >= 20, trt2 <= 20});
+                                                       std::vector<learnta::Constraint>{trt2 >= scale, trt2 <= scale});
       }
       // Transitions from P2@q3 and P2@q7
       for (const auto p2: {3, 7}) {
@@ -176,7 +176,7 @@ struct FDDIFixture {
         learnta::TATransition::Resets resets;
         resets.emplace_back(t, 0.0);
         toState(p1, p2, ring)->next[P2RT].emplace_back(toState(p1, nextP2, nextRing).get(), resets,
-                                                       std::vector<learnta::Constraint>{(p2 == 3 ? xA2 : xB2) <= 120});
+                                                       std::vector<learnta::Constraint>{(p2 == 3 ? xA2 : xB2) <= scale * 6});
       }
     }
 
@@ -188,7 +188,7 @@ struct FDDIFixture {
         const auto nextP2 = p2 + 1;
         learnta::TATransition::Resets resets;
         toState(p1, p2, ring)->next[P2tau].emplace_back(toState(p1, nextP2, ring).get(), resets,
-                                                        std::vector<learnta::Constraint>{trt2 >= 20, trt2 <= 20});
+                                                        std::vector<learnta::Constraint>{trt2 >= scale, trt2 <= scale});
       }
     }
 
