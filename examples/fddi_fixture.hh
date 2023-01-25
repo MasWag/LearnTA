@@ -30,9 +30,9 @@ struct FDDIFixture {
    * - P2@TT, R@TT2: c
    * - P2@RT, R@RT2: d
    * - P1@tau: e
-   * - P2@tau: f
+   * - P2@tau: e
    */
-  const std::vector<learnta::Alphabet> alphabet = {'a', 'b', 'c', 'd', 'e', 'f'};
+  const std::vector<learnta::Alphabet> alphabet = {'a', 'b', 'c', 'd', 'e'};
   learnta::TimedAutomaton targetAutomaton, complementTargetAutomaton;
 
   /*!
@@ -51,7 +51,6 @@ struct FDDIFixture {
       assert(p1 < processSize);
       assert(p2 < processSize);
       assert(ring < ringSize);
-
       return targetAutomaton.states.at(p1 * processSize * ringSize + p2 * ringSize + ring);
     };
 
@@ -61,7 +60,7 @@ struct FDDIFixture {
     const learnta::Alphabet P2TT = 'c';
     const learnta::Alphabet P2RT = 'd';
     const learnta::Alphabet P1tau = 'e';
-    const learnta::Alphabet P2tau = 'f';
+    const learnta::Alphabet P2tau = 'e';
 
     // Define the clock variables
     const auto trt1 = learnta::ConstraintMaker(0);
