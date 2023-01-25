@@ -93,3 +93,14 @@ target_link_libraries(learn_fddi
   "-pthread"
   learnta
   )
+
+add_executable(learn_fischer EXCLUDE_FROM_ALL
+  learn_fischer.cc
+  )
+
+target_link_libraries(learn_fischer
+  ${Boost_LOG_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
+  "-pthread"
+  learnta
+  )
