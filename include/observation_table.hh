@@ -46,6 +46,8 @@ namespace learnta {
     std::vector<Alphabet> alphabet;
     std::vector<ForwardRegionalElementaryLanguage> prefixes;
     std::vector<BackwardRegionalElementaryLanguage> suffixes;
+    // concatenations.at(i).at(j) = prefixes.at(i).getTimedCondition() + suffixes.at(j).getTimedCondition()
+    std::vector<std::vector<TimedCondition>> concatenations;
     // The indexes of prefixes in P
     std::unordered_set<std::size_t> pIndices;
     // prefixes[first] and prefixes[second.first] are in the same equivalence class witnessed by second.second
@@ -65,12 +67,15 @@ namespace learnta {
      */
     void refreshTable() {
       table.resize(prefixes.size());
+      concatenations.resize(prefixes.size());
       for (std::size_t prefixIndex = 0; prefixIndex < prefixes.size(); ++prefixIndex) {
         const auto originalSize = table.at(prefixIndex).size();
         table.at(prefixIndex).resize(suffixes.size());
+        concatenations.at(prefixIndex).resize(suffixes.size());
         for (auto suffixIndex = originalSize; suffixIndex < suffixes.size(); ++suffixIndex) {
-          table.at(prefixIndex).at(suffixIndex) = this->memOracle->query(
-                  prefixes.at(prefixIndex) + suffixes.at(suffixIndex));
+          const auto concatenation = prefixes.at(prefixIndex) + suffixes.at(suffixIndex);
+          table.at(prefixIndex).at(suffixIndex) = this->memOracle->query(concatenation);
+          concatenations.at(prefixIndex).at(suffixIndex) = concatenation.getTimedCondition();
         }
       }
     }
@@ -123,8 +128,8 @@ namespace learnta {
     }
 
     std::optional<RenamingRelation> equivalent(std::size_t i, std::size_t j) {
-      auto renamingRelation = findDeterministicEquivalentRenaming(this->prefixes.at(i), this->table.at(i),
-                                                                  this->prefixes.at(j), this->table.at(j),
+      auto renamingRelation = findDeterministicEquivalentRenaming(this->prefixes.at(i), this->table.at(i), this->concatenations.at(i),
+                                                                  this->prefixes.at(j), this->table.at(j), this->concatenations.at(j),
                                                                   this->suffixes);
       if (renamingRelation) {
         this->closedRelation[i][j] = renamingRelation.value();
@@ -136,7 +141,7 @@ namespace learnta {
     }
 
     std::optional<RenamingRelation> equivalentWithMemo(std::size_t i, std::size_t j) {
-#if 0
+#if 1
       if (this->distinguishedPrefix.find(std::make_pair(i, j)) != this->distinguishedPrefix.end() ||
           this->distinguishedPrefix.find(std::make_pair(j, i)) != this->distinguishedPrefix.end()) {
         // we already know that they are not equivalent
@@ -148,8 +153,9 @@ namespace learnta {
       if (equivalentPrefixesIT != this->closedRelation.end()) {
         auto it = equivalentPrefixesIT->second.find(j);
         if (it != this->closedRelation.at(i).end()) {
-          if (equivalence(this->prefixes.at(i), this->table.at(i),
-                          this->prefixes.at(j), this->table.at(j), this->suffixes, it->second)) {
+          if (equivalence(this->prefixes.at(i), this->table.at(i), this->concatenations.at(i),
+                          this->prefixes.at(j), this->table.at(j), this->concatenations.at(j),
+                          this->suffixes, it->second)) {
             return it->second;
           }
         }
@@ -186,13 +192,19 @@ namespace learnta {
       }
       // Finally, we try to find an equivalent renaming
       auto leftRow = this->table.at(i);
-      leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
+      auto leftConcatenations = this->concatenations.at(i);
+      const auto newLeftConcatenation = prefixes.at(i) + newSuffix;
+      leftRow.push_back(this->memOracle->query(newLeftConcatenation));
+      leftConcatenations.push_back(newLeftConcatenation.getTimedCondition());
       auto rightRow = this->table.at(j);
-      rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
+      auto rightConcatenations = this->concatenations.at(j);
+      const auto newRightConcatenation = prefixes.at(j) + newSuffix;
+      rightRow.push_back(this->memOracle->query(newRightConcatenation));
+      rightConcatenations.push_back(newRightConcatenation.getTimedCondition());
       auto newSuffixes = this->suffixes;
       newSuffixes.push_back(newSuffix);
-      const auto result = findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow,
-                                                              this->prefixes.at(j), rightRow,
+      const auto result = findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow, leftConcatenations,
+                                                              this->prefixes.at(j), rightRow, rightConcatenations,
                                                               newSuffixes).has_value();
       equivalentWithColumnCache[key] = std::make_pair(this->suffixes.size(), result);
 
@@ -206,16 +218,25 @@ namespace learnta {
                                   const RenamingRelation &renaming) const {
       const auto leftPrefix = this->prefixes.at(i);
       auto leftRow = this->table.at(i);
-      leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
+      auto leftConcatenation = this->concatenations.at(i);
+      auto newLeftConcatenation = prefixes.at(i) + newSuffix;
+      leftRow.push_back(this->memOracle->query(newLeftConcatenation));
+      leftConcatenation.push_back(newLeftConcatenation.getTimedCondition());
       const auto rightPrefix = this->prefixes.at(j);
       auto rightRow = this->table.at(j);
-      rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
+      auto rightConcatenation = this->concatenations.at(j);
+      auto newRightConcatenation = prefixes.at(j) + newSuffix;
+      rightRow.push_back(this->memOracle->query(newRightConcatenation));
+      rightConcatenation.push_back(newRightConcatenation.getTimedCondition());
       auto newSuffixes = this->suffixes;
       newSuffixes.push_back(newSuffix);
 
-      return equivalence(leftPrefix, leftRow, rightPrefix, rightRow, newSuffixes, renaming);
+      return equivalence(leftPrefix, leftRow, leftConcatenation,
+                         rightPrefix, rightRow, rightConcatenation,
+                         newSuffixes, renaming);
     }
 
+#if 0
     [[nodiscard]] bool
     equivalent(std::size_t i, std::size_t j, const std::list<BackwardRegionalElementaryLanguage> &newSuffixes) const {
       auto leftRow = this->table.at(i);
@@ -234,6 +255,7 @@ namespace learnta {
                                                  this->prefixes.at(j), rightRow,
                                                  tmpSuffixes).has_value();
     }
+#endif
 
     /*!
      * @brief Returns if row[i] is accepting or not
@@ -310,8 +332,9 @@ namespace learnta {
             // When we already know that this prefix is equivalent to one of p \in P, we just confirm it.
             for (auto targetIt = it->second.begin(); targetIt != it->second.end();) {
               auto renamingRelation = targetIt->second;
-              if (equivalence(prefix, prefixRow,
+              if (equivalence(prefix, prefixRow, this->concatenations.at(i),
                               this->prefixes.at(targetIt->first), this->table.at(targetIt->first),
+                              this->concatenations.at(targetIt->first),
                               this->suffixes, renamingRelation)) {
                 if (this->inP(targetIt->first)) {
                   found = true;
@@ -587,8 +610,8 @@ namespace learnta {
             // Modify the cache to jump to pIndex to construct a DTA without unobservable transitions
             it->second = {*it2};
             continue;
-          } else if (equivalence(this->prefixes.at(successorIndex), this->table.at(successorIndex),
-                                 this->prefixes.at(pIndex), this->table.at(pIndex),
+          } else if (equivalence(this->prefixes.at(successorIndex), this->table.at(successorIndex), this->concatenations.at(successorIndex),
+                                 this->prefixes.at(pIndex), this->table.at(pIndex), this->concatenations.at(pIndex),
                                  suffixes, RenamingRelation{})) {
             it->second.clear();
             it->second[pIndex] = RenamingRelation{};

@@ -64,6 +64,49 @@ namespace learnta {
   /*!
    * @brief Return if two elementary languages are equivalent
    *
+   * @pre leftRow.size() == rightRow.size() == suffixes.size()
+   */
+  static bool equivalence(const ElementaryLanguage &left,
+                          const std::vector<TimedConditionSet> &leftRow,
+                          const std::vector<TimedCondition>& leftConcatenation,
+                          const ElementaryLanguage &right,
+                          const std::vector<TimedConditionSet> &rightRow,
+                          const std::vector<TimedCondition>& rightConcatenation,
+                          const std::vector<BackwardRegionalElementaryLanguage> &suffixes,
+                          const RenamingRelation &renaming) {
+#ifdef LEARNTA_DEBUG_EQUIVALENCE
+    BOOST_LOG_TRIVIAL(trace) << "left: " << left;
+    BOOST_LOG_TRIVIAL(trace) << "right: " << right;
+    BOOST_LOG_TRIVIAL(trace) << "leftRowSize: " << leftRow.back().size();
+    // BOOST_LOG_TRIVIAL(trace) << "leftRowBack: " << leftRow.back().front();
+    BOOST_LOG_TRIVIAL(trace) << "rightRowSize: " << rightRow.back().size();
+    BOOST_LOG_TRIVIAL(trace) << "suffix.back(): " << suffixes.back();
+#endif
+    assert(leftRow.size() == rightRow.size());
+    assert(rightRow.size() == suffixes.size());
+    // Check the compatibility of prefixes up to renaming
+    auto juxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+    juxtaposition.addRenaming(renaming);
+    if (!juxtaposition) {
+      return false;
+    }
+    // Check the compatibility of symbolic membership up to renaming
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
+      auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(i), rightConcatenation.at(i), suffixes.at(i).wordSize()};
+      leftJuxtaposition.addRenaming(renaming);
+      auto rightJuxtaposition = JuxtaposedZoneSet{leftConcatenation.at(i), rightRow.at(i), suffixes.at(i).wordSize()};
+      rightJuxtaposition.addRenaming(renaming);
+      if (leftJuxtaposition != rightJuxtaposition) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /*!
+   * @brief Return if two elementary languages are equivalent
+   *
    * @param leftRightJuxtaposition juxtaposition of left and right prefixes
    * @param leftJuxtapositions list of juxtaposition of mem(left + suffix) and (right + suffix)
    * @param rightJuxtapositions list of juxtaposition of (left + suffix) and mem(right + suffix)
@@ -368,7 +411,9 @@ namespace learnta {
     }
 
     // 1. Try the empty relation
-    if (equivalence(left, leftRow, right, rightRow, suffixes, RenamingRelation{})) {
+    if (equivalence(left, leftRow, leftConcatenations,
+                    right, rightRow, rightConcatenations,
+                    suffixes, RenamingRelation{})) {
       return RenamingRelation{};
     }
 
@@ -413,6 +458,99 @@ namespace learnta {
     }
   }
 
+  /*!
+   * @brief Return a renaming constraint if two elementary languages are equivalent
+   *
+   * The outline of our construction is as follows.
+   * 1. We construct the bipartite graph based on the timed conditions.
+   * 2. We generate deterministic candidate renaming equations
+   * 3. We return a renaming equation witnessing the equivalence, if exists
+   *
+   * In the first part, we construct a bipartite graph \f$(V_1, V_2, E)\f$ such that:
+   * - \f$V_1\f$ and \f$V_2\f$ consists of the variables in left and right, respectively, and
+   * - \f$(v_1, v_2) \in E\f$ if and only if \f$v_1 = v_2\f$ does not contradict to the given constraints.
+   *
+   * We note that each disjoint part of this bipartite graph is complete.
+   *
+   *
+   * @pre leftRow.size() == rightRow.size() == suffixes.size()
+   * @pre left and right are simple
+   */
+  static inline std::optional<RenamingRelation> findDeterministicEquivalentRenaming(const ElementaryLanguage &left,
+                                                                                    const std::vector<TimedConditionSet> &leftRow,
+                                                                                    const std::vector<TimedCondition>& leftConcatenations,
+                                                                                    const ElementaryLanguage &right,
+                                                                                    const std::vector<TimedConditionSet> &rightRow,
+                                                                                    const std::vector<TimedCondition>& rightConcatenations,
+                                                                                    const std::vector<BackwardRegionalElementaryLanguage> &suffixes) {
+    // 0. Asserts the preconditions
+    assert(leftRow.size() == rightRow.size());
+    assert(rightRow.size() == suffixes.size());
+    assert(left.isSimple());
+    assert(right.isSimple());
+
+    // 0.1. Compute the status
+    std::vector<CellStatus> leftStatus;
+    leftStatus.reserve(suffixes.size());
+    std::transform(leftConcatenations.begin(), leftConcatenations.end(),
+                   leftRow.begin(), std::back_inserter(leftStatus), decideStatus);
+    std::vector<CellStatus> rightStatus;
+    rightStatus.reserve(suffixes.size());
+    std::transform(rightConcatenations.begin(), rightConcatenations.end(),
+                   rightRow.begin(), std::back_inserter(rightStatus), decideStatus);
+
+    // 0.2. We quickly check if their statuses are not equivalent.
+    if (!std::equal(leftStatus.begin(), leftStatus.end(), rightStatus.begin(), rightStatus.end())) {
+      return std::nullopt;
+    }
+
+    // 1. Try the empty relation
+    if (equivalence(left, leftRow, leftConcatenations,
+                    right, rightRow, rightConcatenations,
+                    suffixes, RenamingRelation{})) {
+      return RenamingRelation{};
+    }
+
+    // 2. Construct the bipartite graph based on the timed conditions.
+    const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
+
+    // 3. Construct the strictly constrained variables
+    const auto& [leftConstrained, rightConstrained] = makeConstrainedVariables(leftRow, rightRow,
+                                                                               leftConcatenations, rightConcatenations,
+                                                                               left.wordSize() + 1,
+                                                                               right.wordSize() + 1);
+    // 4. Construct the candidate renaming equations
+    auto candidates = generateDeterministicCandidates(left.getTimedCondition(),
+                                                      right.getTimedCondition(),
+                                                      leftConstrained,
+                                                      rightConstrained,
+                                                      graph);
+
+    // 5. Find an equivalent renaming equation
+    const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
+    // Add implicit constraints
+    std::for_each(candidates.begin(), candidates.end(), [&] (auto &candidate) {
+      if (!candidate.empty()) {
+        candidate.addImplicitConstraints(leftRightJuxtaposition);
+      }
+    });
+    std::vector<JuxtaposedZoneSet> leftJuxtapositions, rightJuxtapositions;
+    leftJuxtapositions.reserve(leftRow.size());
+    rightJuxtapositions.reserve(rightRow.size());
+    for (std::size_t i = 0; i < leftRow.size(); ++i) {
+      leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenations.at(i), suffixes.at(i).wordSize());
+      rightJuxtapositions.emplace_back(leftConcatenations.at(i), rightRow.at(i), suffixes.at(i).wordSize());
+    }
+    auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
+      return equivalence(leftRightJuxtaposition, leftJuxtapositions, rightJuxtapositions, candidate);
+    });
+
+    if (it != candidates.end()) {
+      return *it;
+    } else {
+      return std::nullopt;
+    }
+  }
 
     /*!
      * @brief Construct a renaming constraint if two elementary languages are equivalent
