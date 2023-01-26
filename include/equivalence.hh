@@ -208,6 +208,46 @@ namespace learnta {
      return candidates;
    }
 
+   /*!
+    * @brief The status of a cell of the observation table
+    *
+    * - CellStatus::bottom: \f$mem(p \cdot s) = \bot\f$
+    * - CellStatus::top: \f$mem(p \cdot s) = \top\f$
+    * - CellStatus::middle: otherwise
+    */
+   enum class CellStatus {
+       bottom,
+       top,
+       middle
+   };
+
+   /*!
+    * @brief Compute the status of a cell of the observation table
+    *
+    * @pre If concatenation == cell, we have cell.size() == 1 and concatenation == cell.front()
+    */
+   static inline CellStatus decideStatus(const TimedCondition &concatenation, const TimedConditionSet &cell) {
+       // Assert the precondition
+#ifndef NDEBUG
+       const auto simpleConcatenations = concatenation.enumerate();
+       assert((cell.size() == 1 && cell.getConditions().front() == concatenation) ||
+              std::any_of(simpleConcatenations.begin(), simpleConcatenations.end(), [&] (const TimedCondition& simple) {
+                  return std::none_of(cell.getConditions().begin(), cell.getConditions().end(),
+                                      [&] (const TimedCondition& disjunct) {
+                      return disjunct.includes(simple);
+                  });
+              }));
+#endif
+
+       if (cell.empty()) {
+           return CellStatus::bottom;
+       } else if (cell.size() == 1 && cell.getConditions().front() == concatenation) {
+           return CellStatus::top;
+       } else {
+           return CellStatus::middle;
+       }
+   }
+
   /*!
    * @brief Return a renaming constraint if two elementary languages are equivalent
    *
@@ -237,11 +277,32 @@ namespace learnta {
     assert(left.isSimple());
     assert(right.isSimple());
 
-    // 0.5. We quickly check if they are clearly not equivalent.
-    if (!std::equal(leftRow.begin(), leftRow.end(), rightRow.begin(), rightRow.end(),
-                   [&] (const auto& leftCell, const auto& rightCell) {
-      return leftCell.empty() == rightCell.empty();
-    })) {
+    // 0.1 Compute the concatenations
+    // left + suffix
+    std::vector<TimedCondition> leftConcatenations;
+    leftConcatenations.reserve(suffixes.size());
+    std::transform(suffixes.begin(), suffixes.end(), std::back_inserter(leftConcatenations), [&] (const auto& suffix) {
+        return left.getTimedCondition() + suffix.getTimedCondition();
+    });
+    /// right + suffix
+    std::vector<TimedCondition> rightConcatenations;
+    rightConcatenations.reserve(suffixes.size());
+    std::transform(suffixes.begin(), suffixes.end(), std::back_inserter(rightConcatenations), [&] (const auto& suffix) {
+        return right.getTimedCondition() + suffix.getTimedCondition();
+    });
+
+    // 0.2 Compute the status
+    std::vector<CellStatus> leftStatus;
+    leftStatus.reserve(suffixes.size());
+    std::transform(leftConcatenations.begin(), leftConcatenations.end(),
+                   leftRow.begin(), std::back_inserter(leftStatus), decideStatus);
+    std::vector<CellStatus> rightStatus;
+    rightStatus.reserve(suffixes.size());
+    std::transform(rightConcatenations.begin(), rightConcatenations.end(),
+                   rightRow.begin(), std::back_inserter(rightStatus), decideStatus);
+
+    // 0.3. We quickly check if they are clearly not equivalent.
+    if (!std::equal(leftStatus.begin(), leftStatus.end(), rightStatus.begin(), rightStatus.end())) {
       return std::nullopt;
     }
 
@@ -268,10 +329,8 @@ namespace learnta {
     leftJuxtapositions.reserve(leftRow.size());
     rightJuxtapositions.reserve(rightRow.size());
     for (std::size_t i = 0; i < leftRow.size(); ++i) {
-      const auto rightConcatenation = (right + suffixes.at(i)).getTimedCondition();
-      leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenation, suffixes.at(i).wordSize());
-      const auto leftConcatenation = (left + suffixes.at(i)).getTimedCondition();
-      rightJuxtapositions.emplace_back(leftConcatenation, rightRow.at(i), suffixes.at(i).wordSize());
+      leftJuxtapositions.emplace_back(leftRow.at(i), rightConcatenations.at(i), suffixes.at(i).wordSize());
+      rightJuxtapositions.emplace_back(leftConcatenations.at(i), rightRow.at(i), suffixes.at(i).wordSize());
     }
     auto it = std::find_if(candidates.begin(), candidates.end(), [&](const auto &candidate) {
       return equivalence(leftRightJuxtaposition, leftJuxtapositions, rightJuxtapositions, candidate);
