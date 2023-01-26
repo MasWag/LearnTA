@@ -27,19 +27,27 @@ namespace learnta {
     JuxtaposedZone(const Zone &left, const Zone &right) :
             leftSize(static_cast<Eigen::Index>(left.getNumOfVar())),
             rightSize(static_cast<Eigen::Index>(right.getNumOfVar())) {
-      this->value.resize(leftSize + rightSize + 1, leftSize + rightSize + 1);
-      this->value.fill(Bounds(std::numeric_limits<double>::max(), false));
-      // Copy the constraints in left
-      this->value.block(0, 0, left.value.cols(), left.value.rows()) = left.value;
-      // Copy the constraints in right
-      this->value.block(left.value.cols(), left.value.rows(), right.value.cols() - 1, right.value.rows() - 1) =
-              right.value.block(1, 1, right.value.cols() - 1, right.value.rows() - 1);
-      this->value.block(0, left.value.rows(), 1, right.value.rows() - 1) =
-              right.value.block(0, 1, 1, right.value.rows() - 1);
-      this->value.block(left.value.cols(), 0, right.value.cols() - 1, 1) =
-              right.value.block(1, 0, right.value.cols() - 1, 1);
+      static boost::unordered_map<std::pair<Zone, Zone>, Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>> memo;
+      const auto key = std::make_pair(left, right);
+      auto it = memo.find(key);
+      if (it != memo.end()) {
+        this->value = it->second;
+      } else {
+        this->value.resize(leftSize + rightSize + 1, leftSize + rightSize + 1);
+        this->value.fill(Bounds(std::numeric_limits<double>::max(), false));
+        // Copy the constraints in left
+        this->value.block(0, 0, left.value.cols(), left.value.rows()) = left.value;
+        // Copy the constraints in right
+        this->value.block(left.value.cols(), left.value.rows(), right.value.cols() - 1, right.value.rows() - 1) =
+                right.value.block(1, 1, right.value.cols() - 1, right.value.rows() - 1);
+        this->value.block(0, left.value.rows(), 1, right.value.rows() - 1) =
+                right.value.block(0, 1, 1, right.value.rows() - 1);
+        this->value.block(left.value.cols(), 0, right.value.cols() - 1, 1) =
+                right.value.block(1, 0, right.value.cols() - 1, 1);
 
-      this->canonize();
+        this->canonize();
+        memo[key] = this->value;
+      }
     }
 
     /*!
@@ -54,50 +62,58 @@ namespace learnta {
     JuxtaposedZone(const Zone &left, const Zone &right, Eigen::Index commonVariableSize) :
             leftSize(static_cast<Eigen::Index>(left.getNumOfVar())),
             rightSize(static_cast<Eigen::Index>(right.getNumOfVar())) {
-      const auto M = leftSize;
-      const auto N = rightSize;
-      const auto L = commonVariableSize;
-      const auto resultVariableSize = M + N - L;
-      const auto commonBeginIndex = M - L + 1;
-      const auto commonBeginInRightIndex = N - L + 1;
-      const auto rightBeginIndex = M + 1;
-      this->value.resize(resultVariableSize + 1, resultVariableSize + 1);
-      this->value.fill(Bounds(std::numeric_limits<double>::max(), false));
+      static boost::unordered_map<std::tuple<Zone, Zone, Eigen::Index>, Eigen::Matrix<Bounds, Eigen::Dynamic, Eigen::Dynamic>> memoWithCommon;
+      const auto key = std::make_tuple(left, right, commonVariableSize);
+      auto it = memoWithCommon.find(key);
+      if (it != memoWithCommon.end()) {
+        this->value = it->second;
+      } else {
+        const auto M = leftSize;
+        const auto N = rightSize;
+        const auto L = commonVariableSize;
+        const auto resultVariableSize = M + N - L;
+        const auto commonBeginIndex = M - L + 1;
+        const auto commonBeginInRightIndex = N - L + 1;
+        const auto rightBeginIndex = M + 1;
+        this->value.resize(resultVariableSize + 1, resultVariableSize + 1);
+        this->value.fill(Bounds(std::numeric_limits<double>::max(), false));
 
-      // Copy the constraints in left
-      this->value.block(0, 0, left.value.cols(), left.value.rows()) = left.value;
+        // Copy the constraints in left
+        this->value.block(0, 0, left.value.cols(), left.value.rows()) = left.value;
 
-      // Take the conjunction with the constraints in the common part of right
-      if (L > 0) {
-        this->value.block(commonBeginIndex, commonBeginIndex, L, L) =
-                this->value.block(commonBeginIndex, commonBeginIndex, L, L).cwiseMin(
-                        right.value.block(commonBeginInRightIndex, commonBeginInRightIndex, L, L));
-        this->value.block(0, commonBeginIndex, 1, L) = this->value.block(0, commonBeginIndex, 1, L).cwiseMin(
-                right.value.block(0, commonBeginInRightIndex, 1, L));
-        this->value.block(commonBeginIndex, 0, L, 1) = this->value.block(commonBeginIndex, 0, L, 1).cwiseMin(
-                right.value.block(commonBeginInRightIndex, 0, L, 1));
+        // Take the conjunction with the constraints in the common part of right
+        if (L > 0) {
+          this->value.block(commonBeginIndex, commonBeginIndex, L, L) =
+                  this->value.block(commonBeginIndex, commonBeginIndex, L, L).cwiseMin(
+                          right.value.block(commonBeginInRightIndex, commonBeginInRightIndex, L, L));
+          this->value.block(0, commonBeginIndex, 1, L) = this->value.block(0, commonBeginIndex, 1, L).cwiseMin(
+                  right.value.block(0, commonBeginInRightIndex, 1, L));
+          this->value.block(commonBeginIndex, 0, L, 1) = this->value.block(commonBeginIndex, 0, L, 1).cwiseMin(
+                  right.value.block(commonBeginInRightIndex, 0, L, 1));
+        }
+
+        this->canonize();
+
+        // Copy the constraints in the right
+        this->value.block(rightBeginIndex, rightBeginIndex, N - L, N - L) = right.value.block(1, 1, N - L, N - L);
+        this->value.block(0, rightBeginIndex, 1, N - L) = right.value.block(0, 1, 1, N - L);
+        this->value.block(rightBeginIndex, 0, N - L, 1) = right.value.block(1, 0, N - L, 1);
+
+        this->canonize();
+
+        // Take the conjunction with the constraints between the common and the unique parts of right
+        if (L > 0) {
+          this->value.block(rightBeginIndex, commonBeginIndex, N - L, L) =
+                  this->value.block(rightBeginIndex, commonBeginIndex, N - L, L).cwiseMin(
+                          right.value.block(1, commonBeginInRightIndex, N - L, L));
+          this->value.block(commonBeginIndex, rightBeginIndex, L, N - L) =
+                  this->value.block(commonBeginIndex, rightBeginIndex, L, N - L).cwiseMin(
+                          right.value.block(commonBeginInRightIndex, 1, L, N - L));
+        }
+
+        this->canonize();
+        memoWithCommon[key] = this->value;
       }
-
-      this->canonize();
-
-      // Copy the constraints in the right
-      this->value.block(rightBeginIndex, rightBeginIndex, N - L, N - L) = right.value.block(1, 1, N - L, N - L);
-      this->value.block(0, rightBeginIndex, 1, N - L) = right.value.block(0, 1, 1, N - L);
-      this->value.block(rightBeginIndex, 0, N - L, 1) = right.value.block(1, 0, N - L, 1);
-
-      this->canonize();
-
-      // Take the conjunction with the constraints between the common and the unique parts of right
-      if (L > 0) {
-        this->value.block(rightBeginIndex, commonBeginIndex, N - L, L) =
-                this->value.block(rightBeginIndex, commonBeginIndex, N - L, L).cwiseMin(
-                        right.value.block(1, commonBeginInRightIndex, N - L, L));
-        this->value.block(commonBeginIndex, rightBeginIndex, L, N - L) =
-                this->value.block(commonBeginIndex, rightBeginIndex, L, N - L).cwiseMin(
-                        right.value.block(commonBeginInRightIndex, 1, L, N - L));
-      }
-
-      this->canonize();
     }
 
     /*!
