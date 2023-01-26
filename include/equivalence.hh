@@ -277,21 +277,29 @@ namespace learnta {
     assert(left.isSimple());
     assert(right.isSimple());
 
-    // 0.1 Compute the concatenations
+    // 0.1. We quickly check if they are clearly not equivalent.
+    if (!std::equal(leftRow.begin(), leftRow.end(), rightRow.begin(), rightRow.end(),
+                    [&] (const auto& leftCell, const auto& rightCell) {
+                        return leftCell.empty() == rightCell.empty();
+                    })) {
+        return std::nullopt;
+    }
+
+    // 0.2 Compute the concatenations
     // left + suffix
     std::vector<TimedCondition> leftConcatenations;
     leftConcatenations.reserve(suffixes.size());
     std::transform(suffixes.begin(), suffixes.end(), std::back_inserter(leftConcatenations), [&] (const auto& suffix) {
         return left.getTimedCondition() + suffix.getTimedCondition();
     });
-    /// right + suffix
+    // right + suffix
     std::vector<TimedCondition> rightConcatenations;
     rightConcatenations.reserve(suffixes.size());
     std::transform(suffixes.begin(), suffixes.end(), std::back_inserter(rightConcatenations), [&] (const auto& suffix) {
         return right.getTimedCondition() + suffix.getTimedCondition();
     });
 
-    // 0.2 Compute the status
+    // 0.3 Compute the status
     std::vector<CellStatus> leftStatus;
     leftStatus.reserve(suffixes.size());
     std::transform(leftConcatenations.begin(), leftConcatenations.end(),
@@ -301,7 +309,7 @@ namespace learnta {
     std::transform(rightConcatenations.begin(), rightConcatenations.end(),
                    rightRow.begin(), std::back_inserter(rightStatus), decideStatus);
 
-    // 0.3. We quickly check if they are clearly not equivalent.
+    // 0.4. We quickly check if their statuses are not equivalent.
     if (!std::equal(leftStatus.begin(), leftStatus.end(), rightStatus.begin(), rightStatus.end())) {
       return std::nullopt;
     }
