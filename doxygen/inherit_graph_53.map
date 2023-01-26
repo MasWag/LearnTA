@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structUnbalancedHypothesis20221220Fixture.html" title=" " alt="" coords="5,5,241,47"/>
+<area shape="rect" id="node1" href="$structUnbalancedFixture.html" title="Fixture of &quot;Unbalanced&quot; benchmark, which is inspired by the unbalanced TRE in [ACM&#39;02]." alt="" coords="51,5,195,32"/>
+<area shape="rect" id="node2" href="$structUnbalancedHypothesis20221219OracleFixture.html" title=" " alt="" coords="289,27,525,69"/>
+<area shape="rect" id="node3" href="$structUnbalancedHypothesis20221219Fixture.html" title=" " alt="" coords="5,57,241,98"/>
 </map>

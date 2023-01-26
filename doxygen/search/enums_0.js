@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['order_557',['Order',['../namespacelearnta.html#a66b60facb93a4fb16c606afa351cc170',1,'learnta']]]
+  ['cellstatus_565',['CellStatus',['../namespacelearnta.html#a1ed521fab0a4e1c9e25f05f9401c8b76',1,'learnta']]]
 ];

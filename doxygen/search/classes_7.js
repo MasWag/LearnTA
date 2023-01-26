@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['juxtaposedzone_298',['JuxtaposedZone',['../classlearnta_1_1JuxtaposedZone.html',1,'learnta']]],
-  ['juxtaposedzoneset_299',['JuxtaposedZoneSet',['../classlearnta_1_1JuxtaposedZoneSet.html',1,'learnta']]]
+  ['juxtaposedzone_303',['JuxtaposedZone',['../classlearnta_1_1JuxtaposedZone.html',1,'learnta']]],
+  ['juxtaposedzoneset_304',['JuxtaposedZoneSet',['../classlearnta_1_1JuxtaposedZoneSet.html',1,'learnta']]]
 ];
