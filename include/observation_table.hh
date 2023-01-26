@@ -95,16 +95,16 @@ namespace learnta {
       // index should not be in P yet
       assert(pIndices.find(index) == pIndices.end());
       // The index should be in a valid range
-      assert(0 <= index && index < prefixes.size());
+      assert(index < prefixes.size());
       pIndices.insert(index);
       // Add successors to the prefixes
       prefixes.reserve(prefixes.size() + alphabet.size() + 1);
       for (Alphabet c: alphabet) {
         discreteSuccessors[std::make_pair(index, c)] = prefixes.size();
-        prefixes.push_back(prefixes.at(index).successor(c));
+        prefixes.emplace_back(prefixes.at(index).successor(c));
       }
       continuousSuccessors[index] = prefixes.size();
-      prefixes.push_back(prefixes.at(index).successor());
+      prefixes.emplace_back(prefixes.at(index).successor());
       // fill the observation table
       refreshTable();
       // index should point P
@@ -119,7 +119,7 @@ namespace learnta {
       }));
       assert(pIndices.find(index) != pIndices.end());
       // the continuous successor of prefixes.at(index) should be in ext(P)
-      assert(0 <= continuousSuccessors.at(index) && continuousSuccessors.at(index) < prefixes.size());
+      assert(continuousSuccessors.at(index) < prefixes.size());
       assert(pIndices.find(continuousSuccessors.at(index)) == pIndices.end());
       // We add continuous successors to P if it is clearly not saturated
       if (!equivalentWithMemo(continuousSuccessors.at(index), index)) {
@@ -194,15 +194,15 @@ namespace learnta {
       auto leftRow = this->table.at(i);
       auto leftConcatenations = this->concatenations.at(i);
       const auto newLeftConcatenation = prefixes.at(i) + newSuffix;
-      leftRow.push_back(this->memOracle->query(newLeftConcatenation));
-      leftConcatenations.push_back(newLeftConcatenation.getTimedCondition());
+      leftRow.emplace_back(this->memOracle->query(newLeftConcatenation));
+      leftConcatenations.emplace_back(newLeftConcatenation.getTimedCondition());
       auto rightRow = this->table.at(j);
       auto rightConcatenations = this->concatenations.at(j);
       const auto newRightConcatenation = prefixes.at(j) + newSuffix;
-      rightRow.push_back(this->memOracle->query(newRightConcatenation));
-      rightConcatenations.push_back(newRightConcatenation.getTimedCondition());
+      rightRow.emplace_back(this->memOracle->query(newRightConcatenation));
+      rightConcatenations.emplace_back(newRightConcatenation.getTimedCondition());
       auto newSuffixes = this->suffixes;
-      newSuffixes.push_back(newSuffix);
+      newSuffixes.emplace_back(newSuffix);
       const auto result = findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow, leftConcatenations,
                                                               this->prefixes.at(j), rightRow, rightConcatenations,
                                                               newSuffixes).has_value();
@@ -220,16 +220,16 @@ namespace learnta {
       auto leftRow = this->table.at(i);
       auto leftConcatenation = this->concatenations.at(i);
       auto newLeftConcatenation = prefixes.at(i) + newSuffix;
-      leftRow.push_back(this->memOracle->query(newLeftConcatenation));
-      leftConcatenation.push_back(newLeftConcatenation.getTimedCondition());
+      leftRow.emplace_back(this->memOracle->query(newLeftConcatenation));
+      leftConcatenation.emplace_back(newLeftConcatenation.getTimedCondition());
       const auto rightPrefix = this->prefixes.at(j);
       auto rightRow = this->table.at(j);
       auto rightConcatenation = this->concatenations.at(j);
       auto newRightConcatenation = prefixes.at(j) + newSuffix;
-      rightRow.push_back(this->memOracle->query(newRightConcatenation));
-      rightConcatenation.push_back(newRightConcatenation.getTimedCondition());
+      rightRow.emplace_back(this->memOracle->query(newRightConcatenation));
+      rightConcatenation.emplace_back(newRightConcatenation.getTimedCondition());
       auto newSuffixes = this->suffixes;
-      newSuffixes.push_back(newSuffix);
+      newSuffixes.emplace_back(newSuffix);
 
       return equivalence(leftPrefix, leftRow, leftConcatenation,
                          rightPrefix, rightRow, rightConcatenation,
@@ -246,9 +246,9 @@ namespace learnta {
       auto tmpSuffixes = this->suffixes;
       tmpSuffixes.reserve(tmpSuffixes.size() + newSuffixes.size());
       for (const auto &newSuffix: newSuffixes) {
-        leftRow.push_back(this->memOracle->query(prefixes.at(i) + newSuffix));
-        rightRow.push_back(this->memOracle->query(prefixes.at(j) + newSuffix));
-        tmpSuffixes.push_back(newSuffix);
+        leftRow.emplace_back(this->memOracle->query(prefixes.at(i) + newSuffix));
+        rightRow.emplace_back(this->memOracle->query(prefixes.at(j) + newSuffix));
+        tmpSuffixes.emplace_back(newSuffix);
       }
 
       return findDeterministicEquivalentRenaming(this->prefixes.at(i), leftRow,
@@ -433,7 +433,7 @@ namespace learnta {
       }
       const auto newSuffix = it->predecessor(action);
       LOG_REFINEMENT_INFO << "New suffix " << newSuffix << " is added";
-      suffixes.push_back(newSuffix);
+      suffixes.emplace_back(newSuffix);
 
       this->refreshTable();
       // i and j should not be equivalent after adding the new suffix
@@ -460,7 +460,7 @@ namespace learnta {
       }
       const auto newSuffix = it->predecessor();
       LOG_REFINEMENT_INFO << "New suffix " << newSuffix << " is added";
-      suffixes.push_back(newSuffix);
+      suffixes.emplace_back(newSuffix);
 
       this->refreshTable();
       // i and j should not be equivalent after adding the new suffix
@@ -488,9 +488,9 @@ namespace learnta {
       std::vector<ElementaryLanguage> final;
       for (std::size_t i = 0; i < this->prefixes.size(); ++i) {
         if (this->inP(i)) {
-          P.push_back(this->prefixes.at(i));
+          P.emplace_back(this->prefixes.at(i));
           if (this->isMatch(i)) {
-            final.push_back(this->prefixes.at(i));
+            final.emplace_back(this->prefixes.at(i));
           }
         }
       }
@@ -570,7 +570,7 @@ namespace learnta {
         }
         LOG_REFINEMENT_INFO << "Observation table is exterior-inconsistent because of "
                                  << this->prefixes.at(successorIndex);
-        newP.push_back(successorIndex);
+        newP.emplace_back(successorIndex);
       }
       if (newP.empty()) {
         return true;
@@ -620,7 +620,7 @@ namespace learnta {
         }
         LOG_REFINEMENT_INFO << "Observation table is not time-saturated because of "
                                  << this->prefixes.at(successorIndex);
-        newP.push_back(successorIndex);
+        newP.emplace_back(successorIndex);
       }
       if (newP.empty()) {
         return true;
@@ -679,7 +679,7 @@ namespace learnta {
                             if (!equivalent(i, rootIndex, newSuffix, rootRenaming) ||
                                 !equivalent(currentIndex, indexAfterMap, newSuffix, renaming)) {
                               LOG_REFINEMENT_INFO << "renameConsistent: New suffix " << newSuffix << " is added";
-                              this->suffixes.push_back(newSuffix);
+                              this->suffixes.emplace_back(newSuffix);
                               this->refreshTable();
                               return false;
                             }
@@ -689,7 +689,7 @@ namespace learnta {
                                   !equivalent(currentIndex, indexAfterMap, newSuffix2, renaming)) {
                                 LOG_REFINEMENT_INFO << "renameConsistent: New suffix " << newSuffix2
                                                          << " is added";
-                                this->suffixes.push_back(newSuffix2);
+                                this->suffixes.emplace_back(newSuffix2);
                                 this->refreshTable();
                                 return false;
                               }
@@ -720,7 +720,7 @@ namespace learnta {
       if (newSuffixOpt) {
         LOG_REFINEMENT_INFO << "New suffix " << *newSuffixOpt << " is added";
         auto newSuffix = BackwardRegionalElementaryLanguage::fromTimedWord(*newSuffixOpt);
-        suffixes.push_back(std::move(newSuffix));
+        suffixes.emplace_back(std::move(newSuffix));
         this->refreshTable();
       } else {
         LOG_REFINEMENT_INFO << "Failed to find a new suffix. We add prefixes to P";
@@ -819,7 +819,7 @@ namespace learnta {
         if (it == stateToIndices.end()) {
           stateToIndices[state] = {index};
         } else {
-          it->second.push_back(index);
+          it->second.emplace_back(index);
         }
       }
     };
@@ -845,7 +845,7 @@ namespace learnta {
         auto state = std::make_shared<TAState>(this->isMatch(index));
         assert(stateManager.isNew(state));
         stateManager.add(state, index);
-        states.push_back(state);
+        states.emplace_back(state);
 
         return state;
       };
@@ -1102,7 +1102,7 @@ namespace learnta {
                     jumpedSourceCondition);
           assert(maker.make().size() == 1);
           // TODO: Consider adding neighbors
-          sourceState->next[UNOBSERVABLE].push_back(maker.make().front());
+          sourceState->next[UNOBSERVABLE].emplace_back(maker.make().front());
         }
       }
 #ifdef DEBUG
@@ -1123,7 +1123,7 @@ namespace learnta {
       needSplit.reserve(states.size());
       for (const auto &state: states) {
         if (state->needSplitting()) {
-          needSplit.push_back(state.get());
+          needSplit.emplace_back(state.get());
         }
       }
 #ifdef DEBUG
@@ -1135,7 +1135,7 @@ namespace learnta {
       if (!needSplit.empty()) {
         BOOST_LOG_TRIVIAL(info) << "We conduct state splitting to keep it deterministic";
         BOOST_LOG_TRIVIAL(info) << "# of states before splitting: " << states.size();
-        this->splitStates(states, initialState, needSplit);
+        learnta::ObservationTable::splitStates(states, initialState, needSplit);
         BOOST_LOG_TRIVIAL(info) << "# of states after splitting: " << states.size();
 #ifdef DEBUG
         BOOST_LOG_TRIVIAL(debug) << "Hypothesis after state splitting\n"

@@ -672,11 +672,11 @@ namespace learnta {
           for (const auto currentV2: v1Edges.at(v1)) {
             const auto currentEdge = std::make_pair(currentV1, currentV2);
             for (const auto &candidate: candidates) {
-              tmp.push_back(candidate);
-              tmp.push_back(candidate);
-              tmp.back().push_back(currentEdge);
+              tmp.emplace_back(candidate);
+              tmp.emplace_back(candidate);
+              tmp.back().emplace_back(currentEdge);
               tmp.emplace_back();
-              tmp.back().push_back(currentEdge);
+              tmp.back().emplace_back(currentEdge);
             }
           }
         }
@@ -730,7 +730,7 @@ namespace learnta {
               if (equivalence(left, leftRow, right, rightRow, suffixes, newCandidate)) {
                 return std::make_optional(newCandidate);
               } else {
-                candidates.push_back(newCandidate);
+                candidates.emplace_back(std::move(newCandidate));
               }
             }
           }
