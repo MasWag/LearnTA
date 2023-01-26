@@ -159,12 +159,22 @@ namespace learnta {
    /*!
     * @brief Construct candidate renaming relations that are deterministic, i.e., the corresponding reset only makes precise clocks
     *
+    * @param left The left timed condition in the renaming
     * @param right The right timed condition in the renaming
+    * @param leftConstrained The variables strictly constrained in mem(left ・ suffix)
+    * @param rightConstrained The variables strictly constrained in mem(right ・ suffix)
     * @param graph The renaming graph
+    *
+    * @pre leftConstrained and rightConstrained are strictly ascending.
     */
    static inline std::vector<RenamingRelation> generateDeterministicCandidates(const TimedCondition& left,
                                                                                const TimedCondition& right,
+                                                                               const std::vector<std::size_t>& leftConstrained,
+                                                                               const std::vector<std::size_t>& rightConstrained,
                                                                                const RenamingGraph& graph) {
+     // Assert the preconditions
+     assert(is_strict_ascending(leftConstrained));
+     assert(is_strict_ascending(rightConstrained));
      std::vector<RenamingRelation> candidates;
      // We first generate full candidates
      candidates.emplace_back();
@@ -183,9 +193,11 @@ namespace learnta {
          } else {
            // The least value of the corresponding node
            const std::size_t lowerBound = candidate.empty() ? 0 : (candidate.back().first + 1);
+           const bool constrained = std::binary_search(rightConstrained.begin(), rightConstrained.end(), j);
            for (const auto& i: graph.second.at(j)) {
              // We skip if i - 1 and i has the same value
-             if (i >= lowerBound && (i == 0 || left.getUpperBound(i - 1, i - 1) != Bounds{0, true})) {
+             if (i >= lowerBound && constrained == std::binary_search(leftConstrained.begin(), leftConstrained.end(), i) &&
+                 (i == 0 || left.getUpperBound(i - 1, i - 1) != Bounds{0, true})) {
                auto tmpCandidate = candidate;
                tmpCandidate.emplace_back(i, j);
                newCandidates.emplace_back(std::move(tmpCandidate));
@@ -246,6 +258,47 @@ namespace learnta {
        } else {
            return CellStatus::middle;
        }
+   }
+
+   /*!
+    * @brief Return the constrained variables in the symbolic membership
+    *
+    * @param leftRow mem(left ・ suffix)
+    * @param rightRow mem(right ・ suffix)
+    * @param leftConcatenations left ・ suffix
+    * @param rightConcatenations right ・ suffix
+    * @param N |left|
+    * @param M |right|
+    *
+    * @return The constrained variables in strictly ascending order
+    */
+   static inline std::pair<std::vector<std::size_t>, std::vector<std::size_t>>
+   makeConstrainedVariables(const std::vector<TimedConditionSet> &leftRow,
+                            const std::vector<TimedConditionSet> &rightRow,
+                            const std::vector<TimedCondition> &leftConcatenations,
+                            const std::vector<TimedCondition> &rightConcatenations,
+                            const std::size_t N,
+                            const std::size_t M) {
+       std::vector<std::size_t> constrainedV1, constrainedV2;
+       constrainedV1.reserve(N * leftRow.size());
+       constrainedV2.reserve(M * rightRow.size());
+       for (std::size_t i = 0; i < leftRow.size(); ++i) {
+           auto currentV1Constrained =
+                   leftRow.at(i).getStrictlyConstrainedVariables(leftConcatenations.at(i), N);
+           auto currentV2Constrained =
+                   rightRow.at(i).getStrictlyConstrainedVariables(rightConcatenations.at(i), M);
+           std::move(currentV1Constrained.begin(), currentV1Constrained.end(), std::back_inserter(constrainedV1));
+           std::move(currentV2Constrained.begin(), currentV2Constrained.end(), std::back_inserter(constrainedV2));
+       }
+       std::sort(constrainedV1.begin(), constrainedV1.end());
+       constrainedV1.erase(std::unique(constrainedV1.begin(), constrainedV1.end()), constrainedV1.end());
+       std::sort(constrainedV2.begin(), constrainedV2.end());
+       constrainedV2.erase(std::unique(constrainedV2.begin(), constrainedV2.end()), constrainedV2.end());
+
+       assert(is_strict_ascending(constrainedV1));
+       assert(is_strict_ascending(constrainedV2));
+
+       return std::make_pair(constrainedV1, constrainedV2);
    }
 
   /*!
@@ -322,10 +375,19 @@ namespace learnta {
     // 2. Construct the bipartite graph based on the timed conditions.
     const auto graph = toGraph(left.getTimedCondition(), right.getTimedCondition());
 
-    // 3. Construct the candidate renaming equations
-    auto candidates = generateDeterministicCandidates(left.getTimedCondition(), right.getTimedCondition(), graph);
+    // 3. Construct the strictly constrained variables
+    const auto& [leftConstrained, rightConstrained] = makeConstrainedVariables(leftRow, rightRow,
+                                                                               leftConcatenations, rightConcatenations,
+                                                                               left.wordSize() + 1,
+                                                                               right.wordSize() + 1);
+    // 4. Construct the candidate renaming equations
+    auto candidates = generateDeterministicCandidates(left.getTimedCondition(),
+                                                      right.getTimedCondition(),
+                                                      leftConstrained,
+                                                      rightConstrained,
+                                                      graph);
 
-    // 4. Find an equivalent renaming equation
+    // 5. Find an equivalent renaming equation
     const auto leftRightJuxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
     // Add implicit constraints
     std::for_each(candidates.begin(), candidates.end(), [&] (auto &candidate) {
