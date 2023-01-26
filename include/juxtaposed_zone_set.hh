@@ -32,7 +32,7 @@ namespace learnta {
       zones.resize(left.size());
       std::transform(left.getConditions().begin(), left.getConditions().end(), zones.begin(),
                      [&](const TimedCondition &condition) {
-                       return condition.juxtaposeRight(right, commonVariableSize);
+                       return condition.juxtaposeRight(right, static_cast<Eigen::Index>(commonVariableSize));
                      });
     }
 
@@ -46,7 +46,7 @@ namespace learnta {
       zones.resize(right.size());
       std::transform(right.getConditions().begin(), right.getConditions().end(), zones.begin(),
                      [&](const TimedCondition &condition) {
-                       return condition.juxtaposeLeft(left, commonVariableSize);
+                       return condition.juxtaposeLeft(left, static_cast<Eigen::Index>(commonVariableSize));
                      });
     }
 
@@ -56,7 +56,7 @@ namespace learnta {
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
       for (auto it = this->zones.begin(); it != this->zones.end();) {
         it->addRenaming(renaming);
-        if (it->isSatisfiable()) {
+        if (it->isSatisfiableNoCanonize()) {
           it++;
         } else {
           it = this->zones.erase(it);

@@ -121,6 +121,7 @@ namespace learnta {
      * @param renaming The renaming relation to be added
      *
      * @pre for any (left, right) \in renaming, we have 0 <= left < leftSize and 0 <= right < rightSize
+     * @post The zone is canonized
      */
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
       for (const auto &[leftClock, rightClock]: renaming) {

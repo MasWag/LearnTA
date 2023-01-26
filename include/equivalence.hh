@@ -38,20 +38,20 @@ namespace learnta {
     // Check the compatibility of prefixes up to renaming
     auto juxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
     juxtaposition.addRenaming(renaming);
-    if (!juxtaposition) {
+    if (!juxtaposition.isSatisfiableNoCanonize()) {
       return false;
     }
     // Check the compatibility of symbolic membership up to renaming
     for (std::size_t i = 0; i < leftRow.size(); ++i) {
       const auto leftConcatenation = left + suffixes.at(i);
       const auto rightConcatenation = right + suffixes.at(i);
-      auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(i),
-                                                 rightConcatenation.getTimedCondition(),
-                                                 suffixes.at(i).wordSize()};
+      JuxtaposedZoneSet leftJuxtaposition {leftRow.at(i),
+                                           rightConcatenation.getTimedCondition(),
+                                           suffixes.at(i).wordSize()};
       leftJuxtaposition.addRenaming(renaming);
-      auto rightJuxtaposition = JuxtaposedZoneSet{leftConcatenation.getTimedCondition(),
-                                                  rightRow.at(i),
-                                                  suffixes.at(i).wordSize()};
+      JuxtaposedZoneSet rightJuxtaposition {leftConcatenation.getTimedCondition(),
+                                            rightRow.at(i),
+                                            suffixes.at(i).wordSize()};
       rightJuxtaposition.addRenaming(renaming);
       if (leftJuxtaposition != rightJuxtaposition) {
         return false;
@@ -87,14 +87,14 @@ namespace learnta {
     // Check the compatibility of prefixes up to renaming
     auto juxtaposition = left.getTimedCondition() ^ right.getTimedCondition();
     juxtaposition.addRenaming(renaming);
-    if (!juxtaposition) {
+    if (!juxtaposition.isSatisfiableNoCanonize()) {
       return false;
     }
     // Check the compatibility of symbolic membership up to renaming
     for (std::size_t i = 0; i < leftRow.size(); ++i) {
-      auto leftJuxtaposition = JuxtaposedZoneSet{leftRow.at(i), rightConcatenation.at(i), suffixes.at(i).wordSize()};
+      JuxtaposedZoneSet leftJuxtaposition{leftRow.at(i), rightConcatenation.at(i), suffixes.at(i).wordSize()};
       leftJuxtaposition.addRenaming(renaming);
-      auto rightJuxtaposition = JuxtaposedZoneSet{leftConcatenation.at(i), rightRow.at(i), suffixes.at(i).wordSize()};
+      JuxtaposedZoneSet rightJuxtaposition{leftConcatenation.at(i), rightRow.at(i), suffixes.at(i).wordSize()};
       rightJuxtaposition.addRenaming(renaming);
       if (leftJuxtaposition != rightJuxtaposition) {
         return false;
