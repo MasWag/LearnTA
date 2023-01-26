@@ -189,6 +189,7 @@ namespace learnta {
      * @brief Juxtapose two timed conditions
      *
      * @sa JuxtaposedZone::JuxtaposedZone
+     * @post The resulting JuxtaposedZone is canonical
      */
     [[nodiscard]] JuxtaposedZone operator^(const TimedCondition &another) const {
       return JuxtaposedZone{this->zone, another.zone};

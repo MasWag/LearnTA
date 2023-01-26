@@ -26,6 +26,7 @@ namespace learnta {
      * @brief Juxtapose with variable renaming
      *
      * @sa JuxtaposedZone::JuxtaposedZone
+     * @post All the resulting JuxtaposedZone is canonical
      */
     JuxtaposedZoneSet(const TimedConditionSet &left, const TimedCondition &right,
                       const std::size_t commonVariableSize) {
@@ -40,6 +41,7 @@ namespace learnta {
      * @brief Juxtapose with variable renaming
      *
      * @sa JuxtaposedZone::JuxtaposedZone
+     * @post All the resulting JuxtaposedZone is canonical
      */
     JuxtaposedZoneSet(const TimedCondition &left, const TimedConditionSet &right,
                       const std::size_t commonVariableSize) {

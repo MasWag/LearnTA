@@ -121,9 +121,12 @@ namespace learnta {
      * @param renaming The renaming relation to be added
      *
      * @pre for any (left, right) \in renaming, we have 0 <= left < leftSize and 0 <= right < rightSize
+     * @pre The zone is canonized
      * @post The zone is canonized
      */
     void addRenaming(const std::vector<std::pair<std::size_t, std::size_t>> &renaming) {
+      std::vector<ClockVariables> modifiedVariables;
+      modifiedVariables.reserve(renaming.size() * 2);
       for (const auto &[leftClock, rightClock]: renaming) {
         // Assert the pre-condition
         assert(leftClock < static_cast<std::size_t>(leftSize));
@@ -133,8 +136,13 @@ namespace learnta {
         Eigen::Index rightIndex = static_cast<Eigen::Index>(rightClock) + leftSize + 1;
         this->value(leftIndex, rightIndex) = std::min(this->value(leftIndex, rightIndex), {0, true});
         this->value(rightIndex, leftIndex) = std::min(this->value(rightIndex, leftIndex), {0, true});
+        modifiedVariables.push_back(leftIndex);
+        modifiedVariables.push_back(rightIndex);
       }
-      this->canonize();
+      // this->canonize();
+      for (const ClockVariables modifiedVariable: modifiedVariables) {
+        this->close1(modifiedVariable);
+      }
     }
 
     //! @brief Make renaming constraints
