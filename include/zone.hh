@@ -404,7 +404,7 @@ namespace learnta {
      * @note We assume that the diagonal elements are equal.
      */
     bool operator==(const Zone &z) const {
-      return value == z.value;
+      return value.cols() == z.value.cols() && value == z.value;
     }
 
     /*!

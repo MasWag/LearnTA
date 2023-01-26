@@ -589,11 +589,11 @@ namespace learnta {
     }
 
     bool operator==(const TimedCondition &condition) const {
-      return this->zone.strictEqual(condition.zone);
+      return this->size() == condition.size() && this->zone.strictEqual(condition.zone);
     }
 
     bool operator!=(const TimedCondition &condition) const {
-      return !this->zone.strictEqual(condition.zone);
+      return this->size() != condition.size() || !this->zone.strictEqual(condition.zone);
     }
 
     /*!
