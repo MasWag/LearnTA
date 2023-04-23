@@ -1,7 +1,7 @@
 /*!
   @mainpage LearnTA Documentation
 
-  This is the documentation for LearnTA --- A C++ library for active learning of deterministic timed automata.
+  This is the documentation for LearnTA --- A C++ library for active learning of deterministic timed automata. See @ref md_doc_usage for a usage.
 
   @section Installation
 

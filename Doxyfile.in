@@ -8,8 +8,9 @@ INPUT                  = @doxy_main_page@ \
 FILE_PATTERNS          = *.hh \
                          *.cc \
                          *.dox \
-                         FORMATS2022Artifact.md
+                         usage.md
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = @doxy_main_page@
 USE_MATHJAX            = YES
 EXTRACT_STATIC         = YES
+MARKDOWN_SUPPORT = YES
