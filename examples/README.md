@@ -3,13 +3,24 @@ Examples
 
 This directory contains example usage of LearnTA.
 
-Files
-------
+Major files and directories
+---------------------------
 
-Each `.cc` file contains one example.
+The following files and directories are relevant to reproduce the result in our paper [Waga'23]. Please execute `git submodule update --init` if `OTALearning` and `DOTALearningSMT` are empty.
 
 - learn_simple_dta.cc
-  - The running example in our paper.
+    - The running example in our paper.
+- learn_ota_json.cc
+    - Learn a DTA from a JSON file representing the target DOTA in the format used in `OTALearning` and `DOTALearningSMT`.
+- learn_unbalanced_loop.cc
+    - The `Unbalanced` benchmark
+- `OTALearning`
+    - Directory containing the artifact of [ACZZZ'20]. Some of the benchmarks are taken from it.
+- `DOTALearningSMT`
+    - Directory containing the artifact of [XAZ'22]. This is the baseline implementation used in our experiments. Moreover, some of the benchmarks are taken from it.
+
+The following files are not used in the experiments in [Waga'23] but demonstrating the usage of LearnTA.
+
 - learn_light.cc
   - The `light` benchmark taken from [[APT'20]](https://doi.org/10.1007/978-3-030-55754-6_1).
 - learn_CAS.cc
@@ -17,37 +28,107 @@ Each `.cc` file contains one example.
 - learn_PC.cc
   - The `PC` benchmark taken from [[APT'20]](https://doi.org/10.1007/978-3-030-55754-6_1).
 
+Building the examples
+---------------------
+
+These examples can also be built in the same way as LearnTA.
+
+```sh
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_<NAME>
+../build/examples/learn_<NAME>
+```
+
 Usage
 -----
 
+Most of the examples can be run by executing the built file. For example, `learn_simple_dta` can be executed as follows.
+
 ```sh
-mkdir -p ../build
-cd ../build && cmake -DCMAKE_BUILD_TYPE=Release .. && make learn_<NAME>
-./examples/learn_<NAME>
+# The first two lines are unnecessary if learn_simple_dta is already built.
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_simple_dta
+../build/examples/learn_simple_dta
 ```
 
-How to reproduce the experiment result
---------------------------------------
-
-Here, we show how to reproduce the experiment result in our paper, i.e., Table 1 of [Waga'22].
-
-First, build the binaries following the above instruction.
+`learn_ota_json` takes a path to the JSON file to use. For example, the DOTA `3_2_10-1.json` can be learned as follows.
 
 ```sh
-mkdir -p ../build
-cd ../build && cmake -DCMAKE_BUILD_TYPE=Release .. && make learn_simple_dta learn_light learn_CAS learn_PC
+# The first two lines are unnecessary if learn_ota_json is already built.
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_ota_json
+../build/examples/learn_ota_json ./OTALearning/experiments/3_2_10/3_2_10-1.json
 ```
 
-Then, run each benchmark 30 times. You can manually run each benchmark if you want, but the following shell script automatically runs all the experiments.
+When you use the JSON files under `DOTALearningSMT`, you first have to rename the alphabet. That can be done by as follows using jq.
+
+```bash
+for json in ./DOTALearningSMT/examples/DOTA/OTAs/*.json; do 
+    jq '.sigma as $sigma | (.tran |= with_entries(.value[1] = (.value[1] as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))]))) | (.sigma |= map(. as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))])) | .' "$json" > ${json##*/}
+done
+```
+
+`learn_unbalanced_loop` takes the number of locations and the clock variables of the DTA, and the parameter to scale the maximum constraints. For example, the DTA `Unbalanced:3` in [Waga'23] can be learned as follows.
 
 ```sh
-for benchmark in simple_dta light CAS PC; do
-    for i in $(seq 30); do
-        ./examples/learn_${benchmark} > ../examples/logs/${benchmark}-$i.log ;
+# The first two lines are unnecessary if learn_unbalanced_loop is already built.
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_unbalanced_loop
+../build/examples/learn_unbalanced_loop 5 3 1
+```
+
+How to reproduce the experiment results
+---------------------------------------
+
+Here, we show how to reproduce some of the experiment results in our paper. Please see https://github.com/MasWag/LearnTA-ae for a more elaborated instructions and materials.
+
+First, build the executable files following the above instruction.
+
+```sh
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_ota_json learn_unbalanced_loop
+```
+
+Then, run each benchmark 30 times. You can manually run each benchmark if you want, but the following shell scripts automatically run all the experiments.
+
+```sh
+## Run all the benchmarks from OTALearning
+mkdir -p logs
+## You may want to exclude 4_4_20 because it takes very long time.
+for benchmark in 3_2_10 4_2_10 4_4_20 5_2_10 6_2_10; do
+    for json in "./OTALearning/experiments/$benchmark/"*.json; do
+        ## You may want to decrease the number of repetition to reduce the time
+        for i in $(seq 30); do
+            ../build/examples/learn_ota_json $json > logs/${json##*/}-$i.log
+        done
     done
 done
 ```
 
+```sh
+## Run all the benchmarks from DOTALearningSMT
+mkdir -p logs
+for json in ./DOTALearningSMT/examples/DOTA/OTAs/*.json; do 
+    jq '.sigma as $sigma | (.tran |= with_entries(.value[1] = (.value[1] as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))]))) | (.sigma |= map(. as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))])) | .' "$json" > ${json##*/}
+    ## You may want to decrease the number of repetition to reduce the time
+    for i in $(seq 30); do
+        ../build/examples/learn_ota_json ${json##*/} > logs/${json##*/}-$i.log
+    done
+done
+```
+
+```sh
+## Run the Unbalanced benchmark
+mkdir -p logs
+for clock in $(seq 1 5); do 
+    ## You may want to decrease the number of repetition to reduce the time
+    for i in $(seq 30); do
+        ../build/examples/learn_unbalanced_loop 5 $clock 1 > logs/unbalanced-$clock-$i.log
+    done
+done
+```
+
+<!--
 You can summarize the experiment result by standard command line tools. The following shows an example.
 
 ```sh
@@ -62,9 +143,12 @@ for benchmark in simple_dta light CAS PC; do
     awk '/Execution Time/{sum += $3;count +=1} END {print "Mean exec. time [ms]: " sum/count}' ../examples/logs/${benchmark}-*.log
 done
 ```
+-->
 
 References
 -----------
 
+- [ACZZZ'20]: An, J., Chen, M., Zhan, B., Zhan, N., Zhang, M. (2020). Learning One-Clock Timed Automata. In: Biere, A., Parker, D. (eds) Tools and Algorithms for the Construction and Analysis of Systems. TACAS 2020.
+- [XAZ'22]: Xu, R., An, J., Zhan, B. (2022). Active Learning of One-Clock Timed Automata Using Constraint Solving. In: Bouajjani, A., Holík, L., Wu, Z. (eds) Automated Technology for Verification and Analysis. ATVA 2022.
 - [APT'20]: Aichernig, Bernhard K., Andrea Pferscher, and Martin Tappler. "From passive to active: learning timed automata efficiently." NASA Formal Methods Symposium. Springer, Cham, 2020.
-- [Waga'22]: Waga, Masaki. "L*-Style Active Learning of Deterministic Timed Automata."
+- [Waga'23]: Waga, Masaki. "Active Learning of Deterministic Timed Automata with Myhill-Nerode Style Characterization." To appear in Proc. CAV 2023.
