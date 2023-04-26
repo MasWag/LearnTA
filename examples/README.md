@@ -14,6 +14,9 @@ The following files and directories are relevant to reproduce the result in our 
     - Learn a DTA from a JSON file representing the target DOTA in the format used in `OTALearning` and `DOTALearningSMT`.
 - learn_unbalanced_loop.cc
     - The `Unbalanced` benchmark
+- learn_fddi.cc
+    - The `FDDI` benchmark
+    - Note: it takes a "scaling parameter" to change the complexity of the benchmark. The default parameter 20 is extremely complex. We used the parameter 1 in the paper.
 - `OTALearning`
     - Directory containing the artifact of [ACZZZ'20]. Some of the benchmarks are taken from it.
 - `DOTALearningSMT`
@@ -77,6 +80,15 @@ cmake --build ../build -- learn_unbalanced_loop
 ../build/examples/learn_unbalanced_loop 5 3 1
 ```
 
+`learn_fddi` takes the parameter to scale the maximum constraints. For example, the DTA `FDDI` in [Waga'23] can be learned as follows.
+
+```sh
+# The first two lines are unnecessary if learn_unbalanced_loop is already built.
+cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build -- learn_fddi
+../build/examples/learn_fddi 1
+```
+
 How to reproduce the experiment results
 ---------------------------------------
 
@@ -86,10 +98,10 @@ First, build the executable files following the above instruction.
 
 ```sh
 cmake -S .. -B ../build -DCMAKE_BUILD_TYPE=Release
-cmake --build ../build -- learn_ota_json learn_unbalanced_loop
+cmake --build ../build -- learn_ota_json learn_unbalanced_loop learn_fddi
 ```
 
-Then, run each benchmark 30 times. You can manually run each benchmark if you want, but the following shell scripts automatically run all the experiments.
+Then, run each benchmark. You can manually run each benchmark if you want, but the following shell scripts automatically run all the experiments.
 
 ```sh
 ## Run all the benchmarks from OTALearning
@@ -97,10 +109,7 @@ mkdir -p logs
 ## You may want to exclude 4_4_20 because it takes very long time.
 for benchmark in 3_2_10 4_2_10 4_4_20 5_2_10 6_2_10; do
     for json in "./OTALearning/experiments/$benchmark/"*.json; do
-        ## You may want to decrease the number of repetition to reduce the time
-        for i in $(seq 30); do
-            ../build/examples/learn_ota_json $json > logs/${json##*/}-$i.log
-        done
+        ../build/examples/learn_ota_json $json > logs/${json##*/}.log
     done
 done
 ```
@@ -110,10 +119,7 @@ done
 mkdir -p logs
 for json in ./DOTALearningSMT/examples/DOTA/OTAs/*.json; do 
     jq '.sigma as $sigma | (.tran |= with_entries(.value[1] = (.value[1] as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))]))) | (.sigma |= map(. as $event | "abcdefghijklmnopqrstuvwxyz" | split("")[($sigma | index($event))])) | .' "$json" > ${json##*/}
-    ## You may want to decrease the number of repetition to reduce the time
-    for i in $(seq 30); do
-        ../build/examples/learn_ota_json ${json##*/} > logs/${json##*/}-$i.log
-    done
+    ../build/examples/learn_ota_json ${json##*/} > logs/${json##*/}.log
 done
 ```
 
@@ -121,11 +127,14 @@ done
 ## Run the Unbalanced benchmark
 mkdir -p logs
 for clock in $(seq 1 5); do 
-    ## You may want to decrease the number of repetition to reduce the time
-    for i in $(seq 30); do
-        ../build/examples/learn_unbalanced_loop 5 $clock 1 > logs/unbalanced-$clock-$i.log
-    done
+    ../build/examples/learn_unbalanced_loop 5 $clock 1 > logs/unbalanced-$clock-$i.log
 done
+```
+
+```sh
+## Run the FDDI benchmark
+mkdir -p logs
+../build/examples/learn_fddi 1 > logs/fddi.log
 ```
 
 <!--
