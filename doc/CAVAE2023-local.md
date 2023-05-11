@@ -54,7 +54,7 @@ How to replicate the experiment results
    - `run_LearnTA-large.sh` for benchmarks other than `4_4_20` and `FDDI`
        - This takes about 40 minutes.
        - This works on a virtual machine with at least 32 GiB of RAM.
-   - `run_LearnTA-middle.sh` for benchmarks other than `4_4_20`
+   - `run_LearnTA-middle.sh` for benchmarks other than `4_4_20`, `FDDI`, and `Unbalanced` with clock size 5.
        - This also takes about 40 minutes.
        - This works on a virtual machine with at least 16 GiB of RAM.
    - `run_LearnTA-small.sh` for benchmarks other than `4_4_20`, `Unbalanced`, and `FDDI`
