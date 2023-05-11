@@ -36,11 +36,11 @@ for benchmark in $benchmarks; do
             filename=${json##*/}
             $TIMEOUT python "${ROOT}/../examples/runDOTALearningSMT.py" $json | tee "$LOG_DIR/${filename/.json/}.log"
         done
-    elif [ ${benchmark@U} == LIGHT ]; then
+    elif [ $(echo ${benchmark} | tr [a-z] [A-Z]) == LIGHT ]; then
         $TIMEOUT python "${ROOT}/../examples/runDOTALearningSMT.py" "$ATVA_BENCHMARK_ROOT/Light.json" | tee "$LOG_DIR/Light.log"
-    elif [ ${benchmark@U} == TRAIN ]; then
+    elif [ $(echo ${benchmark} | tr [a-z] [A-Z]) == TRAIN ]; then
         $TIMEOUT python "${ROOT}/../examples/runDOTALearningSMT.py" "$ATVA_BENCHMARK_ROOT/Train.json" | tee "$LOG_DIR/Train.log"
     else
-        $TIMEOUT python "${ROOT}/../examples/runDOTALearningSMT.py" "$ATVA_BENCHMARK_ROOT/${benchmark@U}.json" | tee "$LOG_DIR/${benchmark@U}.log"
+        $TIMEOUT python "${ROOT}/../examples/runDOTALearningSMT.py" "$ATVA_BENCHMARK_ROOT/$(echo ${benchmark} | tr [a-z] [A-Z]).json" | tee "$LOG_DIR/$(echo ${benchmark} | tr [a-z] [A-Z]).log"
     fi
 done
