@@ -1,0 +1,77 @@
+diff --git a/equivalence.py b/equivalence.py
+index 8a514ac..fc48e9f 100644
+--- a/equivalence.py
++++ b/equivalence.py
+@@ -6,8 +6,8 @@ one-clock timed automata.
+ import copy
+ from decimal import Decimal
+ 
+-from ota import TimedWord
+-from interval import Interval, zero_point_region
++from .ota import TimedWord
++from .interval import Interval, zero_point_region
+ 
+ 
+ def round_div_2(r):
+diff --git a/equivalence_simple.py b/equivalence_simple.py
+index 4f59611..d32fbba 100644
+--- a/equivalence_simple.py
++++ b/equivalence_simple.py
+@@ -6,8 +6,8 @@ timed automata.
+ import queue
+ from decimal import Decimal
+ 
+-import ota
+-import interval
++from . import ota
++from . import interval
+ 
+ def round_div_2(r):
+     """r is of the form 0.xxxn. If n is even, return 0.xxx(n/2).
+diff --git a/learner.py b/learner.py
+index dc58bfb..604f65a 100644
+--- a/learner.py
++++ b/learner.py
+@@ -2,9 +2,9 @@
+ 
+ import pprint
+ 
+-from ota import Location, TimedWord, OTA, OTATran, buildAssistantOTA
+-from interval import Interval
+-from equivalence import ota_equivalent
++from .ota import Location, TimedWord, OTA, OTATran, buildAssistantOTA
++from .interval import Interval
++from .equivalence import ota_equivalent
+ 
+ 
+ def isSameRegion(t1, t2):
+diff --git a/ota.py b/ota.py
+index 39a624d..af1ba96 100644
+--- a/ota.py
++++ b/ota.py
+@@ -2,7 +2,7 @@
+ 
+ import json
+ from graphviz import Digraph
+-from interval import Interval, complement_intervals
++from .interval import Interval, complement_intervals
+ 
+ 
+ class Location:
+diff --git a/smart_learner.py b/smart_learner.py
+index 490e5f0..5c71d83 100644
+--- a/smart_learner.py
++++ b/smart_learner.py
+@@ -1,8 +1,8 @@
+ import pprint
+-from ota import Location, TimedWord, OTA, OTATran, buildAssistantOTA, OTAToJSON, OTAToDOT
+-from interval import Interval
+-from equivalence import ota_equivalent
+-from equivalence_simple import OTAEquivalence
++from .ota import Location, TimedWord, OTA, OTATran, buildAssistantOTA, OTAToJSON, OTAToDOT
++from .interval import Interval
++from .equivalence import ota_equivalent
++from .equivalence_simple import OTAEquivalence
+ import copy
+ import z3
+ from os.path import commonprefix
