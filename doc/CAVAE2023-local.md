@@ -14,7 +14,11 @@ Requirements
 * Boost (>= 1.59)
 * Eigen
 * CMake
-* Python 3 and venv (for DOTALearningSMT)
+* Doxygen (to generate the document)
+* graphviz (to generate the document)
+* jq (for analysis)
+* Python 3 and venv (for analysis and DOTALearningSMT)
+* A Web browser (to render the table showing the results)
 
 Installation of LearnTA
 -----------------------
@@ -39,7 +43,7 @@ Installation of DOTALearningSMT
 How to replicate the experiment results
 ---------------------------------------
 
-1. Learn DTAs with LearnTA by running one of the following scripts under `./utils/`.
+1. Learn DTAs with LearnTA by running one of the following scripts under `./utils/`. The logs are saved under `./logs/LearnTA`.
    - `run_LearnTA-all.sh` for all the benchmarks
        - This takes about 12 hours in total.
        - This works on a virtual machine with at least 64 GiB of RAM.
@@ -55,10 +59,10 @@ How to replicate the experiment results
    - `run_LearnTA-small.sh` for benchmarks other than `4_4_20`, `Unbalanced`, and `FDDI`
        - This takes about 15 minutes in total.
        - This works on a virtual machine with at least 8192 MiB of RAM.
-2. Learn OCDTAs with DOTALearnSMT by running `./utils/run_DOTALearnSMT.sh`
+2. Learn OCDTAs with DOTALearnSMT by running `./utils/run_DOTALearnSMT.sh`. The logs are saved under `./logs/DOTALearningSMT`.
    - This takes about five minutes in total.
-3. Generate a table showing the experiment result by running `./utils/print_table.sh` on the Desktop and executing it
-   - `./logs/table.html` will be generated on the Desktop
+3. Generate a table showing the experiment result by running `./utils/print_table.sh`.
+   - In addition to the table rendered in plain text, `./logs/table.html` will be generated
 4. Open `table.html` by a Web browser
 
 On reusability
@@ -74,7 +78,7 @@ We believe that our artifact is reusable because of the following reasons.
     - CMake
 - The next section shows how to use LearnTA for benchmarks beyond the paper.
 - The artifact is open source.
-- The README of LearnTA shows how to build and run the examples in environments other than the VM.
+- The README of LearnTA and other documents shows how to build and run the examples in environments other than the VM.
 
 How to use LearnTA for a custom benchmark
 -----------------------------------------
