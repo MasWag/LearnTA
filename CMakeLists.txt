@@ -1,10 +1,15 @@
+cmake_minimum_required(VERSION 3.1)
 project(LearnTA CXX)
 
-cmake_minimum_required(VERSION 3.1)
 set(CMAKE_CXX_FLAGS "-Wall -DBOOST_LOG_DYN_LINK=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-register")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE -DNDEBUG -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-flto -O3 -DRELEASE -DNDEBUG")
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+if(COMPILER_SUPPORTS_MARCH_NATIVE)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
