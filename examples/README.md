@@ -154,6 +154,17 @@ done
 ```
 -->
 
+Expected time to execute each command
+-------------------------------------
+
+Except for `4_4_20`, `FDDI` and `Unbalanced`, each command would take at most around 5 to 10 minutes. They work on a computer with 8192 MiB of RAM.
+
+For `Unbalanced`, it takes at most about 20-30 minutes. It takes significantly long time and large RAM for `Unbalanced` with 5 clocks, i.e., `../build/examples/learn_unbalanced_loop 5 5 1`. They work on a computer with 16 GiB of RAM for 1-4 clocks and with 32 GiB of RAM for 5 clocks.
+
+For `FDDI`, it takes at most about 3-4 hours. It works on a computer with 64 GiB of RAM.
+
+For `4_4_20`, it takes at most about 12 hours. It works on a computer with 64 GiB of RAM.
+
 References
 -----------
 
