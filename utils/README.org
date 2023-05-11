@@ -1,0 +1,45 @@
+#+TITLE: Utils
+#+AUTHOR: Masaki Waga
+
+This directory contains utility scripts for the experiments. The following list shows the summary.
+
+- `to_json.awk`: AWK script to construct a JSON file from an experiment log of LearnTA.
+  - The JSON file summarizes the statistics of the experiment, e.g., the number of the queries.
+- `to_json-octa.awk`: AWK script to construct a JSON file from an experiment log of DOTALearningSMT.
+- `schema.json`: The schema of the constructed JSON files.
+- `extract-octa-practical.jq`: jq script to extract the entries on practical OTA examples.
+
+* Usage  
+
+** =to_json.awk=
+
+This AWK script constructs a JSON file from an experiment log of LearnTA. This script receives the list of log files and summarize it in JSON. We recommend using, e.g., [[https://stedolan.github.io/jq/][jq]], to improve the indentation if you want to manually read the generated JSON file. A concrete usage example is as follows.
+
+#+BEGIN_SRC sh
+  ./to_json.awk result1.log result2.log result3.log
+#+END_SRC
+
+** =to_json-octa.awk=
+
+This AWK script constructs a JSON file from an experiment log of DOTALearningSMT. The usage is almost the same as =to_json.awk=. A concrete usage example is as follows.
+
+#+BEGIN_SRC sh
+  ./to_json-octa.awk result1-octa.log result2-octa.log result3-octa.log
+#+END_SRC
+
+** =schema.json=
+
+This is a [[https://json-schema.org/][JSON Schema]] representing the format of the log files. You can validate a json file, e.g., with [[jsonschema][jsonschema]] as follows.
+
+#+BEGIN_SRC sh
+  jsonschema --instance summary.json schema.json
+#+END_SRC
+
+** =extract-octa-practical.jq=
+
+This jq script extracts entries on practical OTA benchmarks from a JSON file constructed with the above AWK scripts. A concrete usage example is as follows.
+
+#+BEGIN_SRC sh
+  ./extract-octa-practical.jq result.json
+#+END_SRC
+

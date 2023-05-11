@@ -26,7 +26,13 @@ mkdir build
 cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make
 ```
 
+By default, it does not build any executable examples. To build them, please run, for example, the following command.
+
+```sh
+make learn_simple_dta learn_ota_json learn_unbalanced_loop learn_fddi unit_test
+```
+
 How to run examples
 -------------------
 
-The examples are in [`./examples`](./examples).
+The examples are in [`./examples`](./examples). See [`./doc/CAVAE2023-local.md`](./doc/CAVAE2023-local.md) how to reproduce the experimental results of our CAV paper.

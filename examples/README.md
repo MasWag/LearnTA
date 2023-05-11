@@ -3,8 +3,8 @@ Examples
 
 This directory contains example usage of LearnTA.
 
-Major files and directories
----------------------------
+Files and directories
+---------------------
 
 The following files and directories are relevant to reproduce the result in our paper [Waga'23]. Please execute `git submodule update --init` if `OTALearning` and `DOTALearningSMT` are empty.
 
