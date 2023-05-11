@@ -17,7 +17,10 @@ LearnTA is tested on Ubuntu (20.04 and 22.04) and macOS (Catalina 10.15, Big Sur
 * C++ compiler supporting C++17 and the corresponding libraries.
 * Boost (>= 1.59)
 * Eigen
+* TBB
 * CMake
+
+To generate the document, Doxygen and graphviz are also required.
 
 ### Instructions
 

@@ -12,7 +12,10 @@
   - C++ compiler supporting C++17 and the corresponding libraries.
   - Boost (>= 1.59)
   - Eigen
+  - TBB
   - CMake
+
+  To generate the document, Doxygen and graphviz are also required.
 
   @subsection Instructions
 

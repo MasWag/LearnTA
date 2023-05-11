@@ -13,6 +13,7 @@ Requirements
 * C++ compiler supporting C++17 and the corresponding libraries.
 * Boost (>= 1.59)
 * Eigen
+* TBB
 * CMake
 * Doxygen (to generate the document)
 * graphviz (to generate the document)
@@ -75,6 +76,7 @@ We believe that our artifact is reusable because of the following reasons.
     - C++ compiler supporting C++17 and the corresponding libraries.
     - Boost (>= 1.59)
     - Eigen
+    - TBB
     - CMake
 - The next section shows how to use LearnTA for benchmarks beyond the paper.
 - The artifact is open source.
