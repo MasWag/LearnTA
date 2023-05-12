@@ -39,21 +39,6 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test
 
-  macOS_Catalina:
-    runs-on: macos-10.15
-    strategy:
-      max-parallel: 4
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - name: Install required packages
-      run: brew install eigen boost tbb
-    - name: build and test
-      run: |
-        mkdir -p build
-        cd build && cmake .. && make unit_test && ./unit_test
-
   macOS_BigSur:
     runs-on: macos-11
     strategy:
@@ -84,6 +69,20 @@ jobs:
         mkdir -p build
         cd build && cmake .. && make unit_test && ./unit_test
 
+  macOS_Ventura:
+    runs-on: macos-13
+    strategy:
+      max-parallel: 4
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Install required packages
+      run: brew install eigen boost tbb
+    - name: build and test
+      run: |
+        mkdir -p build
+        cd build && cmake .. && make unit_test && ./unit_test
 
   arch_linux:
     runs-on: ubuntu-latest
