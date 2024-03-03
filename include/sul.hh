@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <cstdlib>
+
 namespace learnta {
   /*!
    * @brief Interface of the system under learning

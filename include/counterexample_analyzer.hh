@@ -44,6 +44,7 @@ namespace learnta {
     assert(eval(mappedWords.back()));
     // assert(!eval(mappedWords.front()));
     if (eval(mappedWords.front())) {
+      // This happens when the given DTA is not row-faithful. This should not happen.
       BOOST_LOG_TRIVIAL(error) << "DTA construction is not working well. hypothesis: " << hypothesis;
       for (const auto &morphism: morphisms) {
         BOOST_LOG_TRIVIAL(error) << "Morphism: " << morphism;

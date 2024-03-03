@@ -86,6 +86,8 @@ namespace learnta {
 
     /*!
      * @brief Split the given timed word with the morphism
+     *
+     * The given timed word is split such that the prefix is mapped by a morphism in this recognizable language.
      */
     [[nodiscard]] std::optional<SplitTriple> split(const TimedWord &word) const {
       // Make the regional elementary language containing word
