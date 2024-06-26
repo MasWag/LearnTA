@@ -93,7 +93,7 @@ namespace learnta {
      */
     void moveToP(const std::size_t index) {
       // index should not be in P yet
-      assert(pIndices.find(index) == pIndices.end());
+      assert(!this->inP(index));
       // The index should be in a valid range
       assert(index < prefixes.size());
       pIndices.insert(index);
@@ -108,19 +108,18 @@ namespace learnta {
       // fill the observation table
       refreshTable();
       // index should point P
-      assert(pIndices.find(index) != pIndices.end());
+      assert(this->inP(index));
       // the discrete successors of prefixes.at(index) should be in ext(P)
       assert(std::all_of(alphabet.begin(), alphabet.end(), [&](Alphabet c) {
         return 0 <= discreteSuccessors.at(std::make_pair(index, c)) &&
                discreteSuccessors.at(std::make_pair(index, c)) < prefixes.size();
       }));
       assert(std::all_of(alphabet.begin(), alphabet.end(), [&](Alphabet c) {
-        return pIndices.find(discreteSuccessors.at(std::make_pair(index, c))) == pIndices.end();
+        return !this->inP(discreteSuccessors.at(std::make_pair(index, c)));
       }));
-      assert(pIndices.find(index) != pIndices.end());
       // the continuous successor of prefixes.at(index) should be in ext(P)
       assert(continuousSuccessors.at(index) < prefixes.size());
-      assert(pIndices.find(continuousSuccessors.at(index)) == pIndices.end());
+      assert(!this->inP(continuousSuccessors.at(index)));
       // We add continuous successors to P if it is clearly not saturated
       if (!equivalentWithMemo(continuousSuccessors.at(index), index)) {
         this->moveToP(continuousSuccessors.at(index));
