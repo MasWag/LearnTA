@@ -110,48 +110,49 @@ $(function() {
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    assert(eval(mappedWords.back()));</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="comment">// assert(!eval(mappedWords.front()));</span></div>
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordflow">if</span> (eval(mappedWords.front())) {</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;DTA construction is not working well. hypothesis: &quot;</span> &lt;&lt; hypothesis;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;morphism: morphisms) {</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;        BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;Morphism: &quot;</span> &lt;&lt; morphism;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;      }</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mappedWord: mappedWords) {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;mappedWord: &quot;</span> &lt;&lt; mappedWord;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      }</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      <span class="keywordflow">throw</span> std::logic_error(<span class="stringliteral">&quot;Error in counter example analysis&quot;</span>);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;      <span class="comment">// The DTA construction is not working well. This happens only if the suffix is not refined enough</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="keyword">const</span> <span class="keyword">auto</span> elementary = <a class="code" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#ae468589e34cf43b5b7fd750a76fb2f79">ForwardRegionalElementaryLanguage::fromTimedWord</a>(word);</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      <span class="keyword">const</span> <span class="keyword">auto</span> prefixes = elementary.prefixes();</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;prefix: boost::adaptors::reverse(prefixes)) {</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> suffix = elementary.suffix(prefix).sample();</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keyword">auto</span> it = std::find_if(currentSuffixes.begin(), currentSuffixes.end(), [&amp;] (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;suffixLang) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;          return suffixLang.contains(suffix);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        });</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        <span class="keywordflow">if</span> (it == currentSuffixes.end()) {</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;          <span class="keywordflow">return</span> suffix;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        }</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;      }</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <span class="keywordflow">for</span> (std::size_t index = 0; index + 1 &lt; mappedWords.size(); ++index) {</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;      <span class="keywordflow">if</span> (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        <span class="keywordflow">if</span> (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&amp;](<span class="keyword">const</span> ElementaryLanguage &amp;suffix) {</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;          return !suffix.contains(suffixes.at(index + 1));</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        })) {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;          <span class="keywordflow">return</span> suffixes.at(index + 1);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;        } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; suffixes.at(index + 1) &lt;&lt; <span class="stringliteral">&quot; is a counterexample but not fresh!!&quot;</span>;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;        }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      }</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">return</span> std::nullopt;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  }</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;      <span class="comment">// This happens when the given DTA is not row-faithful. This should not happen.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;DTA construction is not working well. hypothesis: &quot;</span> &lt;&lt; hypothesis;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;morphism: morphisms) {</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;Morphism: &quot;</span> &lt;&lt; morphism;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;      }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;mappedWord: mappedWords) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        BOOST_LOG_TRIVIAL(error) &lt;&lt; <span class="stringliteral">&quot;mappedWord: &quot;</span> &lt;&lt; mappedWord;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;      }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;      <span class="keywordflow">throw</span> std::logic_error(<span class="stringliteral">&quot;Error in counter example analysis&quot;</span>);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;      <span class="comment">// The DTA construction is not working well. This happens only if the suffix is not refined enough</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;      <span class="keyword">const</span> <span class="keyword">auto</span> elementary = <a class="code" href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#ae468589e34cf43b5b7fd750a76fb2f79">ForwardRegionalElementaryLanguage::fromTimedWord</a>(word);</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;      <span class="keyword">const</span> <span class="keyword">auto</span> prefixes = elementary.prefixes();</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;      <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;prefix: boost::adaptors::reverse(prefixes)) {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        <span class="keyword">const</span> <span class="keyword">auto</span> suffix = elementary.suffix(prefix).sample();</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        <span class="keyword">auto</span> it = std::find_if(currentSuffixes.begin(), currentSuffixes.end(), [&amp;] (<span class="keyword">const</span> <span class="keyword">auto</span> &amp;suffixLang) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;          return suffixLang.contains(suffix);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        });</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        <span class="keywordflow">if</span> (it == currentSuffixes.end()) {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;          <span class="keywordflow">return</span> suffix;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        }</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;      }</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;      <span class="keywordflow">return</span> std::nullopt;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordflow">for</span> (std::size_t index = 0; index + 1 &lt; mappedWords.size(); ++index) {</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;      <span class="keywordflow">if</span> (eval(mappedWords.at(index)) != eval(mappedWords.at(index + 1))) {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        <span class="keywordflow">if</span> (std::all_of(currentSuffixes.begin(), currentSuffixes.end(), [&amp;](<span class="keyword">const</span> ElementaryLanguage &amp;suffix) {</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;          return !suffix.contains(suffixes.at(index + 1));</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;        })) {</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;          <span class="keywordflow">return</span> suffixes.at(index + 1);</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;        } <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;          BOOST_LOG_TRIVIAL(debug) &lt;&lt; suffixes.at(index + 1) &lt;&lt; <span class="stringliteral">&quot; is a counterexample but not fresh!!&quot;</span>;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;        }</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;      }</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    }</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">return</span> std::nullopt;</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  }</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;}</div>
 <div class="ttc" id="aclasslearnta_1_1ForwardRegionalElementaryLanguage_html_ae468589e34cf43b5b7fd750a76fb2f79"><div class="ttname"><a href="classlearnta_1_1ForwardRegionalElementaryLanguage.html#ae468589e34cf43b5b7fd750a76fb2f79">learnta::ForwardRegionalElementaryLanguage::fromTimedWord</a></div><div class="ttdeci">static ForwardRegionalElementaryLanguage fromTimedWord(const TimedWord &amp;timedWord)</div><div class="ttdoc">Construct the fractional elementary language containing the given timed word.</div><div class="ttdef"><b>Definition:</b> forward_regional_elementary_language.hh:46</div></div>
 <div class="ttc" id="aclasslearnta_1_1MembershipOracle_html"><div class="ttname"><a href="classlearnta_1_1MembershipOracle.html">learnta::MembershipOracle</a></div><div class="ttdoc">Interface of a membership oracle.</div><div class="ttdef"><b>Definition:</b> membership_oracle.hh:17</div></div>
 <div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html">learnta::RecognizableLanguage</a></div><div class="ttdoc">Recognizable timed language in [MP04].</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:18</div></div>
 <div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html_a35bb486fbf4d8c670bfb6f8cee39302b"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html#a35bb486fbf4d8c670bfb6f8cee39302b">learnta::RecognizableLanguage::inPrefixes</a></div><div class="ttdeci">bool inPrefixes(const TimedWord &amp;word) const</div><div class="ttdoc">Returns if the given timed word is in the prefixes.</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:47</div></div>
-<div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html_a90824ef56d3f12446b7f42414d145864"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html#a90824ef56d3f12446b7f42414d145864">learnta::RecognizableLanguage::split</a></div><div class="ttdeci">std::optional&lt; SplitTriple &gt; split(const TimedWord &amp;word) const</div><div class="ttdoc">Split the given timed word with the morphism.</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:90</div></div>
-<div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html_ae9de2125adf094c6557b4f11e1ed19f6"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html#ae9de2125adf094c6557b4f11e1ed19f6">learnta::RecognizableLanguage::contains</a></div><div class="ttdeci">bool contains(TimedWord word) const</div><div class="ttdoc">Returns if this recognizable timed language contains the given timed word.</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:137</div></div>
+<div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html_a90824ef56d3f12446b7f42414d145864"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html#a90824ef56d3f12446b7f42414d145864">learnta::RecognizableLanguage::split</a></div><div class="ttdeci">std::optional&lt; SplitTriple &gt; split(const TimedWord &amp;word) const</div><div class="ttdoc">Split the given timed word with the morphism.</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:92</div></div>
+<div class="ttc" id="aclasslearnta_1_1RecognizableLanguage_html_ae9de2125adf094c6557b4f11e1ed19f6"><div class="ttname"><a href="classlearnta_1_1RecognizableLanguage.html#ae9de2125adf094c6557b4f11e1ed19f6">learnta::RecognizableLanguage::contains</a></div><div class="ttdeci">bool contains(TimedWord word) const</div><div class="ttdoc">Returns if this recognizable timed language contains the given timed word.</div><div class="ttdef"><b>Definition:</b> recognizable_languages.hh:139</div></div>
 <div class="ttc" id="aclasslearnta_1_1TimedWord_html"><div class="ttname"><a href="classlearnta_1_1TimedWord.html">learnta::TimedWord</a></div><div class="ttdoc">A timed word.</div><div class="ttdef"><b>Definition:</b> timed_word.hh:25</div></div>
 <div class="ttc" id="anamespacelearnta_html"><div class="ttname"><a href="namespacelearnta.html">learnta</a></div><div class="ttdef"><b>Definition:</b> experiment_runner.hh:23</div></div>
 <div class="ttc" id="anamespacelearnta_html_a935cc0fbf3d337bfa6fb280c517e6f67"><div class="ttname"><a href="namespacelearnta.html#a935cc0fbf3d337bfa6fb280c517e6f67">learnta::analyzeCEX</a></div><div class="ttdeci">static std::optional&lt; TimedWord &gt; analyzeCEX(const TimedWord &amp;word, MembershipOracle &amp;oracle, const RecognizableLanguage &amp;hypothesis, const std::vector&lt; BackwardRegionalElementaryLanguage &gt; &amp;currentSuffixes={})</div><div class="ttdoc">Rivest-Schapire-style counterexample analysis.</div><div class="ttdef"><b>Definition:</b> counterexample_analyzer.hh:24</div></div>
